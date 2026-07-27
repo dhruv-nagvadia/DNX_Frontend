@@ -1,0 +1,121 @@
+.wrapper {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  min-height: 100vh;
+}
+
+/* ── Left brand panel ─────────────────────────────────────────────── */
+.brand {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: var(--color-white);
+  padding: var(--space-xl) clamp(24px, 5vw, 64px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Decorative soft circles */
+.brand::before,
+.brand::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+}
+.brand::before {
+  width: 420px;
+  height: 420px;
+  top: -140px;
+  right: -120px;
+}
+.brand::after {
+  width: 260px;
+  height: 260px;
+  bottom: -100px;
+  left: -80px;
+}
+
+.logo {
+  position: relative;
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.brandBody {
+  position: relative;
+}
+
+.headline {
+  font-size: clamp(28px, 3.2vw, 42px);
+  font-weight: 800;
+  line-height: 1.15;
+  margin: 0 0 var(--space-md);
+}
+
+.subhead {
+  font-size: var(--font-size-lg);
+  opacity: 0.9;
+  margin: 0 0 var(--space-xl);
+  max-width: 440px;
+}
+
+.benefits {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.benefit {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--font-size-md);
+}
+
+.check {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+
+.footer {
+  position: relative;
+  font-size: var(--font-size-sm);
+  opacity: 0.75;
+}
+
+/* ── Right form panel ─────────────────────────────────────────────── */
+.formPanel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl) var(--space-lg);
+  background: var(--color-background);
+}
+
+.formCard {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* ── Responsive: hide brand panel on small screens ────────────────── */
+@media (max-width: 860px) {
+  .wrapper {
+    grid-template-columns: 1fr;
+  }
+  .brand {
+    display: none;
+  }
+}

@@ -48,9 +48,8 @@ export function useLoginPage() {
             role: result.role,
           }),
         );
-        // Providers go to their dashboard (which redirects to onboarding if not
-        // set up yet); customers go to the home page.
-        navigate(result.role === 'PROVIDER' ? '/dashboard' : '/');
+        // Providers see all their businesses; customers go to the home page.
+        navigate(result.role === 'PROVIDER' ? '/businesses' : '/');
       } catch {
         setServerError('Invalid email or password.');
       }

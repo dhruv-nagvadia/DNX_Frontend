@@ -1,26 +1,29 @@
 import { useRef } from 'react';
 import { Navigate } from 'react-router-dom';
+import { ArrowLeft, Pencil, Phone, Mail, MapPin, Star, BadgeCheck, Clock, ImagePlus } from 'lucide-react';
 
-import { categoryIcon } from '@/utils/categoryIcons';
-import { useDashboardPage } from './useDashboardPage';
-import styles from './DashboardPage.module.css';
+import { Button } from '@/components/Button';
+import { CategoryIcon } from '@/components/CategoryIcon';
+import { useBusinessDetail } from './useBusinessDetail';
+import styles from './BusinessDetailPage.module.css';
 
-/** JSX only — logic comes from useDashboardPage. */
-export default function DashboardPage() {
-  const { provider, isLoading, noProfile, uploading, addImages, logout } = useDashboardPage();
+/** JSX only — logic comes from useBusinessDetail. */
+export default function BusinessDetailPage() {
+  const { business, isLoading, notFound, uploading, addImages, goToEdit, goBack } =
+    useBusinessDetail();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  if (noProfile) return <Navigate to="/onboarding" replace />;
+  if (notFound) return <Navigate to="/businesses" replace />;
 
-  if (isLoading || !provider) {
+  if (isLoading || !business) {
     return (
       <div className={styles.page}>
-        <div className={styles.center}>Loading your business…</div>
+        <div className={styles.center}>Loading business…</div>
       </div>
     );
   }
 
-  const address = [provider.addressLine, provider.city, provider.state, provider.postalCode]
+  const address = [business.addressLine, business.city, business.state, business.postalCode]
     .filter(Boolean)
     .join(', ');
 
@@ -28,64 +31,81 @@ export default function DashboardPage() {
     <div className={styles.page}>
       <header className={styles.topbar}>
         <div className={styles.topbarInner}>
-          <span className={styles.logo}>DNX for Business</span>
-          <button className={styles.logout} onClick={logout}>
-            Log out
+          <button className={styles.back} onClick={goBack}>
+            <ArrowLeft size={16} /> All businesses
           </button>
+          <Button className={styles.editBtn} variant="secondary" onClick={goToEdit}>
+            <Pencil size={16} /> Edit
+          </Button>
         </div>
       </header>
 
       <div className={styles.container}>
-        {/* Cover */}
         <div className={styles.cover}>
-          {provider.images.length > 0 ? (
-            <img className={styles.coverImg} src={provider.images[0]} alt={provider.businessName} />
+          {business.images.length > 0 ? (
+            <img className={styles.coverImg} src={business.images[0]} alt={business.businessName} />
           ) : (
-            <span className={styles.coverEmoji}>{categoryIcon(provider.category.slug)}</span>
+            <CategoryIcon
+              slug={business.category.slug}
+              size={64}
+              strokeWidth={1.4}
+              className={styles.coverIcon}
+            />
           )}
         </div>
 
-        {/* Header */}
         <section className={styles.headerCard}>
           <div className={styles.titleRow}>
             <div>
-              <h1 className={styles.bizName}>{provider.businessName}</h1>
+              <h1 className={styles.bizName}>{business.businessName}</h1>
               <div className={styles.badges}>
                 <span className={styles.categoryChip}>
-                  {categoryIcon(provider.category.slug)} {provider.category.name}
+                  <CategoryIcon slug={business.category.slug} size={14} /> {business.category.name}
                 </span>
-                {provider.isVerified ? (
-                  <span className={styles.verified}>✓ Verified</span>
+                {business.isVerified ? (
+                  <span className={styles.verified}>
+                    <BadgeCheck size={14} /> Verified
+                  </span>
                 ) : (
-                  <span className={styles.pending}>● Verification pending</span>
+                  <span className={styles.pending}>
+                    <Clock size={14} /> Verification pending
+                  </span>
                 )}
               </div>
             </div>
             <span className={styles.rating}>
-              ⭐ {provider.ratingAvg.toFixed(1)} ({provider.ratingCount} reviews)
+              <Star size={15} /> {business.ratingAvg.toFixed(1)} ({business.ratingCount} reviews)
             </span>
           </div>
 
           <div className={styles.infoGrid}>
             <div className={styles.infoItem}>
-              <span className={styles.infoLabel}>Phone</span>
-              <span className={styles.infoValue}>{provider.phone}</span>
+              <Phone className={styles.infoIcon} size={18} />
+              <div>
+                <div className={styles.infoLabel}>Phone</div>
+                <div className={styles.infoValue}>{business.phone}</div>
+              </div>
             </div>
             <div className={styles.infoItem}>
-              <span className={styles.infoLabel}>Email</span>
-              <span className={styles.infoValue}>{provider.email || '—'}</span>
+              <Mail className={styles.infoIcon} size={18} />
+              <div>
+                <div className={styles.infoLabel}>Email</div>
+                <div className={styles.infoValue}>{business.email || '—'}</div>
+              </div>
             </div>
             <div className={styles.infoItem}>
-              <span className={styles.infoLabel}>Address</span>
-              <span className={styles.infoValue}>{address || '—'}</span>
+              <MapPin className={styles.infoIcon} size={18} />
+              <div>
+                <div className={styles.infoLabel}>Address</div>
+                <div className={styles.infoValue}>{address || '—'}</div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Stats */}
         <div className={styles.stats}>
           <div className={styles.stat}>
-            <div className={styles.statValue}>{provider.services.length}</div>
+            <div className={styles.statValue}>{business.services.length}</div>
             <div className={styles.statLabel}>Services</div>
           </div>
           <div className={styles.stat}>
@@ -93,24 +113,22 @@ export default function DashboardPage() {
             <div className={styles.statLabel}>Bookings</div>
           </div>
           <div className={styles.stat}>
-            <div className={styles.statValue}>{provider.images.length}</div>
+            <div className={styles.statValue}>{business.images.length}</div>
             <div className={styles.statLabel}>Photos</div>
           </div>
         </div>
 
-        {/* About */}
         <section className={styles.card}>
           <div className={styles.cardHead}>
             <h3 className={styles.cardTitle}>About</h3>
           </div>
-          {provider.description ? (
-            <p className={styles.about}>{provider.description}</p>
+          {business.description ? (
+            <p className={styles.about}>{business.description}</p>
           ) : (
             <p className={styles.muted}>No description added yet.</p>
           )}
         </section>
 
-        {/* Photos */}
         <section className={styles.card}>
           <div className={styles.cardHead}>
             <h3 className={styles.cardTitle}>Photos</h3>
@@ -119,7 +137,7 @@ export default function DashboardPage() {
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
             >
-              {uploading ? 'Uploading…' : '+ Add photos'}
+              <ImagePlus size={16} /> {uploading ? 'Uploading…' : 'Add photos'}
             </button>
             <input
               ref={fileInputRef}
@@ -134,11 +152,11 @@ export default function DashboardPage() {
             />
           </div>
 
-          {provider.images.length > 0 ? (
+          {business.images.length > 0 ? (
             <div className={styles.gallery}>
-              {provider.images.map((url) => (
+              {business.images.map((url) => (
                 <div className={styles.galleryItem} key={url}>
-                  <img className={styles.galleryImg} src={url} alt={provider.businessName} />
+                  <img className={styles.galleryImg} src={url} alt={business.businessName} />
                 </div>
               ))}
             </div>
@@ -147,7 +165,6 @@ export default function DashboardPage() {
           )}
         </section>
 
-        {/* Services (placeholder for next phase) */}
         <section className={styles.card}>
           <div className={styles.cardHead}>
             <h3 className={styles.cardTitle}>Services</h3>

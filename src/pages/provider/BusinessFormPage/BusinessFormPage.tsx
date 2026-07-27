@@ -1,15 +1,17 @@
 import { useRef } from 'react';
+import { ArrowLeft, Camera, Check, X } from 'lucide-react';
 
 import { TextField } from '@/components/TextField';
 import { Button } from '@/components/Button';
-import { categoryIcon } from '@/utils/categoryIcons';
-import { useOnboardingPage } from './useOnboardingPage';
-import styles from './OnboardingPage.module.css';
+import { CategoryIcon } from '@/components/CategoryIcon';
+import { useBusinessForm } from './useBusinessForm';
+import styles from './BusinessFormPage.module.css';
 
-/** JSX only — logic comes from useOnboardingPage. */
-export default function OnboardingPage() {
+/** JSX only — logic comes from useBusinessForm. Handles both create and edit. */
+export default function BusinessFormPage() {
   const {
-    userName,
+    isEdit,
+    loadingExisting,
     categories,
     categoriesLoading,
     form,
@@ -17,31 +19,21 @@ export default function OnboardingPage() {
     errors,
     serverError,
     submitting,
-    success,
     maxImages,
     selectCategory,
     onChange,
     addImages,
     removeImage,
     onSubmit,
-    goToDashboard,
-  } = useOnboardingPage();
+    goBack,
+  } = useBusinessForm();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  if (success) {
+  if (loadingExisting) {
     return (
       <div className={styles.page}>
-        <div className={styles.success}>
-          <div className={styles.successIcon}>✓</div>
-          <h2 className={styles.title}>Your business is live! 🎉</h2>
-          <p className={styles.subtitle}>
-            Customers can now discover <strong>{form.businessName}</strong> on DNX.
-          </p>
-          <Button style={{ marginTop: 24 }} onClick={goToDashboard}>
-            Go to dashboard
-          </Button>
-        </div>
+        <div className={styles.center}>Loading business…</div>
       </div>
     );
   }
@@ -50,27 +42,26 @@ export default function OnboardingPage() {
     <div className={styles.page}>
       <div className={styles.topbar}>
         <div className={styles.topbarInner}>
-          <span className={styles.logo}>DNX for Business</span>
-          <span className={styles.topbarLabel}>Set up your business</span>
+          <button type="button" className={styles.back} onClick={goBack}>
+            <ArrowLeft size={16} /> Back
+          </button>
         </div>
       </div>
 
       <form onSubmit={onSubmit} noValidate>
         <div className={styles.container}>
-          <header className={styles.header}>
-            <h1 className={styles.title}>
-              Welcome{userName ? `, ${userName}` : ''} 👋
-            </h1>
-            <p className={styles.subtitle}>
-              Complete your business profile so customers can find and book you.
-            </p>
-          </header>
+          <h1 className={styles.title}>{isEdit ? 'Edit business' : 'Add a new business'}</h1>
+          <p className={styles.subtitle}>
+            {isEdit
+              ? 'Update your business details below.'
+              : 'Tell customers about your business so they can find and book you.'}
+          </p>
 
-          {/* Step 1 — business type */}
+          {/* Step 1 — type */}
           <section className={styles.card}>
             <div className={styles.sectionHead}>
               <span className={styles.stepBadge}>1</span>
-              <h3 className={styles.sectionTitle}>What type of business do you run?</h3>
+              <h3 className={styles.sectionTitle}>Business type</h3>
             </div>
             <p className={styles.sectionHint}>Choose the category that fits best.</p>
 
@@ -89,8 +80,8 @@ export default function OnboardingPage() {
                       onClick={() => selectCategory(c.id)}
                       onKeyDown={(e) => (e.key === 'Enter' ? selectCategory(c.id) : undefined)}
                     >
-                      {active && <span className={styles.tick}>✓</span>}
-                      <span className={styles.categoryIcon}>{categoryIcon(c.slug)}</span>
+                      {active && <Check className={styles.tick} size={16} />}
+                      <CategoryIcon slug={c.slug} size={26} strokeWidth={1.6} />
                       <span className={styles.categoryName}>{c.name}</span>
                     </div>
                   );
@@ -106,8 +97,6 @@ export default function OnboardingPage() {
               <span className={styles.stepBadge}>2</span>
               <h3 className={styles.sectionTitle}>Business details</h3>
             </div>
-            <p className={styles.sectionHint}>Basic information customers will see.</p>
-
             <TextField
               label="Business name"
               name="businessName"
@@ -149,67 +138,67 @@ export default function OnboardingPage() {
             />
           </section>
 
-          {/* Step 3 — photos */}
-          <section className={styles.card}>
-            <div className={styles.sectionHead}>
-              <span className={styles.stepBadge}>3</span>
-              <h3 className={styles.sectionTitle}>Business photos</h3>
-            </div>
-            <p className={styles.sectionHint}>
-              Add up to {maxImages} photos. The first one becomes your cover image.
-            </p>
-
-            <div
-              className={styles.dropzone}
-              role="button"
-              tabIndex={0}
-              onClick={() => fileInputRef.current?.click()}
-              onKeyDown={(e) => (e.key === 'Enter' ? fileInputRef.current?.click() : undefined)}
-            >
-              <span className={styles.dropzoneIcon}>📷</span>
-              <span className={styles.dropzoneText}>Click to upload photos</span>
-              <span className={styles.dropzoneHint}>JPG, PNG or WEBP · up to 5MB each</span>
-            </div>
-            <input
-              ref={fileInputRef}
-              className={styles.hiddenInput}
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={(e) => {
-                addImages(e.target.files);
-                e.target.value = '';
-              }}
-            />
-
-            {images.length > 0 && (
-              <div className={styles.thumbs}>
-                {images.map((img, i) => (
-                  <div className={styles.thumb} key={img.preview}>
-                    <img className={styles.thumbImg} src={img.preview} alt={`Photo ${i + 1}`} />
-                    {i === 0 && <span className={styles.coverBadge}>Cover</span>}
-                    <button
-                      type="button"
-                      className={styles.thumbRemove}
-                      onClick={() => removeImage(i)}
-                      aria-label="Remove photo"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ))}
+          {/* Step 3 — photos (create only; edit manages photos on the detail page) */}
+          {!isEdit && (
+            <section className={styles.card}>
+              <div className={styles.sectionHead}>
+                <span className={styles.stepBadge}>3</span>
+                <h3 className={styles.sectionTitle}>Business photos</h3>
               </div>
-            )}
-          </section>
+              <p className={styles.sectionHint}>
+                Add up to {maxImages} photos. The first one becomes your cover.
+              </p>
+
+              <div
+                className={styles.dropzone}
+                role="button"
+                tabIndex={0}
+                onClick={() => fileInputRef.current?.click()}
+                onKeyDown={(e) => (e.key === 'Enter' ? fileInputRef.current?.click() : undefined)}
+              >
+                <Camera size={28} />
+                <span className={styles.dropzoneText}>Click to upload photos</span>
+                <span className={styles.dropzoneHint}>JPG, PNG or WEBP · up to 5MB each</span>
+              </div>
+              <input
+                ref={fileInputRef}
+                className={styles.hiddenInput}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(e) => {
+                  addImages(e.target.files);
+                  e.target.value = '';
+                }}
+              />
+
+              {images.length > 0 && (
+                <div className={styles.thumbs}>
+                  {images.map((img, i) => (
+                    <div className={styles.thumb} key={img.preview}>
+                      <img className={styles.thumbImg} src={img.preview} alt={`Photo ${i + 1}`} />
+                      {i === 0 && <span className={styles.coverBadge}>Cover</span>}
+                      <button
+                        type="button"
+                        className={styles.thumbRemove}
+                        onClick={() => removeImage(i)}
+                        aria-label="Remove photo"
+                      >
+                        <X size={13} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
 
           {/* Step 4 — location */}
           <section className={styles.card}>
             <div className={styles.sectionHead}>
-              <span className={styles.stepBadge}>4</span>
+              <span className={styles.stepBadge}>{isEdit ? '3' : '4'}</span>
               <h3 className={styles.sectionTitle}>Location</h3>
             </div>
-            <p className={styles.sectionHint}>Helps nearby customers find you.</p>
-
             <TextField
               label="Address (optional)"
               name="addressLine"
@@ -245,12 +234,11 @@ export default function OnboardingPage() {
           {serverError && <p className={styles.serverError}>{serverError}</p>}
         </div>
 
-        {/* Sticky action bar */}
         <div className={styles.actionBar}>
           <div className={styles.actionInner}>
             <span className={styles.actionNote}>You can edit all of this later.</span>
             <Button type="submit" loading={submitting}>
-              Create business profile
+              {isEdit ? 'Save changes' : 'Create business'}
             </Button>
           </div>
         </div>

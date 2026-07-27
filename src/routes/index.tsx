@@ -5,8 +5,9 @@ import { useAppSelector } from '@/redux/hooks';
 import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
 import HomePage from '@/pages/home/HomePage';
-import OnboardingPage from '@/pages/provider/OnboardingPage';
-import DashboardPage from '@/pages/provider/DashboardPage';
+import BusinessesPage from '@/pages/provider/BusinessesPage';
+import BusinessFormPage from '@/pages/provider/BusinessFormPage';
+import BusinessDetailPage from '@/pages/provider/BusinessDetailPage';
 
 /** Requires an authenticated user; otherwise sends to /login. */
 function Protected({ children }: { children: ReactElement }) {
@@ -24,7 +25,7 @@ function PublicOnly({ children }: { children: ReactElement }) {
 function RootLanding() {
   const { isLoggedIn, currentUser } = useAppSelector((s) => s.user);
   if (!isLoggedIn) return <Navigate to="/login" replace />;
-  if (currentUser?.role === 'PROVIDER') return <Navigate to="/dashboard" replace />;
+  if (currentUser?.role === 'PROVIDER') return <Navigate to="/businesses" replace />;
   return <HomePage />;
 }
 
@@ -46,18 +47,34 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/onboarding',
+    path: '/businesses',
     element: (
       <Protected>
-        <OnboardingPage />
+        <BusinessesPage />
       </Protected>
     ),
   },
   {
-    path: '/dashboard',
+    path: '/businesses/new',
     element: (
       <Protected>
-        <DashboardPage />
+        <BusinessFormPage />
+      </Protected>
+    ),
+  },
+  {
+    path: '/businesses/:id',
+    element: (
+      <Protected>
+        <BusinessDetailPage />
+      </Protected>
+    ),
+  },
+  {
+    path: '/businesses/:id/edit',
+    element: (
+      <Protected>
+        <BusinessFormPage />
       </Protected>
     ),
   },

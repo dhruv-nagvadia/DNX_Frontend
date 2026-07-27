@@ -7,7 +7,7 @@ import { ApiEnvelope, Paginated } from '../types';
 export const providerApi = createApi({
   reducerPath: 'providerApi',
   baseQuery: axiosBaseQuery(),
-  tagTypes: ['Providers', 'Provider', 'MyProvider'],
+  tagTypes: ['Providers', 'Provider', 'MyBusinesses', 'MyBusiness'],
   endpoints: (builder) => ({
     getProviders: builder.query<Paginated<Provider>, ListProvidersParams | void>({
       query: (params) => ({
@@ -25,29 +25,43 @@ export const providerApi = createApi({
       providesTags: (_result, _error, id) => [{ type: 'Provider', id }],
     }),
 
-    // Provider creates their own business profile (requires PROVIDER auth).
+    // Create a new business (a provider can own many).
     createProvider: builder.mutation<Provider, CreateProviderRequest>({
       query: (data) => ({ endpoint: endpoints.providers, method: 'post', data }),
       transformResponse: (res: ApiEnvelope<Provider>) => res.data,
-      invalidatesTags: ['Providers', 'MyProvider'],
+      invalidatesTags: ['Providers', 'MyBusinesses'],
     }),
 
-    // The logged-in provider's own profile (for the dashboard).
-    getMyProvider: builder.query<Provider, void>({
-      query: () => ({ endpoint: endpoints.myProvider, method: 'get' }),
+    // All businesses owned by the logged-in provider (businesses list).
+    getMyBusinesses: builder.query<Provider[], void>({
+      query: () => ({ endpoint: endpoints.myProviders, method: 'get' }),
+      transformResponse: (res: ApiEnvelope<Provider[]>) => res.data,
+      providesTags: ['MyBusinesses'],
+    }),
+
+    // One owned business (detail / edit).
+    getMyBusiness: builder.query<Provider, string>({
+      query: (id) => ({ endpoint: endpoints.myProviderById(id), method: 'get' }),
       transformResponse: (res: ApiEnvelope<Provider>) => res.data,
-      providesTags: ['MyProvider'],
+      providesTags: (_r, _e, id) => [{ type: 'MyBusiness', id }],
     }),
 
-    // Upload business gallery images (multipart/form-data).
-    uploadProviderImages: builder.mutation<Provider, FormData>({
-      query: (formData) => ({
-        endpoint: endpoints.myProviderImages,
+    // Update an owned business.
+    updateBusiness: builder.mutation<Provider, { id: string; data: Partial<CreateProviderRequest> }>({
+      query: ({ id, data }) => ({ endpoint: endpoints.myProviderById(id), method: 'patch', data }),
+      transformResponse: (res: ApiEnvelope<Provider>) => res.data,
+      invalidatesTags: (_r, _e, { id }) => [{ type: 'MyBusiness', id }, 'MyBusinesses'],
+    }),
+
+    // Upload gallery images to a specific owned business (multipart/form-data).
+    uploadBusinessImages: builder.mutation<Provider, { id: string; formData: FormData }>({
+      query: ({ id, formData }) => ({
+        endpoint: endpoints.myProviderImages(id),
         method: 'post',
         data: formData,
       }),
       transformResponse: (res: ApiEnvelope<Provider>) => res.data,
-      invalidatesTags: ['MyProvider'],
+      invalidatesTags: (_r, _e, { id }) => [{ type: 'MyBusiness', id }, 'MyBusinesses'],
     }),
   }),
 });
@@ -57,6 +71,8 @@ export const {
   useLazyGetProvidersQuery,
   useGetProviderByIdQuery,
   useCreateProviderMutation,
-  useGetMyProviderQuery,
-  useUploadProviderImagesMutation,
+  useGetMyBusinessesQuery,
+  useGetMyBusinessQuery,
+  useUpdateBusinessMutation,
+  useUploadBusinessImagesMutation,
 } = providerApi;

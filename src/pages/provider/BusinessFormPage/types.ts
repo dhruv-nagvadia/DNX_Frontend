@@ -1,4 +1,4 @@
-export interface OnboardingForm {
+export interface BusinessForm {
   categoryId: string;
   businessName: string;
   phone: string;
@@ -10,10 +10,9 @@ export interface OnboardingForm {
   postalCode: string;
 }
 
-export type OnboardingErrors = Partial<Record<keyof OnboardingForm, string>>;
+export type BusinessFormErrors = Partial<Record<keyof BusinessForm, string>>;
 
 export interface PickedImage {
   file: File;
-  /** Object URL for local preview before upload. */
   preview: string;
 }

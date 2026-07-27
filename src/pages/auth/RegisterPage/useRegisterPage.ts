@@ -60,8 +60,8 @@ export function useRegisterPage() {
             role: result.role,
           }),
         );
-        // Next step: add business details.
-        navigate('/onboarding');
+        // Next step: create their first business.
+        navigate('/businesses/new');
       } catch (err) {
         const status = (err as { status?: number })?.status;
         setServerError(

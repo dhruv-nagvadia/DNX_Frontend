@@ -14,11 +14,14 @@ export const endpoints = {
   // Categories
   categories: '/categories',
 
-  // Providers
+  // Providers (public)
   providers: '/providers',
   providerById: (id: string) => `/providers/${id}`,
-  myProvider: '/providers/me',
-  myProviderImages: '/providers/me/images',
+
+  // My businesses (provider-owned)
+  myProviders: '/providers/me',
+  myProviderById: (id: string) => `/providers/me/${id}`,
+  myProviderImages: (id: string) => `/providers/me/${id}/images`,
 
   // Bookings
   myBookings: '/bookings/mine',

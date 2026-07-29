@@ -71,7 +71,8 @@ export default function BusinessesPage() {
                   <h3 className={styles.bizName}>{biz.businessName}</h3>
                   <div className={styles.chipRow}>
                     <span className={styles.categoryChip}>
-                      <CategoryIcon slug={biz.category.slug} size={13} /> {biz.category.name}
+                      <CategoryIcon slug={biz.category.slug} size={13} />{' '}
+                      {biz.subcategory?.name ?? biz.category.name}
                     </span>
                   </div>
                   {biz.city && (

@@ -60,7 +60,8 @@ export default function BusinessDetailPage() {
               <h1 className={styles.bizName}>{business.businessName}</h1>
               <div className={styles.badges}>
                 <span className={styles.categoryChip}>
-                  <CategoryIcon slug={business.category.slug} size={14} /> {business.category.name}
+                  <CategoryIcon slug={business.category.slug} size={14} />{' '}
+                  {business.subcategory?.name ?? business.category.name}
                 </span>
                 {business.isVerified ? (
                   <span className={styles.verified}>

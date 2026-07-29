@@ -7,7 +7,8 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export function validateBusiness(form: BusinessForm): BusinessFormErrors {
   const errors: BusinessFormErrors = {};
 
-  if (!form.categoryId) errors.categoryId = 'Please choose your business type';
+  if (!form.categoryId) errors.categoryId = 'Please choose a category';
+  else if (!form.subcategoryId) errors.subcategoryId = 'Please choose your business type';
 
   if (!form.businessName.trim()) errors.businessName = 'Business name is required';
   else if (form.businessName.trim().length < 2) errors.businessName = 'Enter a valid business name';

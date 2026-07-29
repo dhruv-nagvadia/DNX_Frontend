@@ -1,4 +1,4 @@
-import { Category } from '../category/types';
+import { Category, Subcategory } from '../category/types';
 
 export interface Service {
   id: string;
@@ -24,6 +24,7 @@ export interface Provider {
   ratingCount: number;
   isVerified: boolean;
   category: Category;
+  subcategory?: Subcategory | null;
   services: Service[];
 }
 
@@ -38,6 +39,7 @@ export interface ListProvidersParams {
 export interface CreateProviderRequest {
   businessName: string;
   categoryId: string;
+  subcategoryId?: string;
   phone: string;
   email?: string;
   description?: string;

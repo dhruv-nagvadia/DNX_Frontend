@@ -14,6 +14,7 @@ import { validateBusiness } from './validation';
 
 const EMPTY: BusinessForm = {
   categoryId: '',
+  subcategoryId: '',
   businessName: '',
   phone: '',
   email: '',
@@ -51,6 +52,7 @@ export function useBusinessForm() {
     if (existing) {
       setForm({
         categoryId: existing.category.id,
+        subcategoryId: existing.subcategory?.id ?? '',
         businessName: existing.businessName,
         phone: existing.phone,
         email: existing.email ?? '',
@@ -70,9 +72,18 @@ export function useBusinessForm() {
   }, []);
 
   const selectCategory = useCallback((categoryId: string) => {
-    setForm((prev) => ({ ...prev, categoryId }));
+    // Changing the category clears the previously selected business type.
+    setForm((prev) => ({ ...prev, categoryId, subcategoryId: '' }));
     setErrors((prev) => ({ ...prev, categoryId: undefined }));
   }, []);
+
+  const selectSubcategory = useCallback((subcategoryId: string) => {
+    setForm((prev) => ({ ...prev, subcategoryId }));
+    setErrors((prev) => ({ ...prev, subcategoryId: undefined }));
+  }, []);
+
+  // Business types available for the currently selected category.
+  const subcategories = categories.find((c) => c.id === form.categoryId)?.subcategories ?? [];
 
   const onChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -110,6 +121,7 @@ export function useBusinessForm() {
 
       const payload = {
         categoryId: form.categoryId,
+        subcategoryId: form.subcategoryId || undefined,
         businessName: form.businessName.trim(),
         phone: form.phone.trim(),
         email: form.email.trim() || undefined,
@@ -144,6 +156,7 @@ export function useBusinessForm() {
     isEdit,
     loadingExisting: isEdit && loadingExisting,
     categories,
+    subcategories,
     categoriesLoading,
     form,
     images,
@@ -152,6 +165,7 @@ export function useBusinessForm() {
     submitting: creating || updating || uploading,
     maxImages: MAX_IMAGES,
     selectCategory,
+    selectSubcategory,
     onChange,
     addImages,
     removeImage,

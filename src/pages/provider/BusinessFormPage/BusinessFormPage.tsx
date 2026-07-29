@@ -13,6 +13,7 @@ export default function BusinessFormPage() {
     isEdit,
     loadingExisting,
     categories,
+    subcategories,
     categoriesLoading,
     form,
     images,
@@ -21,6 +22,7 @@ export default function BusinessFormPage() {
     submitting,
     maxImages,
     selectCategory,
+    selectSubcategory,
     onChange,
     addImages,
     removeImage,
@@ -89,6 +91,29 @@ export default function BusinessFormPage() {
               </div>
             )}
             {errors.categoryId && <p className={styles.fieldError}>{errors.categoryId}</p>}
+
+            {form.categoryId && subcategories.length > 0 && (
+              <div className={styles.subSection}>
+                <p className={styles.subLabel}>Select your business type</p>
+                <div className={styles.chips}>
+                  {subcategories.map((s) => (
+                    <button
+                      type="button"
+                      key={s.id}
+                      className={`${styles.chip} ${
+                        form.subcategoryId === s.id ? styles.chipActive : ''
+                      }`}
+                      onClick={() => selectSubcategory(s.id)}
+                    >
+                      {s.name}
+                    </button>
+                  ))}
+                </div>
+                {errors.subcategoryId && (
+                  <p className={styles.fieldError}>{errors.subcategoryId}</p>
+                )}
+              </div>
+            )}
           </section>
 
           {/* Step 2 — details */}

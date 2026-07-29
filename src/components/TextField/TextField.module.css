@@ -29,7 +29,7 @@
 .input:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(43, 166, 160, 0.15);
+  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.15);
 }
 
 .inputError {

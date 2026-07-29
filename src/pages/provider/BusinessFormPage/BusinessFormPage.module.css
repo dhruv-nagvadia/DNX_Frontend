@@ -117,8 +117,8 @@
 }
 .categoryCardActive {
   border-color: var(--color-primary);
-  background: rgba(43, 166, 160, 0.08);
-  box-shadow: 0 0 0 2px rgba(43, 166, 160, 0.18);
+  background: rgba(30, 58, 138, 0.08);
+  box-shadow: 0 0 0 2px rgba(30, 58, 138, 0.18);
   color: var(--color-primary-dark);
 }
 .categoryName {
@@ -138,6 +138,44 @@
   margin: var(--space-sm) 0 0;
   color: var(--color-error);
   font-size: var(--font-size-xs);
+}
+
+/* Business type (subcategory) chips */
+.subSection {
+  margin-top: var(--space-lg);
+  padding-top: var(--space-lg);
+  border-top: 1px dashed var(--color-border);
+}
+.subLabel {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  margin: 0 0 var(--space-sm);
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+.chip {
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.chip:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+.chipActive,
+.chipActive:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
 }
 
 .row {
@@ -166,7 +204,7 @@
 .textarea:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(43, 166, 160, 0.15);
+  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.15);
 }
 
 /* Dropzone */
@@ -186,7 +224,7 @@
 }
 .dropzone:hover {
   border-color: var(--color-primary);
-  background: rgba(43, 166, 160, 0.04);
+  background: rgba(30, 58, 138, 0.04);
 }
 .dropzoneText {
   font-size: var(--font-size-sm);

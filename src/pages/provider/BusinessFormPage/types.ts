@@ -1,5 +1,6 @@
 export interface BusinessForm {
   categoryId: string;
+  subcategoryId: string;
   businessName: string;
   phone: string;
   email: string;

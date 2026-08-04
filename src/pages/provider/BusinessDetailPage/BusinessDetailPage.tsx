@@ -4,6 +4,8 @@ import { ArrowLeft, Pencil, Phone, Mail, MapPin, Star, BadgeCheck, Clock, ImageP
 
 import { Button } from '@/components/Button';
 import { CategoryIcon } from '@/components/CategoryIcon';
+import { ServicesManager } from '@/components/ServicesManager';
+import { BusinessHours } from '@/components/BusinessHours';
 import { useBusinessDetail } from './useBusinessDetail';
 import styles from './BusinessDetailPage.module.css';
 
@@ -166,14 +168,9 @@ export default function BusinessDetailPage() {
           )}
         </section>
 
-        <section className={styles.card}>
-          <div className={styles.cardHead}>
-            <h3 className={styles.cardTitle}>Services</h3>
-          </div>
-          <p className={styles.muted}>
-            Add the services you offer with prices and durations — coming next.
-          </p>
-        </section>
+        <ServicesManager providerId={business.id} services={business.services} />
+
+        <BusinessHours providerId={business.id} hours={business.businessHours} />
       </div>
     </div>
   );

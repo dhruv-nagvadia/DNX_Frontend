@@ -5,24 +5,25 @@
 export const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api/v1';
 
 export const endpoints = {
-  // Auth
+  // Auth (shared)
   register: '/auth/register',
   login: '/auth/login',
   refresh: '/auth/refresh',
   me: '/auth/me',
 
-  // Categories
+  // Categories (shared/public)
   categories: '/categories',
 
-  // Providers (public)
-  providers: '/providers',
-  providerById: (id: string) => `/providers/${id}`,
+  // Customer browse (public) — kept for completeness; the provider app rarely uses these
+  providers: '/customer/providers',
+  providerById: (id: string) => `/customer/providers/${id}`,
 
-  // My businesses (provider-owned)
-  myProviders: '/providers/me',
-  myProviderById: (id: string) => `/providers/me/${id}`,
-  myProviderImages: (id: string) => `/providers/me/${id}/images`,
-
-  // Bookings
-  myBookings: '/bookings/mine',
+  // Provider app — manage your own businesses (role PROVIDER)
+  myProviders: '/provider/businesses',
+  myProviderById: (id: string) => `/provider/businesses/${id}`,
+  myProviderImages: (id: string) => `/provider/businesses/${id}/images`,
+  myProviderHours: (id: string) => `/provider/businesses/${id}/hours`,
+  providerServices: (providerId: string) => `/provider/businesses/${providerId}/services`,
+  providerService: (providerId: string, serviceId: string) =>
+    `/provider/businesses/${providerId}/services/${serviceId}`,
 };

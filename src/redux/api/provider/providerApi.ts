@@ -1,7 +1,14 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { axiosBaseQuery } from '@/api/apiConfig';
 import { endpoints } from '@/api/endpoints';
-import { CreateProviderRequest, ListProvidersParams, Provider } from './types';
+import {
+  BusinessHour,
+  CreateProviderRequest,
+  ListProvidersParams,
+  Provider,
+  Service,
+  ServiceInput,
+} from './types';
 import { ApiEnvelope, Paginated } from '../types';
 
 export const providerApi = createApi({
@@ -27,7 +34,7 @@ export const providerApi = createApi({
 
     // Create a new business (a provider can own many).
     createProvider: builder.mutation<Provider, CreateProviderRequest>({
-      query: (data) => ({ endpoint: endpoints.providers, method: 'post', data }),
+      query: (data) => ({ endpoint: endpoints.myProviders, method: 'post', data }),
       transformResponse: (res: ApiEnvelope<Provider>) => res.data,
       invalidatesTags: ['Providers', 'MyBusinesses'],
     }),
@@ -63,6 +70,49 @@ export const providerApi = createApi({
       transformResponse: (res: ApiEnvelope<Provider>) => res.data,
       invalidatesTags: (_r, _e, { id }) => [{ type: 'MyBusiness', id }, 'MyBusinesses'],
     }),
+
+    // ── Services ────────────────────────────────────────────────────────────
+    createService: builder.mutation<Service, { providerId: string; data: ServiceInput }>({
+      query: ({ providerId, data }) => ({
+        endpoint: endpoints.providerServices(providerId),
+        method: 'post',
+        data,
+      }),
+      transformResponse: (res: ApiEnvelope<Service>) => res.data,
+      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }],
+    }),
+
+    updateService: builder.mutation<
+      Service,
+      { providerId: string; serviceId: string; data: Partial<ServiceInput> & { isActive?: boolean } }
+    >({
+      query: ({ providerId, serviceId, data }) => ({
+        endpoint: endpoints.providerService(providerId, serviceId),
+        method: 'patch',
+        data,
+      }),
+      transformResponse: (res: ApiEnvelope<Service>) => res.data,
+      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }],
+    }),
+
+    deleteService: builder.mutation<null, { providerId: string; serviceId: string }>({
+      query: ({ providerId, serviceId }) => ({
+        endpoint: endpoints.providerService(providerId, serviceId),
+        method: 'delete',
+      }),
+      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }],
+    }),
+
+    // Replace the weekly business hours.
+    setBusinessHours: builder.mutation<Provider, { id: string; hours: BusinessHour[] }>({
+      query: ({ id, hours }) => ({
+        endpoint: endpoints.myProviderHours(id),
+        method: 'put',
+        data: { hours },
+      }),
+      transformResponse: (res: ApiEnvelope<Provider>) => res.data,
+      invalidatesTags: (_r, _e, { id }) => [{ type: 'MyBusiness', id }],
+    }),
   }),
 });
 
@@ -75,4 +125,8 @@ export const {
   useGetMyBusinessQuery,
   useUpdateBusinessMutation,
   useUploadBusinessImagesMutation,
+  useCreateServiceMutation,
+  useUpdateServiceMutation,
+  useDeleteServiceMutation,
+  useSetBusinessHoursMutation,
 } = providerApi;

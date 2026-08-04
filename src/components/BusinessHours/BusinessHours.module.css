@@ -1,0 +1,118 @@
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-xl);
+  margin-top: var(--space-lg);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+.title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+.headIcon {
+  color: var(--color-primary);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 110px 96px 1fr;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.row:last-child {
+  border-bottom: none;
+}
+
+.day {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.toggle {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  cursor: pointer;
+}
+.toggleOpen {
+  background: rgba(22, 163, 74, 0.12);
+  color: var(--color-success);
+  border-color: transparent;
+}
+.toggleClosed {
+  background: rgba(100, 116, 139, 0.15);
+  color: var(--color-text-secondary);
+  border-color: transparent;
+}
+
+.times {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.timeInput {
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-family: inherit;
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+}
+.timeInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-ring);
+}
+.dash {
+  color: var(--color-text-secondary);
+}
+.closedLabel {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
+}
+.saved {
+  color: var(--color-success);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+.error {
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+}
+
+@media (max-width: 520px) {
+  .row {
+    grid-template-columns: 90px 84px 1fr;
+    gap: var(--space-sm);
+  }
+  .timeInput {
+    width: 100%;
+  }
+}

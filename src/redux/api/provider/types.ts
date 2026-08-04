@@ -7,6 +7,23 @@ export interface Service {
   priceMinor: number;
   currency: string;
   durationMin: number;
+  isActive?: boolean;
+}
+
+export interface ServiceInput {
+  name: string;
+  description?: string;
+  // Price in major units (rupees); the API converts to minor units.
+  price: number;
+  durationMin: number;
+}
+
+export interface BusinessHour {
+  id?: string;
+  dayOfWeek: number; // 0 = Sunday ... 6 = Saturday
+  isOpen: boolean;
+  openTime: string; // "HH:MM"
+  closeTime: string;
 }
 
 export interface Provider {
@@ -26,6 +43,7 @@ export interface Provider {
   category: Category;
   subcategory?: Subcategory | null;
   services: Service[];
+  businessHours: BusinessHour[];
 }
 
 export interface ListProvidersParams {

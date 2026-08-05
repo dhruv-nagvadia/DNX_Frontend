@@ -1,27 +1,4 @@
-.card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  padding: var(--space-xl);
-  margin-top: var(--space-lg);
-}
-
-.head {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-md);
-}
-.title {
-  margin: 0;
-  font-size: var(--font-size-lg);
-  font-weight: 700;
-}
-.headIcon {
-  color: var(--color-primary);
-}
-
+/* The card chrome now comes from <Card>; this file styles only the contents. */
 .list {
   display: flex;
   flex-direction: column;
@@ -29,90 +6,150 @@
 
 .row {
   display: grid;
-  grid-template-columns: 110px 96px 1fr;
+  grid-template-columns: 1fr auto minmax(200px, auto);
   align-items: center;
   gap: var(--space-md);
-  padding: 10px 0;
-  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-sm) 0;
 }
-.row:last-child {
-  border-bottom: none;
+
+.row + .row {
+  border-top: 1px solid var(--color-border);
+}
+
+.rowClosed .day {
+  color: var(--color-text-secondary);
 }
 
 .day {
+  font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--color-text-primary);
 }
 
+/* ── Open/closed switch ───────────────────────────────────────────── */
 .toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 5px 12px 5px 5px;
   border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  border-radius: 999px;
-  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-2);
   font-size: var(--font-size-xs);
   font-weight: 700;
-  cursor: pointer;
-}
-.toggleOpen {
-  background: rgba(22, 163, 74, 0.12);
-  color: var(--color-success);
-  border-color: transparent;
-}
-.toggleClosed {
-  background: rgba(100, 116, 139, 0.15);
-  color: var(--color-text-secondary);
-  border-color: transparent;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
 }
 
+.toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-ring);
+}
+
+.knob {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: currentColor;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.toggleText {
+  min-width: 46px;
+  text-align: left;
+}
+
+.toggleOpen {
+  background: rgba(22, 163, 74, 0.1);
+  border-color: rgba(22, 163, 74, 0.28);
+  color: #15803d;
+}
+
+.toggleClosed {
+  color: var(--color-text-secondary);
+}
+
+/* ── Times ────────────────────────────────────────────────────────── */
 .times {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
+  justify-self: end;
 }
+
 .timeInput {
   padding: 8px 10px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  font-family: inherit;
-  color: var(--color-text-primary);
   background: var(--color-surface);
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
 }
+
 .timeInput:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px var(--color-primary-ring);
 }
+
 .dash {
-  color: var(--color-text-secondary);
-}
-.closedLabel {
-  color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
 }
 
+.closedLabel {
+  justify-self: end;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* ── Footer ───────────────────────────────────────────────────────── */
 .footer {
   display: flex;
   align-items: center;
   gap: var(--space-md);
   margin-top: var(--space-lg);
-}
-.saved {
-  color: var(--color-success);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-}
-.error {
-  color: var(--color-error);
-  font-size: var(--font-size-sm);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--color-border);
 }
 
-@media (max-width: 520px) {
+.saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-success);
+}
+
+@media (max-width: 640px) {
   .row {
-    grid-template-columns: 90px 84px 1fr;
-    gap: var(--space-sm);
+    grid-template-columns: 1fr auto;
+    row-gap: var(--space-sm);
   }
+
+  .times,
+  .closedLabel {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .footer > button {
+    flex: 1 1 auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toggle,
+  .knob,
   .timeInput {
-    width: 100%;
+    transition: none;
   }
 }

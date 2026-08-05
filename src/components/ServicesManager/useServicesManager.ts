@@ -87,14 +87,20 @@ export function useServicesManager(providerId: string) {
   const remove = useCallback(
     async (serviceId: string) => {
       if (!window.confirm('Delete this service?')) return;
-      await deleteService({ providerId, serviceId }).unwrap().catch(() => undefined);
+      await deleteService({ providerId, serviceId })
+        .unwrap()
+        .catch(() => undefined);
     },
     [providerId, deleteService],
   );
 
   const toggleActive = useCallback(
     async (s: Service) => {
-      await updateService({ providerId, serviceId: s.id, data: { isActive: !(s.isActive ?? true) } })
+      await updateService({
+        providerId,
+        serviceId: s.id,
+        data: { isActive: !(s.isActive ?? true) },
+      })
         .unwrap()
         .catch(() => undefined);
     },

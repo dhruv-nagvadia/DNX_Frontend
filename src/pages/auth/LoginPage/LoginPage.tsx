@@ -1,51 +1,103 @@
+import { ArrowRight, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { AlertBanner } from '@/components/AlertBanner';
 import { AuthLayout } from '@/components/AuthLayout';
-import { TextField } from '@/components/TextField';
 import { Button } from '@/components/Button';
+import { Checkbox } from '@/components/Checkbox';
+import { PasswordField } from '@/components/PasswordField';
+import { TextField } from '@/components/TextField';
+
+import shared from '../AuthForm.module.css';
 import { useLoginPage } from './useLoginPage';
-import styles from './LoginPage.module.css';
 
 /** JSX only — logic comes from useLoginPage. */
 export default function LoginPage() {
-  const { form, errors, serverError, isLoading, onChange, onSubmit } = useLoginPage();
+  const {
+    form,
+    errors,
+    serverError,
+    isLoading,
+    remember,
+    onChange,
+    onBlur,
+    onRememberChange,
+    onSubmit,
+  } = useLoginPage();
 
   return (
     <AuthLayout>
-      <form className={styles.form} onSubmit={onSubmit} noValidate>
-        <h2 className={styles.title}>Welcome back</h2>
-        <p className={styles.subtitle}>Sign in to your provider account</p>
+      <form className={shared.form} onSubmit={onSubmit} noValidate>
+        <header className={shared.head}>
+          <span className={shared.eyebrow}>
+            <ShieldCheck size={13} aria-hidden="true" />
+            Provider sign in
+          </span>
+          <h2 className={shared.title}>Welcome back</h2>
+          <p className={shared.subtitle}>
+            Pick up where you left off — today&apos;s bookings are waiting.
+          </p>
+        </header>
 
-        <TextField
-          label="Email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          placeholder="you@business.com"
-          value={form.email}
-          onChange={onChange}
-          error={errors.email}
-        />
+        {serverError && <AlertBanner tone="error">{serverError}</AlertBanner>}
 
-        <TextField
-          label="Password"
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          placeholder="Enter your password"
-          value={form.password}
-          onChange={onChange}
-          error={errors.password}
-        />
+        <div className={shared.fields}>
+          <TextField
+            dense
+            label="Email"
+            name="email"
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            autoFocus
+            placeholder="you@business.com"
+            value={form.email}
+            onChange={onChange}
+            onBlur={onBlur}
+            error={errors.email}
+            disabled={isLoading}
+          />
 
-        {serverError && <p className={styles.serverError}>{serverError}</p>}
+          <PasswordField
+            dense
+            label="Password"
+            name="password"
+            autoComplete="current-password"
+            placeholder="Enter your password"
+            value={form.password}
+            onChange={onChange}
+            onBlur={onBlur}
+            error={errors.password}
+            disabled={isLoading}
+          />
+        </div>
 
-        <Button className={styles.submit} type="submit" loading={isLoading}>
+        <div className={shared.metaRow}>
+          <Checkbox
+            name="remember"
+            label="Keep me signed in"
+            checked={remember}
+            onChange={onRememberChange}
+            disabled={isLoading}
+          />
+          {/* Password reset link goes here once the backend exposes the flow. */}
+        </div>
+
+        <Button
+          type="submit"
+          fullWidth
+          loading={isLoading}
+          loadingText="Signing in…"
+          iconRight={<ArrowRight size={18} aria-hidden="true" />}
+        >
           Sign in
         </Button>
 
-        <p className={styles.switch}>
-          Don&apos;t have an account? <Link to="/register">Create one</Link>
+        <p className={`${shared.switch} ${shared.footer}`}>
+          New to DNX?{' '}
+          <Link className={shared.switchLink} to="/register">
+            Create a free account
+          </Link>
         </p>
       </form>
     </AuthLayout>

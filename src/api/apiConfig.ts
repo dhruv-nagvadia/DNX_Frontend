@@ -2,7 +2,7 @@ import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import type { BaseQueryFn } from '@reduxjs/toolkit/query';
 
 import { BASE_URL } from './endpoints';
-import { StorageKeys } from '@/utils/constants';
+import { tokenStorage } from '@/utils/tokenStorage';
 
 // ── Axios instance ──────────────────────────────────────────────────────────
 const networkCall = axios.create({
@@ -10,9 +10,9 @@ const networkCall = axios.create({
   timeout: 20000,
 });
 
-// Request interceptor — attach Bearer token from localStorage.
+// Request interceptor — attach the stored Bearer token.
 networkCall.interceptors.request.use((config) => {
-  const token = localStorage.getItem(StorageKeys.accessToken);
+  const token = tokenStorage.getAccessToken();
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
@@ -22,8 +22,7 @@ networkCall.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem(StorageKeys.accessToken);
-      localStorage.removeItem(StorageKeys.refreshToken);
+      tokenStorage.clear();
       // Hard redirect keeps this logic outside React and avoids circular imports.
       if (window.location.pathname !== '/login') window.location.assign('/login');
     }

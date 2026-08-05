@@ -1,11 +1,28 @@
 import { useRef } from 'react';
 import { Navigate } from 'react-router-dom';
-import { ArrowLeft, Pencil, Phone, Mail, MapPin, Star, BadgeCheck, Clock, ImagePlus } from 'lucide-react';
+import {
+  ArrowLeft,
+  BadgeCheck,
+  CalendarDays,
+  Clock,
+  ImagePlus,
+  ListChecks,
+  Mail,
+  MapPin,
+  Phone,
+  Star,
+} from 'lucide-react';
 
+import { AppShell } from '@/components/AppShell';
+import { Badge } from '@/components/Badge';
+import { BusinessHours } from '@/components/BusinessHours';
 import { Button } from '@/components/Button';
+import { Card } from '@/components/Card';
 import { CategoryIcon } from '@/components/CategoryIcon';
 import { ServicesManager } from '@/components/ServicesManager';
-import { BusinessHours } from '@/components/BusinessHours';
+import { Skeleton } from '@/components/Skeleton';
+import { StatTile } from '@/components/StatTile';
+
 import { useBusinessDetail } from './useBusinessDetail';
 import styles from './BusinessDetailPage.module.css';
 
@@ -17,11 +34,24 @@ export default function BusinessDetailPage() {
 
   if (notFound) return <Navigate to="/businesses" replace />;
 
+  const backButton = (
+    <button type="button" className={styles.back} onClick={goBack}>
+      <ArrowLeft size={16} aria-hidden="true" />
+      <span className={styles.backLabel}>All businesses</span>
+    </button>
+  );
+
   if (isLoading || !business) {
     return (
-      <div className={styles.page}>
-        <div className={styles.center}>Loading business…</div>
-      </div>
+      <AppShell topbarExtra={backButton}>
+        <Skeleton height={220} radius="var(--radius-xl)" />
+        <div className={styles.stats}>
+          {[0, 1, 2].map((i) => (
+            <Skeleton key={i} height={92} radius="var(--radius-lg)" />
+          ))}
+        </div>
+        <Skeleton height={150} radius="var(--radius-xl)" />
+      </AppShell>
     );
   }
 
@@ -29,119 +59,119 @@ export default function BusinessDetailPage() {
     .filter(Boolean)
     .join(', ');
 
+  const contact = [
+    { icon: <Phone size={16} aria-hidden="true" />, label: 'Phone', value: business.phone },
+    { icon: <Mail size={16} aria-hidden="true" />, label: 'Email', value: business.email },
+    { icon: <MapPin size={16} aria-hidden="true" />, label: 'Address', value: address },
+  ];
+
   return (
-    <div className={styles.page}>
-      <header className={styles.topbar}>
-        <div className={styles.topbarInner}>
-          <button className={styles.back} onClick={goBack}>
-            <ArrowLeft size={16} /> All businesses
-          </button>
-          <Button className={styles.editBtn} variant="secondary" onClick={goToEdit}>
-            <Pencil size={16} /> Edit
+    <AppShell
+      topbarExtra={
+        <>
+          {backButton}
+          <Button variant="secondary" onClick={goToEdit}>
+            Edit business
           </Button>
+        </>
+      }
+    >
+      {/* Hero: cover photo with the identity laid over a scrim so the text
+          stays legible on any uploaded image. */}
+      <header className={styles.hero}>
+        {business.images.length > 0 ? (
+          <img className={styles.heroImg} src={business.images[0]} alt="" />
+        ) : (
+          <span className={styles.heroFallback}>
+            <CategoryIcon slug={business.category.slug} size={56} strokeWidth={1.4} />
+          </span>
+        )}
+
+        <div className={styles.scrim} />
+
+        <div className={styles.heroContent}>
+          <h1 className={styles.name}>{business.businessName}</h1>
+          <div className={styles.badges}>
+            <Badge tone="accent" icon={<CategoryIcon slug={business.category.slug} size={13} />}>
+              {business.subcategory?.name ?? business.category.name}
+            </Badge>
+            {business.isVerified ? (
+              <Badge tone="success" icon={<BadgeCheck size={13} aria-hidden="true" />}>
+                Verified
+              </Badge>
+            ) : (
+              <Badge tone="warning" icon={<Clock size={13} aria-hidden="true" />}>
+                Verification pending
+              </Badge>
+            )}
+            <Badge tone="neutral" icon={<Star size={13} aria-hidden="true" />}>
+              {business.ratingAvg.toFixed(1)} ({business.ratingCount})
+            </Badge>
+          </div>
         </div>
       </header>
 
-      <div className={styles.container}>
-        <div className={styles.cover}>
-          {business.images.length > 0 ? (
-            <img className={styles.coverImg} src={business.images[0]} alt={business.businessName} />
-          ) : (
-            <CategoryIcon
-              slug={business.category.slug}
-              size={64}
-              strokeWidth={1.4}
-              className={styles.coverIcon}
-            />
-          )}
-        </div>
+      <div className={styles.stats}>
+        <StatTile
+          label="Services"
+          value={business.services.length}
+          icon={<ListChecks size={16} aria-hidden="true" />}
+          note={business.services.length === 0 ? 'Add your first service' : 'Bookable now'}
+        />
+        <StatTile
+          label="Bookings"
+          value={0}
+          icon={<CalendarDays size={16} aria-hidden="true" />}
+          note="Starts once customers can book"
+        />
+        <StatTile
+          label="Photos"
+          value={business.images.length}
+          icon={<ImagePlus size={16} aria-hidden="true" />}
+          note={business.images.length === 0 ? 'Photos lift bookings' : 'On your public profile'}
+        />
+      </div>
 
-        <section className={styles.headerCard}>
-          <div className={styles.titleRow}>
-            <div>
-              <h1 className={styles.bizName}>{business.businessName}</h1>
-              <div className={styles.badges}>
-                <span className={styles.categoryChip}>
-                  <CategoryIcon slug={business.category.slug} size={14} />{' '}
-                  {business.subcategory?.name ?? business.category.name}
-                </span>
-                {business.isVerified ? (
-                  <span className={styles.verified}>
-                    <BadgeCheck size={14} /> Verified
-                  </span>
-                ) : (
-                  <span className={styles.pending}>
-                    <Clock size={14} /> Verification pending
-                  </span>
-                )}
+      <Card title="About">
+        {business.description ? (
+          <p className={styles.about}>{business.description}</p>
+        ) : (
+          <p className={styles.muted}>
+            No description yet. A short paragraph about what you do helps customers choose you.
+          </p>
+        )}
+      </Card>
+
+      <Card title="Contact & location">
+        <dl className={styles.infoGrid}>
+          {contact.map((item) => (
+            <div className={styles.infoItem} key={item.label}>
+              <span className={styles.infoIcon}>{item.icon}</span>
+              <div className={styles.infoText}>
+                <dt className={styles.infoLabel}>{item.label}</dt>
+                <dd className={styles.infoValue}>
+                  {item.value || <span className={styles.muted}>Not added</span>}
+                </dd>
               </div>
             </div>
-            <span className={styles.rating}>
-              <Star size={15} /> {business.ratingAvg.toFixed(1)} ({business.ratingCount} reviews)
-            </span>
-          </div>
+          ))}
+        </dl>
+      </Card>
 
-          <div className={styles.infoGrid}>
-            <div className={styles.infoItem}>
-              <Phone className={styles.infoIcon} size={18} />
-              <div>
-                <div className={styles.infoLabel}>Phone</div>
-                <div className={styles.infoValue}>{business.phone}</div>
-              </div>
-            </div>
-            <div className={styles.infoItem}>
-              <Mail className={styles.infoIcon} size={18} />
-              <div>
-                <div className={styles.infoLabel}>Email</div>
-                <div className={styles.infoValue}>{business.email || '—'}</div>
-              </div>
-            </div>
-            <div className={styles.infoItem}>
-              <MapPin className={styles.infoIcon} size={18} />
-              <div>
-                <div className={styles.infoLabel}>Address</div>
-                <div className={styles.infoValue}>{address || '—'}</div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <div className={styles.stats}>
-          <div className={styles.stat}>
-            <div className={styles.statValue}>{business.services.length}</div>
-            <div className={styles.statLabel}>Services</div>
-          </div>
-          <div className={styles.stat}>
-            <div className={styles.statValue}>0</div>
-            <div className={styles.statLabel}>Bookings</div>
-          </div>
-          <div className={styles.stat}>
-            <div className={styles.statValue}>{business.images.length}</div>
-            <div className={styles.statLabel}>Photos</div>
-          </div>
-        </div>
-
-        <section className={styles.card}>
-          <div className={styles.cardHead}>
-            <h3 className={styles.cardTitle}>About</h3>
-          </div>
-          {business.description ? (
-            <p className={styles.about}>{business.description}</p>
-          ) : (
-            <p className={styles.muted}>No description added yet.</p>
-          )}
-        </section>
-
-        <section className={styles.card}>
-          <div className={styles.cardHead}>
-            <h3 className={styles.cardTitle}>Photos</h3>
-            <button
-              className={styles.addBtn}
+      <Card
+        title="Photos"
+        subtitle="The first photo is used as your cover image."
+        action={
+          <>
+            <Button
+              variant="secondary"
               onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
+              loading={uploading}
+              loadingText="Uploading…"
+              iconLeft={<ImagePlus size={16} aria-hidden="true" />}
             >
-              <ImagePlus size={16} /> {uploading ? 'Uploading…' : 'Add photos'}
-            </button>
+              Add photos
+            </Button>
             <input
               ref={fileInputRef}
               className={styles.hiddenInput}
@@ -153,25 +183,28 @@ export default function BusinessDetailPage() {
                 e.target.value = '';
               }}
             />
+          </>
+        }
+      >
+        {business.images.length > 0 ? (
+          <div className={styles.gallery}>
+            {business.images.map((url, i) => (
+              <div className={styles.galleryItem} key={url}>
+                <img className={styles.galleryImg} src={url} alt="" loading="lazy" />
+                {i === 0 && <span className={styles.coverTag}>Cover</span>}
+              </div>
+            ))}
           </div>
+        ) : (
+          <p className={styles.muted}>
+            No photos yet. Businesses with photos get noticeably more bookings.
+          </p>
+        )}
+      </Card>
 
-          {business.images.length > 0 ? (
-            <div className={styles.gallery}>
-              {business.images.map((url) => (
-                <div className={styles.galleryItem} key={url}>
-                  <img className={styles.galleryImg} src={url} alt={business.businessName} />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className={styles.muted}>No photos yet. Add some to attract more customers.</p>
-          )}
-        </section>
+      <ServicesManager providerId={business.id} services={business.services} />
 
-        <ServicesManager providerId={business.id} services={business.services} />
-
-        <BusinessHours providerId={business.id} hours={business.businessHours} />
-      </div>
-    </div>
+      <BusinessHours providerId={business.id} hours={business.businessHours} />
+    </AppShell>
   );
 }

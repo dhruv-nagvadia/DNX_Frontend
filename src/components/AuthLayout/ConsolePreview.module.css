@@ -1,0 +1,322 @@
+.wrap {
+  width: 100%;
+  max-width: 440px;
+}
+
+/* Names the tiles below as an illustration, not this viewer's data. */
+.caption {
+  margin: 0 0 10px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-on-dark-faint);
+}
+
+/* Bento grid of glass tiles sitting on the dark brand panel. */
+.bento {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+  max-width: 440px;
+}
+
+.wide {
+  grid-column: span 2;
+}
+
+.tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  background: var(--glass-bg);
+  /* Frosted look where supported; the flat glass background is the fallback. */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: riseIn var(--dur-slow) var(--ease-out) backwards;
+}
+
+/* Staggered entrance, top-left to bottom-right. */
+.tile:nth-child(1) {
+  animation-delay: 120ms;
+}
+.tile:nth-child(2) {
+  animation-delay: 220ms;
+}
+.tile:nth-child(3) {
+  animation-delay: 300ms;
+}
+.tile:nth-child(4) {
+  animation-delay: 380ms;
+}
+
+.tileHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.tileLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-on-dark-faint);
+}
+
+.count {
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tileFoot {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-on-dark-faint);
+}
+
+/* ── Today's schedule ─────────────────────────────────────────────── */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+}
+
+.row + .row {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(140deg, var(--color-accent-2), var(--color-primary));
+  color: var(--color-on-dark);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.rowText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.rowName {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-on-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rowService {
+  font-size: var(--font-size-xs);
+  color: var(--color-on-dark-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.time {
+  flex: 0 0 auto;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--glass-bg-strong);
+  color: var(--color-on-dark-muted);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Revenue ──────────────────────────────────────────────────────── */
+.metric {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-on-dark);
+  font-variant-numeric: tabular-nums;
+}
+
+.spark {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 46px;
+  margin-top: auto;
+}
+
+.bar {
+  flex: 1 1 0;
+  height: var(--bar-h);
+  min-height: 4px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--color-accent), rgba(56, 189, 248, 0.25));
+  transform-origin: bottom;
+  animation: growBar 620ms var(--ease-out) backwards;
+  /* Bars sweep left to right after the tile has landed. */
+  animation-delay: calc(340ms + var(--bar-i) * 60ms);
+}
+
+/* ── AI receptionist toggle ───────────────────────────────────────── */
+.switchRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: auto;
+}
+
+.switchTrack {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+  box-shadow: 0 0 16px var(--color-accent-soft);
+}
+
+.switchKnob {
+  position: absolute;
+  top: 3px;
+  left: 21px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-white);
+}
+
+.switchState {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-on-dark);
+}
+
+/* ── Live activity strip ──────────────────────────────────────────── */
+.live {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  border-color: var(--glass-border-strong);
+  background: linear-gradient(90deg, var(--color-accent-soft), var(--glass-bg));
+}
+
+.pulse {
+  position: relative;
+  flex: 0 0 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ade80;
+}
+
+.pulse::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 1.5px solid #4ade80;
+  animation: pulseRing 2s var(--ease-out) infinite;
+}
+
+.liveText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.liveTitle {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-on-dark);
+}
+
+.liveMeta {
+  font-size: var(--font-size-xs);
+  color: var(--color-on-dark-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.liveIcon {
+  flex: 0 0 18px;
+  color: #4ade80;
+}
+
+/* ── Keyframes ────────────────────────────────────────────────────── */
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes growBar {
+  from {
+    transform: scaleY(0.05);
+    opacity: 0.4;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes pulseRing {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.9;
+  }
+  70%,
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+/* Everything above is decoration — remove all of it when motion is reduced. */
+@media (prefers-reduced-motion: reduce) {
+  .tile,
+  .bar,
+  .pulse::after {
+    animation: none;
+  }
+}

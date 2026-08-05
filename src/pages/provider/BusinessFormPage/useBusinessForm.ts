@@ -85,13 +85,10 @@ export function useBusinessForm() {
   // Business types available for the currently selected category.
   const subcategories = categories.find((c) => c.id === form.categoryId)?.subcategories ?? [];
 
-  const onChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const { name, value } = e.target;
-      setForm((prev) => ({ ...prev, [name]: value }));
-    },
-    [],
-  );
+  const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  }, []);
 
   const addImages = useCallback((fileList: FileList | null) => {
     if (!fileList) return;

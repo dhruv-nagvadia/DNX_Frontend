@@ -1,121 +1,259 @@
 .wrapper {
   display: grid;
-  grid-template-columns: 1.1fr 1fr;
+  grid-template-columns: 1.02fr 0.98fr;
   min-height: 100vh;
+  /* dvh avoids the mobile-browser chrome jump; vh above is the fallback. */
+  min-height: 100dvh;
+  overflow-x: hidden;
 }
 
-/* ── Left brand panel ─────────────────────────────────────────────── */
+/* ── Left: dark console panel ─────────────────────────────────────── */
 .brand {
   position: relative;
+  isolation: isolate;
   overflow: hidden;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-  color: var(--color-white);
-  padding: var(--space-xl) clamp(24px, 5vw, 64px);
+  background: var(--color-ink);
+  color: var(--color-on-dark);
+  padding: var(--space-2xl) clamp(28px, 4.4vw, 60px);
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  align-items: center;
 }
 
-/* Decorative soft circles */
-.brand::before,
+/* Aurora: two soft blobs drifting behind the content. */
+.brand::before {
+  content: '';
+  position: absolute;
+  inset: -20% -10%;
+  z-index: -2;
+  background:
+    radial-gradient(42% 44% at 22% 18%, rgba(56, 189, 248, 0.28), transparent 70%),
+    radial-gradient(46% 46% at 82% 30%, rgba(129, 140, 248, 0.26), transparent 72%),
+    radial-gradient(60% 55% at 50% 100%, rgba(30, 58, 138, 0.72), transparent 78%);
+  animation: drift 22s var(--ease-in-out) infinite alternate;
+}
+
+/* Film grain — gives the flat navy some physical texture without WebGL. */
 .brand::after {
   content: '';
   position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
+  inset: 0;
+  z-index: -1;
+  background-image: var(--grain);
+  background-size: 180px 180px;
+  opacity: 0.055;
+  mix-blend-mode: overlay;
+  pointer-events: none;
 }
-.brand::before {
-  width: 420px;
-  height: 420px;
-  top: -140px;
-  right: -120px;
-}
-.brand::after {
-  width: 260px;
-  height: 260px;
-  bottom: -100px;
-  left: -80px;
+
+.brandInner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(24px, 3.4vh, 40px);
+  width: 100%;
+  max-width: 520px;
+  margin-inline: auto;
 }
 
 .logo {
-  position: relative;
-  font-size: var(--font-size-xl);
-  font-weight: 800;
-  letter-spacing: 0.5px;
-}
-
-.brandBody {
-  position: relative;
-}
-
-.headline {
-  font-size: clamp(28px, 3.2vw, 42px);
-  font-weight: 800;
-  line-height: 1.15;
-  margin: 0 0 var(--space-md);
-}
-
-.subhead {
-  font-size: var(--font-size-lg);
-  opacity: 0.9;
-  margin: 0 0 var(--space-xl);
-  max-width: 440px;
-}
-
-.benefits {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-}
-
-.benefit {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: var(--space-sm);
-  font-size: var(--font-size-md);
+  gap: 10px;
+  align-self: flex-start;
+  color: var(--color-on-dark);
+  text-decoration: none;
+  border-radius: var(--radius-md);
 }
 
-.check {
-  flex: 0 0 24px;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
+.logo:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
+}
+
+.mark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(140deg, var(--color-accent), var(--color-accent-2));
+  color: var(--color-ink);
+  font-size: var(--font-size-lg);
+  font-weight: 800;
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.3);
 }
 
-.footer {
-  position: relative;
+.wordmark {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.wordmarkThin {
+  font-weight: 400;
+  color: var(--color-on-dark-muted);
+}
+
+.headline {
+  margin: 0 0 var(--space-md);
+  font-size: clamp(30px, 3.3vw, 46px);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  max-width: 14ch;
+}
+
+/* Gradient-filled emphasis; falls back to accent color where unsupported. */
+.em {
+  font-style: normal;
+  color: var(--color-accent);
+  background: linear-gradient(100deg, var(--color-accent), var(--color-accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subhead {
+  margin: 0;
+  font-size: var(--font-size-md);
+  line-height: 1.6;
+  color: var(--color-on-dark-muted);
+  max-width: 44ch;
+}
+
+.preview {
+  display: flex;
+}
+
+.trust {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin: 0;
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--glass-border);
   font-size: var(--font-size-sm);
-  opacity: 0.75;
+  color: var(--color-on-dark-muted);
 }
 
-/* ── Right form panel ─────────────────────────────────────────────── */
+.copyright {
+  font-size: var(--font-size-xs);
+  color: var(--color-on-dark-faint);
+}
+
+/* ── Right: form panel ────────────────────────────────────────────── */
 .formPanel {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-xl) var(--space-lg);
+  padding: var(--space-2xl) var(--space-lg);
   background: var(--color-background);
 }
 
-.formCard {
-  width: 100%;
-  max-width: 420px;
+/* Faint tint so the white card separates from the panel. */
+.formPanel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(60% 50% at 50% 0%, rgba(30, 58, 138, 0.05), transparent 70%);
+  pointer-events: none;
 }
 
-/* ── Responsive: hide brand panel on small screens ────────────────── */
-@media (max-width: 860px) {
+.formCard {
+  position: relative;
+  width: 100%;
+  /* Wide enough that the register form's paired fields don't clip placeholders. */
+  max-width: 476px;
+  padding: clamp(28px, 3vw, 40px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-xl);
+  animation: cardIn var(--dur-slow) var(--ease-out);
+}
+
+/* ── Keyframes ────────────────────────────────────────────────────── */
+@keyframes drift {
+  from {
+    transform: translate3d(-2%, -1%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(3%, 2%, 0) scale(1.08);
+  }
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── Tablet & below: panel becomes a compact branded header ────────── */
+@media (max-width: 1023px) {
   .wrapper {
     grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
   }
+
   .brand {
+    padding: var(--space-lg) var(--space-lg) var(--space-xl);
+    align-items: flex-start;
+  }
+
+  .brandInner {
+    max-width: 640px;
+    gap: var(--space-lg);
+  }
+
+  .headline {
+    max-width: 22ch;
+    font-size: clamp(26px, 5vw, 34px);
+  }
+
+  /* The bento needs real width to read — drop it rather than shrink it. */
+  .preview,
+  .trust {
     display: none;
+  }
+
+  .formPanel {
+    padding: var(--space-xl) var(--space-lg) var(--space-2xl);
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .brand {
+    padding: var(--space-md) var(--space-md) var(--space-lg);
+  }
+
+  .subhead {
+    font-size: var(--font-size-sm);
+  }
+
+  .formPanel {
+    padding: var(--space-lg) var(--space-md) var(--space-xl);
+  }
+
+  .formCard {
+    padding: var(--space-lg) var(--space-md);
+    border-radius: var(--radius-lg);
+    box-shadow: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand::before,
+  .formCard {
+    animation: none;
   }
 }

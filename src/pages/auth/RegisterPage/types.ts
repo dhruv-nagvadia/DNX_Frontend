@@ -4,6 +4,7 @@ export interface RegisterForm {
   phone: string;
   password: string;
   confirmPassword: string;
+  acceptTerms: boolean;
 }
 
 export type RegisterErrors = Partial<Record<keyof RegisterForm, string>>;

@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useLazyGetMeQuery } from '@/redux/api/auth/authApi';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { setAuthReady, setCurrentUser } from '@/redux/slices/userSlice';
-import { StorageKeys } from '@/utils/constants';
+import { tokenStorage } from '@/utils/tokenStorage';
 
 /**
  * On app load, restores the session from a stored token so a page refresh
@@ -15,7 +15,7 @@ export function useSessionBootstrap(): boolean {
   const [getMe] = useLazyGetMeQuery();
 
   useEffect(() => {
-    const token = localStorage.getItem(StorageKeys.accessToken);
+    const token = tokenStorage.getAccessToken();
     if (!token) {
       dispatch(setAuthReady());
       return;
@@ -24,8 +24,7 @@ export function useSessionBootstrap(): boolean {
       .unwrap()
       .then((user) => dispatch(setCurrentUser(user)))
       .catch(() => {
-        localStorage.removeItem(StorageKeys.accessToken);
-        localStorage.removeItem(StorageKeys.refreshToken);
+        tokenStorage.clear();
       })
       .finally(() => dispatch(setAuthReady()));
     // Run once on mount.

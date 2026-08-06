@@ -1,10 +1,12 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import {
   useGetMyBusinessQuery,
   useUploadBusinessImagesMutation,
 } from '@/redux/api/provider/providerApi';
+
+export type BusinessTab = 'overview' | 'services' | 'photos' | 'hours';
 
 /** Loads one owned business and exposes image-upload + navigation actions. */
 export function useBusinessDetail() {
@@ -13,6 +15,7 @@ export function useBusinessDetail() {
 
   const { data: business, isLoading, error } = useGetMyBusinessQuery(id, { skip: !id });
   const [uploadImages, { isLoading: uploading }] = useUploadBusinessImagesMutation();
+  const [activeTab, setActiveTab] = useState<BusinessTab>('overview');
 
   const notFound = !!error && (error as { status?: number }).status === 404;
 
@@ -35,6 +38,8 @@ export function useBusinessDetail() {
     isLoading,
     notFound,
     uploading,
+    activeTab,
+    setActiveTab,
     addImages,
     goToEdit: () => navigate(`/businesses/${id}/edit`),
     goBack: () => navigate('/businesses'),

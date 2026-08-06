@@ -5,9 +5,9 @@
 export const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api/v1';
 
 export const endpoints = {
-  // Auth (shared)
-  register: '/auth/register',
-  login: '/auth/login',
+  // Auth — provider accounts (PROVIDER); refresh/me are shared/token-based
+  register: '/provider/auth/register',
+  login: '/provider/auth/login',
   refresh: '/auth/refresh',
   me: '/auth/me',
 

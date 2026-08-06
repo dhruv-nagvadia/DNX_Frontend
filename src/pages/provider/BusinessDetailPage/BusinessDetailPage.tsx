@@ -5,7 +5,9 @@ import {
   BadgeCheck,
   CalendarDays,
   Clock,
+  Image as ImageIcon,
   ImagePlus,
+  Info,
   ListChecks,
   Mail,
   MapPin,
@@ -22,13 +24,14 @@ import { CategoryIcon } from '@/components/CategoryIcon';
 import { ServicesManager } from '@/components/ServicesManager';
 import { Skeleton } from '@/components/Skeleton';
 import { StatTile } from '@/components/StatTile';
+import { Tabs } from '@/components/Tabs';
 
-import { useBusinessDetail } from './useBusinessDetail';
+import { BusinessTab, useBusinessDetail } from './useBusinessDetail';
 import styles from './BusinessDetailPage.module.css';
 
 /** JSX only — logic comes from useBusinessDetail. */
 export default function BusinessDetailPage() {
-  const { business, isLoading, notFound, uploading, addImages, goToEdit, goBack } =
+  const { business, isLoading, notFound, uploading, activeTab, setActiveTab, addImages, goToEdit, goBack } =
     useBusinessDetail();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -65,6 +68,23 @@ export default function BusinessDetailPage() {
     { icon: <MapPin size={16} aria-hidden="true" />, label: 'Address', value: address },
   ];
 
+  const tabs = [
+    { id: 'overview', label: 'Overview', icon: <Info size={15} aria-hidden="true" /> },
+    {
+      id: 'services',
+      label: 'Services',
+      icon: <ListChecks size={15} aria-hidden="true" />,
+      count: business.services.length,
+    },
+    {
+      id: 'photos',
+      label: 'Photos',
+      icon: <ImageIcon size={15} aria-hidden="true" />,
+      count: business.images.length,
+    },
+    { id: 'hours', label: 'Hours', icon: <Clock size={15} aria-hidden="true" /> },
+  ];
+
   return (
     <AppShell
       topbarExtra={
@@ -76,8 +96,7 @@ export default function BusinessDetailPage() {
         </>
       }
     >
-      {/* Hero: cover photo with the identity laid over a scrim so the text
-          stays legible on any uploaded image. */}
+      {/* Hero: cover photo with the identity laid over a scrim. */}
       <header className={styles.hero}>
         {business.images.length > 0 ? (
           <img className={styles.heroImg} src={business.images[0]} alt="" />
@@ -132,79 +151,96 @@ export default function BusinessDetailPage() {
         />
       </div>
 
-      <Card title="About">
-        {business.description ? (
-          <p className={styles.about}>{business.description}</p>
-        ) : (
-          <p className={styles.muted}>
-            No description yet. A short paragraph about what you do helps customers choose you.
-          </p>
-        )}
-      </Card>
+      {/* Horizontal section switcher. */}
+      <Tabs tabs={tabs} active={activeTab} onChange={(id) => setActiveTab(id as BusinessTab)} />
 
-      <Card title="Contact & location">
-        <dl className={styles.infoGrid}>
-          {contact.map((item) => (
-            <div className={styles.infoItem} key={item.label}>
-              <span className={styles.infoIcon}>{item.icon}</span>
-              <div className={styles.infoText}>
-                <dt className={styles.infoLabel}>{item.label}</dt>
-                <dd className={styles.infoValue}>
-                  {item.value || <span className={styles.muted}>Not added</span>}
-                </dd>
-              </div>
+      {/* Overview */}
+      {activeTab === 'overview' && (
+        <>
+          <Card title="About">
+            {business.description ? (
+              <p className={styles.about}>{business.description}</p>
+            ) : (
+              <p className={styles.muted}>
+                No description yet. A short paragraph about what you do helps customers choose you.
+              </p>
+            )}
+          </Card>
+
+          <Card title="Contact & location">
+            <dl className={styles.infoGrid}>
+              {contact.map((item) => (
+                <div className={styles.infoItem} key={item.label}>
+                  <span className={styles.infoIcon}>{item.icon}</span>
+                  <div className={styles.infoText}>
+                    <dt className={styles.infoLabel}>{item.label}</dt>
+                    <dd className={styles.infoValue}>
+                      {item.value || <span className={styles.muted}>Not added</span>}
+                    </dd>
+                  </div>
+                </div>
+              ))}
+            </dl>
+          </Card>
+        </>
+      )}
+
+      {/* Services */}
+      {activeTab === 'services' && (
+        <ServicesManager providerId={business.id} services={business.services} />
+      )}
+
+      {/* Photos */}
+      {activeTab === 'photos' && (
+        <Card
+          title="Photos"
+          subtitle="The first photo is used as your cover image."
+          action={
+            <>
+              <Button
+                variant="secondary"
+                onClick={() => fileInputRef.current?.click()}
+                loading={uploading}
+                loadingText="Uploading…"
+                iconLeft={<ImagePlus size={16} aria-hidden="true" />}
+              >
+                Add photos
+              </Button>
+              <input
+                ref={fileInputRef}
+                className={styles.hiddenInput}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(e) => {
+                  addImages(e.target.files);
+                  e.target.value = '';
+                }}
+              />
+            </>
+          }
+        >
+          {business.images.length > 0 ? (
+            <div className={styles.gallery}>
+              {business.images.map((url, i) => (
+                <div className={styles.galleryItem} key={url}>
+                  <img className={styles.galleryImg} src={url} alt="" loading="lazy" />
+                  {i === 0 && <span className={styles.coverTag}>Cover</span>}
+                </div>
+              ))}
             </div>
-          ))}
-        </dl>
-      </Card>
+          ) : (
+            <p className={styles.muted}>
+              No photos yet. Businesses with photos get noticeably more bookings.
+            </p>
+          )}
+        </Card>
+      )}
 
-      <Card
-        title="Photos"
-        subtitle="The first photo is used as your cover image."
-        action={
-          <>
-            <Button
-              variant="secondary"
-              onClick={() => fileInputRef.current?.click()}
-              loading={uploading}
-              loadingText="Uploading…"
-              iconLeft={<ImagePlus size={16} aria-hidden="true" />}
-            >
-              Add photos
-            </Button>
-            <input
-              ref={fileInputRef}
-              className={styles.hiddenInput}
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={(e) => {
-                addImages(e.target.files);
-                e.target.value = '';
-              }}
-            />
-          </>
-        }
-      >
-        {business.images.length > 0 ? (
-          <div className={styles.gallery}>
-            {business.images.map((url, i) => (
-              <div className={styles.galleryItem} key={url}>
-                <img className={styles.galleryImg} src={url} alt="" loading="lazy" />
-                {i === 0 && <span className={styles.coverTag}>Cover</span>}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className={styles.muted}>
-            No photos yet. Businesses with photos get noticeably more bookings.
-          </p>
-        )}
-      </Card>
-
-      <ServicesManager providerId={business.id} services={business.services} />
-
-      <BusinessHours providerId={business.id} hours={business.businessHours} />
+      {/* Hours */}
+      {activeTab === 'hours' && (
+        <BusinessHours providerId={business.id} hours={business.businessHours} />
+      )}
     </AppShell>
   );
 }

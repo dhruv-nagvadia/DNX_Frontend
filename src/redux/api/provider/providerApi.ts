@@ -4,8 +4,11 @@ import { endpoints } from '@/api/endpoints';
 import {
   BusinessHour,
   CreateProviderRequest,
+  DateHour,
+  DateHourInput,
   ListProvidersParams,
   Provider,
+  ProviderBooking,
   Service,
   ServiceInput,
 } from './types';
@@ -14,7 +17,14 @@ import { ApiEnvelope, Paginated } from '../types';
 export const providerApi = createApi({
   reducerPath: 'providerApi',
   baseQuery: axiosBaseQuery(),
-  tagTypes: ['Providers', 'Provider', 'MyBusinesses', 'MyBusiness'],
+  tagTypes: [
+    'Providers',
+    'Provider',
+    'MyBusinesses',
+    'MyBusiness',
+    'MyBusinessBookings',
+    'DateHours',
+  ],
   endpoints: (builder) => ({
     getProviders: builder.query<Paginated<Provider>, ListProvidersParams | void>({
       query: (params) => ({
@@ -51,6 +61,13 @@ export const providerApi = createApi({
       query: (id) => ({ endpoint: endpoints.myProviderById(id), method: 'get' }),
       transformResponse: (res: ApiEnvelope<Provider>) => res.data,
       providesTags: (_r, _e, id) => [{ type: 'MyBusiness', id }],
+    }),
+
+    // Bookings for one owned business (provider dashboard).
+    getBusinessBookings: builder.query<ProviderBooking[], string>({
+      query: (id) => ({ endpoint: endpoints.myProviderBookings(id), method: 'get' }),
+      transformResponse: (res: ApiEnvelope<ProviderBooking[]>) => res.data,
+      providesTags: (_r, _e, id) => [{ type: 'MyBusinessBookings', id }],
     }),
 
     // Update an owned business.
@@ -113,6 +130,36 @@ export const providerApi = createApi({
       transformResponse: (res: ApiEnvelope<Provider>) => res.data,
       invalidatesTags: (_r, _e, { id }) => [{ type: 'MyBusiness', id }],
     }),
+
+    // ── Date-specific hour overrides ─────────────────────────────────────────
+    getDateHours: builder.query<DateHour[], { id: string; from: string; to: string }>({
+      query: ({ id, from, to }) => ({
+        endpoint: endpoints.myProviderDateHours(id),
+        method: 'get',
+        params: { from, to },
+      }),
+      transformResponse: (res: ApiEnvelope<DateHour[]>) => res.data,
+      providesTags: (_r, _e, { id }) => [{ type: 'DateHours', id }],
+    }),
+
+    setDateHour: builder.mutation<DateHour, { id: string; data: DateHourInput }>({
+      query: ({ id, data }) => ({
+        endpoint: endpoints.myProviderDateHours(id),
+        method: 'put',
+        data,
+      }),
+      transformResponse: (res: ApiEnvelope<DateHour>) => res.data,
+      invalidatesTags: (_r, _e, { id }) => [{ type: 'DateHours', id }],
+    }),
+
+    deleteDateHour: builder.mutation<{ date: string }, { id: string; date: string }>({
+      query: ({ id, date }) => ({
+        endpoint: `${endpoints.myProviderDateHours(id)}/${date}`,
+        method: 'delete',
+      }),
+      transformResponse: (res: ApiEnvelope<{ date: string }>) => res.data,
+      invalidatesTags: (_r, _e, { id }) => [{ type: 'DateHours', id }],
+    }),
   }),
 });
 
@@ -123,10 +170,14 @@ export const {
   useCreateProviderMutation,
   useGetMyBusinessesQuery,
   useGetMyBusinessQuery,
+  useGetBusinessBookingsQuery,
   useUpdateBusinessMutation,
   useUploadBusinessImagesMutation,
   useCreateServiceMutation,
   useUpdateServiceMutation,
   useDeleteServiceMutation,
   useSetBusinessHoursMutation,
+  useGetDateHoursQuery,
+  useSetDateHourMutation,
+  useDeleteDateHourMutation,
 } = providerApi;

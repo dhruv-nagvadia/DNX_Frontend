@@ -8,6 +8,8 @@ import HomePage from '@/pages/home/HomePage';
 import BusinessesPage from '@/pages/provider/BusinessesPage';
 import BusinessFormPage from '@/pages/provider/BusinessFormPage';
 import BusinessDetailPage from '@/pages/provider/BusinessDetailPage';
+import ReviewsPage from '@/pages/provider/ReviewsPage';
+import ProfilePage from '@/pages/provider/ProfilePage';
 
 /** Requires an authenticated user; otherwise sends to /login. */
 function Protected({ children }: { children: ReactElement }) {
@@ -75,6 +77,22 @@ export const router = createBrowserRouter([
     element: (
       <Protected>
         <BusinessFormPage />
+      </Protected>
+    ),
+  },
+  {
+    path: '/businesses/:id/reviews',
+    element: (
+      <Protected>
+        <ReviewsPage />
+      </Protected>
+    ),
+  },
+  {
+    path: '/profile',
+    element: (
+      <Protected>
+        <ProfilePage />
       </Protected>
     ),
   },

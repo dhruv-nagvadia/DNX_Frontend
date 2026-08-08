@@ -47,7 +47,8 @@ export default function BusinessFormPage() {
 
   if (loadingExisting) {
     return (
-      <AppShell topbarExtra={backButton}>
+      <AppShell>
+        {backButton}
         <Skeleton width="40%" height={34} />
         {[0, 1, 2].map((i) => (
           <Skeleton key={i} height={180} radius="var(--radius-xl)" />
@@ -59,7 +60,8 @@ export default function BusinessFormPage() {
   const totalSteps = isEdit ? 3 : 4;
 
   return (
-    <AppShell topbarExtra={backButton}>
+    <AppShell>
+      {backButton}
       <PageHeader
         title={isEdit ? 'Edit business' : 'Add a new business'}
         subtitle={

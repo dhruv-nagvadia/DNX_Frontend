@@ -26,6 +26,22 @@ export interface BusinessHour {
   closeTime: string;
 }
 
+/** A date-specific override of the weekly hours. */
+export interface DateHour {
+  id: string;
+  date: string; // ISO date (may include a T00:00:00Z suffix)
+  isOpen: boolean;
+  openTime: string; // "HH:MM"
+  closeTime: string;
+}
+
+export interface DateHourInput {
+  date: string; // "YYYY-MM-DD"
+  isOpen: boolean;
+  openTime: string;
+  closeTime: string;
+}
+
 export interface Provider {
   id: string;
   businessName: string;
@@ -44,6 +60,19 @@ export interface Provider {
   subcategory?: Subcategory | null;
   services: Service[];
   businessHours: BusinessHour[];
+}
+
+export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
+
+export interface ProviderBooking {
+  id: string;
+  status: BookingStatus;
+  startTime: string;
+  endTime: string;
+  amountMinor: number;
+  currency: string;
+  service: { name: string };
+  user: { fullName: string; phone?: string | null };
 }
 
 export interface ListProvidersParams {

@@ -11,48 +11,53 @@ import {
   ListChecks,
   Mail,
   MapPin,
+  Pencil,
   Phone,
   Star,
 } from 'lucide-react';
 
 import { AppShell } from '@/components/AppShell';
 import { Badge } from '@/components/Badge';
+import { BusinessBookings } from '@/components/BusinessBookings';
+import { BusinessChecklist } from '@/components/BusinessChecklist';
 import { BusinessHours } from '@/components/BusinessHours';
+import { BusinessReviews } from '@/components/BusinessReviews';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { CategoryIcon } from '@/components/CategoryIcon';
+import { EarningsPanel } from '@/components/EarningsPanel';
 import { ServicesManager } from '@/components/ServicesManager';
 import { Skeleton } from '@/components/Skeleton';
-import { StatTile } from '@/components/StatTile';
 import { Tabs } from '@/components/Tabs';
+import { UpcomingAppointments } from '@/components/UpcomingAppointments';
 
 import { BusinessTab, useBusinessDetail } from './useBusinessDetail';
 import styles from './BusinessDetailPage.module.css';
 
 /** JSX only — logic comes from useBusinessDetail. */
 export default function BusinessDetailPage() {
-  const { business, isLoading, notFound, uploading, activeTab, setActiveTab, addImages, goToEdit, goBack } =
-    useBusinessDetail();
+  const {
+    business,
+    isLoading,
+    notFound,
+    uploading,
+    bookingCount,
+    activeTab,
+    setActiveTab,
+    addImages,
+    goToEdit,
+    goToReviews,
+    goBack,
+  } = useBusinessDetail();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (notFound) return <Navigate to="/businesses" replace />;
 
-  const backButton = (
-    <button type="button" className={styles.back} onClick={goBack}>
-      <ArrowLeft size={16} aria-hidden="true" />
-      <span className={styles.backLabel}>All businesses</span>
-    </button>
-  );
-
   if (isLoading || !business) {
     return (
-      <AppShell topbarExtra={backButton}>
+      <AppShell>
         <Skeleton height={220} radius="var(--radius-xl)" />
-        <div className={styles.stats}>
-          {[0, 1, 2].map((i) => (
-            <Skeleton key={i} height={92} radius="var(--radius-lg)" />
-          ))}
-        </div>
+        <Skeleton height={280} radius="var(--radius-xl)" />
         <Skeleton height={150} radius="var(--radius-xl)" />
       </AppShell>
     );
@@ -63,39 +68,41 @@ export default function BusinessDetailPage() {
     .join(', ');
 
   const contact = [
-    { icon: <Phone size={16} aria-hidden="true" />, label: 'Phone', value: business.phone },
-    { icon: <Mail size={16} aria-hidden="true" />, label: 'Email', value: business.email },
-    { icon: <MapPin size={16} aria-hidden="true" />, label: 'Address', value: address },
+    { icon: <Phone size={16} aria-hidden="true" />, label: 'Phone', value: business.phone, wide: false },
+    { icon: <Mail size={16} aria-hidden="true" />, label: 'Email', value: business.email, wide: false },
+    { icon: <MapPin size={16} aria-hidden="true" />, label: 'Address', value: address, wide: true },
   ];
 
-  const tabs = [
-    { id: 'overview', label: 'Overview', icon: <Info size={15} aria-hidden="true" /> },
+  const sections = [
+    { id: 'overview', label: 'Overview', icon: <Info size={16} aria-hidden="true" /> },
     {
       id: 'services',
       label: 'Services',
-      icon: <ListChecks size={15} aria-hidden="true" />,
+      icon: <ListChecks size={16} aria-hidden="true" />,
       count: business.services.length,
+    },
+    {
+      id: 'bookings',
+      label: 'Bookings',
+      icon: <CalendarDays size={16} aria-hidden="true" />,
+      count: bookingCount,
     },
     {
       id: 'photos',
       label: 'Photos',
-      icon: <ImageIcon size={15} aria-hidden="true" />,
+      icon: <ImageIcon size={16} aria-hidden="true" />,
       count: business.images.length,
     },
-    { id: 'hours', label: 'Hours', icon: <Clock size={15} aria-hidden="true" /> },
+    { id: 'hours', label: 'Hours', icon: <Clock size={16} aria-hidden="true" /> },
   ];
 
   return (
-    <AppShell
-      topbarExtra={
-        <>
-          {backButton}
-          <Button variant="secondary" onClick={goToEdit}>
-            Edit business
-          </Button>
-        </>
-      }
-    >
+    <AppShell>
+      <button type="button" className={styles.back} onClick={goBack}>
+        <ArrowLeft size={16} aria-hidden="true" />
+        All businesses
+      </button>
+
       {/* Hero: cover photo with the identity laid over a scrim. */}
       <header className={styles.hero}>
         {business.images.length > 0 ? (
@@ -107,6 +114,11 @@ export default function BusinessDetailPage() {
         )}
 
         <div className={styles.scrim} />
+
+        <button type="button" className={styles.editBtn} onClick={goToEdit}>
+          <Pencil size={15} aria-hidden="true" />
+          Edit business
+        </button>
 
         <div className={styles.heroContent}>
           <h1 className={styles.name}>{business.businessName}</h1>
@@ -130,58 +142,69 @@ export default function BusinessDetailPage() {
         </div>
       </header>
 
-      <div className={styles.stats}>
-        <StatTile
-          label="Services"
-          value={business.services.length}
-          icon={<ListChecks size={16} aria-hidden="true" />}
-          note={business.services.length === 0 ? 'Add your first service' : 'Bookable now'}
-        />
-        <StatTile
-          label="Bookings"
-          value={0}
-          icon={<CalendarDays size={16} aria-hidden="true" />}
-          note="Starts once customers can book"
-        />
-        <StatTile
-          label="Photos"
-          value={business.images.length}
-          icon={<ImagePlus size={16} aria-hidden="true" />}
-          note={business.images.length === 0 ? 'Photos lift bookings' : 'On your public profile'}
-        />
-      </div>
-
-      {/* Horizontal section switcher. */}
-      <Tabs tabs={tabs} active={activeTab} onChange={(id) => setActiveTab(id as BusinessTab)} />
+      {/* Themed section header. */}
+      <Tabs
+        tabs={sections}
+        active={activeTab}
+        onChange={(id) => setActiveTab(id as BusinessTab)}
+      />
 
       {/* Overview */}
       {activeTab === 'overview' && (
         <>
-          <Card title="About">
-            {business.description ? (
-              <p className={styles.about}>{business.description}</p>
-            ) : (
-              <p className={styles.muted}>
-                No description yet. A short paragraph about what you do helps customers choose you.
-              </p>
-            )}
-          </Card>
+          {/* Narrower graph on the left, About on the right. About matches the
+              graph's height and scrolls internally — it never resizes the graph. */}
+          <div className={`${styles.overviewCols} ${styles.overviewTop}`}>
+            <EarningsPanel providerId={business.id} />
 
-          <Card title="Contact & location">
-            <dl className={styles.infoGrid}>
-              {contact.map((item) => (
-                <div className={styles.infoItem} key={item.label}>
-                  <span className={styles.infoIcon}>{item.icon}</span>
-                  <div className={styles.infoText}>
-                    <dt className={styles.infoLabel}>{item.label}</dt>
-                    <dd className={styles.infoValue}>
-                      {item.value || <span className={styles.muted}>Not added</span>}
-                    </dd>
+            <div className={styles.aboutCell}>
+              <Card title="About" className={styles.aboutCard}>
+                {business.description ? (
+                  <p className={styles.about}>{business.description}</p>
+                ) : (
+                  <p className={styles.muted}>
+                    No description yet. A short paragraph about what you do helps customers choose
+                    you.
+                  </p>
+                )}
+              </Card>
+            </div>
+          </div>
+
+          {/* Full-width appointments with customer + payment details. */}
+          <UpcomingAppointments
+            providerId={business.id}
+            onViewAll={() => setActiveTab('bookings')}
+          />
+
+          <div className={styles.overviewCols}>
+            <Card title="Contact & location">
+              <dl className={styles.infoGrid}>
+                {contact.map((item) => (
+                  <div
+                    className={`${styles.infoItem} ${item.wide ? styles.infoItemWide : ''}`}
+                    key={item.label}
+                  >
+                    <span className={styles.infoIcon}>{item.icon}</span>
+                    <div className={styles.infoText}>
+                      <dt className={styles.infoLabel}>{item.label}</dt>
+                      <dd className={styles.infoValue}>
+                        {item.value || <span className={styles.muted}>Not added</span>}
+                      </dd>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </dl>
-          </Card>
+                ))}
+              </dl>
+            </Card>
+
+            <BusinessChecklist
+              business={business}
+              onGoTo={(t) => setActiveTab(t as BusinessTab)}
+              onEdit={goToEdit}
+            />
+          </div>
+
+          <BusinessReviews limit={3} onViewAll={goToReviews} />
         </>
       )}
 
@@ -189,6 +212,9 @@ export default function BusinessDetailPage() {
       {activeTab === 'services' && (
         <ServicesManager providerId={business.id} services={business.services} />
       )}
+
+      {/* Bookings */}
+      {activeTab === 'bookings' && <BusinessBookings providerId={business.id} />}
 
       {/* Photos */}
       {activeTab === 'photos' && (

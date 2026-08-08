@@ -17,11 +17,11 @@ function LoadingGrid() {
     <div className={styles.grid} aria-busy="true" aria-label="Loading your businesses">
       {[0, 1, 2].map((i) => (
         <div className={styles.card} key={i}>
-          <Skeleton height={140} radius={0} />
+          <Skeleton width={76} height={76} radius="var(--radius-md)" />
           <div className={styles.body}>
-            <Skeleton width="70%" height={18} />
-            <Skeleton width="45%" height={22} radius="999px" />
-            <Skeleton width="35%" height={14} />
+            <Skeleton width="70%" height={16} />
+            <Skeleton width="45%" height={20} radius="999px" />
+            <Skeleton width="55%" height={14} />
           </div>
         </div>
       ))}
@@ -31,8 +31,7 @@ function LoadingGrid() {
 
 /** JSX only — logic comes from useBusinessesPage. */
 export default function BusinessesPage() {
-  const { userName, businesses, isLoading, addBusiness, openBusiness, editBusiness, logout } =
-    useBusinessesPage();
+  const { businesses, isLoading, addBusiness, openBusiness, editBusiness } = useBusinessesPage();
 
   const addButton = (
     <Button onClick={addBusiness} iconLeft={<Plus size={18} aria-hidden="true" />}>
@@ -41,7 +40,7 @@ export default function BusinessesPage() {
   );
 
   return (
-    <AppShell userName={userName} onLogout={logout}>
+    <AppShell>
       <PageHeader
         title="Your businesses"
         subtitle={
@@ -79,22 +78,17 @@ export default function BusinessesPage() {
                 <span className={styles.srOnly}>Open {biz.businessName}</span>
               </button>
 
-              <div className={styles.cover}>
+              <div className={styles.thumb}>
                 {biz.images.length > 0 ? (
                   <img className={styles.coverImg} src={biz.images[0]} alt="" loading="lazy" />
                 ) : (
                   <CategoryIcon
                     slug={biz.category.slug}
-                    size={40}
+                    size={30}
                     strokeWidth={1.5}
                     className={styles.coverIcon}
                   />
                 )}
-                <span className={styles.rating}>
-                  <Star size={13} aria-hidden="true" />
-                  {biz.ratingAvg.toFixed(1)}
-                  <span className={styles.ratingCount}>({biz.ratingCount})</span>
-                </span>
               </div>
 
               <div className={styles.body}>
@@ -108,7 +102,7 @@ export default function BusinessesPage() {
                   {biz.subcategory?.name ?? biz.category.name}
                 </Badge>
 
-                <div className={styles.footer}>
+                <div className={styles.metaRow}>
                   <span className={styles.city}>
                     {biz.city ? (
                       <>
@@ -119,17 +113,22 @@ export default function BusinessesPage() {
                       <span className={styles.muted}>No location set</span>
                     )}
                   </span>
-
-                  <button
-                    type="button"
-                    className={styles.edit}
-                    onClick={() => editBusiness(biz.id)}
-                  >
-                    <Pencil size={14} aria-hidden="true" />
-                    Edit
-                  </button>
+                  <span className={styles.rating}>
+                    <Star size={13} aria-hidden="true" />
+                    {biz.ratingAvg.toFixed(1)}
+                    <span className={styles.ratingCount}>({biz.ratingCount})</span>
+                  </span>
                 </div>
               </div>
+
+              <button
+                type="button"
+                className={styles.edit}
+                onClick={() => editBusiness(biz.id)}
+                aria-label={`Edit ${biz.businessName}`}
+              >
+                <Pencil size={15} aria-hidden="true" />
+              </button>
             </article>
           ))}
         </div>

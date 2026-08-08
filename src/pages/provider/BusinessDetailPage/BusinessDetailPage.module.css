@@ -1,16 +1,18 @@
-/* ── Top-bar back button ──────────────────────────────────────────── */
+/* ── Rail header (back link + business title) ─────────────────────── */
 .back {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 38px;
-  padding: 0 12px;
-  border: 1px solid transparent;
-  border-radius: var(--radius-md);
+  align-self: flex-start;
+  margin-left: -6px;
+  padding: 4px 6px;
+  border: none;
+  border-radius: var(--radius-sm);
   background: transparent;
   font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--color-text-secondary);
+  cursor: pointer;
   transition:
     background var(--dur-fast) var(--ease-out),
     color var(--dur-fast) var(--ease-out);
@@ -18,12 +20,59 @@
 
 .back:hover {
   background: var(--color-surface-2);
-  color: var(--color-text-primary);
+  color: var(--color-primary);
 }
 
 .back:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px var(--color-primary-ring);
+}
+
+.railTitle {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+  line-height: 1.25;
+}
+
+.railSub {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+/* ── Hero edit button ─────────────────────────────────────────────── */
+.editBtn {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid var(--glass-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--color-white);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.editBtn:hover {
+  background: rgba(255, 255, 255, 0.24);
+  transform: translateY(-1px);
+}
+
+.editBtn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--glass-border-strong);
 }
 
 /* ── Hero ─────────────────────────────────────────────────────────── */
@@ -94,11 +143,77 @@
   gap: var(--space-sm);
 }
 
-/* ── Stat strip ───────────────────────────────────────────────────── */
-.stats {
+/* ── Overview two-column layout ───────────────────────────────────── */
+.overviewCols {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--space-md);
+  grid-template-columns: 1.6fr 1fr;
+  gap: var(--space-lg);
+  align-items: start;
+}
+
+/* Top row: the graph sets the row height; About stretches to match it. */
+.overviewTop {
+  align-items: stretch;
+}
+
+/*
+ * About's content is absolutely positioned inside its cell, so a long
+ * description can't grow the row (and therefore never resizes the graph).
+ * The cell is stretched to the graph's height; the card fills it and scrolls.
+ */
+.aboutCell {
+  position: relative;
+  min-width: 0;
+}
+.aboutCard {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.aboutCard > div {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  /* Shorten the scroll area so it stays inside the card's rounded edge. */
+  margin-bottom: var(--space-md);
+  /* Thin, subtle scrollbar. */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+.aboutCard > div::-webkit-scrollbar {
+  width: 5px;
+}
+.aboutCard > div::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-pill);
+}
+.aboutCard > div::-webkit-scrollbar-track {
+  background: transparent;
+}
+/* Space under the text — put it on the paragraph so it's honored at scroll end. */
+.aboutCard > div > p {
+  padding-bottom: var(--space-lg);
+}
+
+@media (max-width: 900px) {
+  .overviewCols {
+    grid-template-columns: 1fr;
+  }
+  /* Stacked: About flows normally at its natural height (no forced height). */
+  .overviewTop {
+    align-items: start;
+  }
+  .aboutCell {
+    position: static;
+  }
+  .aboutCard {
+    position: static;
+  }
+  .aboutCard > div {
+    overflow-y: visible;
+  }
 }
 
 /* ── Text blocks ──────────────────────────────────────────────────── */
@@ -130,6 +245,11 @@
   align-items: flex-start;
   gap: 10px;
   min-width: 0;
+}
+
+/* Address gets the full row so a long address wraps instead of truncating. */
+.infoItemWide {
+  grid-column: 1 / -1;
 }
 
 .infoIcon {
@@ -203,10 +323,6 @@
 }
 
 @media (max-width: 640px) {
-  .backLabel {
-    display: none;
-  }
-
   .heroContent {
     padding: var(--space-md);
   }

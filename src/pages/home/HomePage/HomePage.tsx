@@ -19,7 +19,7 @@ export default function HomePage() {
   const { userName, categories, isLoading, onCategoryClick } = useHomePage();
 
   return (
-    <AppShell userName={userName}>
+    <AppShell>
       <PageHeader
         title={userName ? `Hi, ${userName}` : 'Find a service'}
         subtitle="What do you need today? Pick a category to browse providers near you."

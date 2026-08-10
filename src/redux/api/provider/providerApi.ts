@@ -3,6 +3,8 @@ import { axiosBaseQuery } from '@/api/apiConfig';
 import { endpoints } from '@/api/endpoints';
 import {
   BusinessHour,
+  BusinessReview,
+  BookingStatus,
   CreateProviderRequest,
   DateHour,
   DateHourInput,
@@ -23,6 +25,7 @@ export const providerApi = createApi({
     'MyBusinesses',
     'MyBusiness',
     'MyBusinessBookings',
+    'BusinessReviews',
     'DateHours',
   ],
   endpoints: (builder) => ({
@@ -68,6 +71,27 @@ export const providerApi = createApi({
       query: (id) => ({ endpoint: endpoints.myProviderBookings(id), method: 'get' }),
       transformResponse: (res: ApiEnvelope<ProviderBooking[]>) => res.data,
       providesTags: (_r, _e, id) => [{ type: 'MyBusinessBookings', id }],
+    }),
+
+    // Provider changes a booking's status (confirm / complete / cancel + reason).
+    updateBookingStatus: builder.mutation<
+      ProviderBooking,
+      { id: string; bookingId: string; status: BookingStatus; reason?: string }
+    >({
+      query: ({ id, bookingId, status, reason }) => ({
+        endpoint: endpoints.myProviderBooking(id, bookingId),
+        method: 'patch',
+        data: { status, reason },
+      }),
+      transformResponse: (res: ApiEnvelope<ProviderBooking>) => res.data,
+      invalidatesTags: (_r, _e, { id }) => [{ type: 'MyBusinessBookings', id }],
+    }),
+
+    // Reviews for one owned business.
+    getBusinessReviews: builder.query<BusinessReview[], string>({
+      query: (id) => ({ endpoint: endpoints.myProviderReviews(id), method: 'get' }),
+      transformResponse: (res: ApiEnvelope<BusinessReview[]>) => res.data,
+      providesTags: (_r, _e, id) => [{ type: 'BusinessReviews', id }],
     }),
 
     // Update an owned business.
@@ -171,6 +195,8 @@ export const {
   useGetMyBusinessesQuery,
   useGetMyBusinessQuery,
   useGetBusinessBookingsQuery,
+  useUpdateBookingStatusMutation,
+  useGetBusinessReviewsQuery,
   useUpdateBusinessMutation,
   useUploadBusinessImagesMutation,
   useCreateServiceMutation,

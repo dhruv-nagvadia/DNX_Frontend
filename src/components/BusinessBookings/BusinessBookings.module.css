@@ -3,3 +3,116 @@
   flex-direction: column;
   gap: var(--space-sm);
 }
+
+.actionBtn {
+  padding: 4px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    opacity var(--dur-fast) var(--ease-out);
+}
+.actionBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.confirm {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+.confirm:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.complete {
+  background: rgba(22, 163, 74, 0.12);
+  color: var(--color-success);
+  border-color: rgba(22, 163, 74, 0.25);
+}
+.complete:hover:not(:disabled) {
+  background: rgba(22, 163, 74, 0.2);
+}
+
+.cancel {
+  background: var(--color-error-soft);
+  color: var(--color-error);
+  border-color: var(--color-error-border);
+}
+.cancel:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.16);
+}
+
+.noActions {
+  color: var(--color-text-secondary);
+}
+
+/* ── Cancel-with-reason modal ─────────────────────────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  background: rgba(6, 11, 24, 0.5);
+  backdrop-filter: blur(2px);
+}
+.modal {
+  width: 100%;
+  max-width: 440px;
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  padding: var(--space-lg);
+}
+.modalTitle {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+.modalSub {
+  margin: 4px 0 var(--space-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+.modalLabel {
+  display: block;
+  margin-bottom: 6px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+.optional {
+  font-weight: 400;
+  color: var(--color-text-secondary);
+}
+.textarea {
+  width: 100%;
+  min-height: 90px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  resize: vertical;
+}
+.textarea:focus-visible {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-ring);
+}
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}

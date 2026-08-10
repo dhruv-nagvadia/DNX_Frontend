@@ -25,6 +25,9 @@ export const endpoints = {
   myProviderHours: (id: string) => `/provider/businesses/${id}/hours`,
   myProviderDateHours: (id: string) => `/provider/businesses/${id}/date-hours`,
   myProviderBookings: (id: string) => `/provider/businesses/${id}/bookings`,
+  myProviderBooking: (id: string, bookingId: string) =>
+    `/provider/businesses/${id}/bookings/${bookingId}`,
+  myProviderReviews: (id: string) => `/provider/businesses/${id}/reviews`,
   providerServices: (providerId: string) => `/provider/businesses/${providerId}/services`,
   providerService: (providerId: string, serviceId: string) =>
     `/provider/businesses/${providerId}/services/${serviceId}`,

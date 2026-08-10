@@ -37,7 +37,7 @@ export default function ReviewsPage() {
             title="All reviews"
             subtitle="Everything customers have said about this business."
           />
-          <BusinessReviews />
+          <BusinessReviews providerId={id} />
         </>
       )}
     </AppShell>

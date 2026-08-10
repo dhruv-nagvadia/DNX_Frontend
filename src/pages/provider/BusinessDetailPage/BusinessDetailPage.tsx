@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   BadgeCheck,
   CalendarDays,
+  CalendarRange,
   Clock,
   Image as ImageIcon,
   ImagePlus,
@@ -19,6 +20,7 @@ import {
 import { AppShell } from '@/components/AppShell';
 import { Badge } from '@/components/Badge';
 import { BusinessBookings } from '@/components/BusinessBookings';
+import { BusinessCalendar } from '@/components/BusinessCalendar';
 import { BusinessChecklist } from '@/components/BusinessChecklist';
 import { BusinessHours } from '@/components/BusinessHours';
 import { BusinessReviews } from '@/components/BusinessReviews';
@@ -93,7 +95,7 @@ export default function BusinessDetailPage() {
       icon: <ImageIcon size={16} aria-hidden="true" />,
       count: business.images.length,
     },
-    { id: 'hours', label: 'Hours', icon: <Clock size={16} aria-hidden="true" /> },
+    { id: 'calendar', label: 'Calendar', icon: <CalendarRange size={16} aria-hidden="true" /> },
   ];
 
   return (
@@ -204,7 +206,7 @@ export default function BusinessDetailPage() {
             />
           </div>
 
-          <BusinessReviews limit={3} onViewAll={goToReviews} />
+          <BusinessReviews providerId={business.id} limit={3} onViewAll={goToReviews} />
         </>
       )}
 
@@ -263,9 +265,12 @@ export default function BusinessDetailPage() {
         </Card>
       )}
 
-      {/* Hours */}
-      {activeTab === 'hours' && (
-        <BusinessHours providerId={business.id} hours={business.businessHours} />
+      {/* Calendar: month/week schedule + per-date overrides, plus weekly hours. */}
+      {activeTab === 'calendar' && (
+        <>
+          <BusinessCalendar providerId={business.id} businessHours={business.businessHours} />
+          <BusinessHours providerId={business.id} hours={business.businessHours} />
+        </>
       )}
     </AppShell>
   );

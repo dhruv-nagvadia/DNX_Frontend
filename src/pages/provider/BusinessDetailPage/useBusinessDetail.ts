@@ -7,7 +7,7 @@ import {
   useUploadBusinessImagesMutation,
 } from '@/redux/api/provider/providerApi';
 
-export type BusinessTab = 'overview' | 'services' | 'bookings' | 'photos' | 'hours';
+export type BusinessTab = 'overview' | 'services' | 'bookings' | 'photos' | 'calendar';
 
 /** Loads one owned business and exposes image-upload + navigation actions. */
 export function useBusinessDetail() {

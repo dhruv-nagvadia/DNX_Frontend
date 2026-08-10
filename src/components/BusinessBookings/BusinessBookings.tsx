@@ -1,17 +1,95 @@
+import { useState } from 'react';
 import { CalendarX2 } from 'lucide-react';
 
 import { BookingsTable } from '@/components/BookingsTable';
+import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/Skeleton';
-import { useGetBusinessBookingsQuery } from '@/redux/api/provider/providerApi';
+import {
+  useGetBusinessBookingsQuery,
+  useUpdateBookingStatusMutation,
+} from '@/redux/api/provider/providerApi';
+import { BookingStatus, ProviderBooking } from '@/redux/api/provider/types';
 
 import { BusinessBookingsProps } from './types';
 import styles from './BusinessBookings.module.css';
 
-/** Read-only list of a business's bookings for the provider dashboard. */
+/** Read-only list of a business's bookings, with status actions. */
 export function BusinessBookings({ providerId }: BusinessBookingsProps) {
   const { data: bookings, isLoading } = useGetBusinessBookingsQuery(providerId);
+  const [updateStatus, { isLoading: updating }] = useUpdateBookingStatusMutation();
+
+  // Cancel-with-reason modal.
+  const [cancelling, setCancelling] = useState<ProviderBooking | null>(null);
+  const [reason, setReason] = useState('');
+
+  const setStatus = (bookingId: string, status: BookingStatus) =>
+    updateStatus({ id: providerId, bookingId, status });
+
+  const confirmCancel = async () => {
+    if (!cancelling) return;
+    try {
+      await updateStatus({
+        id: providerId,
+        bookingId: cancelling.id,
+        status: 'CANCELLED',
+        reason: reason.trim() || undefined,
+      }).unwrap();
+      setCancelling(null);
+      setReason('');
+    } catch {
+      // surfaced via mutation state
+    }
+  };
+
+  const renderActions = (b: ProviderBooking) => {
+    const cancelBtn = (
+      <button
+        type="button"
+        className={`${styles.actionBtn} ${styles.cancel}`}
+        disabled={updating}
+        onClick={() => {
+          setReason('');
+          setCancelling(b);
+        }}
+      >
+        Cancel
+      </button>
+    );
+
+    if (b.status === 'PENDING') {
+      return (
+        <>
+          <button
+            type="button"
+            className={`${styles.actionBtn} ${styles.confirm}`}
+            disabled={updating}
+            onClick={() => setStatus(b.id, 'CONFIRMED')}
+          >
+            Confirm
+          </button>
+          {cancelBtn}
+        </>
+      );
+    }
+    if (b.status === 'CONFIRMED') {
+      return (
+        <>
+          <button
+            type="button"
+            className={`${styles.actionBtn} ${styles.complete}`}
+            disabled={updating}
+            onClick={() => setStatus(b.id, 'COMPLETED')}
+          >
+            Complete
+          </button>
+          {cancelBtn}
+        </>
+      );
+    }
+    return <span className={styles.noActions}>—</span>;
+  };
 
   if (isLoading) {
     return (
@@ -41,8 +119,40 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
   );
 
   return (
-    <Card title="Bookings" subtitle={`${bookings.length} total · ${upcoming.length} upcoming`}>
-      <BookingsTable bookings={bookings} variant="status" />
-    </Card>
+    <>
+      <Card title="Bookings" subtitle={`${bookings.length} total · ${upcoming.length} upcoming`}>
+        <BookingsTable bookings={bookings} variant="status" renderActions={renderActions} />
+      </Card>
+
+      {cancelling && (
+        <div className={styles.overlay} role="dialog" aria-modal="true">
+          <div className={styles.modal}>
+            <h3 className={styles.modalTitle}>Cancel this booking?</h3>
+            <p className={styles.modalSub}>
+              {cancelling.user.fullName} · {cancelling.service.name}
+            </p>
+            <label className={styles.modalLabel} htmlFor="cancelReason">
+              Reason for the customer <span className={styles.optional}>(optional)</span>
+            </label>
+            <textarea
+              id="cancelReason"
+              className={styles.textarea}
+              placeholder="e.g. Sorry, we're fully booked at that time."
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              maxLength={500}
+            />
+            <div className={styles.modalActions}>
+              <Button variant="ghost" onClick={() => setCancelling(null)} disabled={updating}>
+                Keep booking
+              </Button>
+              <Button onClick={confirmCancel} loading={updating} loadingText="Cancelling…">
+                Cancel booking
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

@@ -26,7 +26,19 @@ export const authApi = createApi({
       transformResponse: (res: ApiEnvelope<AuthUser>) => res.data,
       providesTags: ['Me'],
     }),
+
+    updateMe: builder.mutation<AuthUser, { fullName?: string; email?: string; phone?: string }>({
+      query: (data) => ({ endpoint: endpoints.me, method: 'patch', data }),
+      transformResponse: (res: ApiEnvelope<AuthUser>) => res.data,
+      invalidatesTags: ['Me'],
+    }),
   }),
 });
 
-export const { useLoginMutation, useRegisterMutation, useGetMeQuery, useLazyGetMeQuery } = authApi;
+export const {
+  useLoginMutation,
+  useRegisterMutation,
+  useGetMeQuery,
+  useLazyGetMeQuery,
+  useUpdateMeMutation,
+} = authApi;

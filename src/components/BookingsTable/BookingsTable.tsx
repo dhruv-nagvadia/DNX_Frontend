@@ -1,3 +1,4 @@
+import { ReactNode } from 'react';
 import { Phone } from 'lucide-react';
 
 import { Badge } from '@/components/Badge';
@@ -30,6 +31,7 @@ const STATUS: Record<BookingStatus, { label: string; tone: BadgeTone }> = {
   CONFIRMED: { label: 'Confirmed', tone: 'accent' },
   COMPLETED: { label: 'Completed', tone: 'success' },
   CANCELLED: { label: 'Cancelled', tone: 'neutral' },
+  NO_SHOW: { label: 'No-show', tone: 'neutral' },
 };
 
 /** Payment state derived from booking status (no payments backend yet). */
@@ -43,28 +45,32 @@ interface BookingsTableProps {
   bookings: ProviderBooking[];
   /** Trailing badge column: booking status, or derived payment state. */
   variant?: 'status' | 'payment';
+  /** Optional actions column (e.g. confirm/complete/cancel buttons). */
+  renderActions?: (booking: ProviderBooking) => ReactNode;
 }
 
 /** Shared table used by the Bookings tab and the Overview appointments panel. */
-export function BookingsTable({ bookings, variant = 'status' }: BookingsTableProps) {
+export function BookingsTable({ bookings, variant = 'status', renderActions }: BookingsTableProps) {
   const trailingLabel = variant === 'payment' ? 'Payment' : 'Status';
+  const rowClass = `${styles.row} ${renderActions ? styles.withActions : ''}`;
 
   return (
     <div className={styles.table}>
-      <div className={`${styles.row} ${styles.head}`} aria-hidden="true">
+      <div className={`${rowClass} ${styles.head}`} aria-hidden="true">
         <span>When</span>
         <span>Customer</span>
         <span>Contact</span>
         <span>Service</span>
         <span className={styles.right}>Amount</span>
         <span className={styles.right}>{trailingLabel}</span>
+        {renderActions && <span className={styles.right}>Actions</span>}
       </div>
 
       {bookings.map((b) => {
         const start = new Date(b.startTime);
         const badge = variant === 'payment' ? payment(b.status) : STATUS[b.status];
         return (
-          <div className={styles.row} key={b.id}>
+          <div className={rowClass} key={b.id}>
             <span className={styles.when} data-label="When">
               <span className={styles.day}>{dateFmt.format(start)}</span>
               <span className={styles.time}>{timeFmt.format(start)}</span>
@@ -91,6 +97,11 @@ export function BookingsTable({ bookings, variant = 'status' }: BookingsTablePro
             <span className={`${styles.trailing} ${styles.right}`} data-label={trailingLabel}>
               <Badge tone={badge.tone}>{badge.label}</Badge>
             </span>
+            {renderActions && (
+              <span className={`${styles.actions} ${styles.right}`} data-label="Actions">
+                {renderActions(b)}
+              </span>
+            )}
           </div>
         );
       })}

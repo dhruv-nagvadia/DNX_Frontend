@@ -13,6 +13,16 @@
   border-radius: var(--radius-md);
   min-width: 0;
 }
+.withActions {
+  grid-template-columns: 110px 1fr 1fr 1fr auto auto auto;
+}
+
+.actions {
+  display: inline-flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
 
 .head {
   padding-top: 0;

@@ -1,0 +1,469 @@
+/* ── View toggle (header action) ──────────────────────────────────── */
+.viewToggle {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+}
+.viewBtn {
+  padding: 5px 14px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+.viewBtn:hover {
+  color: var(--color-text-primary);
+}
+.viewBtnActive {
+  background: var(--color-primary);
+  color: var(--color-white);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── Toolbar ──────────────────────────────────────────────────────── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+.nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.navBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.navBtn:hover {
+  background: var(--color-surface-2);
+}
+.todayBtn {
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+.todayBtn:hover {
+  background: var(--color-surface-2);
+}
+.period {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+/* ── Month grid ───────────────────────────────────────────────────── */
+.monthGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.dow {
+  padding: 4px 0;
+  text-align: center;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+.cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 92px;
+  padding: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+}
+.cell:hover {
+  border-color: #cbd5e1;
+}
+.cellMuted {
+  background: var(--color-surface-2);
+}
+.cellMuted .dayNum {
+  color: var(--color-text-secondary);
+  opacity: 0.6;
+}
+.cellClosed {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--color-surface-2),
+    var(--color-surface-2) 6px,
+    var(--color-surface) 6px,
+    var(--color-surface) 12px
+  );
+}
+.cellSelected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+
+.cellTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.dayNum {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+.dayNumToday {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+.overrideDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-accent-2);
+}
+
+.chips {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.chip {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+}
+.more {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+.closedTag {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+/* ── Week timeline ────────────────────────────────────────────────── */
+.weekWrap {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.weekHead {
+  display: grid;
+  grid-template-columns: 52px repeat(7, 1fr);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+}
+.axisSpacer {
+  border-right: 1px solid var(--color-border);
+}
+.weekHeadDay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 4px;
+  border: none;
+  border-left: 1px solid var(--color-border);
+  background: transparent;
+  cursor: pointer;
+}
+.weekHeadDay:hover {
+  background: var(--color-surface);
+}
+.weekHeadDaySel {
+  background: var(--color-primary-soft);
+}
+.weekDow {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+.weekDate {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+.weekDateToday {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+.weekBody {
+  display: grid;
+  grid-template-columns: 52px repeat(7, 1fr);
+  overflow-y: auto;
+}
+.axis {
+  border-right: 1px solid var(--color-border);
+}
+.axisHour {
+  position: relative;
+}
+.axisLabel {
+  position: absolute;
+  top: -7px;
+  right: 6px;
+  font-size: 10px;
+  color: var(--color-text-secondary);
+}
+.weekCol {
+  position: relative;
+  border-left: 1px solid var(--color-border);
+}
+.hourLine {
+  border-bottom: 1px solid var(--color-border);
+}
+.openBand {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  background: rgba(30, 58, 138, 0.06);
+  border-radius: var(--radius-sm);
+}
+.block {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 3px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  color: var(--color-white);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.blockTime {
+  font-size: 10px;
+  font-weight: 700;
+  opacity: 0.9;
+  font-variant-numeric: tabular-nums;
+}
+.blockName {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Legend ───────────────────────────────────────────────────────── */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+}
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.dotOpen {
+  background: rgba(30, 58, 138, 0.25);
+}
+.dotClosed {
+  background: var(--color-border);
+}
+.dotOverride {
+  background: var(--color-accent-2);
+}
+
+/* ── Day detail ───────────────────────────────────────────────────── */
+.dayBookings {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  list-style: none;
+  margin: 0 0 var(--space-lg);
+  padding: 0;
+}
+.dayBooking {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 8px var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+.dbTime {
+  flex: 0 0 auto;
+  min-width: 108px;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.dbWho {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dbService {
+  flex: 0 0 auto;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+.noBookings {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 var(--space-lg);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Override editor */
+.editor {
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--color-border);
+}
+.editorHead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: var(--space-md);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+.editorHead svg {
+  color: var(--color-primary);
+}
+.openRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-md);
+}
+.switch {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--color-border);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+  flex: 0 0 auto;
+}
+.switchOn {
+  background: var(--color-primary);
+}
+.knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-white);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.switchOn .knob {
+  transform: translateX(18px);
+}
+.times {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+.timeInput {
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+.timeInput:focus-visible {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-ring);
+}
+.dash {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+.editorActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+@media (max-width: 640px) {
+  .cell {
+    min-height: 72px;
+  }
+  .toolbar {
+    flex-wrap: wrap;
+  }
+}

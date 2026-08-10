@@ -62,7 +62,7 @@ export interface Provider {
   businessHours: BusinessHour[];
 }
 
-export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
+export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
 
 export interface ProviderBooking {
   id: string;
@@ -71,8 +71,17 @@ export interface ProviderBooking {
   endTime: string;
   amountMinor: number;
   currency: string;
+  cancelReason?: string | null;
   service: { name: string };
   user: { fullName: string; phone?: string | null };
+}
+
+export interface BusinessReview {
+  id: string;
+  rating: number;
+  comment?: string | null;
+  createdAt: string;
+  user: { fullName: string };
 }
 
 export interface ListProvidersParams {

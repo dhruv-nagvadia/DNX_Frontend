@@ -4,15 +4,19 @@ import {
   Image as ImageIcon,
   ListChecks,
   Mail,
+  Pencil,
   ShieldCheck,
   Star,
 } from 'lucide-react';
 
+import { AlertBanner } from '@/components/AlertBanner';
 import { AppShell } from '@/components/AppShell';
+import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { CategoryIcon } from '@/components/CategoryIcon';
 import { Skeleton } from '@/components/Skeleton';
 import { StatTile } from '@/components/StatTile';
+import { TextField } from '@/components/TextField';
 
 import { useProfilePage } from './useProfilePage';
 import styles from './ProfilePage.module.css';
@@ -30,7 +34,21 @@ function initialsOf(name: string): string {
 
 /** Provider account profile — identity, aggregate stats, and business showcase. */
 export default function ProfilePage() {
-  const { user, businesses, isLoading, stats, openBusiness } = useProfilePage();
+  const {
+    user,
+    businesses,
+    isLoading,
+    stats,
+    editing,
+    form,
+    error,
+    saving,
+    startEdit,
+    cancelEdit,
+    onField,
+    saveProfile,
+    openBusiness,
+  } = useProfilePage();
   const name = user?.fullName ?? 'Your account';
 
   return (
@@ -132,24 +150,68 @@ export default function ProfilePage() {
       </Card>
 
       {/* Account details */}
-      <Card title="Account details">
-        <dl className={styles.details}>
-          <div className={styles.detailItem}>
-            <dt className={styles.detailLabel}>Full name</dt>
-            <dd className={styles.detailValue}>{user?.fullName || '—'}</dd>
+      <Card
+        title="Account details"
+        action={
+          !editing ? (
+            <Button
+              variant="secondary"
+              onClick={startEdit}
+              iconLeft={<Pencil size={16} aria-hidden="true" />}
+            >
+              Edit
+            </Button>
+          ) : undefined
+        }
+      >
+        {editing ? (
+          <div className={styles.editForm}>
+            {error && <AlertBanner tone="error">{error}</AlertBanner>}
+            <TextField
+              dense
+              label="Full name"
+              name="fullName"
+              value={form.fullName}
+              onChange={(e) => onField('fullName', e.target.value)}
+            />
+            <TextField
+              dense
+              label="Email"
+              name="email"
+              type="email"
+              value={form.email}
+              onChange={(e) => onField('email', e.target.value)}
+            />
+            <div className={styles.editActions}>
+              <Button onClick={saveProfile} loading={saving} loadingText="Saving…">
+                Save changes
+              </Button>
+              <Button variant="ghost" onClick={cancelEdit}>
+                Cancel
+              </Button>
+            </div>
           </div>
-          <div className={styles.detailItem}>
-            <dt className={styles.detailLabel}>Email</dt>
-            <dd className={styles.detailValue}>{user?.email || '—'}</dd>
-          </div>
-          <div className={styles.detailItem}>
-            <dt className={styles.detailLabel}>Account type</dt>
-            <dd className={styles.detailValue}>Provider</dd>
-          </div>
-        </dl>
-        <p className={styles.hint}>
-          Business details like email, address and hours are managed on each business page.
-        </p>
+        ) : (
+          <>
+            <dl className={styles.details}>
+              <div className={styles.detailItem}>
+                <dt className={styles.detailLabel}>Full name</dt>
+                <dd className={styles.detailValue}>{user?.fullName || '—'}</dd>
+              </div>
+              <div className={styles.detailItem}>
+                <dt className={styles.detailLabel}>Email</dt>
+                <dd className={styles.detailValue}>{user?.email || '—'}</dd>
+              </div>
+              <div className={styles.detailItem}>
+                <dt className={styles.detailLabel}>Account type</dt>
+                <dd className={styles.detailValue}>Provider</dd>
+              </div>
+            </dl>
+            <p className={styles.hint}>
+              Business details like email, address and hours are managed on each business page.
+            </p>
+          </>
+        )}
       </Card>
     </AppShell>
   );

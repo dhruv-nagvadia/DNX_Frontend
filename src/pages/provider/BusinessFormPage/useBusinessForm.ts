@@ -23,6 +23,7 @@ const EMPTY: BusinessForm = {
   city: '',
   state: '',
   postalCode: '',
+  depositPercent: '',
 };
 
 const MAX_IMAGES = 8;
@@ -61,6 +62,7 @@ export function useBusinessForm() {
         city: existing.city ?? '',
         state: existing.state ?? '',
         postalCode: existing.postalCode ?? '',
+        depositPercent: existing.depositPercent ? String(existing.depositPercent) : '',
       });
     }
   }, [existing]);
@@ -127,6 +129,7 @@ export function useBusinessForm() {
         city: form.city.trim() || undefined,
         state: form.state.trim() || undefined,
         postalCode: form.postalCode.trim() || undefined,
+        depositPercent: form.depositPercent.trim() ? Number(form.depositPercent) : 0,
       };
 
       try {

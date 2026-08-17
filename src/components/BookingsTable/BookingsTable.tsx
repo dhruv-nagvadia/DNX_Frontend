@@ -34,11 +34,21 @@ const STATUS: Record<BookingStatus, { label: string; tone: BadgeTone }> = {
   NO_SHOW: { label: 'No-show', tone: 'neutral' },
 };
 
-/** Payment state derived from booking status (no payments backend yet). */
-function payment(status: BookingStatus): { label: string; tone: BadgeTone } {
-  return status === 'COMPLETED'
-    ? { label: 'Paid', tone: 'success' }
-    : { label: 'Pending', tone: 'warning' };
+/** Real payment state (Razorpay), including method (online / cash / partial). */
+function payment(b: ProviderBooking): { label: string; tone: BadgeTone } {
+  const cash = b.paymentMethod === 'CASH';
+  switch (b.paymentStatus) {
+    case 'PAID':
+      return { label: cash ? 'Paid (cash)' : 'Paid', tone: 'success' };
+    case 'PARTIAL':
+      return { label: 'Part-paid', tone: 'accent' };
+    case 'REFUNDED':
+      return { label: 'Refunded', tone: 'neutral' };
+    case 'FAILED':
+      return { label: 'Failed', tone: 'warning' };
+    default:
+      return { label: cash ? 'Cash' : 'Pending', tone: 'warning' };
+  }
 }
 
 interface BookingsTableProps {
@@ -68,7 +78,7 @@ export function BookingsTable({ bookings, variant = 'status', renderActions }: B
 
       {bookings.map((b) => {
         const start = new Date(b.startTime);
-        const badge = variant === 'payment' ? payment(b.status) : STATUS[b.status];
+        const badge = variant === 'payment' ? payment(b) : STATUS[b.status];
         return (
           <div className={rowClass} key={b.id}>
             <span className={styles.when} data-label="When">

@@ -185,6 +185,17 @@ export default function BusinessFormPage() {
                 onChange={onChange}
               />
             </div>
+
+            <TextField
+              dense
+              label="Advance deposit for partial bookings (%)"
+              name="depositPercent"
+              type="number"
+              inputMode="numeric"
+              placeholder="e.g. 20 — defaults to 20% if left blank"
+              value={form.depositPercent}
+              onChange={onChange}
+            />
           </div>
         </Card>
 

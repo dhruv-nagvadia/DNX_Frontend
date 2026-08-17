@@ -56,6 +56,7 @@ export interface Provider {
   ratingAvg: number;
   ratingCount: number;
   isVerified: boolean;
+  depositPercent?: number;
   category: Category;
   subcategory?: Subcategory | null;
   services: Service[];
@@ -63,6 +64,8 @@ export interface Provider {
 }
 
 export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
+export type PaymentStatus = 'PENDING' | 'PARTIAL' | 'PAID' | 'FAILED' | 'REFUNDED';
+export type PaymentMethod = 'ONLINE' | 'CASH' | 'PARTIAL';
 
 export interface ProviderBooking {
   id: string;
@@ -70,7 +73,10 @@ export interface ProviderBooking {
   startTime: string;
   endTime: string;
   amountMinor: number;
+  amountPaidMinor?: number;
   currency: string;
+  paymentMethod?: PaymentMethod;
+  paymentStatus?: PaymentStatus;
   cancelReason?: string | null;
   service: { name: string };
   user: { fullName: string; phone?: string | null };
@@ -103,4 +109,5 @@ export interface CreateProviderRequest {
   city?: string;
   state?: string;
   postalCode?: string;
+  depositPercent?: number;
 }

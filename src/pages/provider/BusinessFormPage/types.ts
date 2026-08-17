@@ -9,6 +9,7 @@ export interface BusinessForm {
   city: string;
   state: string;
   postalCode: string;
+  depositPercent: string;
 }
 
 export type BusinessFormErrors = Partial<Record<keyof BusinessForm, string>>;

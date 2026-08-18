@@ -1,4 +1,4 @@
-import { LogOut, Store, UserRound } from 'lucide-react';
+import { LayoutDashboard, LogOut, Store, UserRound } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
 
 import { AppShellProps } from './types';
@@ -18,6 +18,7 @@ function initialsOf(name: string): string {
 }
 
 const NAV = [
+  { to: '/dashboard', label: 'Home', icon: LayoutDashboard },
   { to: '/businesses', label: 'Businesses', icon: Store },
   { to: '/profile', label: 'Profile', icon: UserRound },
 ];
@@ -34,7 +35,7 @@ export function AppShell({ children, rail, wide }: AppShellProps) {
   return (
     <div className={styles.shell}>
       <aside className={styles.sidebar}>
-        <Link className={styles.brand} to="/businesses">
+        <Link className={styles.brand} to="/dashboard">
           <span className={styles.mark} aria-hidden="true">
             D
           </span>

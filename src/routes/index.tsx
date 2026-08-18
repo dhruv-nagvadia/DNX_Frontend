@@ -5,6 +5,7 @@ import { useAppSelector } from '@/redux/hooks';
 import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
 import HomePage from '@/pages/home/HomePage';
+import DashboardPage from '@/pages/provider/DashboardPage';
 import BusinessesPage from '@/pages/provider/BusinessesPage';
 import BusinessFormPage from '@/pages/provider/BusinessFormPage';
 import BusinessDetailPage from '@/pages/provider/BusinessDetailPage';
@@ -27,7 +28,7 @@ function PublicOnly({ children }: { children: ReactElement }) {
 function RootLanding() {
   const { isLoggedIn, currentUser } = useAppSelector((s) => s.user);
   if (!isLoggedIn) return <Navigate to="/login" replace />;
-  if (currentUser?.role === 'PROVIDER') return <Navigate to="/businesses" replace />;
+  if (currentUser?.role === 'PROVIDER') return <Navigate to="/dashboard" replace />;
   return <HomePage />;
 }
 
@@ -46,6 +47,14 @@ export const router = createBrowserRouter([
       <PublicOnly>
         <RegisterPage />
       </PublicOnly>
+    ),
+  },
+  {
+    path: '/dashboard',
+    element: (
+      <Protected>
+        <DashboardPage />
+      </Protected>
     ),
   },
   {

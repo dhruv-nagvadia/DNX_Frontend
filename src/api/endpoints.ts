@@ -19,6 +19,7 @@ export const endpoints = {
   providerById: (id: string) => `/customer/providers/${id}`,
 
   // Provider app — manage your own businesses (role PROVIDER)
+  myAllBookings: '/provider/bookings',
   myProviders: '/provider/businesses',
   myProviderById: (id: string) => `/provider/businesses/${id}`,
   myProviderImages: (id: string) => `/provider/businesses/${id}/images`,

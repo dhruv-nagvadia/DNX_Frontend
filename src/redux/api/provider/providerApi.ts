@@ -6,6 +6,7 @@ import {
   BusinessReview,
   BookingStatus,
   CreateProviderRequest,
+  DashboardBooking,
   DateHour,
   DateHourInput,
   ListProvidersParams,
@@ -26,6 +27,7 @@ export const providerApi = createApi({
     'MyBusinesses',
     'MyBusiness',
     'MyBusinessBookings',
+    'AllBookings',
     'BusinessReviews',
     'DateHours',
   ],
@@ -74,6 +76,13 @@ export const providerApi = createApi({
       providesTags: (_r, _e, id) => [{ type: 'MyBusinessBookings', id }],
     }),
 
+    // Every booking across all owned businesses (home dashboard).
+    getAllMyBookings: builder.query<DashboardBooking[], void>({
+      query: () => ({ endpoint: endpoints.myAllBookings, method: 'get' }),
+      transformResponse: (res: ApiEnvelope<DashboardBooking[]>) => res.data,
+      providesTags: ['AllBookings'],
+    }),
+
     // Provider changes a booking's status (confirm / complete / cancel + reason).
     updateBookingStatus: builder.mutation<
       ProviderBooking,
@@ -85,7 +94,7 @@ export const providerApi = createApi({
         data: { status, reason },
       }),
       transformResponse: (res: ApiEnvelope<ProviderBooking>) => res.data,
-      invalidatesTags: (_r, _e, { id }) => [{ type: 'MyBusinessBookings', id }],
+      invalidatesTags: (_r, _e, { id }) => [{ type: 'MyBusinessBookings', id }, 'AllBookings'],
     }),
 
     // Provider marks the outstanding cash balance as collected (cash / partial-remaining).
@@ -100,7 +109,7 @@ export const providerApi = createApi({
       transformResponse: (
         res: ApiEnvelope<{ bookingId: string; paymentStatus: PaymentStatus; amountPaidMinor: number }>,
       ) => res.data,
-      invalidatesTags: (_r, _e, { id }) => [{ type: 'MyBusinessBookings', id }],
+      invalidatesTags: (_r, _e, { id }) => [{ type: 'MyBusinessBookings', id }, 'AllBookings'],
     }),
 
     // Reviews for one owned business.
@@ -211,6 +220,7 @@ export const {
   useGetMyBusinessesQuery,
   useGetMyBusinessQuery,
   useGetBusinessBookingsQuery,
+  useGetAllMyBookingsQuery,
   useUpdateBookingStatusMutation,
   useCollectBookingPaymentMutation,
   useGetBusinessReviewsQuery,

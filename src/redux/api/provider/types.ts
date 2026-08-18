@@ -82,6 +82,11 @@ export interface ProviderBooking {
   user: { fullName: string; phone?: string | null };
 }
 
+/** A booking as seen on the cross-business home dashboard (carries its business). */
+export interface DashboardBooking extends ProviderBooking {
+  provider: { id: string; businessName: string };
+}
+
 export interface BusinessReview {
   id: string;
   rating: number;

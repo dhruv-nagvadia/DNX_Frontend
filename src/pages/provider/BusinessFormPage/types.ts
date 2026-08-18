@@ -1,4 +1,5 @@
 export interface BusinessForm {
+  type: 'SERVICE' | 'STORE';
   categoryId: string;
   subcategoryId: string;
   businessName: string;

@@ -11,6 +11,8 @@ import {
   DateHourInput,
   ListProvidersParams,
   PaymentStatus,
+  Product,
+  ProductInput,
   Provider,
   ProviderBooking,
   Service,
@@ -187,6 +189,38 @@ export const providerApi = createApi({
       invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }],
     }),
 
+    // ── Products (STORE catalog) ──────────────────────────────────────────────
+    createProduct: builder.mutation<Product, { providerId: string; data: ProductInput }>({
+      query: ({ providerId, data }) => ({
+        endpoint: endpoints.providerProducts(providerId),
+        method: 'post',
+        data,
+      }),
+      transformResponse: (res: ApiEnvelope<Product>) => res.data,
+      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }],
+    }),
+
+    updateProduct: builder.mutation<
+      Product,
+      { providerId: string; productId: string; data: Partial<ProductInput> & { isActive?: boolean } }
+    >({
+      query: ({ providerId, productId, data }) => ({
+        endpoint: endpoints.providerProduct(providerId, productId),
+        method: 'patch',
+        data,
+      }),
+      transformResponse: (res: ApiEnvelope<Product>) => res.data,
+      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }],
+    }),
+
+    deleteProduct: builder.mutation<null, { providerId: string; productId: string }>({
+      query: ({ providerId, productId }) => ({
+        endpoint: endpoints.providerProduct(providerId, productId),
+        method: 'delete',
+      }),
+      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }],
+    }),
+
     // Replace the weekly business hours.
     setBusinessHours: builder.mutation<Provider, { id: string; hours: BusinessHour[] }>({
       query: ({ id, hours }) => ({
@@ -249,6 +283,9 @@ export const {
   useCreateServiceMutation,
   useUpdateServiceMutation,
   useDeleteServiceMutation,
+  useCreateProductMutation,
+  useUpdateProductMutation,
+  useDeleteProductMutation,
   useSetBusinessHoursMutation,
   useGetDateHoursQuery,
   useSetDateHourMutation,

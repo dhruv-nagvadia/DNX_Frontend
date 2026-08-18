@@ -126,6 +126,18 @@
   border-top: 1px solid var(--color-border);
 }
 
+/* Business-mode (Service vs Store) picker at the top of step 1. */
+.modeSection {
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--color-border);
+}
+.hintText {
+  margin: var(--space-sm) 0 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
 .subLabel {
   margin: 0 0 var(--space-sm);
   font-size: var(--font-size-sm);

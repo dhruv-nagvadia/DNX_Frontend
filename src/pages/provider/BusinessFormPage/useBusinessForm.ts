@@ -13,6 +13,7 @@ import { BusinessForm, BusinessFormErrors, PickedImage } from './types';
 import { validateBusiness } from './validation';
 
 const EMPTY: BusinessForm = {
+  type: 'SERVICE',
   categoryId: '',
   subcategoryId: '',
   businessName: '',
@@ -34,7 +35,7 @@ export function useBusinessForm() {
   const { id } = useParams<{ id: string }>();
   const isEdit = !!id;
 
-  const { data: categories = [], isLoading: categoriesLoading } = useGetCategoriesQuery();
+  const { data: allCategories = [], isLoading: categoriesLoading } = useGetCategoriesQuery();
   const { data: existing, isLoading: loadingExisting } = useGetMyBusinessQuery(id as string, {
     skip: !isEdit,
   });
@@ -52,6 +53,7 @@ export function useBusinessForm() {
   useEffect(() => {
     if (existing) {
       setForm({
+        type: existing.type ?? 'SERVICE',
         categoryId: existing.category.id,
         subcategoryId: existing.subcategory?.id ?? '',
         businessName: existing.businessName,
@@ -73,6 +75,13 @@ export function useBusinessForm() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Switching mode clears the category (service and store categories differ).
+  const selectType = useCallback((type: 'SERVICE' | 'STORE') => {
+    setForm((prev) =>
+      prev.type === type ? prev : { ...prev, type, categoryId: '', subcategoryId: '' },
+    );
+  }, []);
+
   const selectCategory = useCallback((categoryId: string) => {
     // Changing the category clears the previously selected business type.
     setForm((prev) => ({ ...prev, categoryId, subcategoryId: '' }));
@@ -84,8 +93,11 @@ export function useBusinessForm() {
     setErrors((prev) => ({ ...prev, subcategoryId: undefined }));
   }, []);
 
+  // Only show categories that match the chosen mode (service vs store).
+  const categories = allCategories.filter((c) => (c.type ?? 'SERVICE') === form.type);
+
   // Business types available for the currently selected category.
-  const subcategories = categories.find((c) => c.id === form.categoryId)?.subcategories ?? [];
+  const subcategories = allCategories.find((c) => c.id === form.categoryId)?.subcategories ?? [];
 
   const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -119,6 +131,7 @@ export function useBusinessForm() {
       if (Object.keys(validationErrors).length > 0) return;
 
       const payload = {
+        type: form.type,
         categoryId: form.categoryId,
         subcategoryId: form.subcategoryId || undefined,
         businessName: form.businessName.trim(),
@@ -164,6 +177,7 @@ export function useBusinessForm() {
     serverError,
     submitting: creating || updating || uploading,
     maxImages: MAX_IMAGES,
+    selectType,
     selectCategory,
     selectSubcategory,
     onChange,

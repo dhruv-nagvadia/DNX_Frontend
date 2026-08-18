@@ -27,6 +27,7 @@ export default function BusinessFormPage() {
     serverError,
     submitting,
     maxImages,
+    selectType,
     selectCategory,
     selectSubcategory,
     onChange,
@@ -78,6 +79,33 @@ export default function BusinessFormPage() {
           title="Business type"
           subtitle="Choose the category that fits best."
         >
+          <div className={styles.modeSection}>
+            <p className={styles.subLabel}>What does this business offer?</p>
+            <div className={styles.chips}>
+              <button
+                type="button"
+                aria-pressed={form.type === 'SERVICE'}
+                className={`${styles.chip} ${form.type === 'SERVICE' ? styles.chipActive : ''}`}
+                onClick={() => selectType('SERVICE')}
+              >
+                Services — appointments
+              </button>
+              <button
+                type="button"
+                aria-pressed={form.type === 'STORE'}
+                className={`${styles.chip} ${form.type === 'STORE' ? styles.chipActive : ''}`}
+                onClick={() => selectType('STORE')}
+              >
+                Products — store
+              </button>
+            </div>
+            <p className={styles.hintText}>
+              {form.type === 'STORE'
+                ? 'Customers browse your products and place pickup orders — no time slots.'
+                : 'Customers book a time slot for a service (haircut, spa, dentist…).'}
+            </p>
+          </div>
+
           {categoriesLoading ? (
             <div className={styles.grid}>
               {[0, 1, 2, 3, 4, 5].map((i) => (

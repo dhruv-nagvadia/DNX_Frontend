@@ -34,4 +34,7 @@ export const endpoints = {
   providerServices: (providerId: string) => `/provider/businesses/${providerId}/services`,
   providerService: (providerId: string, serviceId: string) =>
     `/provider/businesses/${providerId}/services/${serviceId}`,
+  providerProducts: (providerId: string) => `/provider/businesses/${providerId}/products`,
+  providerProduct: (providerId: string, productId: string) =>
+    `/provider/businesses/${providerId}/products/${productId}`,
 };

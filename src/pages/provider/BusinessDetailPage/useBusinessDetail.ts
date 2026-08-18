@@ -9,7 +9,13 @@ import {
   useUploadBusinessImagesMutation,
 } from '@/redux/api/provider/providerApi';
 
-export type BusinessTab = 'overview' | 'services' | 'bookings' | 'photos' | 'calendar';
+export type BusinessTab =
+  | 'overview'
+  | 'services'
+  | 'products'
+  | 'bookings'
+  | 'photos'
+  | 'calendar';
 
 /** Loads one owned business and exposes image-upload + navigation actions. */
 export function useBusinessDetail() {
@@ -24,6 +30,8 @@ export function useBusinessDetail() {
   const [activeTab, setActiveTab] = useState<BusinessTab>('overview');
 
   const notFound = !!error && (error as { status?: number }).status === 404;
+  // Any other load failure (e.g. server down / not restarted after a schema change).
+  const loadFailed = !!error && !notFound;
   const bookingCount = bookings?.length ?? 0;
 
   const addImages = useCallback(
@@ -83,6 +91,7 @@ export function useBusinessDetail() {
     business,
     isLoading,
     notFound,
+    loadFailed,
     uploading,
     savingImages,
     deleting,

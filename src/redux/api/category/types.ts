@@ -12,5 +12,6 @@ export interface Category {
   description?: string | null;
   iconUrl?: string | null;
   sortOrder: number;
+  type?: 'SERVICE' | 'STORE';
   subcategories: Subcategory[];
 }

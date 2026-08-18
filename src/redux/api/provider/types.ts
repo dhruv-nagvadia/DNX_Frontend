@@ -18,6 +18,31 @@ export interface ServiceInput {
   durationMin: number;
 }
 
+export type BusinessType = 'SERVICE' | 'STORE';
+
+export interface Product {
+  id: string;
+  name: string;
+  description?: string | null;
+  priceMinor: number;
+  currency: string;
+  unit: string;
+  section?: string | null;
+  stockQty: number;
+  imageUrl?: string | null;
+  isActive?: boolean;
+}
+
+export interface ProductInput {
+  name: string;
+  description?: string;
+  // Price in major units (rupees); the API converts to minor units.
+  price: number;
+  unit?: string;
+  section?: string;
+  stockQty?: number;
+}
+
 export interface BusinessHour {
   id?: string;
   dayOfWeek: number; // 0 = Sunday ... 6 = Saturday
@@ -45,6 +70,7 @@ export interface DateHourInput {
 export interface Provider {
   id: string;
   businessName: string;
+  type?: BusinessType;
   description?: string | null;
   phone: string;
   email?: string | null;
@@ -60,6 +86,7 @@ export interface Provider {
   category: Category;
   subcategory?: Subcategory | null;
   services: Service[];
+  products?: Product[];
   businessHours: BusinessHour[];
 }
 
@@ -107,6 +134,7 @@ export interface CreateProviderRequest {
   businessName: string;
   categoryId: string;
   subcategoryId?: string;
+  type?: BusinessType;
   phone: string;
   email?: string;
   description?: string;

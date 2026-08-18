@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -15,6 +15,7 @@ import {
   Pencil,
   Phone,
   Star,
+  Trash2,
 } from 'lucide-react';
 
 import { AppShell } from '@/components/AppShell';
@@ -43,15 +44,21 @@ export default function BusinessDetailPage() {
     isLoading,
     notFound,
     uploading,
+    savingImages,
+    deleting,
     bookingCount,
     activeTab,
     setActiveTab,
     addImages,
+    setCover,
+    removeImage,
+    remove,
     goToEdit,
     goToReviews,
     goBack,
   } = useBusinessDetail();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   if (notFound) return <Navigate to="/businesses" replace />;
 
@@ -207,6 +214,25 @@ export default function BusinessDetailPage() {
           </div>
 
           <BusinessReviews providerId={business.id} limit={3} onViewAll={goToReviews} />
+
+          <Card title="Danger zone" subtitle="Irreversible actions for this business.">
+            <div className={styles.dangerZone}>
+              <div className={styles.dangerText}>
+                <span className={styles.dangerTitle}>Delete this business</span>
+                <span className={styles.dangerSub}>
+                  Removes the business and all its bookings, reviews, services and hours.
+                </span>
+              </div>
+              <button
+                type="button"
+                className={styles.dangerBtn}
+                onClick={() => setConfirmingDelete(true)}
+              >
+                <Trash2 size={15} aria-hidden="true" />
+                Delete business
+              </button>
+            </div>
+          </Card>
         </>
       )}
 
@@ -254,6 +280,29 @@ export default function BusinessDetailPage() {
                 <div className={styles.galleryItem} key={url}>
                   <img className={styles.galleryImg} src={url} alt="" loading="lazy" />
                   {i === 0 && <span className={styles.coverTag}>Cover</span>}
+                  <div className={styles.galleryOverlay}>
+                    {i !== 0 && (
+                      <button
+                        type="button"
+                        className={styles.galleryBtn}
+                        disabled={savingImages}
+                        onClick={() => setCover(url)}
+                      >
+                        <Star size={13} aria-hidden="true" />
+                        Set cover
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className={`${styles.galleryBtn} ${styles.galleryBtnDanger}`}
+                      disabled={savingImages}
+                      onClick={() => removeImage(url)}
+                      aria-label="Remove photo"
+                    >
+                      <Trash2 size={13} aria-hidden="true" />
+                      Remove
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -271,6 +320,26 @@ export default function BusinessDetailPage() {
           <BusinessCalendar providerId={business.id} businessHours={business.businessHours} />
           <BusinessHours providerId={business.id} hours={business.businessHours} />
         </>
+      )}
+
+      {confirmingDelete && (
+        <div className={styles.deleteOverlay} role="dialog" aria-modal="true">
+          <div className={styles.deleteModal}>
+            <h3 className={styles.deleteTitle}>Delete “{business.businessName}”?</h3>
+            <p className={styles.deleteText}>
+              This permanently removes the business along with all its bookings, reviews, services
+              and hours. This can’t be undone.
+            </p>
+            <div className={styles.deleteActions}>
+              <Button variant="ghost" onClick={() => setConfirmingDelete(false)} disabled={deleting}>
+                Keep business
+              </Button>
+              <Button onClick={remove} loading={deleting} loadingText="Deleting…">
+                Delete business
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </AppShell>
   );

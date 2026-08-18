@@ -126,6 +126,24 @@ export const providerApi = createApi({
       invalidatesTags: (_r, _e, { id }) => [{ type: 'MyBusiness', id }, 'MyBusinesses'],
     }),
 
+    // Permanently delete an owned business (and all its bookings/reviews/etc).
+    deleteBusiness: builder.mutation<{ id: string }, string>({
+      query: (id) => ({ endpoint: endpoints.myProviderById(id), method: 'delete' }),
+      transformResponse: (res: ApiEnvelope<{ id: string }>) => res.data,
+      invalidatesTags: ['MyBusinesses', 'AllBookings'],
+    }),
+
+    // Replace the ordered gallery (set cover / remove / reorder photos).
+    setBusinessImages: builder.mutation<Provider, { id: string; images: string[] }>({
+      query: ({ id, images }) => ({
+        endpoint: endpoints.myProviderImages(id),
+        method: 'put',
+        data: { images },
+      }),
+      transformResponse: (res: ApiEnvelope<Provider>) => res.data,
+      invalidatesTags: (_r, _e, { id }) => [{ type: 'MyBusiness', id }, 'MyBusinesses'],
+    }),
+
     // Upload gallery images to a specific owned business (multipart/form-data).
     uploadBusinessImages: builder.mutation<Provider, { id: string; formData: FormData }>({
       query: ({ id, formData }) => ({
@@ -225,6 +243,8 @@ export const {
   useCollectBookingPaymentMutation,
   useGetBusinessReviewsQuery,
   useUpdateBusinessMutation,
+  useDeleteBusinessMutation,
+  useSetBusinessImagesMutation,
   useUploadBusinessImagesMutation,
   useCreateServiceMutation,
   useUpdateServiceMutation,

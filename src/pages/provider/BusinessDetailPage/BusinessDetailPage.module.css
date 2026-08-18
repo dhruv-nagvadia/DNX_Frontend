@@ -318,6 +318,131 @@
   font-weight: 700;
 }
 
+/* Hover controls over each photo: set cover / remove. */
+.galleryOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+  background: linear-gradient(to top, rgba(6, 11, 24, 0.72), rgba(6, 11, 24, 0) 60%);
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+.galleryItem:hover .galleryOverlay,
+.galleryItem:focus-within .galleryOverlay {
+  opacity: 1;
+}
+
+.galleryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--color-white);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.galleryBtn:hover:not(:disabled) {
+  background: var(--color-surface-2);
+}
+.galleryBtn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.galleryBtnDanger {
+  background: var(--color-error);
+  color: var(--color-white);
+}
+.galleryBtnDanger:hover:not(:disabled) {
+  background: var(--color-error);
+  filter: brightness(0.94);
+}
+
+/* ── Danger zone ──────────────────────────────────────────────────── */
+.dangerZone {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+.dangerText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.dangerTitle {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+.dangerSub {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+.dangerBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid var(--color-error-border);
+  border-radius: var(--radius-md);
+  background: var(--color-error-soft);
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.dangerBtn:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.16);
+}
+
+/* ── Delete confirmation modal ────────────────────────────────────── */
+.deleteOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  background: rgba(6, 11, 24, 0.5);
+  backdrop-filter: blur(2px);
+}
+.deleteModal {
+  width: 100%;
+  max-width: 440px;
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  padding: var(--space-lg);
+}
+.deleteTitle {
+  margin: 0 0 6px;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+.deleteText {
+  margin: 0 0 var(--space-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+.deleteActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+}
+
 .hiddenInput {
   display: none;
 }

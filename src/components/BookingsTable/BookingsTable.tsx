@@ -53,15 +53,16 @@ function payment(b: ProviderBooking): { label: string; tone: BadgeTone } {
 
 interface BookingsTableProps {
   bookings: ProviderBooking[];
-  /** Trailing badge column: booking status, or derived payment state. */
-  variant?: 'status' | 'payment';
+  /** Trailing badge column: status, payment state, or both stacked. */
+  variant?: 'status' | 'payment' | 'both';
   /** Optional actions column (e.g. confirm/complete/cancel buttons). */
   renderActions?: (booking: ProviderBooking) => ReactNode;
 }
 
 /** Shared table used by the Bookings tab and the Overview appointments panel. */
 export function BookingsTable({ bookings, variant = 'status', renderActions }: BookingsTableProps) {
-  const trailingLabel = variant === 'payment' ? 'Payment' : 'Status';
+  const trailingLabel =
+    variant === 'payment' ? 'Payment' : variant === 'both' ? 'Status & payment' : 'Status';
   const rowClass = `${styles.row} ${renderActions ? styles.withActions : ''}`;
 
   return (
@@ -70,15 +71,17 @@ export function BookingsTable({ bookings, variant = 'status', renderActions }: B
         <span>When</span>
         <span>Customer</span>
         <span>Contact</span>
-        <span>Service</span>
-        <span className={styles.right}>Amount</span>
+        <span className={styles.colService}>Service</span>
+        <span className={`${styles.right} ${styles.colAmount}`}>Amount</span>
         <span className={styles.right}>{trailingLabel}</span>
         {renderActions && <span className={styles.right}>Actions</span>}
       </div>
 
       {bookings.map((b) => {
         const start = new Date(b.startTime);
-        const badge = variant === 'payment' ? payment(b) : STATUS[b.status];
+        const statusBadge = STATUS[b.status];
+        const payBadge = payment(b);
+        const badge = variant === 'payment' ? payBadge : statusBadge;
         return (
           <div className={rowClass} key={b.id}>
             <span className={styles.when} data-label="When">
@@ -98,14 +101,21 @@ export function BookingsTable({ bookings, variant = 'status', renderActions }: B
                 <span className={styles.muted}>—</span>
               )}
             </span>
-            <span className={styles.service} data-label="Service">
+            <span className={`${styles.service} ${styles.colService}`} data-label="Service">
               {b.service.name}
             </span>
-            <span className={`${styles.amount} ${styles.right}`} data-label="Amount">
+            <span className={`${styles.amount} ${styles.right} ${styles.colAmount}`} data-label="Amount">
               {money(b.amountMinor, b.currency)}
             </span>
             <span className={`${styles.trailing} ${styles.right}`} data-label={trailingLabel}>
-              <Badge tone={badge.tone}>{badge.label}</Badge>
+              {variant === 'both' ? (
+                <span className={styles.stack}>
+                  <Badge tone={statusBadge.tone}>{statusBadge.label}</Badge>
+                  <Badge tone={payBadge.tone}>{payBadge.label}</Badge>
+                </span>
+              ) : (
+                <Badge tone={badge.tone}>{badge.label}</Badge>
+              )}
             </span>
             {renderActions && (
               <span className={`${styles.actions} ${styles.right}`} data-label="Actions">

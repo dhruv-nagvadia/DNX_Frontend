@@ -173,7 +173,7 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
   return (
     <>
       <Card title="Bookings" subtitle={`${bookings.length} total · ${upcoming.length} upcoming`}>
-        <BookingsTable bookings={bookings} variant="status" renderActions={renderActions} />
+        <BookingsTable bookings={bookings} variant="both" renderActions={renderActions} />
       </Card>
 
       {cancelling && (

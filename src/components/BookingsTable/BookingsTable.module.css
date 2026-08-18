@@ -6,7 +6,9 @@
 
 .row {
   display: grid;
-  grid-template-columns: 120px 1.2fr 1.2fr 1fr auto auto;
+  /* Fixed trailing tracks (not auto) so every row — each its own grid — resolves
+     identical columns and lines up, regardless of how wide the actions get. */
+  grid-template-columns: 120px 1.2fr 1.2fr 1fr 96px 140px;
   align-items: center;
   gap: var(--space-md);
   padding: 10px var(--space-md);
@@ -14,7 +16,7 @@
   min-width: 0;
 }
 .withActions {
-  grid-template-columns: 110px 1fr 1fr 1fr auto auto auto;
+  grid-template-columns: 110px 1fr 1fr 1fr 96px 140px 248px;
 }
 
 .actions {
@@ -22,6 +24,16 @@
   gap: 6px;
   flex-wrap: wrap;
   justify-content: flex-end;
+  align-items: center;
+}
+
+/* Extra breathing room at two specific boundaries (applied to header + body so
+   they stay aligned): a gap before Service, and after Amount before Status. */
+.colService {
+  padding-left: var(--space-md);
+}
+.colAmount {
+  padding-right: var(--space-md);
 }
 
 .head {
@@ -45,6 +57,14 @@
 .right {
   text-align: right;
   justify-self: end;
+}
+
+/* Two badges stacked in one trailing cell (status + payment). */
+.stack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
 }
 
 .when {

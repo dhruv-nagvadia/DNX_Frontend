@@ -7,10 +7,34 @@ import { Card } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/Skeleton';
 import {
+  useCollectBookingPaymentMutation,
   useGetBusinessBookingsQuery,
   useUpdateBookingStatusMutation,
 } from '@/redux/api/provider/providerApi';
 import { BookingStatus, ProviderBooking } from '@/redux/api/provider/types';
+
+/** Amount still owed on a booking (0 if fully paid). */
+const outstanding = (b: ProviderBooking) => b.amountMinor - (b.amountPaidMinor ?? 0);
+
+/** A cash / partial booking whose balance the provider still needs to collect. */
+const needsCollection = (b: ProviderBooking) =>
+  b.status !== 'CANCELLED' &&
+  (b.paymentMethod === 'CASH' || b.paymentMethod === 'PARTIAL') &&
+  b.paymentStatus !== 'PAID' &&
+  b.paymentStatus !== 'REFUNDED' &&
+  outstanding(b) > 0;
+
+function money(minor: number, currency: string): string {
+  try {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency,
+      maximumFractionDigits: 0,
+    }).format(minor / 100);
+  } catch {
+    return `${Math.round(minor / 100)}`;
+  }
+}
 
 import { BusinessBookingsProps } from './types';
 import styles from './BusinessBookings.module.css';
@@ -19,10 +43,14 @@ import styles from './BusinessBookings.module.css';
 export function BusinessBookings({ providerId }: BusinessBookingsProps) {
   const { data: bookings, isLoading } = useGetBusinessBookingsQuery(providerId);
   const [updateStatus, { isLoading: updating }] = useUpdateBookingStatusMutation();
+  const [collectPayment, { isLoading: collecting }] = useCollectBookingPaymentMutation();
 
   // Cancel-with-reason modal.
   const [cancelling, setCancelling] = useState<ProviderBooking | null>(null);
   const [reason, setReason] = useState('');
+
+  // Collect-cash confirmation modal.
+  const [settling, setSettling] = useState<ProviderBooking | null>(null);
 
   const setStatus = (bookingId: string, status: BookingStatus) =>
     updateStatus({ id: providerId, bookingId, status });
@@ -43,6 +71,16 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
     }
   };
 
+  const confirmCollect = async () => {
+    if (!settling) return;
+    try {
+      await collectPayment({ id: providerId, bookingId: settling.id }).unwrap();
+      setSettling(null);
+    } catch {
+      // surfaced via mutation state
+    }
+  };
+
   const renderActions = (b: ProviderBooking) => {
     const cancelBtn = (
       <button
@@ -58,6 +96,17 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
       </button>
     );
 
+    const collectBtn = needsCollection(b) ? (
+      <button
+        type="button"
+        className={`${styles.actionBtn} ${styles.collect}`}
+        disabled={collecting}
+        onClick={() => setSettling(b)}
+      >
+        Collect {money(outstanding(b), b.currency)}
+      </button>
+    ) : null;
+
     if (b.status === 'PENDING') {
       return (
         <>
@@ -70,6 +119,7 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
             Confirm
           </button>
           {cancelBtn}
+          {collectBtn}
         </>
       );
     }
@@ -85,10 +135,12 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
             Complete
           </button>
           {cancelBtn}
+          {collectBtn}
         </>
       );
     }
-    return <span className={styles.noActions}>—</span>;
+    // Terminal statuses (e.g. COMPLETED) may still have cash left to collect.
+    return collectBtn ?? <span className={styles.noActions}>—</span>;
   };
 
   if (isLoading) {
@@ -148,6 +200,31 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
               </Button>
               <Button onClick={confirmCancel} loading={updating} loadingText="Cancelling…">
                 Cancel booking
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {settling && (
+        <div className={styles.overlay} role="dialog" aria-modal="true">
+          <div className={styles.modal}>
+            <h3 className={styles.modalTitle}>
+              Collect {money(outstanding(settling), settling.currency)} in cash?
+            </h3>
+            <p className={styles.modalSub}>
+              {settling.user.fullName} · {settling.service.name}
+              {settling.paymentMethod === 'PARTIAL' && ' · balance after the online deposit'}
+            </p>
+            <p className={styles.modalSub}>
+              This marks the booking fully paid. Only confirm once you’ve received the cash.
+            </p>
+            <div className={styles.modalActions}>
+              <Button variant="ghost" onClick={() => setSettling(null)} disabled={collecting}>
+                Not yet
+              </Button>
+              <Button onClick={confirmCollect} loading={collecting} loadingText="Saving…">
+                Mark paid
               </Button>
             </div>
           </div>

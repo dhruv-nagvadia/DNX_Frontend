@@ -9,6 +9,7 @@ import {
   DateHour,
   DateHourInput,
   ListProvidersParams,
+  PaymentStatus,
   Provider,
   ProviderBooking,
   Service,
@@ -84,6 +85,21 @@ export const providerApi = createApi({
         data: { status, reason },
       }),
       transformResponse: (res: ApiEnvelope<ProviderBooking>) => res.data,
+      invalidatesTags: (_r, _e, { id }) => [{ type: 'MyBusinessBookings', id }],
+    }),
+
+    // Provider marks the outstanding cash balance as collected (cash / partial-remaining).
+    collectBookingPayment: builder.mutation<
+      { bookingId: string; paymentStatus: PaymentStatus; amountPaidMinor: number },
+      { id: string; bookingId: string }
+    >({
+      query: ({ id, bookingId }) => ({
+        endpoint: endpoints.myProviderBookingCollect(id, bookingId),
+        method: 'post',
+      }),
+      transformResponse: (
+        res: ApiEnvelope<{ bookingId: string; paymentStatus: PaymentStatus; amountPaidMinor: number }>,
+      ) => res.data,
       invalidatesTags: (_r, _e, { id }) => [{ type: 'MyBusinessBookings', id }],
     }),
 
@@ -196,6 +212,7 @@ export const {
   useGetMyBusinessQuery,
   useGetBusinessBookingsQuery,
   useUpdateBookingStatusMutation,
+  useCollectBookingPaymentMutation,
   useGetBusinessReviewsQuery,
   useUpdateBusinessMutation,
   useUploadBusinessImagesMutation,

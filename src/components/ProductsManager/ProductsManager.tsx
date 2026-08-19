@@ -1,13 +1,17 @@
-import { Boxes, Layers, Pencil, Plus, Trash2 } from 'lucide-react';
+import { useRef } from 'react';
+import { Boxes, ChevronDown, ImagePlus, Layers, Pencil, Plus, Trash2 } from 'lucide-react';
 
 import { AlertBanner } from '@/components/AlertBanner';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Product } from '@/redux/api/provider/types';
+import { SECTION_SUGGESTIONS, UNIT_GROUPS, stockLabel, unitShort } from '@/utils/units';
 import { ProductsManagerProps } from './types';
 import { useProductsManager } from './useProductsManager';
-// Reuse the ServicesManager styles — same list/form visual language.
+// Reuse the ServicesManager styles for the generic form/list…
 import styles from '@/components/ServicesManager/ServicesManager.module.css';
+// …plus polished controls for the unit/price/stock row.
+import ui from './ProductsManager.module.css';
 
 function formatPrice(minor: number, currency: string) {
   const amount = (minor / 100).toLocaleString('en-IN');
@@ -16,8 +20,24 @@ function formatPrice(minor: number, currency: string) {
 
 /** Add / edit / delete the products a STORE business sells. */
 export function ProductsManager({ providerId, products }: ProductsManagerProps) {
-  const { editing, form, error, saving, startAdd, startEdit, cancel, onChange, submit, remove, toggleActive } =
-    useProductsManager(providerId);
+  const {
+    editing,
+    form,
+    error,
+    saving,
+    uploadingImage,
+    startAdd,
+    startEdit,
+    cancel,
+    onChange,
+    pickImage,
+    clearImage,
+    submit,
+    remove,
+    toggleActive,
+  } = useProductsManager(providerId);
+
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const renderForm = (isNew: boolean) => (
     <form className={styles.form} onSubmit={submit}>
@@ -37,71 +57,140 @@ export function ProductsManager({ providerId, products }: ProductsManagerProps) 
         />
       </div>
 
-      <div className={styles.row2}>
+      <div className={ui.grid3}>
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="unit">
+            Sold by
+          </label>
+          <div className={ui.selectWrap}>
+            <select
+              id="unit"
+              name="unit"
+              className={ui.select}
+              value={form.unit}
+              onChange={onChange}
+            >
+              {UNIT_GROUPS.map((group) => (
+                <optgroup key={group.measure} label={group.label}>
+                  {group.units.map((u) => (
+                    <option key={u.value} value={u.value}>
+                      {u.label}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+            <ChevronDown size={16} className={ui.chev} aria-hidden="true" />
+          </div>
+        </div>
+
         <div className={styles.field}>
           <label className={styles.label} htmlFor="price">
             Price
           </label>
-          <div className={styles.inputPrefix}>
-            <span className={styles.prefix}>₹</span>
+          <div className={ui.affix}>
+            <span className={ui.pre}>₹</span>
             <input
               id="price"
               name="price"
-              className={styles.input}
               type="number"
               min="0"
               step="any"
               inputMode="decimal"
-              placeholder="120"
+              placeholder="60"
               value={form.price}
               onChange={onChange}
             />
+            <span className={ui.suf}>/ {unitShort(form.unit)}</span>
           </div>
         </div>
+
         <div className={styles.field}>
-          <label className={styles.label} htmlFor="unit">
-            Unit
+          <label className={styles.label} htmlFor="stockQty">
+            In stock
           </label>
-          <input
-            id="unit"
-            name="unit"
-            className={styles.input}
-            placeholder="e.g. 1 kg, 500 ml, piece"
-            value={form.unit}
-            onChange={onChange}
-          />
+          <div className={ui.affix}>
+            <input
+              id="stockQty"
+              name="stockQty"
+              type="number"
+              min="0"
+              step="any"
+              inputMode="decimal"
+              placeholder="0"
+              value={form.stockQty}
+              onChange={onChange}
+            />
+            <span className={ui.suf}>{unitShort(form.unit)}</span>
+          </div>
         </div>
       </div>
 
       <div className={styles.row2}>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="section">
-            Section <span className={styles.optional}>(optional)</span>
+            Section <span className={styles.optional}>(groups it on the storefront)</span>
           </label>
           <input
             id="section"
             name="section"
             className={styles.input}
-            placeholder="e.g. Grains, Toiletries"
+            list="product-sections"
+            placeholder="e.g. Grains & Rice"
             value={form.section}
             onChange={onChange}
           />
+          <datalist id="product-sections">
+            {SECTION_SUGGESTIONS.map((s) => (
+              <option key={s} value={s} />
+            ))}
+          </datalist>
         </div>
         <div className={styles.field}>
-          <label className={styles.label} htmlFor="stockQty">
-            In stock
+          <label className={styles.label}>
+            Photo <span className={styles.optional}>(optional)</span>
           </label>
+          {form.imageUrl ? (
+            <div className={ui.imageRow}>
+              <img className={ui.imagePreview} src={form.imageUrl} alt="Product" />
+              <div className={ui.imageActions}>
+                <button
+                  type="button"
+                  className={ui.imageBtn}
+                  disabled={uploadingImage}
+                  onClick={() => fileRef.current?.click()}
+                >
+                  {uploadingImage ? 'Uploading…' : 'Change'}
+                </button>
+                <button
+                  type="button"
+                  className={`${ui.imageBtn} ${ui.imageBtnDanger}`}
+                  onClick={clearImage}
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className={ui.uploadBtn}
+              disabled={uploadingImage}
+              onClick={() => fileRef.current?.click()}
+            >
+              <ImagePlus size={16} aria-hidden="true" />
+              {uploadingImage ? 'Uploading…' : 'Upload from device'}
+            </button>
+          )}
           <input
-            id="stockQty"
-            name="stockQty"
-            className={styles.input}
-            type="number"
-            min="0"
-            step="1"
-            inputMode="numeric"
-            placeholder="0"
-            value={form.stockQty}
-            onChange={onChange}
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={(e) => {
+              pickImage(e.target.files?.[0]);
+              e.target.value = '';
+            }}
           />
         </div>
       </div>
@@ -166,7 +255,8 @@ export function ProductsManager({ providerId, products }: ProductsManagerProps) 
                   {p.description && <div className={styles.rowDesc}>{p.description}</div>}
                   <div className={styles.rowMeta}>
                     <span className={styles.price}>
-                      {formatPrice(p.priceMinor, p.currency)} <span className={styles.optional}>/ {p.unit}</span>
+                      {formatPrice(p.priceMinor, p.currency)}{' '}
+                      <span className={styles.optional}>/ {unitShort(p.unit)}</span>
                     </span>
                     {p.section && (
                       <span className={styles.metaItem}>
@@ -174,8 +264,7 @@ export function ProductsManager({ providerId, products }: ProductsManagerProps) 
                       </span>
                     )}
                     <span className={styles.metaItem}>
-                      <Boxes size={14} aria-hidden="true" />{' '}
-                      {p.stockQty > 0 ? `${p.stockQty} in stock` : 'Out of stock'}
+                      <Boxes size={14} aria-hidden="true" /> {stockLabel(p.stockQty, p.unit)}
                     </span>
                     <button
                       type="button"

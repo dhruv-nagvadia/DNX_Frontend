@@ -11,5 +11,6 @@ export interface ProductForm {
   unit: string;
   section: string;
   stockQty: string;
+  imageUrl: string;
   description: string;
 }

@@ -4,6 +4,7 @@ import {
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
+  useUploadImageMutation,
 } from '@/redux/api/provider/providerApi';
 import { Product } from '@/redux/api/provider/types';
 import { ProductForm } from './types';
@@ -11,9 +12,10 @@ import { ProductForm } from './types';
 const EMPTY: ProductForm = {
   name: '',
   price: '',
-  unit: 'piece',
+  unit: 'kg',
   section: '',
   stockQty: '0',
+  imageUrl: '',
   description: '',
 };
 
@@ -22,6 +24,7 @@ export function useProductsManager(providerId: string) {
   const [createProduct, { isLoading: creating }] = useCreateProductMutation();
   const [updateProduct, { isLoading: updating }] = useUpdateProductMutation();
   const [deleteProduct] = useDeleteProductMutation();
+  const [uploadImage, { isLoading: uploadingImage }] = useUploadImageMutation();
 
   // null = not editing, 'new' = adding, otherwise the productId being edited.
   const [editing, setEditing] = useState<string | null>(null);
@@ -41,6 +44,7 @@ export function useProductsManager(providerId: string) {
       unit: p.unit,
       section: p.section ?? '',
       stockQty: String(p.stockQty),
+      imageUrl: p.imageUrl ?? '',
       description: p.description ?? '',
     });
     setError(null);
@@ -60,6 +64,25 @@ export function useProductsManager(providerId: string) {
     [],
   );
 
+  // Upload a device image and store its hosted URL on the form.
+  const pickImage = useCallback(
+    async (file: File | null | undefined) => {
+      if (!file) return;
+      setError(null);
+      const fd = new FormData();
+      fd.append('image', file);
+      try {
+        const { url } = await uploadImage(fd).unwrap();
+        setForm((prev) => ({ ...prev, imageUrl: url }));
+      } catch {
+        setError('Could not upload the image. Please try again.');
+      }
+    },
+    [uploadImage],
+  );
+
+  const clearImage = useCallback(() => setForm((prev) => ({ ...prev, imageUrl: '' })), []);
+
   const submit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
@@ -75,8 +98,9 @@ export function useProductsManager(providerId: string) {
         name: form.name.trim(),
         description: form.description.trim() || undefined,
         price,
-        unit: form.unit.trim() || 'piece',
+        unit: form.unit || 'kg',
         section: form.section.trim() || undefined,
+        imageUrl: form.imageUrl.trim() || undefined,
         stockQty,
       };
 
@@ -122,10 +146,13 @@ export function useProductsManager(providerId: string) {
     form,
     error,
     saving: creating || updating,
+    uploadingImage,
     startAdd,
     startEdit,
     cancel,
     onChange,
+    pickImage,
+    clearImage,
     submit,
     remove,
     toggleActive,

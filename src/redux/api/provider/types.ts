@@ -36,11 +36,12 @@ export interface Product {
 export interface ProductInput {
   name: string;
   description?: string;
-  // Price in major units (rupees); the API converts to minor units.
+  // Price in major units (rupees) per `unit`; the API converts to minor units.
   price: number;
   unit?: string;
   section?: string;
   stockQty?: number;
+  imageUrl?: string;
 }
 
 export interface BusinessHour {

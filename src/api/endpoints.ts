@@ -20,6 +20,7 @@ export const endpoints = {
 
   // Provider app — manage your own businesses (role PROVIDER)
   myAllBookings: '/provider/bookings',
+  uploadImage: '/provider/uploads/image',
   myProviders: '/provider/businesses',
   myProviderById: (id: string) => `/provider/businesses/${id}`,
   myProviderImages: (id: string) => `/provider/businesses/${id}/images`,

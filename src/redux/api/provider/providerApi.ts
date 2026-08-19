@@ -135,6 +135,12 @@ export const providerApi = createApi({
       invalidatesTags: ['MyBusinesses', 'AllBookings'],
     }),
 
+    // Upload a single image (e.g. a product photo) and get its hosted URL.
+    uploadImage: builder.mutation<{ url: string }, FormData>({
+      query: (formData) => ({ endpoint: endpoints.uploadImage, method: 'post', data: formData }),
+      transformResponse: (res: ApiEnvelope<{ url: string }>) => res.data,
+    }),
+
     // Replace the ordered gallery (set cover / remove / reorder photos).
     setBusinessImages: builder.mutation<Provider, { id: string; images: string[] }>({
       query: ({ id, images }) => ({
@@ -279,6 +285,7 @@ export const {
   useUpdateBusinessMutation,
   useDeleteBusinessMutation,
   useSetBusinessImagesMutation,
+  useUploadImageMutation,
   useUploadBusinessImagesMutation,
   useCreateServiceMutation,
   useUpdateServiceMutation,

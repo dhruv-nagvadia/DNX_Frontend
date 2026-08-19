@@ -1,0 +1,154 @@
+/* Polished controls for the product measure row (unit / price / stock). */
+.grid3 {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1fr;
+  gap: var(--space-md);
+}
+
+/* Custom-styled select with our own chevron (native arrow removed). */
+.selectWrap {
+  position: relative;
+}
+.select {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 10px 34px 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+.select:hover {
+  border-color: #cbd5e1;
+}
+.select:focus-visible {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(30, 58, 138, 0.15));
+}
+.chev {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-secondary);
+  pointer-events: none;
+}
+
+/* Input with a prefix (₹) or suffix (unit) chip. */
+.affix {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  overflow: hidden;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+.affix:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(30, 58, 138, 0.15));
+}
+.affix input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  padding: 10px 12px;
+  font-size: var(--font-size-sm);
+  background: transparent;
+  color: var(--color-text-primary);
+}
+.pre,
+.suf {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  background: var(--color-surface-2, #f8fafc);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.pre {
+  border-right: 1px solid var(--color-border);
+}
+.suf {
+  border-left: 1px solid var(--color-border);
+  min-width: 46px;
+  justify-content: center;
+}
+
+/* Product photo upload */
+.uploadBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2, #f8fafc);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+.uploadBtn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+.uploadBtn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.imageRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+.imagePreview {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  border: 1px solid var(--color-border);
+}
+.imageActions {
+  display: flex;
+  gap: var(--space-sm);
+}
+.imageBtn {
+  padding: 6px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  cursor: pointer;
+}
+.imageBtn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+}
+.imageBtnDanger {
+  color: var(--color-error);
+  border-color: var(--color-error-border);
+}
+
+@media (max-width: 640px) {
+  .grid3 {
+    grid-template-columns: 1fr;
+  }
+}

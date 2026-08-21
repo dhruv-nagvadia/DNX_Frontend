@@ -4,6 +4,41 @@
   grid-template-columns: 1.1fr 1fr 1fr;
   gap: var(--space-md);
 }
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+/* A unit dropdown styled as the suffix chip inside an .affix input. */
+.unitSuffix {
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  border-left: 1px solid var(--color-border);
+  background-color: var(--color-surface-2, #f8fafc);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding: 0 26px 0 12px;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+.hint strong {
+  color: var(--color-text-primary);
+}
 
 /* Custom-styled select with our own chevron (native arrow removed). */
 .selectWrap {

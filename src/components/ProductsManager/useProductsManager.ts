@@ -6,17 +6,23 @@ import {
   useDeleteProductMutation,
   useUploadImageMutation,
 } from '@/redux/api/provider/providerApi';
-import { Product } from '@/redux/api/provider/types';
+import { Measure, Product } from '@/redux/api/provider/types';
+import { measureUnits, splitAmount, toBase } from '@/utils/units';
 import { ProductForm } from './types';
 
 const EMPTY: ProductForm = {
   name: '',
-  price: '',
-  unit: 'kg',
-  section: '',
-  stockQty: '0',
-  imageUrl: '',
   description: '',
+  measure: 'weight',
+  price: '',
+  priceQty: '1',
+  priceUnit: 'kg',
+  stock: '0',
+  stockUnit: 'kg',
+  step: '250',
+  stepUnit: 'g',
+  section: '',
+  imageUrl: '',
 };
 
 /** All state + handlers for adding, editing, and deleting a store's products. */
@@ -26,7 +32,6 @@ export function useProductsManager(providerId: string) {
   const [deleteProduct] = useDeleteProductMutation();
   const [uploadImage, { isLoading: uploadingImage }] = useUploadImageMutation();
 
-  // null = not editing, 'new' = adding, otherwise the productId being edited.
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState<ProductForm>(EMPTY);
   const [error, setError] = useState<string | null>(null);
@@ -38,14 +43,22 @@ export function useProductsManager(providerId: string) {
   }, []);
 
   const startEdit = useCallback((p: Product) => {
+    const price = splitAmount(p.priceQty, p.measure);
+    const stock = splitAmount(p.stockQty, p.measure);
+    const step = splitAmount(p.stepQty, p.measure);
     setForm({
       name: p.name,
-      price: String(p.priceMinor / 100),
-      unit: p.unit,
-      section: p.section ?? '',
-      stockQty: String(p.stockQty),
-      imageUrl: p.imageUrl ?? '',
       description: p.description ?? '',
+      measure: p.measure,
+      price: String(p.priceMinor / 100),
+      priceQty: String(price.value),
+      priceUnit: price.unit,
+      stock: String(stock.value),
+      stockUnit: stock.unit,
+      step: String(step.value),
+      stepUnit: step.unit,
+      section: p.section ?? '',
+      imageUrl: p.imageUrl ?? '',
     });
     setError(null);
     setEditing(p.id);
@@ -64,7 +77,20 @@ export function useProductsManager(providerId: string) {
     [],
   );
 
-  // Upload a device image and store its hosted URL on the form.
+  // Switching measure resets the unit dropdowns to that measure's units.
+  const selectMeasure = useCallback((measure: Measure) => {
+    const units = measureUnits(measure);
+    const big = units[0].value; // kg / litre / piece
+    const small = units[units.length - 1].value; // g / ml / dozen…
+    setForm((prev) => ({
+      ...prev,
+      measure,
+      priceUnit: big,
+      stockUnit: big,
+      stepUnit: measure === 'count' ? big : small,
+    }));
+  }, []);
+
   const pickImage = useCallback(
     async (file: File | null | undefined) => {
       if (!file) return;
@@ -89,19 +115,26 @@ export function useProductsManager(providerId: string) {
       setError(null);
 
       const price = Number(form.price);
-      const stockQty = Number(form.stockQty);
+      const priceQtyBase = toBase(Number(form.priceQty), form.measure, form.priceUnit);
+      const stockBase = toBase(Number(form.stock), form.measure, form.stockUnit);
+      const stepBase = toBase(Number(form.step), form.measure, form.stepUnit);
+
       if (form.name.trim().length < 2) return setError('Enter a product name');
       if (Number.isNaN(price) || price < 0) return setError('Enter a valid price');
-      if (Number.isNaN(stockQty) || stockQty < 0) return setError('Enter a valid stock quantity');
+      if (!priceQtyBase || priceQtyBase <= 0) return setError('Enter the quantity the price is for');
+      if (!stepBase || stepBase <= 0) return setError('Enter a valid minimum quantity');
+      if (Number.isNaN(stockBase) || stockBase < 0) return setError('Enter a valid stock quantity');
 
       const data = {
         name: form.name.trim(),
         description: form.description.trim() || undefined,
+        measure: form.measure,
         price,
-        unit: form.unit || 'kg',
+        priceQty: priceQtyBase,
+        stockQty: stockBase,
+        stepQty: stepBase,
         section: form.section.trim() || undefined,
         imageUrl: form.imageUrl.trim() || undefined,
-        stockQty,
       };
 
       try {
@@ -151,6 +184,7 @@ export function useProductsManager(providerId: string) {
     startEdit,
     cancel,
     onChange,
+    selectMeasure,
     pickImage,
     clearImage,
     submit,

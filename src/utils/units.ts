@@ -1,67 +1,86 @@
 /**
- * Product selling units, grouped by what they measure. A store product is
- * priced and stocked per one of these units (e.g. ₹60 / kg, 10 kg in stock).
+ * Products are measured in a base unit — grams (weight), millilitres (volume),
+ * or pieces (count). Price, stock and the minimum/step are all stored in that
+ * base unit; the form lets providers enter kg/litre/etc. and converts.
  */
 export type Measure = 'weight' | 'volume' | 'count';
 
-export interface UnitDef {
-  value: string; // stored on the product
-  label: string; // shown in the picker
-  measure: Measure;
+interface UnitOpt {
+  value: string;
+  label: string;
+  factor: number; // multiply by this to reach the base unit
 }
 
-export const UNIT_GROUPS: { measure: Measure; label: string; units: UnitDef[] }[] = [
+export const MEASURES: { value: Measure; label: string; base: string; units: UnitOpt[] }[] = [
   {
-    measure: 'weight',
-    label: 'By weight — grains, flour, vegetables…',
+    value: 'weight',
+    label: 'Weight — grains, flour, vegetables…',
+    base: 'g',
     units: [
-      { value: 'kg', label: 'Kilogram (kg)', measure: 'weight' },
-      { value: 'g', label: 'Gram (g)', measure: 'weight' },
-      { value: 'quintal', label: 'Quintal (100 kg)', measure: 'weight' },
+      { value: 'kg', label: 'kg', factor: 1000 },
+      { value: 'g', label: 'g', factor: 1 },
     ],
   },
   {
-    measure: 'volume',
-    label: 'By volume — oil, milk, liquids…',
+    value: 'volume',
+    label: 'Volume — oil, milk, liquids…',
+    base: 'ml',
     units: [
-      { value: 'litre', label: 'Litre (L)', measure: 'volume' },
-      { value: 'ml', label: 'Millilitre (ml)', measure: 'volume' },
+      { value: 'litre', label: 'litre', factor: 1000 },
+      { value: 'ml', label: 'ml', factor: 1 },
     ],
   },
   {
-    measure: 'count',
-    label: 'By count / pack',
+    value: 'count',
+    label: 'Count / pack — pieces, packets…',
+    base: 'piece',
     units: [
-      { value: 'piece', label: 'Piece', measure: 'count' },
-      { value: 'dozen', label: 'Dozen (12)', measure: 'count' },
-      { value: 'pack', label: 'Pack', measure: 'count' },
-      { value: 'packet', label: 'Packet', measure: 'count' },
-      { value: 'box', label: 'Box', measure: 'count' },
-      { value: 'bag', label: 'Bag', measure: 'count' },
-      { value: 'bottle', label: 'Bottle', measure: 'count' },
-      { value: 'can', label: 'Can', measure: 'count' },
-      { value: 'bundle', label: 'Bundle', measure: 'count' },
+      { value: 'piece', label: 'piece', factor: 1 },
+      { value: 'dozen', label: 'dozen', factor: 12 },
     ],
   },
 ];
 
-const ALL_UNITS: UnitDef[] = UNIT_GROUPS.flatMap((g) => g.units);
-
-/** Measure a unit belongs to (defaults to count for legacy/unknown values). */
-export function measureOf(unit: string): Measure {
-  return ALL_UNITS.find((u) => u.value === unit)?.measure ?? 'count';
+export function measureUnits(measure: Measure): UnitOpt[] {
+  return (MEASURES.find((m) => m.value === measure) ?? MEASURES[2]).units;
 }
 
-/** Short display form of a unit, e.g. "L" for litre. */
-export function unitShort(unit: string): string {
-  if (unit === 'litre') return 'L';
-  return unit;
+export function unitFactor(measure: Measure, unit: string): number {
+  return measureUnits(measure).find((u) => u.value === unit)?.factor ?? 1;
 }
 
-/** Stock line for a product: "10 kg in stock", "40 in stock", or "Out of stock". */
-export function stockLabel(qty: number, unit: string): string {
-  if (qty <= 0) return 'Out of stock';
-  return measureOf(unit) === 'count' ? `${qty} in stock` : `${qty} ${unitShort(unit)} in stock`;
+/** Convert an entered quantity + unit to base units (g / ml / piece). */
+export function toBase(qty: number, measure: Measure, unit: string): number {
+  return qty * unitFactor(measure, unit);
+}
+
+const fmt = (x: number) => (Number.isInteger(x) ? `${x}` : `${parseFloat(x.toFixed(3))}`);
+
+/** Human amount for a base-unit value, e.g. 15000 (weight) → "15 kg". */
+export function formatAmount(base: number, measure: Measure): string {
+  if (measure === 'weight') return base >= 1000 ? `${fmt(base / 1000)} kg` : `${fmt(base)} g`;
+  if (measure === 'volume') return base >= 1000 ? `${fmt(base / 1000)} L` : `${fmt(base)} ml`;
+  return `${fmt(base)} ${base === 1 ? 'pc' : 'pcs'}`;
+}
+
+/** Split a base-unit value into a friendly { value, unit } for editing. */
+export function splitAmount(base: number, measure: Measure): { value: number; unit: string } {
+  if (measure === 'weight')
+    return base >= 1000 ? { value: base / 1000, unit: 'kg' } : { value: base, unit: 'g' };
+  if (measure === 'volume')
+    return base >= 1000 ? { value: base / 1000, unit: 'litre' } : { value: base, unit: 'ml' };
+  return { value: base, unit: 'piece' };
+}
+
+export function stockLabel(base: number, measure: Measure): string {
+  return base <= 0 ? 'Out of stock' : `${formatAmount(base, measure)} in stock`;
+}
+
+/** Price line, e.g. "₹200 / 100 g". */
+export function priceLabel(priceMinor: number, priceQty: number, measure: Measure, currency = 'INR'): string {
+  const amount = (priceMinor / 100).toLocaleString('en-IN');
+  const money = currency === 'INR' ? `₹${amount}` : `${amount} ${currency}`;
+  return `${money} / ${formatAmount(priceQty, measure)}`;
 }
 
 /** Suggested storefront sections/aisles, used to group products on the store page. */

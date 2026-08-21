@@ -20,15 +20,20 @@ export interface ServiceInput {
 
 export type BusinessType = 'SERVICE' | 'STORE';
 
+export type Measure = 'weight' | 'volume' | 'count';
+
 export interface Product {
   id: string;
   name: string;
   description?: string | null;
-  priceMinor: number;
+  measure: Measure;
+  priceMinor: number; // price for `priceQty` base units
+  priceQty: number; // base units the price covers (e.g. 100 for ₹200/100g)
   currency: string;
-  unit: string;
+  unit: string; // base unit label (g / ml / piece)
   section?: string | null;
-  stockQty: number;
+  stockQty: number; // base units
+  stepQty: number; // minimum + increment, base units
   imageUrl?: string | null;
   isActive?: boolean;
 }
@@ -36,11 +41,13 @@ export interface Product {
 export interface ProductInput {
   name: string;
   description?: string;
-  // Price in major units (rupees) per `unit`; the API converts to minor units.
+  measure: Measure;
+  // Price in major units (rupees) for `priceQty` base units.
   price: number;
-  unit?: string;
+  priceQty: number;
   section?: string;
-  stockQty?: number;
+  stockQty?: number; // base units
+  stepQty?: number; // base units
   imageUrl?: string;
 }
 

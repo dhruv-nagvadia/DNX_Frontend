@@ -19,7 +19,7 @@ const EMPTY: ProductForm = {
   priceUnit: 'kg',
   stock: '0',
   stockUnit: 'kg',
-  step: '250',
+  step: '100',
   stepUnit: 'g',
   section: '',
   imageUrl: '',

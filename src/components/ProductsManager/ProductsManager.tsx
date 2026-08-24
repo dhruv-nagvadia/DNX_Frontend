@@ -237,7 +237,7 @@ export function ProductsManager({ providerId, products }: ProductsManagerProps) 
           <input
             ref={fileRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp"
             style={{ display: 'none' }}
             onChange={(e) => {
               pickImage(e.target.files?.[0]);

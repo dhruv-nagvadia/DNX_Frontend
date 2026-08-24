@@ -10,11 +10,13 @@ import {
   DateHour,
   DateHourInput,
   ListProvidersParams,
+  OrderStatus,
   PaymentStatus,
   Product,
   ProductInput,
   Provider,
   ProviderBooking,
+  ProviderOrder,
   Service,
   ServiceInput,
 } from './types';
@@ -30,6 +32,7 @@ export const providerApi = createApi({
     'MyBusiness',
     'MyBusinessBookings',
     'AllBookings',
+    'MyOrders',
     'BusinessReviews',
     'DateHours',
   ],
@@ -83,6 +86,33 @@ export const providerApi = createApi({
       query: () => ({ endpoint: endpoints.myAllBookings, method: 'get' }),
       transformResponse: (res: ApiEnvelope<DashboardBooking[]>) => res.data,
       providesTags: ['AllBookings'],
+    }),
+
+    // ── Store orders (provider management) ────────────────────────────────────
+    getMyOrders: builder.query<ProviderOrder[], void>({
+      query: () => ({ endpoint: endpoints.myOrders, method: 'get' }),
+      transformResponse: (res: ApiEnvelope<ProviderOrder[]>) => res.data,
+      providesTags: ['MyOrders'],
+    }),
+
+    updateOrderStatus: builder.mutation<
+      ProviderOrder,
+      { orderId: string; providerId: string; status: OrderStatus }
+    >({
+      query: ({ orderId, status }) => ({
+        endpoint: endpoints.myOrder(orderId),
+        method: 'patch',
+        data: { status },
+      }),
+      transformResponse: (res: ApiEnvelope<ProviderOrder>) => res.data,
+      // Cancelling restores stock, so refresh the business too.
+      invalidatesTags: (_r, _e, { providerId }) => ['MyOrders', { type: 'MyBusiness', id: providerId }],
+    }),
+
+    collectOrderPayment: builder.mutation<ProviderOrder, { orderId: string; providerId: string }>({
+      query: ({ orderId }) => ({ endpoint: endpoints.myOrderCollect(orderId), method: 'post' }),
+      transformResponse: (res: ApiEnvelope<ProviderOrder>) => res.data,
+      invalidatesTags: ['MyOrders'],
     }),
 
     // Provider changes a booking's status (confirm / complete / cancel + reason).
@@ -279,6 +309,9 @@ export const {
   useGetMyBusinessQuery,
   useGetBusinessBookingsQuery,
   useGetAllMyBookingsQuery,
+  useGetMyOrdersQuery,
+  useUpdateOrderStatusMutation,
+  useCollectOrderPaymentMutation,
   useUpdateBookingStatusMutation,
   useCollectBookingPaymentMutation,
   useGetBusinessReviewsQuery,

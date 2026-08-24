@@ -1,6 +1,7 @@
 import { LayoutDashboard, LogOut, Store, UserRound } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
 
+import { NotificationBell } from '@/components/NotificationBell';
 import { AppShellProps } from './types';
 import { useAppShell } from './useAppShell';
 import styles from './AppShell.module.css';
@@ -73,6 +74,7 @@ export function AppShell({ children, rail, wide }: AppShellProps) {
               </span>
             )}
           </span>
+          <NotificationBell />
           <button className={styles.logout} onClick={logout} type="button" aria-label="Log out">
             <LogOut size={16} aria-hidden="true" />
           </button>

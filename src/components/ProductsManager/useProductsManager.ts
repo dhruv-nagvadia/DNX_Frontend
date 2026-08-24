@@ -8,6 +8,7 @@ import {
 } from '@/redux/api/provider/providerApi';
 import { Measure, Product } from '@/redux/api/provider/types';
 import { measureUnits, splitAmount, toBase } from '@/utils/units';
+import { isRasterImage, IMAGE_REJECT_MSG } from '@/utils/imageValidation';
 import { ProductForm } from './types';
 
 const EMPTY: ProductForm = {
@@ -94,6 +95,10 @@ export function useProductsManager(providerId: string) {
   const pickImage = useCallback(
     async (file: File | null | undefined) => {
       if (!file) return;
+      if (!isRasterImage(file)) {
+        setError(IMAGE_REJECT_MSG);
+        return;
+      }
       setError(null);
       const fd = new FormData();
       fd.append('image', file);

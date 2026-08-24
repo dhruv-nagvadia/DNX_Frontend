@@ -30,6 +30,7 @@ import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { CategoryIcon } from '@/components/CategoryIcon';
 import { EarningsPanel } from '@/components/EarningsPanel';
+import { OrdersManager } from '@/components/OrdersManager';
 import { ProductsManager } from '@/components/ProductsManager';
 import { ServicesManager } from '@/components/ServicesManager';
 import { Skeleton } from '@/components/Skeleton';
@@ -295,12 +296,7 @@ export default function BusinessDetailPage() {
       {/* Bookings / Orders */}
       {activeTab === 'bookings' &&
         (isStore ? (
-          <Card title="Orders" subtitle="Customer pickup orders will appear here.">
-            <p className={styles.muted}>
-              Online ordering for stores is coming soon. Your product catalog is ready — customers
-              will be able to place pickup orders shortly.
-            </p>
-          </Card>
+          <OrdersManager providerId={business.id} />
         ) : (
           <BusinessBookings providerId={business.id} />
         ))}
@@ -325,7 +321,7 @@ export default function BusinessDetailPage() {
                 ref={fileInputRef}
                 className={styles.hiddenInput}
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp"
                 multiple
                 onChange={(e) => {
                   addImages(e.target.files);

@@ -122,6 +122,33 @@ export interface DashboardBooking extends ProviderBooking {
   provider: { id: string; businessName: string };
 }
 
+export type OrderStatus = 'PENDING' | 'CONFIRMED' | 'READY' | 'COMPLETED' | 'CANCELLED';
+
+export interface ProviderOrderItem {
+  id: string;
+  name: string;
+  measure: Measure;
+  priceMinor: number;
+  priceQty: number;
+  unit: string;
+  quantity: number;
+}
+
+export interface ProviderOrder {
+  id: string;
+  status: OrderStatus;
+  amountMinor: number;
+  amountPaidMinor: number;
+  currency: string;
+  paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
+  note?: string | null;
+  createdAt: string;
+  items: ProviderOrderItem[];
+  user: { fullName: string; phone?: string | null };
+  provider: { id: string; businessName: string };
+}
+
 export interface BusinessReview {
   id: string;
   rating: number;

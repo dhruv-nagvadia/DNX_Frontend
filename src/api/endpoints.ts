@@ -14,12 +14,21 @@ export const endpoints = {
   // Categories (shared/public)
   categories: '/categories',
 
+  // In-app notifications (shared/token-based; any role)
+  notifications: '/notifications',
+  notificationsUnreadCount: '/notifications/unread-count',
+  notificationsReadAll: '/notifications/read-all',
+  notificationRead: (id: string) => `/notifications/${id}/read`,
+
   // Customer browse (public) — kept for completeness; the provider app rarely uses these
   providers: '/customer/providers',
   providerById: (id: string) => `/customer/providers/${id}`,
 
   // Provider app — manage your own businesses (role PROVIDER)
   myAllBookings: '/provider/bookings',
+  myOrders: '/provider/orders',
+  myOrder: (orderId: string) => `/provider/orders/${orderId}`,
+  myOrderCollect: (orderId: string) => `/provider/orders/${orderId}/collect`,
   uploadImage: '/provider/uploads/image',
   myProviders: '/provider/businesses',
   myProviderById: (id: string) => `/provider/businesses/${id}`,

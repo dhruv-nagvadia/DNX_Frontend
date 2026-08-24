@@ -9,6 +9,7 @@ import {
   useUploadBusinessImagesMutation,
 } from '@/redux/api/provider/providerApi';
 
+import { isRasterImage, IMAGE_REJECT_MSG } from '@/utils/imageValidation';
 import { BusinessForm, BusinessFormErrors, PickedImage } from './types';
 import { validateBusiness } from './validation';
 
@@ -106,7 +107,9 @@ export function useBusinessForm() {
 
   const addImages = useCallback((fileList: FileList | null) => {
     if (!fileList) return;
-    const incoming = Array.from(fileList).map((file) => ({
+    const files = Array.from(fileList).filter(isRasterImage);
+    if (files.length !== fileList.length) window.alert(IMAGE_REJECT_MSG);
+    const incoming = files.map((file) => ({
       file,
       preview: URL.createObjectURL(file),
     }));

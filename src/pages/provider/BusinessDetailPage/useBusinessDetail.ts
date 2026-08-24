@@ -8,6 +8,7 @@ import {
   useSetBusinessImagesMutation,
   useUploadBusinessImagesMutation,
 } from '@/redux/api/provider/providerApi';
+import { isRasterImage, IMAGE_REJECT_MSG } from '@/utils/imageValidation';
 
 export type BusinessTab =
   | 'overview'
@@ -37,8 +38,11 @@ export function useBusinessDetail() {
   const addImages = useCallback(
     async (fileList: FileList | null) => {
       if (!fileList || fileList.length === 0 || !id) return;
+      const files = Array.from(fileList).filter(isRasterImage);
+      if (files.length !== fileList.length) window.alert(IMAGE_REJECT_MSG);
+      if (files.length === 0) return;
       const fd = new FormData();
-      Array.from(fileList).forEach((file) => fd.append('images', file));
+      files.forEach((file) => fd.append('images', file));
       try {
         await uploadImages({ id, formData: fd }).unwrap();
       } catch {

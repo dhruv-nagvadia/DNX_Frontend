@@ -249,7 +249,7 @@ export default function BusinessFormPage() {
               ref={fileInputRef}
               className={styles.hiddenInput}
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               multiple
               onChange={(e) => {
                 addImages(e.target.files);

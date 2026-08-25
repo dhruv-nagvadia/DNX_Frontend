@@ -182,6 +182,26 @@
   border-color: var(--color-error-border);
 }
 
+/* Inventory status pill shown on a product row. */
+.stockBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.stockLow {
+  background: rgba(245, 158, 11, 0.15);
+  color: #92400e;
+}
+.stockOut {
+  background: var(--color-error-soft);
+  color: var(--color-error);
+}
+
 @media (max-width: 640px) {
   .grid3 {
     grid-template-columns: 1fr;

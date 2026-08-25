@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import {
   useDeleteBusinessMutation,
@@ -21,6 +21,7 @@ export type BusinessTab =
 /** Loads one owned business and exposes image-upload + navigation actions. */
 export function useBusinessDetail() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { id = '' } = useParams<{ id: string }>();
 
   const { data: business, isLoading, error } = useGetMyBusinessQuery(id, { skip: !id });
@@ -28,7 +29,9 @@ export function useBusinessDetail() {
   const [uploadImages, { isLoading: uploading }] = useUploadBusinessImagesMutation();
   const [setImages, { isLoading: savingImages }] = useSetBusinessImagesMutation();
   const [deleteBusiness, { isLoading: deleting }] = useDeleteBusinessMutation();
-  const [activeTab, setActiveTab] = useState<BusinessTab>('overview');
+  // Allow deep-linking to a specific tab (e.g. dashboard → an order opens Orders).
+  const initialTab = (location.state as { tab?: BusinessTab } | null)?.tab ?? 'overview';
+  const [activeTab, setActiveTab] = useState<BusinessTab>(initialTab);
 
   const notFound = !!error && (error as { status?: number }).status === 404;
   // Any other load failure (e.g. server down / not restarted after a schema change).

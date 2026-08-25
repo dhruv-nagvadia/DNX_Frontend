@@ -97,12 +97,12 @@ export const providerApi = createApi({
 
     updateOrderStatus: builder.mutation<
       ProviderOrder,
-      { orderId: string; providerId: string; status: OrderStatus }
+      { orderId: string; providerId: string; status: OrderStatus; reason?: string }
     >({
-      query: ({ orderId, status }) => ({
+      query: ({ orderId, status, reason }) => ({
         endpoint: endpoints.myOrder(orderId),
         method: 'patch',
-        data: { status },
+        data: { status, reason },
       }),
       transformResponse: (res: ApiEnvelope<ProviderOrder>) => res.data,
       // Cancelling restores stock, so refresh the business too.

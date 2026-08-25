@@ -36,6 +36,8 @@ export interface Product {
   stepQty: number; // minimum + increment, base units
   imageUrl?: string | null;
   isActive?: boolean;
+  ratingAvg?: number;
+  ratingCount?: number;
 }
 
 export interface ProductInput {
@@ -143,6 +145,7 @@ export interface ProviderOrder {
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
   note?: string | null;
+  cancelReason?: string | null;
   createdAt: string;
   items: ProviderOrderItem[];
   user: { fullName: string; phone?: string | null };

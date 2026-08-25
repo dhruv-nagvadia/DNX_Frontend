@@ -4,6 +4,7 @@ import {
   ChevronRight,
   IndianRupee,
   ListChecks,
+  Package,
   Plus,
   Store,
 } from 'lucide-react';
@@ -16,9 +17,15 @@ import { EmptyState } from '@/components/EmptyState';
 import { PageHeader } from '@/components/PageHeader';
 import { Skeleton } from '@/components/Skeleton';
 import { StatTile } from '@/components/StatTile';
-import { BookingStatus } from '@/redux/api/provider/types';
+import { BookingStatus, OrderStatus, ProviderOrder } from '@/redux/api/provider/types';
+import { stockLabel } from '@/utils/units';
 
-import { AttentionItem, useDashboard } from './useDashboard';
+import {
+  AttentionItem,
+  orderNeedsCollection,
+  orderOutstanding,
+  useDashboard,
+} from './useDashboard';
 import styles from './DashboardPage.module.css';
 
 const dateFmt = new Intl.DateTimeFormat('en-IN', {
@@ -40,12 +47,30 @@ function money(minor: number, currency: string): string {
   }
 }
 
-const STATUS_TONE: Record<BookingStatus, 'warning' | 'accent' | 'success' | 'neutral'> = {
+type Tone = 'warning' | 'accent' | 'success' | 'neutral' | 'brand';
+
+const STATUS_TONE: Record<BookingStatus, Tone> = {
   PENDING: 'warning',
   CONFIRMED: 'accent',
   COMPLETED: 'success',
   CANCELLED: 'neutral',
   NO_SHOW: 'neutral',
+};
+
+const ORDER_TONE: Record<OrderStatus, Tone> = {
+  PENDING: 'warning',
+  CONFIRMED: 'accent',
+  READY: 'brand',
+  COMPLETED: 'success',
+  CANCELLED: 'neutral',
+};
+
+const ORDER_LABEL: Record<OrderStatus, string> = {
+  PENDING: 'new',
+  CONFIRMED: 'confirmed',
+  READY: 'ready',
+  COMPLETED: 'completed',
+  CANCELLED: 'cancelled',
 };
 
 /** Home dashboard — a command center across all of the provider's businesses. */
@@ -54,12 +79,20 @@ export default function DashboardPage() {
     fullName,
     isLoading,
     hasBusinesses,
+    hasService,
+    hasStore,
     todays,
     upcomingCount,
     attention,
+    openOrders,
+    openOrdersCount,
+    needsActionCount,
     collectedThisMonth,
     currency,
+    lowStock,
     goToBusiness,
+    goToBusinessOrders,
+    goToBusinessProducts,
     addBusiness,
     viewBusinesses,
   } = useDashboard();
@@ -113,8 +146,14 @@ export default function DashboardPage() {
               note="confirmed & pending"
             />
             <StatTile
+              label="Open orders"
+              value={openOrdersCount}
+              icon={<Package size={18} aria-hidden="true" />}
+              note="to fulfil"
+            />
+            <StatTile
               label="Needs action"
-              value={attention.length}
+              value={needsActionCount}
               icon={<ListChecks size={18} aria-hidden="true" />}
               note="to confirm or collect"
             />
@@ -125,10 +164,69 @@ export default function DashboardPage() {
             />
           </div>
 
-          <div className={styles.columns}>
+          {hasService && (
+            <div className={styles.columns}>
+              <Card
+                title="Needs your attention"
+                subtitle="Bookings to confirm or payments to collect."
+                action={
+                  <button type="button" className={styles.viewAll} onClick={viewBusinesses}>
+                    All businesses
+                    <ChevronRight size={15} aria-hidden="true" />
+                  </button>
+                }
+              >
+                {attention.length === 0 ? (
+                  <p className={styles.empty}>You're all caught up. Nothing needs action.</p>
+                ) : (
+                  <ul className={styles.list}>
+                    {attention.slice(0, 6).map((item) => (
+                      <AttentionRow
+                        key={item.booking.id}
+                        item={item}
+                        currency={currency}
+                        onOpen={() => goToBusiness(item.booking.provider.id)}
+                      />
+                    ))}
+                  </ul>
+                )}
+              </Card>
+
+              <Card title="Today's schedule" subtitle="Your appointments for today, in order.">
+                {todays.length === 0 ? (
+                  <p className={styles.empty}>No bookings today. Enjoy the breather.</p>
+                ) : (
+                  <ul className={styles.list}>
+                    {todays.map((b) => (
+                      <li key={b.id}>
+                        <button
+                          type="button"
+                          className={styles.row}
+                          onClick={() => goToBusiness(b.provider.id)}
+                        >
+                          <span className={styles.time}>
+                            {timeFmt.format(new Date(b.startTime))}
+                          </span>
+                          <span className={styles.rowMain}>
+                            <span className={styles.rowTitle}>{b.user.fullName}</span>
+                            <span className={styles.rowSub}>
+                              {b.service.name} · {b.provider.businessName}
+                            </span>
+                          </span>
+                          <Badge tone={STATUS_TONE[b.status]}>{b.status.toLowerCase()}</Badge>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </Card>
+            </div>
+          )}
+
+          {hasStore && (
             <Card
-              title="Needs your attention"
-              subtitle="Bookings to confirm or payments to collect."
+              title="Orders to fulfil"
+              subtitle="Store orders in progress — confirm, mark ready, then hand over."
               action={
                 <button type="button" className={styles.viewAll} onClick={viewBusinesses}>
                   All businesses
@@ -136,52 +234,87 @@ export default function DashboardPage() {
                 </button>
               }
             >
-              {attention.length === 0 ? (
-                <p className={styles.empty}>You're all caught up. Nothing needs action.</p>
+              {openOrders.length === 0 ? (
+                <p className={styles.empty}>No open orders. You're all caught up.</p>
               ) : (
                 <ul className={styles.list}>
-                  {attention.slice(0, 6).map((item) => (
-                    <AttentionRow
-                      key={item.booking.id}
-                      item={item}
+                  {openOrders.slice(0, 6).map((o) => (
+                    <OrderRow
+                      key={o.id}
+                      order={o}
                       currency={currency}
-                      onOpen={() => goToBusiness(item.booking.provider.id)}
+                      onOpen={() => goToBusinessOrders(o.provider.id)}
                     />
                   ))}
                 </ul>
               )}
             </Card>
+          )}
 
-            <Card title="Today's schedule" subtitle="Your appointments for today, in order.">
-              {todays.length === 0 ? (
-                <p className={styles.empty}>No bookings today. Enjoy the breather.</p>
-              ) : (
-                <ul className={styles.list}>
-                  {todays.map((b) => (
-                    <li key={b.id}>
-                      <button
-                        type="button"
-                        className={styles.row}
-                        onClick={() => goToBusiness(b.provider.id)}
-                      >
-                        <span className={styles.time}>{timeFmt.format(new Date(b.startTime))}</span>
-                        <span className={styles.rowMain}>
-                          <span className={styles.rowTitle}>{b.user.fullName}</span>
-                          <span className={styles.rowSub}>
-                            {b.service.name} · {b.provider.businessName}
-                          </span>
+          {hasStore && lowStock.length > 0 && (
+            <Card
+              title="Low stock"
+              subtitle="Products running low or out of stock — restock to keep selling."
+            >
+              <ul className={styles.list}>
+                {lowStock.slice(0, 6).map(({ product, businessId, businessName, level }) => (
+                  <li key={product.id}>
+                    <button
+                      type="button"
+                      className={styles.row}
+                      onClick={() => goToBusinessProducts(businessId)}
+                    >
+                      <span className={styles.rowMain}>
+                        <span className={styles.rowTitle}>{product.name}</span>
+                        <span className={styles.rowSub}>
+                          {businessName} · {stockLabel(product.stockQty, product.measure)}
                         </span>
-                        <Badge tone={STATUS_TONE[b.status]}>{b.status.toLowerCase()}</Badge>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
+                      </span>
+                      <Badge tone={level === 'out' ? 'error' : 'warning'}>
+                        {level === 'out' ? 'Out of stock' : 'Low'}
+                      </Badge>
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </Card>
-          </div>
+          )}
         </>
       )}
     </AppShell>
+  );
+}
+
+/** One order row: amount + customer/business, a collect hint, and its status. */
+function OrderRow({
+  order,
+  currency,
+  onOpen,
+}: {
+  order: ProviderOrder;
+  currency: string;
+  onOpen: () => void;
+}) {
+  const itemCount = order.items.length;
+  const collect = orderNeedsCollection(order);
+  return (
+    <li>
+      <button type="button" className={styles.row} onClick={onOpen}>
+        <span className={styles.time}>{money(order.amountMinor, currency)}</span>
+        <span className={styles.rowMain}>
+          <span className={styles.rowTitle}>{order.user.fullName}</span>
+          <span className={styles.rowSub}>
+            {order.provider.businessName} · {itemCount} item{itemCount === 1 ? '' : 's'}
+          </span>
+        </span>
+        <span className={styles.badges}>
+          {collect && (
+            <Badge tone="success">Collect {money(orderOutstanding(order), currency)}</Badge>
+          )}
+          <Badge tone={ORDER_TONE[order.status]}>{ORDER_LABEL[order.status]}</Badge>
+        </span>
+      </button>
+    </li>
   );
 }
 

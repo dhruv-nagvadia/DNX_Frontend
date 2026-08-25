@@ -1,5 +1,16 @@
 import { useRef } from 'react';
-import { Boxes, ChevronDown, ImagePlus, Layers, Pencil, Plus, Ruler, Trash2 } from 'lucide-react';
+import {
+  AlertTriangle,
+  Boxes,
+  ChevronDown,
+  ImagePlus,
+  Layers,
+  Pencil,
+  Plus,
+  Ruler,
+  Star,
+  Trash2,
+} from 'lucide-react';
 
 import { AlertBanner } from '@/components/AlertBanner';
 import { Button } from '@/components/Button';
@@ -12,6 +23,7 @@ import {
   measureUnits,
   priceLabel,
   stockLabel,
+  stockLevel,
 } from '@/utils/units';
 import { ProductsManagerProps } from './types';
 import { useProductsManager } from './useProductsManager';
@@ -315,9 +327,29 @@ export function ProductsManager({ providerId, products }: ProductsManagerProps) 
                     <span className={styles.metaItem}>
                       <Boxes size={14} aria-hidden="true" /> {stockLabel(p.stockQty, p.measure)}
                     </span>
+                    {(() => {
+                      const level = stockLevel(p.stockQty, p.stepQty);
+                      if (level === 'ok') return null;
+                      return (
+                        <span
+                          className={`${ui.stockBadge} ${
+                            level === 'out' ? ui.stockOut : ui.stockLow
+                          }`}
+                        >
+                          <AlertTriangle size={12} aria-hidden="true" />
+                          {level === 'out' ? 'Out of stock' : 'Low stock'}
+                        </span>
+                      );
+                    })()}
                     <span className={styles.metaItem}>
                       <Ruler size={14} aria-hidden="true" /> min {formatAmount(p.stepQty, p.measure)}
                     </span>
+                    {(p.ratingCount ?? 0) > 0 && (
+                      <span className={styles.metaItem}>
+                        <Star size={14} aria-hidden="true" /> {(p.ratingAvg ?? 0).toFixed(1)} (
+                        {p.ratingCount})
+                      </span>
+                    )}
                     <button
                       type="button"
                       className={`${styles.statusChip} ${

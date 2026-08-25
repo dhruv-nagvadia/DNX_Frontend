@@ -76,6 +76,21 @@ export function stockLabel(base: number, measure: Measure): string {
   return base <= 0 ? 'Out of stock' : `${formatAmount(base, measure)} in stock`;
 }
 
+/** "Low stock" means roughly this many minimum-orders (step quantities) or fewer are left. */
+export const LOW_STOCK_FACTOR = 5;
+
+export type StockLevel = 'out' | 'low' | 'ok';
+
+/**
+ * Inventory level for a product, adaptive to its own minimum order (stepQty):
+ * out of stock, running low (≤ 5 minimum-orders left), or fine.
+ */
+export function stockLevel(stockQty: number, stepQty: number): StockLevel {
+  if (stockQty <= 0) return 'out';
+  if (stepQty > 0 && stockQty <= stepQty * LOW_STOCK_FACTOR) return 'low';
+  return 'ok';
+}
+
 /** Price line, e.g. "₹200 / 100 g". */
 export function priceLabel(priceMinor: number, priceQty: number, measure: Measure, currency = 'INR'): string {
   const amount = (priceMinor / 100).toLocaleString('en-IN');

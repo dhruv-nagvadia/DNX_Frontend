@@ -45,3 +45,9 @@
   border-color: rgba(2, 132, 199, 0.22);
   color: #0369a1;
 }
+
+.error {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.26);
+  color: #b91c1c;
+}

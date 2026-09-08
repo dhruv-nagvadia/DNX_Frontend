@@ -1,0 +1,1 @@
+export { CouponsManager } from './CouponsManager';

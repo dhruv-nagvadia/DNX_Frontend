@@ -16,6 +16,7 @@ import {
   Pencil,
   Phone,
   Star,
+  Ticket,
   Trash2,
 } from 'lucide-react';
 
@@ -30,6 +31,7 @@ import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { CategoryIcon } from '@/components/CategoryIcon';
 import { EarningsPanel } from '@/components/EarningsPanel';
+import { CouponsManager } from '@/components/CouponsManager';
 import { OrdersManager } from '@/components/OrdersManager';
 import { ProductsManager } from '@/components/ProductsManager';
 import { ServicesManager } from '@/components/ServicesManager';
@@ -122,6 +124,7 @@ export default function BusinessDetailPage() {
           icon: <ListChecks size={16} aria-hidden="true" />,
           count: business.services.length,
         },
+    { id: 'coupons', label: 'Offers', icon: <Ticket size={16} aria-hidden="true" /> },
     {
       id: 'bookings',
       label: isStore ? 'Orders' : 'Bookings',
@@ -292,6 +295,9 @@ export default function BusinessDetailPage() {
       {activeTab === 'products' && (
         <ProductsManager providerId={business.id} products={business.products ?? []} />
       )}
+
+      {/* Offers / coupons (any business type) */}
+      {activeTab === 'coupons' && <CouponsManager providerId={business.id} />}
 
       {/* Bookings / Orders */}
       {activeTab === 'bookings' &&

@@ -152,6 +152,35 @@ export interface ProviderOrder {
   provider: { id: string; businessName: string };
 }
 
+export type DiscountType = 'PERCENT' | 'FLAT';
+
+export interface Coupon {
+  id: string;
+  code: string;
+  description?: string | null;
+  discountType: DiscountType;
+  discountValue: number; // percent (1-100) or flat amount in minor units
+  minOrderMinor: number;
+  maxDiscountMinor?: number | null;
+  expiresAt?: string | null;
+  usageLimit?: number | null;
+  usedCount: number;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface CouponInput {
+  code: string;
+  description?: string;
+  discountType: DiscountType;
+  discountValue: number;
+  minOrderMinor?: number;
+  maxDiscountMinor?: number;
+  expiresAt?: string | null;
+  usageLimit?: number;
+  isActive?: boolean;
+}
+
 export interface BusinessReview {
   id: string;
   rating: number;

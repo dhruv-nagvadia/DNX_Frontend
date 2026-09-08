@@ -5,6 +5,8 @@ import {
   BusinessHour,
   BusinessReview,
   BookingStatus,
+  Coupon,
+  CouponInput,
   CreateProviderRequest,
   DashboardBooking,
   DateHour,
@@ -35,6 +37,7 @@ export const providerApi = createApi({
     'MyOrders',
     'BusinessReviews',
     'DateHours',
+    'Coupons',
   ],
   endpoints: (builder) => ({
     getProviders: builder.query<Paginated<Provider>, ListProvidersParams | void>({
@@ -257,6 +260,45 @@ export const providerApi = createApi({
       invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }],
     }),
 
+    // ── Coupons ───────────────────────────────────────────────────────────────
+    getCoupons: builder.query<Coupon[], string>({
+      query: (providerId) => ({ endpoint: endpoints.providerCoupons(providerId), method: 'get' }),
+      transformResponse: (res: ApiEnvelope<Coupon[]>) => res.data,
+      providesTags: (_r, _e, providerId) => [{ type: 'Coupons', id: providerId }],
+    }),
+    createCoupon: builder.mutation<Coupon, { providerId: string; data: CouponInput }>({
+      query: ({ providerId, data }) => ({
+        endpoint: endpoints.providerCoupons(providerId),
+        method: 'post',
+        data,
+      }),
+      transformResponse: (res: ApiEnvelope<Coupon>) => res.data,
+      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'Coupons', id: providerId }],
+    }),
+    updateCoupon: builder.mutation<
+      Coupon,
+      { providerId: string; couponId: string; data: Partial<CouponInput> }
+    >({
+      query: ({ providerId, couponId, data }) => ({
+        endpoint: endpoints.providerCoupon(providerId, couponId),
+        method: 'patch',
+        data,
+      }),
+      transformResponse: (res: ApiEnvelope<Coupon>) => res.data,
+      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'Coupons', id: providerId }],
+    }),
+    deleteCoupon: builder.mutation<
+      { id: string },
+      { providerId: string; couponId: string }
+    >({
+      query: ({ providerId, couponId }) => ({
+        endpoint: endpoints.providerCoupon(providerId, couponId),
+        method: 'delete',
+      }),
+      transformResponse: (res: ApiEnvelope<{ id: string }>) => res.data,
+      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'Coupons', id: providerId }],
+    }),
+
     // Replace the weekly business hours.
     setBusinessHours: builder.mutation<Provider, { id: string; hours: BusinessHour[] }>({
       query: ({ id, hours }) => ({
@@ -326,6 +368,10 @@ export const {
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
+  useGetCouponsQuery,
+  useCreateCouponMutation,
+  useUpdateCouponMutation,
+  useDeleteCouponMutation,
   useSetBusinessHoursMutation,
   useGetDateHoursQuery,
   useSetDateHourMutation,

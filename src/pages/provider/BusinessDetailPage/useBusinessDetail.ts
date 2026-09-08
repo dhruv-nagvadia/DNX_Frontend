@@ -14,6 +14,7 @@ export type BusinessTab =
   | 'overview'
   | 'services'
   | 'products'
+  | 'coupons'
   | 'bookings'
   | 'photos'
   | 'calendar';

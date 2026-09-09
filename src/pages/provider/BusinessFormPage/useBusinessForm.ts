@@ -25,6 +25,8 @@ const EMPTY: BusinessForm = {
   city: '',
   state: '',
   postalCode: '',
+  latitude: '',
+  longitude: '',
   depositPercent: '',
 };
 
@@ -49,6 +51,8 @@ export function useBusinessForm() {
   const [images, setImages] = useState<PickedImage[]>([]);
   const [errors, setErrors] = useState<BusinessFormErrors>({});
   const [serverError, setServerError] = useState<string | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
 
   // Prefill when editing.
   useEffect(() => {
@@ -65,6 +69,8 @@ export function useBusinessForm() {
         city: existing.city ?? '',
         state: existing.state ?? '',
         postalCode: existing.postalCode ?? '',
+        latitude: existing.latitude != null ? String(existing.latitude) : '',
+        longitude: existing.longitude != null ? String(existing.longitude) : '',
         depositPercent: existing.depositPercent ? String(existing.depositPercent) : '',
       });
     }
@@ -116,6 +122,36 @@ export function useBusinessForm() {
     setImages((prev) => [...prev, ...incoming].slice(0, MAX_IMAGES));
   }, []);
 
+  // Uses the browser's built-in geolocation (no API key needed) to fill in
+  // coordinates, so the business can be found via "nearest" search.
+  const useCurrentLocation = useCallback(() => {
+    if (!navigator.geolocation) {
+      setLocationError('Location isn’t available in this browser.');
+      return;
+    }
+    setLocating(true);
+    setLocationError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setForm((prev) => ({
+          ...prev,
+          latitude: String(Math.round(pos.coords.latitude * 1e6) / 1e6),
+          longitude: String(Math.round(pos.coords.longitude * 1e6) / 1e6),
+        }));
+        setLocating(false);
+      },
+      (err) => {
+        setLocationError(
+          err.code === err.PERMISSION_DENIED
+            ? 'Location access was denied. You can allow it in your browser settings.'
+            : 'Could not get your location. Please try again.',
+        );
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10_000 },
+    );
+  }, []);
+
   const removeImage = useCallback((index: number) => {
     setImages((prev) => {
       const target = prev[index];
@@ -145,6 +181,8 @@ export function useBusinessForm() {
         city: form.city.trim() || undefined,
         state: form.state.trim() || undefined,
         postalCode: form.postalCode.trim() || undefined,
+        latitude: form.latitude.trim() ? Number(form.latitude) : undefined,
+        longitude: form.longitude.trim() ? Number(form.longitude) : undefined,
         depositPercent: form.depositPercent.trim() ? Number(form.depositPercent) : 0,
       };
 
@@ -187,6 +225,9 @@ export function useBusinessForm() {
     addImages,
     removeImage,
     onSubmit,
+    useCurrentLocation,
+    locating,
+    locationError,
     goBack: () => navigate(isEdit && id ? `/businesses/${id}` : '/businesses'),
   };
 }

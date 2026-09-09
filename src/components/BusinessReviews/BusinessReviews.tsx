@@ -1,8 +1,14 @@
-import { ChevronRight, Star } from 'lucide-react';
+import { useState } from 'react';
+import { ChevronRight, MessageSquare, Pencil, Star, Store } from 'lucide-react';
 
+import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Skeleton } from '@/components/Skeleton';
-import { useGetBusinessReviewsQuery } from '@/redux/api/provider/providerApi';
+import {
+  useGetBusinessReviewsQuery,
+  useReplyToReviewMutation,
+} from '@/redux/api/provider/providerApi';
+import { BusinessReview } from '@/redux/api/provider/types';
 
 import styles from './BusinessReviews.module.css';
 
@@ -50,6 +56,79 @@ function relativeDate(iso: string): string {
   }
   const m = Math.round(days / 30);
   return `${m} month${m === 1 ? '' : 's'} ago`;
+}
+
+/** The owner's reply to one review, or the button/form to add one. */
+function ReplyBlock({ providerId, review }: { providerId: string; review: BusinessReview }) {
+  const [replyToReview, { isLoading: saving }] = useReplyToReviewMutation();
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(review.providerReply ?? '');
+
+  const startEdit = () => {
+    setDraft(review.providerReply ?? '');
+    setEditing(true);
+  };
+
+  const save = async () => {
+    await replyToReview({ providerId, reviewId: review.id, reply: draft.trim() || null })
+      .unwrap()
+      .catch(() => undefined);
+    setEditing(false);
+  };
+
+  if (editing) {
+    return (
+      <div className={styles.replyForm}>
+        <textarea
+          className={styles.replyInput}
+          placeholder="Write a public reply to this review…"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          maxLength={1000}
+          rows={3}
+          autoFocus
+        />
+        <div className={styles.replyActions}>
+          <Button variant="ghost" onClick={() => setEditing(false)} disabled={saving}>
+            Cancel
+          </Button>
+          <Button onClick={save} loading={saving} loadingText="Saving…">
+            Save reply
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (review.providerReply) {
+    return (
+      <div className={styles.reply}>
+        <span className={styles.replyIcon}>
+          <Store size={13} aria-hidden="true" />
+        </span>
+        <div className={styles.replyBody}>
+          <div className={styles.replyHead}>
+            <span className={styles.replyLabel}>Your reply</span>
+            {review.repliedAt && (
+              <span className={styles.replyDate}>{relativeDate(review.repliedAt)}</span>
+            )}
+            <button type="button" className={styles.replyEditBtn} onClick={startEdit}>
+              <Pencil size={12} aria-hidden="true" />
+              Edit
+            </button>
+          </div>
+          <p className={styles.replyText}>{review.providerReply}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <button type="button" className={styles.replyBtn} onClick={startEdit}>
+      <MessageSquare size={13} aria-hidden="true" />
+      Reply
+    </button>
+  );
 }
 
 /** Customer reviews for a business. */
@@ -131,6 +210,7 @@ export function BusinessReviews({ providerId, limit, onViewAll }: BusinessReview
                   </div>
                   <Stars rating={r.rating} />
                   {r.comment && <p className={styles.reviewText}>{r.comment}</p>}
+                  <ReplyBlock providerId={providerId} review={r} />
                 </div>
               </li>
             ))}

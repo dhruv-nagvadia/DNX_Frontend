@@ -41,6 +41,10 @@ export const endpoints = {
   myProviderBookingCollect: (id: string, bookingId: string) =>
     `/provider/businesses/${id}/bookings/${bookingId}/collect`,
   myProviderReviews: (id: string) => `/provider/businesses/${id}/reviews`,
+  myProviderReviewReply: (id: string, reviewId: string) =>
+    `/provider/businesses/${id}/reviews/${reviewId}/reply`,
+  myProviderProductReviewReply: (id: string, productId: string, reviewId: string) =>
+    `/provider/businesses/${id}/products/${productId}/reviews/${reviewId}/reply`,
   providerServices: (providerId: string) => `/provider/businesses/${providerId}/services`,
   providerService: (providerId: string, serviceId: string) =>
     `/provider/businesses/${providerId}/services/${serviceId}`,

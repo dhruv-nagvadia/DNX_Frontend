@@ -154,6 +154,20 @@ export const providerApi = createApi({
       providesTags: (_r, _e, id) => [{ type: 'BusinessReviews', id }],
     }),
 
+    // Reply to (or clear the reply on) a business review.
+    replyToReview: builder.mutation<
+      BusinessReview,
+      { providerId: string; reviewId: string; reply: string | null }
+    >({
+      query: ({ providerId, reviewId, reply }) => ({
+        endpoint: endpoints.myProviderReviewReply(providerId, reviewId),
+        method: 'patch',
+        data: { reply },
+      }),
+      transformResponse: (res: ApiEnvelope<BusinessReview>) => res.data,
+      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'BusinessReviews', id: providerId }],
+    }),
+
     // Update an owned business.
     updateBusiness: builder.mutation<Provider, { id: string; data: Partial<CreateProviderRequest> }>({
       query: ({ id, data }) => ({ endpoint: endpoints.myProviderById(id), method: 'patch', data }),
@@ -357,6 +371,7 @@ export const {
   useUpdateBookingStatusMutation,
   useCollectBookingPaymentMutation,
   useGetBusinessReviewsQuery,
+  useReplyToReviewMutation,
   useUpdateBusinessMutation,
   useDeleteBusinessMutation,
   useSetBusinessImagesMutation,

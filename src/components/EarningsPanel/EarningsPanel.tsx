@@ -3,6 +3,7 @@ import { TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 import { BarChart } from '@/components/BarChart';
 import { Card } from '@/components/Card';
 import { Skeleton } from '@/components/Skeleton';
+import { BusinessType } from '@/redux/api/provider/types';
 
 import { EarningsPeriod } from './types';
 import { useEarnings } from './useEarnings';
@@ -33,8 +34,14 @@ function money(major: number, currency: string): string {
 }
 
 /** Earnings summary + chart for one business, with a period toggle. */
-export function EarningsPanel({ providerId }: { providerId: string }) {
-  const { period, setPeriod, series, isLoading } = useEarnings(providerId);
+export function EarningsPanel({
+  providerId,
+  businessType = 'SERVICE',
+}: {
+  providerId: string;
+  businessType?: BusinessType;
+}) {
+  const { period, setPeriod, series, isLoading } = useEarnings(providerId, businessType);
 
   return (
     <Card

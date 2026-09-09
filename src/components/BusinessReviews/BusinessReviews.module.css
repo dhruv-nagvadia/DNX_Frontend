@@ -177,6 +177,114 @@
   font-style: italic;
 }
 
+/* Reply: button prompt, the owner's saved reply, and the edit form */
+.replyBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  padding: 5px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.replyBtn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.reply {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+  border-left: 3px solid var(--color-primary);
+}
+.replyIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  margin-top: 1px;
+}
+.replyBody {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.replyHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.replyLabel {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+.replyDate {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+.replyEditBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.replyEditBtn:hover {
+  color: var(--color-primary);
+}
+.replyText {
+  margin: 3px 0 0;
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  color: var(--color-text-primary);
+}
+
+.replyForm {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.replyInput {
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  resize: vertical;
+}
+.replyInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+.replyActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 @media (max-width: 560px) {
   .summary {
     grid-template-columns: 1fr;

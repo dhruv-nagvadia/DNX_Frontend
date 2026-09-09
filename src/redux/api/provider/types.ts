@@ -88,6 +88,8 @@ export interface Provider {
   city?: string | null;
   state?: string | null;
   postalCode?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   images: string[];
   ratingAvg: number;
   ratingCount: number;
@@ -153,6 +155,9 @@ export interface ProviderOrder {
 }
 
 export type DiscountType = 'PERCENT' | 'FLAT';
+// What triggers eligibility: a minimum order/booking amount, one specific
+// service (service businesses), or one specific product (stores).
+export type CouponScope = 'ORDER' | 'SERVICE' | 'PRODUCT';
 
 export interface Coupon {
   id: string;
@@ -160,6 +165,11 @@ export interface Coupon {
   description?: string | null;
   discountType: DiscountType;
   discountValue: number; // percent (1-100) or flat amount in minor units
+  scope: CouponScope;
+  serviceId?: string | null;
+  service?: { name: string } | null;
+  productId?: string | null;
+  product?: { name: string } | null;
   minOrderMinor: number;
   maxDiscountMinor?: number | null;
   expiresAt?: string | null;
@@ -174,6 +184,9 @@ export interface CouponInput {
   description?: string;
   discountType: DiscountType;
   discountValue: number;
+  scope?: CouponScope;
+  serviceId?: string | null;
+  productId?: string | null;
   minOrderMinor?: number;
   maxDiscountMinor?: number;
   expiresAt?: string | null;
@@ -185,6 +198,8 @@ export interface BusinessReview {
   id: string;
   rating: number;
   comment?: string | null;
+  providerReply?: string | null;
+  repliedAt?: string | null;
   createdAt: string;
   user: { fullName: string };
 }
@@ -209,5 +224,7 @@ export interface CreateProviderRequest {
   city?: string;
   state?: string;
   postalCode?: string;
+  latitude?: number;
+  longitude?: number;
   depositPercent?: number;
 }

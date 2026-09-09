@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { ArrowLeft, Camera, Check, X } from 'lucide-react';
+import { ArrowLeft, Camera, Check, LocateFixed, X } from 'lucide-react';
 
 import { AlertBanner } from '@/components/AlertBanner';
 import { AppShell } from '@/components/AppShell';
@@ -34,6 +34,9 @@ export default function BusinessFormPage() {
     addImages,
     removeImage,
     onSubmit,
+    useCurrentLocation,
+    locating,
+    locationError,
     goBack,
   } = useBusinessForm();
 
@@ -320,6 +323,28 @@ export default function BusinessFormPage() {
               value={form.postalCode}
               onChange={onChange}
             />
+
+            <div className={styles.locationRow}>
+              <div className={styles.locationText}>
+                <span className={styles.locationLabel}>Coordinates</span>
+                <span className={styles.locationValue}>
+                  {form.latitude && form.longitude
+                    ? `${form.latitude}, ${form.longitude}`
+                    : 'Not set — customers can’t sort to you by "nearest" yet.'}
+                </span>
+              </div>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={useCurrentLocation}
+                loading={locating}
+                loadingText="Locating…"
+                iconLeft={<LocateFixed size={16} aria-hidden="true" />}
+              >
+                Use my current location
+              </Button>
+            </div>
+            {locationError && <AlertBanner tone="error">{locationError}</AlertBanner>}
           </div>
         </Card>
 

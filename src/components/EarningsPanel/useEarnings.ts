@@ -1,9 +1,19 @@
 import { useMemo, useState } from 'react';
 
-import { useGetBusinessBookingsQuery } from '@/redux/api/provider/providerApi';
-import { ProviderBooking } from '@/redux/api/provider/types';
+import {
+  useGetBusinessBookingsQuery,
+  useGetMyOrdersQuery,
+} from '@/redux/api/provider/providerApi';
+import { BusinessType } from '@/redux/api/provider/types';
 
 import { EarningsPeriod, EarningsPoint, EarningsSeries } from './types';
+
+/** One paid-or-payable transaction, normalized from either a booking or an order. */
+interface RevenueEvent {
+  date: Date;
+  amountMinor: number;
+  currency: string;
+}
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -76,19 +86,18 @@ function sampleFill(buckets: EarningsPoint[], seed: string): EarningsPoint[] {
 }
 
 function aggregate(
-  bookings: ProviderBooking[],
+  events: RevenueEvent[],
   period: EarningsPeriod,
   now: Date,
 ): { points: EarningsPoint[]; real: boolean; currency: string } {
   const points = emptyBuckets(period, now);
   let total = 0;
-  const currency = bookings[0]?.currency ?? 'INR';
+  const currency = events[0]?.currency ?? 'INR';
 
-  for (const b of bookings) {
-    if (b.status === 'CANCELLED') continue;
-    const idx = bucketIndex(period, new Date(b.startTime), now);
+  for (const e of events) {
+    const idx = bucketIndex(period, e.date, now);
     if (idx < 0) continue;
-    const major = b.amountMinor / 100;
+    const major = e.amountMinor / 100;
     points[idx].value += major;
     total += major;
   }
@@ -97,13 +106,32 @@ function aggregate(
 }
 
 /** Earnings series for one business, with a week/month/year toggle. */
-export function useEarnings(providerId: string) {
-  const { data: bookings = [], isLoading } = useGetBusinessBookingsQuery(providerId);
+export function useEarnings(providerId: string, businessType: BusinessType = 'SERVICE') {
+  const isStore = businessType === 'STORE';
+  const { data: bookings = [], isLoading: loadingBookings } = useGetBusinessBookingsQuery(
+    providerId,
+    { skip: isStore },
+  );
+  const { data: orders = [], isLoading: loadingOrders } = useGetMyOrdersQuery(undefined, {
+    skip: !isStore,
+  });
   const [period, setPeriod] = useState<EarningsPeriod>('week');
+  const isLoading = isStore ? loadingOrders : loadingBookings;
+
+  const events: RevenueEvent[] = useMemo(() => {
+    if (isStore) {
+      return orders
+        .filter((o) => o.provider.id === providerId && o.status !== 'CANCELLED')
+        .map((o) => ({ date: new Date(o.createdAt), amountMinor: o.amountMinor, currency: o.currency }));
+    }
+    return bookings
+      .filter((b) => b.status !== 'CANCELLED')
+      .map((b) => ({ date: new Date(b.startTime), amountMinor: b.amountMinor, currency: b.currency }));
+  }, [isStore, orders, bookings, providerId]);
 
   const series: EarningsSeries = useMemo(() => {
     const now = new Date();
-    const { points: real, real: hasReal, currency } = aggregate(bookings, period, now);
+    const { points: real, real: hasReal, currency } = aggregate(events, period, now);
     const points = hasReal ? real : sampleFill(emptyBuckets(period, now), `${providerId}-${period}`);
 
     const total = points.reduce((sum, p) => sum + p.value, 0);
@@ -112,7 +140,7 @@ export function useEarnings(providerId: string) {
     const trendPct = prev > 0 ? Math.round(((last - prev) / prev) * 100) : null;
 
     return { points, total, trendPct, currency, isSample: !hasReal };
-  }, [bookings, period, providerId]);
+  }, [events, period, providerId]);
 
   return { period, setPeriod, series, isLoading };
 }

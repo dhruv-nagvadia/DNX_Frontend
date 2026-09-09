@@ -1,9 +1,9 @@
-import { CalendarClock, Pencil, Plus, Tag, Trash2, Users } from 'lucide-react';
+import { CalendarClock, Package, Pencil, Plus, Tag, Ticket, Trash2, Users } from 'lucide-react';
 
 import { AlertBanner } from '@/components/AlertBanner';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
-import { Coupon } from '@/redux/api/provider/types';
+import { BusinessType, Coupon, Product, Service } from '@/redux/api/provider/types';
 import { useCouponsManager } from './useCouponsManager';
 import styles from '@/components/ServicesManager/ServicesManager.module.css';
 import ui from './CouponsManager.module.css';
@@ -17,11 +17,25 @@ function discountLabel(c: Coupon): string {
   return `${money(c.discountValue)} off`;
 }
 
+/** What a coupon row shows for its eligibility rule. */
+function eligibilityLabel(c: Coupon): string {
+  if (c.scope === 'SERVICE') return `On ${c.service?.name ?? 'a specific service'}`;
+  if (c.scope === 'PRODUCT') return `On ${c.product?.name ?? 'a specific product'}`;
+  return c.minOrderMinor > 0 ? `Min order ${money(c.minOrderMinor)}` : 'Any order';
+}
+
 const dateFmt = new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 const isExpired = (iso?: string | null) => !!iso && new Date(iso).getTime() < Date.now();
 
-/** Create / edit / delete a store's discount coupons. */
-export function CouponsManager({ providerId }: { providerId: string }) {
+interface CouponsManagerProps {
+  providerId: string;
+  businessType: BusinessType;
+  services?: Service[];
+  products?: Product[];
+}
+
+/** Create / edit / delete a business's discount coupons. */
+export function CouponsManager({ providerId, businessType, services = [], products = [] }: CouponsManagerProps) {
   const {
     coupons,
     editing,
@@ -33,11 +47,15 @@ export function CouponsManager({ providerId }: { providerId: string }) {
     cancel,
     onChange,
     setType,
+    setScope,
     toggleActive,
     submit,
     remove,
     toggleCouponActive,
-  } = useCouponsManager(providerId);
+  } = useCouponsManager(providerId, businessType);
+
+  const itemLabel = businessType === 'STORE' ? 'product' : 'service';
+  const items = businessType === 'STORE' ? products : services;
 
   const renderForm = (isNew: boolean) => (
     <form className={styles.form} onSubmit={submit}>
@@ -74,30 +92,54 @@ export function CouponsManager({ providerId }: { providerId: string }) {
         </div>
       </div>
 
-      <div className={ui.grid2}>
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="discountValue">
-            {form.discountType === 'PERCENT' ? 'Percent off' : 'Amount off'}
-          </label>
-          <div className={ui.affix}>
-            {form.discountType === 'FLAT' && <span className={ui.pre}>₹</span>}
-            <input
-              id="discountValue"
-              name="discountValue"
-              type="number"
-              min="0"
-              step="any"
-              inputMode="decimal"
-              placeholder={form.discountType === 'PERCENT' ? '20' : '50'}
-              value={form.discountValue}
-              onChange={onChange}
-            />
-            {form.discountType === 'PERCENT' && <span className={ui.suffix}>%</span>}
-          </div>
+      <div className={styles.field}>
+        <label className={styles.label} htmlFor="discountValue">
+          {form.discountType === 'PERCENT' ? 'Percent off' : 'Amount off'}
+        </label>
+        <div className={ui.affix}>
+          {form.discountType === 'FLAT' && <span className={ui.pre}>₹</span>}
+          <input
+            id="discountValue"
+            name="discountValue"
+            type="number"
+            min="0"
+            step="any"
+            inputMode="decimal"
+            placeholder={form.discountType === 'PERCENT' ? '20' : '50'}
+            value={form.discountValue}
+            onChange={onChange}
+          />
+          {form.discountType === 'PERCENT' && <span className={ui.suffix}>%</span>}
         </div>
+      </div>
+
+      {/* Eligibility: a minimum amount, or one specific service/product. */}
+      <div className={styles.field}>
+        <label className={styles.label}>Applies to</label>
+        <div className={ui.scopeRow}>
+          <button
+            type="button"
+            className={`${ui.scopeBtn} ${form.scope === 'ORDER' ? ui.scopeBtnActive : ''}`}
+            onClick={() => setScope('ORDER')}
+          >
+            <Tag size={14} aria-hidden="true" />
+            Minimum order amount
+          </button>
+          <button
+            type="button"
+            className={`${ui.scopeBtn} ${form.scope !== 'ORDER' ? ui.scopeBtnActive : ''}`}
+            onClick={() => setScope(businessType === 'STORE' ? 'PRODUCT' : 'SERVICE')}
+          >
+            <Package size={14} aria-hidden="true" />
+            A specific {itemLabel}
+          </button>
+        </div>
+      </div>
+
+      {form.scope === 'ORDER' ? (
         <div className={styles.field}>
           <label className={styles.label} htmlFor="minOrder">
-            Min order <span className={styles.optional}>(optional)</span>
+            Min order <span className={styles.optional}>(optional — leave blank for any order)</span>
           </label>
           <div className={ui.affix}>
             <span className={ui.pre}>₹</span>
@@ -114,7 +156,33 @@ export function CouponsManager({ providerId }: { providerId: string }) {
             />
           </div>
         </div>
-      </div>
+      ) : (
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor={businessType === 'STORE' ? 'productId' : 'serviceId'}>
+            {businessType === 'STORE' ? 'Product' : 'Service'}
+          </label>
+          {items.length === 0 ? (
+            <p className={ui.noItems}>
+              You don’t have any {itemLabel}s yet — add one first to scope a coupon to it.
+            </p>
+          ) : (
+            <select
+              id={businessType === 'STORE' ? 'productId' : 'serviceId'}
+              name={businessType === 'STORE' ? 'productId' : 'serviceId'}
+              className={ui.select}
+              value={businessType === 'STORE' ? form.productId : form.serviceId}
+              onChange={onChange}
+            >
+              <option value="">Select a {itemLabel}…</option>
+              {items.map((it) => (
+                <option key={it.id} value={it.id}>
+                  {it.name}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+      )}
 
       <div className={ui.grid2}>
         {form.discountType === 'PERCENT' && (
@@ -218,7 +286,7 @@ export function CouponsManager({ providerId }: { providerId: string }) {
 
       {coupons.length === 0 && editing !== 'new' ? (
         <p className={styles.muted}>
-          No coupons yet. Create a discount code to run an offer on your store.
+          No coupons yet. Create a discount code to run an offer on your business.
         </p>
       ) : (
         <div className={styles.list}>
@@ -231,17 +299,21 @@ export function CouponsManager({ providerId }: { providerId: string }) {
                 className={`${styles.row} ${!c.isActive ? styles.rowInactive : ''}`}
               >
                 <div className={styles.rowMain}>
-                  <div className={styles.rowName}>
+                  <div className={`${styles.rowName} ${ui.rowNameRow}`}>
                     <span className={ui.code}>{c.code}</span>
+                    {c.scope !== 'ORDER' && (
+                      <span className={ui.scopeTag}>
+                        <Ticket size={12} aria-hidden="true" />
+                        {c.scope === 'SERVICE' ? 'Service offer' : 'Product offer'}
+                      </span>
+                    )}
                   </div>
                   {c.description && <div className={styles.rowDesc}>{c.description}</div>}
                   <div className={styles.rowMeta}>
                     <span className={ui.discount}>
                       <Tag size={13} aria-hidden="true" /> {discountLabel(c)}
                     </span>
-                    {c.minOrderMinor > 0 && (
-                      <span className={styles.metaItem}>min {money(c.minOrderMinor)}</span>
-                    )}
+                    <span className={styles.metaItem}>{eligibilityLabel(c)}</span>
                     {c.expiresAt && (
                       <span className={`${styles.metaItem} ${isExpired(c.expiresAt) ? ui.expired : ''}`}>
                         <CalendarClock size={13} aria-hidden="true" />

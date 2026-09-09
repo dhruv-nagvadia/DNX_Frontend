@@ -51,6 +51,32 @@
   gap: var(--space-md);
 }
 
+.locationRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: 12px 14px;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  flex-wrap: wrap;
+}
+.locationText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.locationLabel {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+.locationValue {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+
 .fieldError {
   margin: var(--space-sm) 0 0;
   font-size: var(--font-size-xs);

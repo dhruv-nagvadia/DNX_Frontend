@@ -10,6 +10,10 @@ export interface BusinessForm {
   city: string;
   state: string;
   postalCode: string;
+  // Coordinates — set via the "Use my current location" button. Powers
+  // "nearest" search on the customer app.
+  latitude: string;
+  longitude: string;
   depositPercent: string;
 }
 

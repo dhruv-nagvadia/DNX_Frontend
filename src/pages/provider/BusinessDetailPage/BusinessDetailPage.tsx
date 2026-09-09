@@ -31,6 +31,7 @@ import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { CategoryIcon } from '@/components/CategoryIcon';
 import { EarningsPanel } from '@/components/EarningsPanel';
+import { TopSellersPanel } from '@/components/TopSellersPanel';
 import { CouponsManager } from '@/components/CouponsManager';
 import { OrdersManager } from '@/components/OrdersManager';
 import { ProductsManager } from '@/components/ProductsManager';
@@ -230,7 +231,19 @@ export default function BusinessDetailPage() {
         <>
           {isStore ? (
             <>
-              <Card title="About">{aboutContent}</Card>
+              {/* Narrower graph on the left, About on the right. About matches the
+                  graph's height and scrolls internally — it never resizes the graph. */}
+              <div className={`${styles.overviewCols} ${styles.overviewTop}`}>
+                <EarningsPanel providerId={business.id} businessType="STORE" />
+                <div className={styles.aboutCell}>
+                  <Card title="About" className={styles.aboutCard}>
+                    {aboutContent}
+                  </Card>
+                </div>
+              </div>
+
+              <TopSellersPanel providerId={business.id} businessType="STORE" />
+
               {contactCard}
             </>
           ) : (
@@ -238,13 +251,15 @@ export default function BusinessDetailPage() {
               {/* Narrower graph on the left, About on the right. About matches the
                   graph's height and scrolls internally — it never resizes the graph. */}
               <div className={`${styles.overviewCols} ${styles.overviewTop}`}>
-                <EarningsPanel providerId={business.id} />
+                <EarningsPanel providerId={business.id} businessType="SERVICE" />
                 <div className={styles.aboutCell}>
                   <Card title="About" className={styles.aboutCard}>
                     {aboutContent}
                   </Card>
                 </div>
               </div>
+
+              <TopSellersPanel providerId={business.id} businessType="SERVICE" />
 
               {/* Full-width appointments with customer + payment details. */}
               <UpcomingAppointments
@@ -297,7 +312,14 @@ export default function BusinessDetailPage() {
       )}
 
       {/* Offers / coupons (any business type) */}
-      {activeTab === 'coupons' && <CouponsManager providerId={business.id} />}
+      {activeTab === 'coupons' && (
+        <CouponsManager
+          providerId={business.id}
+          businessType={business.type ?? 'SERVICE'}
+          services={business.services}
+          products={business.products}
+        />
+      )}
 
       {/* Bookings / Orders */}
       {activeTab === 'bookings' &&

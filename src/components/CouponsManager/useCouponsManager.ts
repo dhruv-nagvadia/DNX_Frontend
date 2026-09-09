@@ -6,14 +6,17 @@ import {
   useUpdateCouponMutation,
   useDeleteCouponMutation,
 } from '@/redux/api/provider/providerApi';
-import { Coupon, CouponInput, DiscountType } from '@/redux/api/provider/types';
+import { BusinessType, Coupon, CouponInput, CouponScope, DiscountType } from '@/redux/api/provider/types';
 
 export interface CouponForm {
   code: string;
   description: string;
   discountType: DiscountType;
   discountValue: string; // percent (PERCENT) or rupees (FLAT)
-  minOrder: string; // rupees
+  scope: CouponScope;
+  serviceId: string;
+  productId: string;
+  minOrder: string; // rupees — only meaningful when scope is ORDER
   maxDiscount: string; // rupees (PERCENT only)
   expiresAt: string; // YYYY-MM-DD
   usageLimit: string;
@@ -25,6 +28,9 @@ const EMPTY: CouponForm = {
   description: '',
   discountType: 'PERCENT',
   discountValue: '',
+  scope: 'ORDER',
+  serviceId: '',
+  productId: '',
   minOrder: '',
   maxDiscount: '',
   expiresAt: '',
@@ -36,8 +42,8 @@ const toRupees = (minor?: number | null) => (minor ? String(minor / 100) : '');
 const toMinor = (rupees: string) => Math.round(Number(rupees) * 100);
 const toDateInput = (iso?: string | null) => (iso ? iso.slice(0, 10) : '');
 
-/** State + handlers for a store's discount coupons. */
-export function useCouponsManager(providerId: string) {
+/** State + handlers for a business's discount coupons. */
+export function useCouponsManager(providerId: string, businessType: BusinessType) {
   const { data: coupons = [], isLoading } = useGetCouponsQuery(providerId);
   const [createCoupon, { isLoading: creating }] = useCreateCouponMutation();
   const [updateCoupon, { isLoading: updating }] = useUpdateCouponMutation();
@@ -59,6 +65,9 @@ export function useCouponsManager(providerId: string) {
       description: c.description ?? '',
       discountType: c.discountType,
       discountValue: c.discountType === 'FLAT' ? toRupees(c.discountValue) : String(c.discountValue),
+      scope: c.scope,
+      serviceId: c.serviceId ?? '',
+      productId: c.productId ?? '',
       minOrder: toRupees(c.minOrderMinor),
       maxDiscount: toRupees(c.maxDiscountMinor),
       expiresAt: toDateInput(c.expiresAt),
@@ -86,6 +95,11 @@ export function useCouponsManager(providerId: string) {
     setForm((prev) => ({ ...prev, discountType }));
   }, []);
 
+  // Scope choices are mutually exclusive: switching clears the other's picks.
+  const setScope = useCallback((scope: CouponScope) => {
+    setForm((prev) => ({ ...prev, scope, serviceId: '', productId: '', minOrder: '' }));
+  }, []);
+
   const toggleActive = useCallback(
     () => setForm((prev) => ({ ...prev, isActive: !prev.isActive })),
     [],
@@ -103,13 +117,18 @@ export function useCouponsManager(providerId: string) {
       if (Number.isNaN(value) || value <= 0) return setError('Enter a valid discount');
       if (form.discountType === 'PERCENT' && value > 100)
         return setError('A percentage can’t be over 100');
+      if (form.scope === 'SERVICE' && !form.serviceId) return setError('Pick which service this applies to');
+      if (form.scope === 'PRODUCT' && !form.productId) return setError('Pick which product this applies to');
 
       const data: CouponInput = {
         code,
         description: form.description.trim() || undefined,
         discountType: form.discountType,
         discountValue: form.discountType === 'FLAT' ? toMinor(form.discountValue) : Math.round(value),
-        minOrderMinor: form.minOrder.trim() ? toMinor(form.minOrder) : 0,
+        scope: form.scope,
+        serviceId: form.scope === 'SERVICE' ? form.serviceId : undefined,
+        productId: form.scope === 'PRODUCT' ? form.productId : undefined,
+        minOrderMinor: form.scope === 'ORDER' && form.minOrder.trim() ? toMinor(form.minOrder) : 0,
         maxDiscountMinor:
           form.discountType === 'PERCENT' && form.maxDiscount.trim()
             ? toMinor(form.maxDiscount)
@@ -162,11 +181,13 @@ export function useCouponsManager(providerId: string) {
     form,
     error,
     saving: creating || updating,
+    businessType,
     startAdd,
     startEdit,
     cancel,
     onChange,
     setType,
+    setScope,
     toggleActive,
     submit,
     remove,

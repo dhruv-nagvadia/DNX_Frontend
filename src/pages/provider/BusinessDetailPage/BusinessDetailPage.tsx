@@ -303,12 +303,20 @@ export default function BusinessDetailPage() {
 
       {/* Services (service businesses) */}
       {activeTab === 'services' && (
-        <ServicesManager providerId={business.id} services={business.services} />
+        <ServicesManager
+          providerId={business.id}
+          services={business.services}
+          subcategorySlug={business.subcategory?.slug}
+        />
       )}
 
       {/* Products (store businesses) */}
       {activeTab === 'products' && (
-        <ProductsManager providerId={business.id} products={business.products ?? []} />
+        <ProductsManager
+          providerId={business.id}
+          products={business.products ?? []}
+          subcategorySlug={business.subcategory?.slug}
+        />
       )}
 
       {/* Offers / coupons (any business type) */}

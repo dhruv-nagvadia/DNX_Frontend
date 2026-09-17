@@ -70,6 +70,11 @@ export function useProductsManager(providerId: string) {
     setError(null);
   }, []);
 
+  /** Fills the name from a picked suggestion. */
+  const applySuggestion = useCallback((name: string) => {
+    setForm((prev) => ({ ...prev, name }));
+  }, []);
+
   const onChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
       const { name, value } = e.target;
@@ -189,6 +194,7 @@ export function useProductsManager(providerId: string) {
     startEdit,
     cancel,
     onChange,
+    applySuggestion,
     selectMeasure,
     pickImage,
     clearImage,

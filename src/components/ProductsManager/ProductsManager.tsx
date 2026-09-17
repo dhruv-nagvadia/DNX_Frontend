@@ -15,7 +15,9 @@ import {
 import { AlertBanner } from '@/components/AlertBanner';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
+import { Combobox } from '@/components/Combobox';
 import { Measure, Product } from '@/redux/api/provider/types';
+import { PRODUCT_SUGGESTIONS } from '@/data/productSuggestions';
 import {
   MEASURES,
   SECTION_SUGGESTIONS,
@@ -33,7 +35,7 @@ import styles from '@/components/ServicesManager/ServicesManager.module.css';
 import ui from './ProductsManager.module.css';
 
 /** Add / edit / delete the products a STORE business sells. */
-export function ProductsManager({ providerId, products }: ProductsManagerProps) {
+export function ProductsManager({ providerId, products, subcategorySlug }: ProductsManagerProps) {
   const {
     editing,
     form,
@@ -44,6 +46,7 @@ export function ProductsManager({ providerId, products }: ProductsManagerProps) 
     startEdit,
     cancel,
     onChange,
+    applySuggestion,
     selectMeasure,
     pickImage,
     clearImage,
@@ -59,6 +62,9 @@ export function ProductsManager({ providerId, products }: ProductsManagerProps) 
     </option>
   ));
 
+  const suggestions = (subcategorySlug && PRODUCT_SUGGESTIONS[subcategorySlug]) || [];
+  const comboItems = suggestions.map((name) => ({ label: name }));
+
   const renderForm = (isNew: boolean) => (
     <form className={styles.form} onSubmit={submit}>
       <p className={styles.formTitle}>{isNew ? 'New product' : 'Edit product'}</p>
@@ -67,13 +73,14 @@ export function ProductsManager({ providerId, products }: ProductsManagerProps) 
         <label className={styles.label} htmlFor="name">
           Product name
         </label>
-        <input
+        <Combobox
           id="name"
           name="name"
-          className={styles.input}
-          placeholder="e.g. Basmati Rice"
+          placeholder="e.g. Basmati Rice — or search common products"
           value={form.name}
+          items={isNew ? comboItems : []}
           onChange={onChange}
+          onSelect={(item) => applySuggestion(item.label)}
         />
       </div>
 

@@ -3,6 +3,8 @@ import { Service } from '@/redux/api/provider/types';
 export interface ServicesManagerProps {
   providerId: string;
   services: Service[];
+  /** Used to look up common-service suggestions for this business's type. */
+  subcategorySlug?: string;
 }
 
 export interface ServiceForm {

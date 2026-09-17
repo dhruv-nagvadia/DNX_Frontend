@@ -44,6 +44,17 @@ export function useServicesManager(providerId: string) {
     setError(null);
   }, []);
 
+  /** Fills the name (and duration) from a picked suggestion. */
+  const applySuggestion = useCallback((name: string, durationMin?: number) => {
+    setForm((prev) => ({
+      ...prev,
+      name,
+      ...(durationMin != null
+        ? { hours: String(Math.floor(durationMin / 60)), minutes: String(durationMin % 60) }
+        : {}),
+    }));
+  }, []);
+
   const onChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
       const { name, value } = e.target;
@@ -116,6 +127,7 @@ export function useServicesManager(providerId: string) {
     startEdit,
     cancel,
     onChange,
+    applySuggestion,
     submit,
     remove,
     toggleActive,

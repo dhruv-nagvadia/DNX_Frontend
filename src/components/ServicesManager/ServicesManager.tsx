@@ -3,7 +3,9 @@ import { Clock, Pencil, Plus, Trash2 } from 'lucide-react';
 import { AlertBanner } from '@/components/AlertBanner';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
+import { Combobox } from '@/components/Combobox';
 import { Service } from '@/redux/api/provider/types';
+import { SERVICE_SUGGESTIONS } from '@/data/serviceSuggestions';
 import { ServicesManagerProps } from './types';
 import { useServicesManager } from './useServicesManager';
 import styles from './ServicesManager.module.css';
@@ -25,7 +27,7 @@ const HOUR_OPTIONS = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 const MINUTE_OPTIONS = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
 
 /** Add / edit / delete the services offered by a business. */
-export function ServicesManager({ providerId, services }: ServicesManagerProps) {
+export function ServicesManager({ providerId, services, subcategorySlug }: ServicesManagerProps) {
   const {
     editing,
     form,
@@ -35,10 +37,14 @@ export function ServicesManager({ providerId, services }: ServicesManagerProps) 
     startEdit,
     cancel,
     onChange,
+    applySuggestion,
     submit,
     remove,
     toggleActive,
   } = useServicesManager(providerId);
+
+  const suggestions = (subcategorySlug && SERVICE_SUGGESTIONS[subcategorySlug]) || [];
+  const comboItems = suggestions.map((s) => ({ label: s.name, meta: s.durationMin }));
 
   const renderForm = (isNew: boolean) => (
     <form className={styles.form} onSubmit={submit}>
@@ -48,13 +54,14 @@ export function ServicesManager({ providerId, services }: ServicesManagerProps) 
         <label className={styles.label} htmlFor="name">
           Service name
         </label>
-        <input
+        <Combobox
           id="name"
           name="name"
-          className={styles.input}
-          placeholder="e.g. Root Canal Treatment"
+          placeholder="e.g. Root Canal Treatment — or search common services"
           value={form.name}
+          items={isNew ? comboItems : []}
           onChange={onChange}
+          onSelect={(item) => applySuggestion(item.label, item.meta)}
         />
       </div>
 

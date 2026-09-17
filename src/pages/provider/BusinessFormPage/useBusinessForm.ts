@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { useGetCategoriesQuery } from '@/redux/api/category/categoryApi';
@@ -10,8 +10,11 @@ import {
 } from '@/redux/api/provider/providerApi';
 
 import { isRasterImage, IMAGE_REJECT_MSG } from '@/utils/imageValidation';
+import { lookupPincode, reverseGeocode } from '@/utils/geoLookup';
 import { BusinessForm, BusinessFormErrors, PickedImage } from './types';
 import { validateBusiness } from './validation';
+
+const PIN_RE = /^\d{6}$/;
 
 const EMPTY: BusinessForm = {
   type: 'SERVICE',
@@ -53,6 +56,10 @@ export function useBusinessForm() {
   const [serverError, setServerError] = useState<string | null>(null);
   const [locating, setLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [resolvingPincode, setResolvingPincode] = useState(false);
+  // Only auto-fill city/state from a typed PIN — never on the initial edit-mode
+  // hydration, so we don't clobber a business's already-saved city/state.
+  const pincodeEditedByUser = useRef(false);
 
   // Prefill when editing.
   useEffect(() => {
@@ -108,8 +115,33 @@ export function useBusinessForm() {
 
   const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    if (name === 'postalCode') pincodeEditedByUser.current = true;
     setForm((prev) => ({ ...prev, [name]: value }));
   }, []);
+
+  // Debounced PIN → city/state autofill (India Post), only for pincodes the
+  // provider actually typed — the resolved city/state can still be edited.
+  useEffect(() => {
+    if (!pincodeEditedByUser.current) return;
+    const pincode = form.postalCode.trim();
+    if (!PIN_RE.test(pincode)) {
+      setResolvingPincode(false);
+      return;
+    }
+    let cancelled = false;
+    setResolvingPincode(true);
+    const timer = setTimeout(async () => {
+      const result = await lookupPincode(pincode);
+      if (!cancelled) {
+        if (result) setForm((prev) => ({ ...prev, city: result.city, state: result.state }));
+        setResolvingPincode(false);
+      }
+    }, 350);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [form.postalCode]);
 
   const addImages = useCallback((fileList: FileList | null) => {
     if (!fileList) return;
@@ -122,8 +154,9 @@ export function useBusinessForm() {
     setImages((prev) => [...prev, ...incoming].slice(0, MAX_IMAGES));
   }, []);
 
-  // Uses the browser's built-in geolocation (no API key needed) to fill in
-  // coordinates, so the business can be found via "nearest" search.
+  // Uses the browser's built-in geolocation (no API key needed) for coordinates,
+  // then reverse-geocodes them to fill in address/PIN/city/state too, so the
+  // business can be found via "nearest" search AND by postal/city/state.
   const useCurrentLocation = useCallback(() => {
     if (!navigator.geolocation) {
       setLocationError('Location isn’t available in this browser.');
@@ -133,12 +166,21 @@ export function useBusinessForm() {
     setLocationError(null);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setForm((prev) => ({
-          ...prev,
-          latitude: String(Math.round(pos.coords.latitude * 1e6) / 1e6),
-          longitude: String(Math.round(pos.coords.longitude * 1e6) / 1e6),
-        }));
-        setLocating(false);
+        const latitude = String(Math.round(pos.coords.latitude * 1e6) / 1e6);
+        const longitude = String(Math.round(pos.coords.longitude * 1e6) / 1e6);
+        setForm((prev) => ({ ...prev, latitude, longitude }));
+
+        reverseGeocode(pos.coords.latitude, pos.coords.longitude)
+          .then(({ address, city, state, postalCode }) => {
+            setForm((prev) => ({
+              ...prev,
+              addressLine: address ?? prev.addressLine,
+              city: city ?? prev.city,
+              state: state ?? prev.state,
+              postalCode: postalCode ?? prev.postalCode,
+            }));
+          })
+          .finally(() => setLocating(false));
       },
       (err) => {
         setLocationError(
@@ -228,6 +270,7 @@ export function useBusinessForm() {
     useCurrentLocation,
     locating,
     locationError,
+    resolvingPincode,
     goBack: () => navigate(isEdit && id ? `/businesses/${id}` : '/businesses'),
   };
 }

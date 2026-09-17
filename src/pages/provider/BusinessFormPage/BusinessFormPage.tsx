@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { ArrowLeft, Camera, Check, LocateFixed, X } from 'lucide-react';
+import { ArrowLeft, Calendar, Camera, Check, LocateFixed, ShoppingBag, X } from 'lucide-react';
 
 import { AlertBanner } from '@/components/AlertBanner';
 import { AppShell } from '@/components/AppShell';
@@ -37,6 +37,7 @@ export default function BusinessFormPage() {
     useCurrentLocation,
     locating,
     locationError,
+    resolvingPincode,
     goBack,
   } = useBusinessForm();
 
@@ -79,67 +80,81 @@ export default function BusinessFormPage() {
         {/* Step 1 — type */}
         <Card
           eyebrow={`Step 1 of ${totalSteps}`}
-          title="Business type"
-          subtitle="Choose the category that fits best."
+          title="What kind of business is this?"
+          subtitle="Start here — it decides what customers see and how they'll book you."
         >
-          <div className={styles.modeSection}>
-            <p className={styles.subLabel}>What does this business offer?</p>
-            <div className={styles.chips}>
-              <button
-                type="button"
-                aria-pressed={form.type === 'SERVICE'}
-                className={`${styles.chip} ${form.type === 'SERVICE' ? styles.chipActive : ''}`}
-                onClick={() => selectType('SERVICE')}
-              >
-                Services — appointments
-              </button>
-              <button
-                type="button"
-                aria-pressed={form.type === 'STORE'}
-                className={`${styles.chip} ${form.type === 'STORE' ? styles.chipActive : ''}`}
-                onClick={() => selectType('STORE')}
-              >
-                Products — store
-              </button>
-            </div>
-            <p className={styles.hintText}>
-              {form.type === 'STORE'
-                ? 'Customers browse your products and place pickup orders — no time slots.'
-                : 'Customers book a time slot for a service (haircut, spa, dentist…).'}
-            </p>
+          <div className={styles.typeChooser}>
+            <button
+              type="button"
+              aria-pressed={form.type === 'SERVICE'}
+              className={`${styles.typeCard} ${form.type === 'SERVICE' ? styles.typeCardActive : ''}`}
+              onClick={() => selectType('SERVICE')}
+            >
+              {form.type === 'SERVICE' && <Check className={styles.tick} size={15} aria-hidden="true" />}
+              <span className={styles.typeIcon}>
+                <Calendar size={24} strokeWidth={1.8} aria-hidden="true" />
+              </span>
+              <span className={styles.typeTitle}>Service business</span>
+              <span className={styles.typeDesc}>
+                Customers book a time slot — salon, clinic, tutor, repair…
+              </span>
+            </button>
+            <button
+              type="button"
+              aria-pressed={form.type === 'STORE'}
+              className={`${styles.typeCard} ${form.type === 'STORE' ? styles.typeCardActive : ''}`}
+              onClick={() => selectType('STORE')}
+            >
+              {form.type === 'STORE' && <Check className={styles.tick} size={15} aria-hidden="true" />}
+              <span className={styles.typeIcon}>
+                <ShoppingBag size={24} strokeWidth={1.8} aria-hidden="true" />
+              </span>
+              <span className={styles.typeTitle}>Product / store business</span>
+              <span className={styles.typeDesc}>
+                Customers browse products and place pickup orders — no time slots.
+              </span>
+            </button>
           </div>
 
-          {categoriesLoading ? (
-            <div className={styles.grid}>
-              {[0, 1, 2, 3, 4, 5].map((i) => (
-                <Skeleton key={i} height={94} radius="var(--radius-lg)" />
-              ))}
-            </div>
-          ) : (
-            <div className={styles.grid}>
-              {categories.map((c) => {
-                const active = form.categoryId === c.id;
-                return (
-                  <button
-                    type="button"
-                    key={c.id}
-                    aria-pressed={active}
-                    className={`${styles.categoryCard} ${active ? styles.categoryCardActive : ''}`}
-                    onClick={() => selectCategory(c.id)}
-                  >
-                    {active && <Check className={styles.tick} size={15} aria-hidden="true" />}
-                    <CategoryIcon slug={c.slug} size={26} strokeWidth={1.6} />
-                    <span className={styles.categoryName}>{c.name}</span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-          {errors.categoryId && <p className={styles.fieldError}>{errors.categoryId}</p>}
+          <div className={styles.categorySection}>
+            <p className={styles.subLabel}>
+              {form.type === 'STORE' ? 'What kind of store is it?' : 'What kind of service?'}
+            </p>
+
+            {categoriesLoading ? (
+              <div className={styles.grid}>
+                {[0, 1, 2, 3, 4, 5].map((i) => (
+                  <Skeleton key={i} height={100} radius="var(--radius-lg)" />
+                ))}
+              </div>
+            ) : (
+              <div className={styles.grid}>
+                {categories.map((c) => {
+                  const active = form.categoryId === c.id;
+                  return (
+                    <button
+                      type="button"
+                      key={c.id}
+                      aria-pressed={active}
+                      className={`${styles.categoryCard} ${active ? styles.categoryCardActive : ''}`}
+                      onClick={() => selectCategory(c.id)}
+                    >
+                      {active && <Check className={styles.tick} size={13} aria-hidden="true" />}
+                      <span className={styles.categoryIconBadge}>
+                        <CategoryIcon slug={c.slug} size={22} strokeWidth={1.6} />
+                      </span>
+                      <span className={styles.categoryName}>{c.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {errors.categoryId && <p className={styles.fieldError}>{errors.categoryId}</p>}
+          </div>
 
           {form.categoryId && subcategories.length > 0 && (
             <div className={styles.subSection}>
-              <p className={styles.subLabel}>Select your business type</p>
+              <p className={styles.subLabel}>Select your specific business type</p>
               <div className={styles.chips}>
                 {subcategories.map((s) => (
                   <button
@@ -299,40 +314,33 @@ export default function BusinessFormPage() {
             <div className={styles.row}>
               <TextField
                 dense
-                label="City"
-                name="city"
-                placeholder="City"
-                value={form.city}
+                label="Postal code"
+                name="postalCode"
+                inputMode="numeric"
+                placeholder="380015"
+                value={form.postalCode}
                 onChange={onChange}
+                hint={resolvingPincode ? 'Looking up your city…' : undefined}
               />
               <TextField
                 dense
-                label="State"
-                name="state"
-                placeholder="State"
-                value={form.state}
+                label="City"
+                name="city"
+                placeholder="Auto-filled from PIN code"
+                value={form.city}
                 onChange={onChange}
               />
             </div>
             <TextField
               dense
-              label="Postal code"
-              name="postalCode"
-              inputMode="numeric"
-              placeholder="380015"
-              value={form.postalCode}
+              label="State"
+              name="state"
+              placeholder="Auto-filled from PIN code"
+              value={form.state}
               onChange={onChange}
             />
 
             <div className={styles.locationRow}>
-              <div className={styles.locationText}>
-                <span className={styles.locationLabel}>Coordinates</span>
-                <span className={styles.locationValue}>
-                  {form.latitude && form.longitude
-                    ? `${form.latitude}, ${form.longitude}`
-                    : 'Not set — customers can’t sort to you by "nearest" yet.'}
-                </span>
-              </div>
               <Button
                 type="button"
                 variant="secondary"

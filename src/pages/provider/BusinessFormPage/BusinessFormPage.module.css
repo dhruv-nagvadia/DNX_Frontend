@@ -54,27 +54,7 @@
 .locationRow {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-md);
-  padding: 12px 14px;
-  border: 1px dashed var(--color-border);
-  border-radius: var(--radius-md);
   flex-wrap: wrap;
-}
-.locationText {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-.locationLabel {
-  font-size: var(--font-size-xs);
-  font-weight: 700;
-  color: var(--color-text-secondary);
-}
-.locationValue {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
 }
 
 .fieldError {
@@ -84,7 +64,85 @@
   color: var(--color-error);
 }
 
+/* ── Business type chooser (Service vs Store) — the first, big decision ── */
+.typeChooser {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.typeCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  text-align: left;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.typeCard:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.typeCard:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-ring);
+}
+
+.typeCardActive {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  box-shadow: var(--shadow-md);
+}
+
+.typeIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-lg);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.typeCardActive .typeIcon {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+.typeTitle {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.typeDesc {
+  font-size: var(--font-size-xs);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
 /* ── Category picker ──────────────────────────────────────────────── */
+.categorySection {
+  display: flex;
+  flex-direction: column;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -98,7 +156,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-sm);
-  min-height: 94px;
+  min-height: 100px;
   padding: var(--space-md) var(--space-sm);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -129,6 +187,22 @@
   color: var(--color-primary);
 }
 
+.categoryIconBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-surface-2);
+  color: inherit;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.categoryCardActive .categoryIconBadge {
+  background: var(--color-primary-ring);
+}
+
 .categoryName {
   font-size: var(--font-size-sm);
   font-weight: 600;
@@ -150,18 +224,6 @@
   margin-top: var(--space-lg);
   padding-top: var(--space-lg);
   border-top: 1px solid var(--color-border);
-}
-
-/* Business-mode (Service vs Store) picker at the top of step 1. */
-.modeSection {
-  margin-bottom: var(--space-lg);
-  padding-bottom: var(--space-lg);
-  border-bottom: 1px solid var(--color-border);
-}
-.hintText {
-  margin: var(--space-sm) 0 0;
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
 }
 
 .subLabel {
@@ -387,7 +449,8 @@
     display: none;
   }
 
-  .row {
+  .row,
+  .typeChooser {
     grid-template-columns: 1fr;
   }
 
@@ -402,6 +465,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .categoryCard,
+  .typeCard,
   .chip,
   .dropzone,
   .textarea,
@@ -410,7 +474,8 @@
     transition: none;
   }
 
-  .categoryCard:hover {
+  .categoryCard:hover,
+  .typeCard:hover {
     transform: none;
   }
 }

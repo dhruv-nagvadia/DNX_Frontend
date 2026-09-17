@@ -14,6 +14,9 @@ export const endpoints = {
   // Categories (shared/public)
   categories: '/categories',
 
+  // Reverse geocoding proxy (avoids Nominatim's missing CORS headers)
+  reverseGeocode: '/geo/reverse',
+
   // In-app notifications (shared/token-based; any role)
   notifications: '/notifications',
   notificationsUnreadCount: '/notifications/unread-count',

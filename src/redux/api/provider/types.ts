@@ -8,6 +8,10 @@ export interface Service {
   currency: string;
   durationMin: number;
   isActive?: boolean;
+  // On-location service (provider travels to the customer) — off by default.
+  travelRequired?: boolean;
+  travelBaseFeeMinor?: number;
+  travelPerKmMinor?: number;
 }
 
 export interface ServiceInput {
@@ -16,6 +20,10 @@ export interface ServiceInput {
   // Price in major units (rupees); the API converts to minor units.
   price: number;
   durationMin: number;
+  travelRequired?: boolean;
+  // Travel fees in major units (rupees); the API converts to minor units.
+  travelBaseFee?: number;
+  travelPerKm?: number;
 }
 
 export type BusinessType = 'SERVICE' | 'STORE';

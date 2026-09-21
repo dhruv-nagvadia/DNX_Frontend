@@ -1,8 +1,9 @@
-import { Clock, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Clock, MapPin, Pencil, Plus, Trash2 } from 'lucide-react';
 
 import { AlertBanner } from '@/components/AlertBanner';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
+import { ToggleSwitch } from '@/components/ToggleSwitch';
 import { Combobox } from '@/components/Combobox';
 import { Service } from '@/redux/api/provider/types';
 import { SERVICE_SUGGESTIONS } from '@/data/serviceSuggestions';
@@ -37,6 +38,7 @@ export function ServicesManager({ providerId, services, subcategorySlug }: Servi
     startEdit,
     cancel,
     onChange,
+    toggleTravelRequired,
     applySuggestion,
     submit,
     remove,
@@ -135,6 +137,60 @@ export function ServicesManager({ providerId, services, subcategorySlug }: Servi
         />
       </div>
 
+      <div className={styles.field}>
+        <ToggleSwitch
+          name="travelRequired"
+          label="On-location service — the provider travels to the customer"
+          checked={form.travelRequired}
+          onChange={toggleTravelRequired}
+        />
+      </div>
+
+      {form.travelRequired && (
+        <div className={styles.row2}>
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="travelBaseFee">
+              Base travel fee
+            </label>
+            <div className={styles.inputPrefix}>
+              <span className={styles.prefix}>₹</span>
+              <input
+                id="travelBaseFee"
+                name="travelBaseFee"
+                className={styles.input}
+                type="number"
+                min="0"
+                step="any"
+                inputMode="decimal"
+                placeholder="0"
+                value={form.travelBaseFee}
+                onChange={onChange}
+              />
+            </div>
+          </div>
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="travelPerKm">
+              Fee per km
+            </label>
+            <div className={styles.inputPrefix}>
+              <span className={styles.prefix}>₹</span>
+              <input
+                id="travelPerKm"
+                name="travelPerKm"
+                className={styles.input}
+                type="number"
+                min="0"
+                step="any"
+                inputMode="decimal"
+                placeholder="0"
+                value={form.travelPerKm}
+                onChange={onChange}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {error && <AlertBanner tone="error">{error}</AlertBanner>}
 
       <div className={styles.formActions}>
@@ -188,6 +244,11 @@ export function ServicesManager({ providerId, services, subcategorySlug }: Servi
                     <span className={styles.metaItem}>
                       <Clock size={14} aria-hidden="true" /> {formatDuration(s.durationMin)}
                     </span>
+                    {s.travelRequired && (
+                      <span className={styles.metaItem}>
+                        <MapPin size={14} aria-hidden="true" /> On-location
+                      </span>
+                    )}
                     <button
                       type="button"
                       className={`${styles.statusChip} ${

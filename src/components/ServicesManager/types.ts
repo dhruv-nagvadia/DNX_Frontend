@@ -13,4 +13,8 @@ export interface ServiceForm {
   price: string;
   hours: string;
   minutes: string;
+  // On-location service (provider travels to the customer) — off by default.
+  travelRequired: boolean;
+  travelBaseFee: string;
+  travelPerKm: string;
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Phone, ShoppingBag } from 'lucide-react';
+import { LifeBuoy, Phone, ShoppingBag } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
@@ -59,6 +60,7 @@ function payBadge(o: ProviderOrder): { label: string; tone: BadgeTone } {
 
 /** Store order management: view incoming orders and move them through fulfilment. */
 export function OrdersManager({ providerId }: { providerId: string }) {
+  const navigate = useNavigate();
   const { data: allOrders = [], isLoading } = useGetMyOrdersQuery();
   const [updateStatus, { isLoading: updating }] = useUpdateOrderStatusMutation();
   const [collect, { isLoading: collecting }] = useCollectOrderPaymentMutation();
@@ -170,7 +172,19 @@ export function OrdersManager({ providerId }: { providerId: string }) {
 
   return (
     <>
-    <Card title="Orders" subtitle={`${orders.length} total · ${active} to fulfil`}>
+    <Card
+      title="Orders"
+      subtitle={`${orders.length} total · ${active} to fulfil`}
+      action={
+        <Button
+          variant="secondary"
+          iconLeft={<LifeBuoy size={14} aria-hidden="true" />}
+          onClick={() => navigate('/support')}
+        >
+          Need help?
+        </Button>
+      }
+    >
       <div className={styles.list}>
         {orders.map((o) => {
           const st = STATUS[o.status];

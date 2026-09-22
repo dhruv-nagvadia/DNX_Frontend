@@ -1,0 +1,63 @@
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+}
+
+.option:hover {
+  border-color: var(--color-primary);
+  background: var(--color-surface-2);
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.iconCall {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.iconWhatsapp {
+  background: rgba(22, 163, 74, 0.1);
+  color: var(--color-success);
+}
+
+.iconEmail {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--color-warning);
+}
+
+.optionText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.optionLabel {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.optionValue {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}

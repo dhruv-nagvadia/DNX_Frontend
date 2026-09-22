@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { CalendarX2 } from 'lucide-react';
+import { CalendarX2, LifeBuoy } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 import { BookingsTable } from '@/components/BookingsTable';
 import { Button } from '@/components/Button';
@@ -41,6 +42,7 @@ import styles from './BusinessBookings.module.css';
 
 /** Read-only list of a business's bookings, with status actions. */
 export function BusinessBookings({ providerId }: BusinessBookingsProps) {
+  const navigate = useNavigate();
   const { data: bookings, isLoading } = useGetBusinessBookingsQuery(providerId);
   const [updateStatus, { isLoading: updating }] = useUpdateBookingStatusMutation();
   const [collectPayment, { isLoading: collecting }] = useCollectBookingPaymentMutation();
@@ -172,7 +174,19 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
 
   return (
     <>
-      <Card title="Bookings" subtitle={`${bookings.length} total · ${upcoming.length} upcoming`}>
+      <Card
+        title="Bookings"
+        subtitle={`${bookings.length} total · ${upcoming.length} upcoming`}
+        action={
+          <Button
+            variant="secondary"
+            iconLeft={<LifeBuoy size={14} aria-hidden="true" />}
+            onClick={() => navigate('/support')}
+          >
+            Need help?
+          </Button>
+        }
+      >
         <BookingsTable bookings={bookings} variant="both" renderActions={renderActions} />
       </Card>
 

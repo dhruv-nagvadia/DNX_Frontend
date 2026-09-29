@@ -80,7 +80,9 @@ export default function LoginPage() {
             onChange={onRememberChange}
             disabled={isLoading}
           />
-          {/* Password reset link goes here once the backend exposes the flow. */}
+          <Link className={shared.switchLink} to="/forgot-password">
+            Forgot password?
+          </Link>
         </div>
 
         <Button

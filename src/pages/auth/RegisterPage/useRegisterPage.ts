@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { useRegisterMutation } from '@/redux/api/auth/authApi';
 import { useAppDispatch } from '@/redux/hooks';
+import { resetAllApiCaches } from '@/redux/resetApiCaches';
 import { setCurrentUser } from '@/redux/slices/userSlice';
 import { tokenStorage } from '@/utils/tokenStorage';
 
@@ -80,6 +81,8 @@ export function useRegisterPage() {
           { accessToken: result.accessToken, refreshToken: result.refreshToken },
           true,
         );
+        // A previous account's session on this tab may have left cached data behind.
+        resetAllApiCaches(dispatch);
         dispatch(
           setCurrentUser({
             id: result.id,

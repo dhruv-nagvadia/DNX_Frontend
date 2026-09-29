@@ -1,7 +1,14 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { axiosBaseQuery } from '@/api/apiConfig';
 import { endpoints } from '@/api/endpoints';
-import { AuthData, AuthUser, LoginRequest, RegisterRequest } from './types';
+import {
+  AuthData,
+  AuthUser,
+  LoginRequest,
+  RegisterRequest,
+  RequestPasswordResetRequest,
+  ResetPasswordRequest,
+} from './types';
 import { ApiEnvelope } from '../types';
 
 export const authApi = createApi({
@@ -32,6 +39,16 @@ export const authApi = createApi({
       transformResponse: (res: ApiEnvelope<AuthUser>) => res.data,
       invalidatesTags: ['Me'],
     }),
+
+    requestPasswordReset: builder.mutation<void, RequestPasswordResetRequest>({
+      query: (data) => ({ endpoint: endpoints.forgotPassword, method: 'post', data }),
+      transformResponse: () => undefined,
+    }),
+
+    resetPassword: builder.mutation<void, ResetPasswordRequest>({
+      query: (data) => ({ endpoint: endpoints.resetPassword, method: 'post', data }),
+      transformResponse: () => undefined,
+    }),
   }),
 });
 
@@ -41,4 +58,6 @@ export const {
   useGetMeQuery,
   useLazyGetMeQuery,
   useUpdateMeMutation,
+  useRequestPasswordResetMutation,
+  useResetPasswordMutation,
 } = authApi;

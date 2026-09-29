@@ -8,6 +8,8 @@ export const endpoints = {
   // Auth — provider accounts (PROVIDER); refresh/me are shared/token-based
   register: '/provider/auth/register',
   login: '/provider/auth/login',
+  forgotPassword: '/provider/auth/forgot-password',
+  resetPassword: '/provider/auth/reset-password',
   refresh: '/auth/refresh',
   me: '/auth/me',
 

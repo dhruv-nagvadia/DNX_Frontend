@@ -24,3 +24,13 @@ export interface AuthData extends AuthUser {
   accessToken: string;
   refreshToken: string;
 }
+
+export interface RequestPasswordResetRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  email: string;
+  otp: string;
+  newPassword: string;
+}

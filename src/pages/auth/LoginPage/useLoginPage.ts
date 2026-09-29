@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { useLoginMutation } from '@/redux/api/auth/authApi';
 import { useAppDispatch } from '@/redux/hooks';
+import { resetAllApiCaches } from '@/redux/resetApiCaches';
 import { setCurrentUser } from '@/redux/slices/userSlice';
 import { tokenStorage } from '@/utils/tokenStorage';
 
@@ -56,6 +57,10 @@ export function useLoginPage() {
           { accessToken: result.accessToken, refreshToken: result.refreshToken },
           remember,
         );
+        // A previous account's session on this tab may have left cached data
+        // (e.g. "my businesses") behind — clear it before this account's
+        // queries fire, so the dashboard never flashes stale data.
+        resetAllApiCaches(dispatch);
         dispatch(
           setCurrentUser({
             id: result.id,

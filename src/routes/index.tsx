@@ -4,6 +4,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { useAppSelector } from '@/redux/hooks';
 import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
+import ForgotPasswordPage from '@/pages/auth/ForgotPasswordPage';
 import HomePage from '@/pages/home/HomePage';
 import DashboardPage from '@/pages/provider/DashboardPage';
 import BusinessesPage from '@/pages/provider/BusinessesPage';
@@ -49,6 +50,14 @@ export const router = createBrowserRouter([
     element: (
       <PublicOnly>
         <RegisterPage />
+      </PublicOnly>
+    ),
+  },
+  {
+    path: '/forgot-password',
+    element: (
+      <PublicOnly>
+        <ForgotPasswordPage />
       </PublicOnly>
     ),
   },

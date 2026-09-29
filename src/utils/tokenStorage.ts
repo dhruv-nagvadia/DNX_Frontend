@@ -36,6 +36,11 @@ export const tokenStorage = {
     );
   },
 
+  /** Which store the current session lives in, so a refresh writes back to the same one. */
+  isRemembered(): boolean {
+    return localStorage.getItem(StorageKeys.accessToken) !== null;
+  },
+
   clear(): void {
     for (const store of [localStorage, sessionStorage]) {
       store.removeItem(StorageKeys.accessToken);

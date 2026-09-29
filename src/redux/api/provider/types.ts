@@ -61,6 +61,15 @@ export interface ProductInput {
   imageUrl?: string;
 }
 
+export type StockAdjustmentReason = 'SALE' | 'RESTOCK' | 'DAMAGED' | 'OTHER';
+
+export interface AdjustStockInput {
+  // Positive = stock added, negative = stock removed, in the product's base unit.
+  delta: number;
+  reason?: StockAdjustmentReason;
+  note?: string;
+}
+
 export interface BusinessHour {
   id?: string;
   dayOfWeek: number; // 0 = Sunday ... 6 = Saturday

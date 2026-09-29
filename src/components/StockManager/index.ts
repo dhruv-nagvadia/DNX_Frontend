@@ -1,0 +1,1 @@
+export { StockManager } from './StockManager';

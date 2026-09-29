@@ -1,4 +1,5 @@
-import { useMemo, useRef, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Search } from 'lucide-react';
 
 import styles from './Combobox.module.css';
@@ -29,6 +30,11 @@ const MAX_RESULTS = 60;
  * large) suggestion catalog — type to filter, click or arrow+Enter to pick,
  * or just keep typing your own value. Renders as a plain input when `items`
  * is empty, so it's a safe drop-in wherever a name field is needed.
+ *
+ * The dropdown itself is portaled to `document.body` and positioned from the
+ * input's own bounding box — a plain in-place dropdown gets silently clipped
+ * whenever this sits inside any container with `overflow: hidden` (e.g. the
+ * shared `Card`), which is basically everywhere in this app.
  */
 export function Combobox<T = unknown>({
   id,
@@ -42,7 +48,9 @@ export function Combobox<T = unknown>({
 }: ComboboxProps<T>) {
   const [open, setOpen] = useState(false);
   const [highlight, setHighlight] = useState(0);
+  const [rect, setRect] = useState<{ top: number; left: number; width: number } | null>(null);
   const blurTimer = useRef<ReturnType<typeof setTimeout>>();
+  const wrapRef = useRef<HTMLDivElement>(null);
 
   const matches = useMemo(() => {
     const q = value.trim().toLowerCase();
@@ -52,13 +60,32 @@ export function Combobox<T = unknown>({
 
   const showDropdown = open && items.length > 0;
 
+  // Track the input's position while the dropdown is open, so it stays
+  // aligned under the field even if the page scrolls or resizes.
+  useLayoutEffect(() => {
+    if (!showDropdown) return;
+
+    const updateRect = () => {
+      const box = wrapRef.current?.getBoundingClientRect();
+      if (box) setRect({ top: box.bottom + 6, left: box.left, width: box.width });
+    };
+
+    updateRect();
+    window.addEventListener('scroll', updateRect, true);
+    window.addEventListener('resize', updateRect);
+    return () => {
+      window.removeEventListener('scroll', updateRect, true);
+      window.removeEventListener('resize', updateRect);
+    };
+  }, [showDropdown]);
+
   const pick = (item: ComboboxItem<T>) => {
     onSelect(item);
     setOpen(false);
   };
 
   return (
-    <div className={styles.wrap}>
+    <div className={styles.wrap} ref={wrapRef}>
       <div className={styles.inputRow}>
         {items.length > 0 && <Search size={15} className={styles.icon} aria-hidden="true" />}
         <input
@@ -97,31 +124,38 @@ export function Combobox<T = unknown>({
         />
       </div>
 
-      {showDropdown && (
-        <div className={styles.dropdown} role="listbox">
-          {matches.length > 0 ? (
-            matches.map((item, i) => (
-              <button
-                type="button"
-                key={item.label}
-                role="option"
-                aria-selected={i === highlight}
-                className={`${styles.option} ${i === highlight ? styles.optionActive : ''}`}
-                onMouseDown={(e) => e.preventDefault()} // keep focus so onBlur doesn't beat the click
-                onClick={() => {
-                  clearTimeout(blurTimer.current);
-                  pick(item);
-                }}
-                onMouseEnter={() => setHighlight(i)}
-              >
-                {item.label}
-              </button>
-            ))
-          ) : (
-            <p className={styles.empty}>No matches — this will be added as a new, custom item.</p>
-          )}
-        </div>
-      )}
+      {showDropdown &&
+        rect &&
+        createPortal(
+          <div
+            className={styles.dropdown}
+            role="listbox"
+            style={{ top: rect.top, left: rect.left, width: rect.width }}
+          >
+            {matches.length > 0 ? (
+              matches.map((item, i) => (
+                <button
+                  type="button"
+                  key={item.label}
+                  role="option"
+                  aria-selected={i === highlight}
+                  className={`${styles.option} ${i === highlight ? styles.optionActive : ''}`}
+                  onMouseDown={(e) => e.preventDefault()} // keep focus so onBlur doesn't beat the click
+                  onClick={() => {
+                    clearTimeout(blurTimer.current);
+                    pick(item);
+                  }}
+                  onMouseEnter={() => setHighlight(i)}
+                >
+                  {item.label}
+                </button>
+              ))
+            ) : (
+              <p className={styles.empty}>No matches — this will be added as a new, custom item.</p>
+            )}
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

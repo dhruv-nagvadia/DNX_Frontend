@@ -2,6 +2,7 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 import { axiosBaseQuery } from '@/api/apiConfig';
 import { endpoints } from '@/api/endpoints';
 import {
+  AdjustStockInput,
   BusinessHour,
   BusinessReview,
   BookingStatus,
@@ -274,6 +275,21 @@ export const providerApi = createApi({
       invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }],
     }),
 
+    // Manual stock change (offline sale, restock, damaged/lost) — separate
+    // from the full product edit form.
+    adjustProductStock: builder.mutation<
+      Product,
+      { providerId: string; productId: string; data: AdjustStockInput }
+    >({
+      query: ({ providerId, productId, data }) => ({
+        endpoint: endpoints.providerProductStock(providerId, productId),
+        method: 'patch',
+        data,
+      }),
+      transformResponse: (res: ApiEnvelope<Product>) => res.data,
+      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }],
+    }),
+
     // ── Coupons ───────────────────────────────────────────────────────────────
     getCoupons: builder.query<Coupon[], string>({
       query: (providerId) => ({ endpoint: endpoints.providerCoupons(providerId), method: 'get' }),
@@ -383,6 +399,7 @@ export const {
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
+  useAdjustProductStockMutation,
   useGetCouponsQuery,
   useCreateCouponMutation,
   useUpdateCouponMutation,

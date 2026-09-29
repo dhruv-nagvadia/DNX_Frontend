@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import {
   ArrowLeft,
   BadgeCheck,
+  Boxes,
   CalendarDays,
   CalendarRange,
   Clock,
@@ -37,6 +38,7 @@ import { OrdersManager } from '@/components/OrdersManager';
 import { ProductsManager } from '@/components/ProductsManager';
 import { ServicesManager } from '@/components/ServicesManager';
 import { Skeleton } from '@/components/Skeleton';
+import { StockManager } from '@/components/StockManager';
 import { Tabs } from '@/components/Tabs';
 import { UpcomingAppointments } from '@/components/UpcomingAppointments';
 
@@ -125,6 +127,9 @@ export default function BusinessDetailPage() {
           icon: <ListChecks size={16} aria-hidden="true" />,
           count: business.services.length,
         },
+    ...(isStore
+      ? [{ id: 'stock', label: 'Manage stock', icon: <Boxes size={16} aria-hidden="true" /> }]
+      : []),
     { id: 'coupons', label: 'Offers', icon: <Ticket size={16} aria-hidden="true" /> },
     {
       id: 'bookings',
@@ -317,6 +322,11 @@ export default function BusinessDetailPage() {
           products={business.products ?? []}
           subcategorySlug={business.subcategory?.slug}
         />
+      )}
+
+      {/* Manage stock (store businesses) */}
+      {activeTab === 'stock' && (
+        <StockManager providerId={business.id} products={business.products ?? []} />
       )}
 
       {/* Offers / coupons (any business type) */}

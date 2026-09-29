@@ -12,6 +12,8 @@ import BusinessDetailPage from '@/pages/provider/BusinessDetailPage';
 import ReviewsPage from '@/pages/provider/ReviewsPage';
 import ProfilePage from '@/pages/provider/ProfilePage';
 import SupportPage from '@/pages/provider/SupportPage';
+import PrivacyPage from '@/pages/legal/PrivacyPage';
+import TermsPage from '@/pages/legal/TermsPage';
 
 /** Requires an authenticated user; otherwise sends to /login. */
 function Protected({ children }: { children: ReactElement }) {
@@ -113,6 +115,14 @@ export const router = createBrowserRouter([
         <SupportPage />
       </Protected>
     ),
+  },
+  {
+    path: '/privacy',
+    element: <PrivacyPage />,
+  },
+  {
+    path: '/terms',
+    element: <TermsPage />,
   },
   {
     path: '/',

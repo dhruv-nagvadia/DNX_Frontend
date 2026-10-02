@@ -1,0 +1,1 @@
+export { PlatformCouponsManager } from './PlatformCouponsManager';

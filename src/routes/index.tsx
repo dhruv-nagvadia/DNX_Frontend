@@ -15,6 +15,9 @@ import ProfilePage from '@/pages/provider/ProfilePage';
 import SupportPage from '@/pages/provider/SupportPage';
 import PrivacyPage from '@/pages/legal/PrivacyPage';
 import TermsPage from '@/pages/legal/TermsPage';
+import AdminLoginPage from '@/pages/admin/AdminLoginPage';
+import AdminDashboardPage from '@/pages/admin/AdminDashboardPage';
+import AdminCouponsPage from '@/pages/admin/AdminCouponsPage';
 
 /** Requires an authenticated user; otherwise sends to /login. */
 function Protected({ children }: { children: ReactElement }) {
@@ -28,11 +31,31 @@ function PublicOnly({ children }: { children: ReactElement }) {
   return isLoggedIn ? <Navigate to="/" replace /> : children;
 }
 
+/** Requires an ADMIN session; otherwise sends to the unlisted admin login. */
+function RequireAdmin({ children }: { children: ReactElement }) {
+  const { isLoggedIn, currentUser } = useAppSelector((s) => s.user);
+  if (!isLoggedIn || currentUser?.role !== 'ADMIN') {
+    return <Navigate to="/admin/login" replace />;
+  }
+  return children;
+}
+
+/** For /admin/login — an already-signed-in admin skips straight to the console. */
+function AdminPublicOnly({ children }: { children: ReactElement }) {
+  const { isLoggedIn, currentUser } = useAppSelector((s) => s.user);
+  return isLoggedIn && currentUser?.role === 'ADMIN' ? (
+    <Navigate to="/admin/dashboard" replace />
+  ) : (
+    children
+  );
+}
+
 /** Landing route ("/"): sends each role to the right place. */
 function RootLanding() {
   const { isLoggedIn, currentUser } = useAppSelector((s) => s.user);
   if (!isLoggedIn) return <Navigate to="/login" replace />;
   if (currentUser?.role === 'PROVIDER') return <Navigate to="/dashboard" replace />;
+  if (currentUser?.role === 'ADMIN') return <Navigate to="/admin/dashboard" replace />;
   return <HomePage />;
 }
 
@@ -123,6 +146,30 @@ export const router = createBrowserRouter([
       <Protected>
         <SupportPage />
       </Protected>
+    ),
+  },
+  {
+    path: '/admin/login',
+    element: (
+      <AdminPublicOnly>
+        <AdminLoginPage />
+      </AdminPublicOnly>
+    ),
+  },
+  {
+    path: '/admin/dashboard',
+    element: (
+      <RequireAdmin>
+        <AdminDashboardPage />
+      </RequireAdmin>
+    ),
+  },
+  {
+    path: '/admin/coupons',
+    element: (
+      <RequireAdmin>
+        <AdminCouponsPage />
+      </RequireAdmin>
     ),
   },
   {

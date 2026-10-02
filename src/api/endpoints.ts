@@ -13,6 +13,12 @@ export const endpoints = {
   refresh: '/auth/refresh',
   me: '/auth/me',
 
+  // Auth — unlisted admin console (ADMIN; login-only, no self-registration)
+  adminLogin: '/admin/auth/login',
+  adminAnalyticsOverview: '/admin/analytics/overview',
+  adminCoupons: '/admin/coupons',
+  adminCoupon: (id: string) => `/admin/coupons/${id}`,
+
   // Categories (shared/public)
   categories: '/categories',
 

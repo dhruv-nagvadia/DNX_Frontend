@@ -1,0 +1,37 @@
+/* Custom-styled <select> with its own chevron — the native arrow can end up
+   rendered past a tight grid column's edge (clipped by the Card's
+   overflow: hidden). Hiding the native appearance and drawing our own,
+   always-inside-the-box chevron avoids that regardless of option text length. */
+.selectWrap {
+  position: relative;
+}
+.select {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 10px 34px 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  text-overflow: ellipsis;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.select:hover {
+  border-color: #cbd5e1;
+}
+.select:focus-visible {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(30, 58, 138, 0.15));
+}
+.chev {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-secondary);
+  pointer-events: none;
+}

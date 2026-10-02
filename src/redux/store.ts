@@ -5,6 +5,7 @@ import { authApi } from './api/auth/authApi';
 import { categoryApi } from './api/category/categoryApi';
 import { providerApi } from './api/provider/providerApi';
 import { notificationApi } from './api/notification/notificationApi';
+import { adminApi } from './api/admin/adminApi';
 
 const store = configureStore({
   reducer: {
@@ -13,6 +14,7 @@ const store = configureStore({
     [categoryApi.reducerPath]: categoryApi.reducer,
     [providerApi.reducerPath]: providerApi.reducer,
     [notificationApi.reducerPath]: notificationApi.reducer,
+    [adminApi.reducerPath]: adminApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -20,6 +22,7 @@ const store = configureStore({
       categoryApi.middleware,
       providerApi.middleware,
       notificationApi.middleware,
+      adminApi.middleware,
     ),
 });
 

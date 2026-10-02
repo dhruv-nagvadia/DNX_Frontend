@@ -3,6 +3,7 @@ import { authApi } from './api/auth/authApi';
 import { categoryApi } from './api/category/categoryApi';
 import { providerApi } from './api/provider/providerApi';
 import { notificationApi } from './api/notification/notificationApi';
+import { adminApi } from './api/admin/adminApi';
 
 /**
  * Wipes every RTK Query cache. Each `createApi` instance keeps its own cache
@@ -18,4 +19,5 @@ export function resetAllApiCaches(dispatch: AppDispatch): void {
   dispatch(categoryApi.util.resetApiState());
   dispatch(providerApi.util.resetApiState());
   dispatch(notificationApi.util.resetApiState());
+  dispatch(adminApi.util.resetApiState());
 }

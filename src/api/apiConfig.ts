@@ -1,8 +1,13 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import type { BaseQueryFn } from '@reduxjs/toolkit/query';
 
-import { BASE_URL } from './endpoints';
+import { BASE_URL, endpoints } from './endpoints';
 import { tokenStorage } from '@/utils/tokenStorage';
+
+// A 401 from one of these means "wrong credentials", not "session expired" —
+// there's no session yet to refresh, so skip the refresh/force-logout flow
+// and let the caller's own error handling show it (e.g. AdminLoginPage).
+const UNAUTHENTICATED_ENDPOINTS: string[] = [endpoints.login, endpoints.adminLogin];
 
 // ── Axios instance ──────────────────────────────────────────────────────────
 const networkCall = axios.create({
@@ -48,8 +53,15 @@ networkCall.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const original = error.config as (AxiosRequestConfig & { _retry?: boolean }) | undefined;
+    const isUnauthenticatedEndpoint =
+      !!original?.url && UNAUTHENTICATED_ENDPOINTS.includes(original.url);
 
-    if (error.response?.status === 401 && original && !original._retry) {
+    if (
+      error.response?.status === 401 &&
+      original &&
+      !original._retry &&
+      !isUnauthenticatedEndpoint
+    ) {
       original._retry = true;
       if (!refreshPromise) {
         refreshPromise = refreshAccessToken().finally(() => {
@@ -66,7 +78,10 @@ networkCall.interceptors.response.use(
 
       tokenStorage.clear();
       // Hard redirect keeps this logic outside React and avoids circular imports.
-      if (window.location.pathname !== '/login') window.location.assign('/login');
+      // Admin sessions live under /admin/*, so they bounce to the admin login,
+      // not the provider one.
+      const loginPath = window.location.pathname.startsWith('/admin') ? '/admin/login' : '/login';
+      if (window.location.pathname !== loginPath) window.location.assign(loginPath);
     }
 
     return Promise.reject(error);

@@ -13,6 +13,6 @@ export interface EarningsSeries {
   /** % change of the latest bucket vs the previous one; null if not comparable. */
   trendPct: number | null;
   currency: string;
-  /** True when showing generated sample data (no real earnings yet). */
-  isSample: boolean;
+  /** True when there's no real revenue yet for the selected period. */
+  isEmpty: boolean;
 }

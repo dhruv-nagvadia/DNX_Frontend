@@ -18,23 +18,6 @@ interface RevenueEvent {
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-/** Deterministic 0..1 generator so sample data is stable per business. */
-function seeded(seedStr: string): () => number {
-  let h = 1779033703;
-  for (let i = 0; i < seedStr.length; i++) {
-    h = Math.imul(h ^ seedStr.charCodeAt(i), 3432918353);
-    h = (h << 13) | (h >>> 19);
-  }
-  let a = h >>> 0;
-  return () => {
-    a |= 0;
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
 /** Empty labelled buckets (oldest → newest) for a period. */
 function emptyBuckets(period: EarningsPeriod, now: Date): EarningsPoint[] {
   if (period === 'week') {
@@ -72,17 +55,6 @@ function startOfDay(d: Date): Date {
   const x = new Date(d);
   x.setHours(0, 0, 0, 0);
   return x;
-}
-
-/** Fills empty buckets with realistic sample earnings (used until real data exists). */
-function sampleFill(buckets: EarningsPoint[], seed: string): EarningsPoint[] {
-  const rand = seeded(seed);
-  const base = 6000 + Math.floor(rand() * 6000);
-  return buckets.map((b, i) => ({
-    ...b,
-    // Gentle upward drift + noise so the chart reads like growth.
-    value: Math.round((base + i * 700 + rand() * 4000) / 100) * 100,
-  }));
 }
 
 function aggregate(
@@ -131,16 +103,15 @@ export function useEarnings(providerId: string, businessType: BusinessType = 'SE
 
   const series: EarningsSeries = useMemo(() => {
     const now = new Date();
-    const { points: real, real: hasReal, currency } = aggregate(events, period, now);
-    const points = hasReal ? real : sampleFill(emptyBuckets(period, now), `${providerId}-${period}`);
+    const { points, real: hasReal, currency } = aggregate(events, period, now);
 
     const total = points.reduce((sum, p) => sum + p.value, 0);
     const last = points[points.length - 1]?.value ?? 0;
     const prev = points[points.length - 2]?.value ?? 0;
     const trendPct = prev > 0 ? Math.round(((last - prev) / prev) * 100) : null;
 
-    return { points, total, trendPct, currency, isSample: !hasReal };
-  }, [events, period, providerId]);
+    return { points, total, trendPct, currency, isEmpty: !hasReal };
+  }, [events, period]);
 
   return { period, setPeriod, series, isLoading };
 }

@@ -90,19 +90,23 @@ export function EarningsPanel({
             )}
           </div>
 
-          <div className={styles.chartWrap}>
-            <BarChart
-              data={series.points}
-              height={200}
-              highlightLast
-              formatValue={(v) => money(v, series.currency)}
-            />
-          </div>
-
-          {series.isSample && (
-            <p className={styles.sample}>
-              Showing sample figures — your real earnings will appear here as bookings come in.
-            </p>
+          {series.isEmpty ? (
+            <div className={styles.empty}>
+              <Wallet size={28} aria-hidden="true" className={styles.emptyIcon} />
+              <p className={styles.emptyText}>
+                No earnings yet for this period. Your revenue will appear here once bookings or
+                orders come in.
+              </p>
+            </div>
+          ) : (
+            <div className={styles.chartWrap}>
+              <BarChart
+                data={series.points}
+                height={200}
+                highlightLast
+                formatValue={(v) => money(v, series.currency)}
+              />
+            </div>
           )}
         </>
       )}

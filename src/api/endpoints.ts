@@ -21,6 +21,7 @@ export const endpoints = {
 
   // Categories (shared/public)
   categories: '/categories',
+  productTypes: '/customer/product-types',
 
   // Reverse geocoding proxy (avoids Nominatim's missing CORS headers)
   reverseGeocode: '/geo/reverse',

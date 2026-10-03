@@ -17,6 +17,7 @@ import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Combobox } from '@/components/Combobox';
 import { Measure, Product } from '@/redux/api/provider/types';
+import { useGetProductTypesQuery } from '@/redux/api/productType/productTypeApi';
 import { PRODUCT_SUGGESTIONS } from '@/data/productSuggestions';
 import {
   MEASURES,
@@ -33,6 +34,8 @@ import { useProductsManager } from './useProductsManager';
 import styles from '@/components/ServicesManager/ServicesManager.module.css';
 // …plus polished controls for the measure/price/stock rows.
 import ui from './ProductsManager.module.css';
+// Shared "name + inline tag" row styling (same pattern coupons use).
+import tagStyles from '@/components/CouponsManager/CouponsManager.module.css';
 
 /** Add / edit / delete the products a STORE business sells. */
 export function ProductsManager({ providerId, products, subcategorySlug }: ProductsManagerProps) {
@@ -56,6 +59,7 @@ export function ProductsManager({ providerId, products, subcategorySlug }: Produ
   } = useProductsManager(providerId);
 
   const fileRef = useRef<HTMLInputElement>(null);
+  const { data: productTypes = [] } = useGetProductTypesQuery();
   const unitOptions = measureUnits(form.measure).map((u) => (
     <option key={u.value} value={u.value}>
       {u.label}
@@ -98,6 +102,29 @@ export function ProductsManager({ providerId, products, subcategorySlug }: Produ
             {MEASURES.map((m) => (
               <option key={m.value} value={m.value}>
                 {m.label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown size={16} className={ui.chev} aria-hidden="true" />
+        </div>
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.label} htmlFor="productTypeId">
+          Product type <span className={styles.optional}>(lets customers find it by "shop by product")</span>
+        </label>
+        <div className={ui.selectWrap}>
+          <select
+            id="productTypeId"
+            name="productTypeId"
+            className={ui.select}
+            value={form.productTypeId}
+            onChange={onChange}
+          >
+            <option value="">Not tagged</option>
+            {productTypes.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
               </option>
             ))}
           </select>
@@ -322,7 +349,10 @@ export function ProductsManager({ providerId, products, subcategorySlug }: Produ
                 className={`${styles.row} ${p.isActive === false ? styles.rowInactive : ''}`}
               >
                 <div className={styles.rowMain}>
-                  <div className={styles.rowName}>{p.name}</div>
+                  <div className={`${styles.rowName} ${tagStyles.rowNameRow}`}>
+                    {p.name}
+                    {p.productType && <span className={tagStyles.scopeTag}>{p.productType.name}</span>}
+                  </div>
                   {p.description && <div className={styles.rowDesc}>{p.description}</div>}
                   <div className={styles.rowMeta}>
                     <span className={styles.price}>{priceLabel(p.priceMinor, p.priceQty, p.measure, p.currency)}</span>

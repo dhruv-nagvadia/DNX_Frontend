@@ -46,6 +46,10 @@ export interface Product {
   isActive?: boolean;
   ratingAvg?: number;
   ratingCount?: number;
+  // What kind of product this is (e.g. "Bath & Body") — lets customers
+  // browse it pooled with the same kind of product from other stores.
+  productTypeId?: string | null;
+  productType?: { name: string } | null;
 }
 
 export interface ProductInput {
@@ -59,6 +63,7 @@ export interface ProductInput {
   stockQty?: number; // base units
   stepQty?: number; // base units
   imageUrl?: string;
+  productTypeId?: string | null;
 }
 
 export type StockAdjustmentReason = 'SALE' | 'RESTOCK' | 'DAMAGED' | 'OTHER';

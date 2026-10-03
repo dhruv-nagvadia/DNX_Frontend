@@ -20,4 +20,5 @@ export interface ProductForm {
   stepUnit: string;
   section: string;
   imageUrl: string;
+  productTypeId: string; // '' = untagged
 }

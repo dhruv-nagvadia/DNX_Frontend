@@ -24,6 +24,7 @@ const EMPTY: ProductForm = {
   stepUnit: 'g',
   section: '',
   imageUrl: '',
+  productTypeId: '',
 };
 
 /** All state + handlers for adding, editing, and deleting a store's products. */
@@ -60,6 +61,7 @@ export function useProductsManager(providerId: string) {
       stepUnit: step.unit,
       section: p.section ?? '',
       imageUrl: p.imageUrl ?? '',
+      productTypeId: p.productTypeId ?? '',
     });
     setError(null);
     setEditing(p.id);
@@ -145,6 +147,7 @@ export function useProductsManager(providerId: string) {
         stepQty: stepBase,
         section: form.section.trim() || undefined,
         imageUrl: form.imageUrl.trim() || undefined,
+        productTypeId: form.productTypeId || null,
       };
 
       try {

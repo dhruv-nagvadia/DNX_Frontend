@@ -290,6 +290,20 @@ export const providerApi = createApi({
       invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }],
     }),
 
+    // Quick in/out-of-stock flip for a made-to-order (unlimitedStock) product.
+    setProductStockStatus: builder.mutation<
+      Product,
+      { providerId: string; productId: string; inStock: boolean }
+    >({
+      query: ({ providerId, productId, inStock }) => ({
+        endpoint: endpoints.providerProductAvailability(providerId, productId),
+        method: 'patch',
+        data: { inStock },
+      }),
+      transformResponse: (res: ApiEnvelope<Product>) => res.data,
+      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }],
+    }),
+
     // ── Coupons ───────────────────────────────────────────────────────────────
     getCoupons: builder.query<Coupon[], string>({
       query: (providerId) => ({ endpoint: endpoints.providerCoupons(providerId), method: 'get' }),
@@ -400,6 +414,7 @@ export const {
   useUpdateProductMutation,
   useDeleteProductMutation,
   useAdjustProductStockMutation,
+  useSetProductStockStatusMutation,
   useGetCouponsQuery,
   useCreateCouponMutation,
   useUpdateCouponMutation,

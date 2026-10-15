@@ -1,6 +1,9 @@
 import { useCallback, useState } from 'react';
 
-import { useAdjustProductStockMutation } from '@/redux/api/provider/providerApi';
+import {
+  useAdjustProductStockMutation,
+  useSetProductStockStatusMutation,
+} from '@/redux/api/provider/providerApi';
 import { Product } from '@/redux/api/provider/types';
 import { ComboboxItem } from '@/components/Combobox';
 import { splitAmount, toBase } from '@/utils/units';
@@ -25,6 +28,7 @@ const serverMessage = (err: unknown, fallback: string) =>
  */
 export function useStockManager(providerId: string) {
   const [adjustStock, { isLoading: saving }] = useAdjustProductStockMutation();
+  const [setStockStatus, { isLoading: settingStatus }] = useSetProductStockStatusMutation();
 
   const [query, setQuery] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -104,18 +108,39 @@ export function useStockManager(providerId: string) {
     [selectedProduct, form, providerId, adjustStock],
   );
 
+  // Made-to-order products: a plain in/out-of-stock flip instead of the
+  // amount-based adjustment above.
+  const setAvailability = useCallback(
+    async (inStock: boolean) => {
+      if (!selectedProduct) return;
+      setError(null);
+      setSuccessMessage(null);
+      try {
+        await setStockStatus({ providerId, productId: selectedProduct.id, inStock }).unwrap();
+        setSuccessMessage(`Marked ${selectedProduct.name} ${inStock ? 'in stock' : 'out of stock'}.`);
+        setQuery('');
+        setSelectedProduct(null);
+        setForm(EMPTY_FORM);
+      } catch (err) {
+        setError(serverMessage(err, 'Could not update availability. Please try again.'));
+      }
+    },
+    [selectedProduct, providerId, setStockStatus],
+  );
+
   return {
     query,
     selectedProduct,
     form,
     error,
     successMessage,
-    saving,
+    saving: saving || settingStatus,
     onQueryChange,
     onSelectProduct,
     clearSelection,
     onFieldChange,
     setDirection,
     submit,
+    setAvailability,
   };
 }

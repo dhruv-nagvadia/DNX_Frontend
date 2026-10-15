@@ -20,15 +20,22 @@ const EMPTY: ProductForm = {
   priceUnit: 'kg',
   stock: '0',
   stockUnit: 'kg',
-  step: '100',
+  unlimitedStock: false,
+  step: '1',
   stepUnit: 'g',
   section: '',
   imageUrl: '',
   productTypeId: '',
+  codEnabled: true,
+  partialPayEnabled: true,
 };
 
 /** All state + handlers for adding, editing, and deleting a store's products. */
-export function useProductsManager(providerId: string) {
+export function useProductsManager(
+  providerId: string,
+  businessCodEnabled = true,
+  businessPartialPayEnabled = true,
+) {
   const [createProduct, { isLoading: creating }] = useCreateProductMutation();
   const [updateProduct, { isLoading: updating }] = useUpdateProductMutation();
   const [deleteProduct] = useDeleteProductMutation();
@@ -39,10 +46,14 @@ export function useProductsManager(providerId: string) {
   const [error, setError] = useState<string | null>(null);
 
   const startAdd = useCallback(() => {
-    setForm(EMPTY);
+    setForm({
+      ...EMPTY,
+      codEnabled: businessCodEnabled,
+      partialPayEnabled: businessPartialPayEnabled,
+    });
     setError(null);
     setEditing('new');
-  }, []);
+  }, [businessCodEnabled, businessPartialPayEnabled]);
 
   const startEdit = useCallback((p: Product) => {
     const price = splitAmount(p.priceQty, p.measure);
@@ -57,11 +68,14 @@ export function useProductsManager(providerId: string) {
       priceUnit: price.unit,
       stock: String(stock.value),
       stockUnit: stock.unit,
+      unlimitedStock: p.unlimitedStock ?? false,
       step: String(step.value),
       stepUnit: step.unit,
       section: p.section ?? '',
       imageUrl: p.imageUrl ?? '',
       productTypeId: p.productTypeId ?? '',
+      codEnabled: p.codEnabled ?? true,
+      partialPayEnabled: p.partialPayEnabled ?? true,
     });
     setError(null);
     setEditing(p.id);
@@ -84,6 +98,18 @@ export function useProductsManager(providerId: string) {
     },
     [],
   );
+
+  const toggleCodEnabled = useCallback(() => {
+    setForm((prev) => ({ ...prev, codEnabled: !prev.codEnabled }));
+  }, []);
+
+  const togglePartialPayEnabled = useCallback(() => {
+    setForm((prev) => ({ ...prev, partialPayEnabled: !prev.partialPayEnabled }));
+  }, []);
+
+  const toggleUnlimitedStock = useCallback(() => {
+    setForm((prev) => ({ ...prev, unlimitedStock: !prev.unlimitedStock }));
+  }, []);
 
   // Switching measure resets the unit dropdowns to that measure's units.
   const selectMeasure = useCallback((measure: Measure) => {
@@ -135,7 +161,10 @@ export function useProductsManager(providerId: string) {
       if (Number.isNaN(price) || price < 0) return setError('Enter a valid price');
       if (!priceQtyBase || priceQtyBase <= 0) return setError('Enter the quantity the price is for');
       if (!stepBase || stepBase <= 0) return setError('Enter a valid minimum quantity');
-      if (Number.isNaN(stockBase) || stockBase < 0) return setError('Enter a valid stock quantity');
+      // Made-to-order items skip stock tracking entirely — nothing to validate.
+      if (!form.unlimitedStock && (Number.isNaN(stockBase) || stockBase < 0)) {
+        return setError('Enter a valid stock quantity');
+      }
 
       const data = {
         name: form.name.trim(),
@@ -143,11 +172,17 @@ export function useProductsManager(providerId: string) {
         measure: form.measure,
         price,
         priceQty: priceQtyBase,
-        stockQty: stockBase,
+        // Leave stockQty untouched while unlimited — it's the in/out-of-stock
+        // flag managed from "Manage stock" (StockManager), not this form, so
+        // saving other edits here shouldn't silently reset it.
+        stockQty: form.unlimitedStock ? undefined : stockBase,
+        unlimitedStock: form.unlimitedStock,
         stepQty: stepBase,
         section: form.section.trim() || undefined,
         imageUrl: form.imageUrl.trim() || undefined,
         productTypeId: form.productTypeId || null,
+        codEnabled: form.codEnabled,
+        partialPayEnabled: form.partialPayEnabled,
       };
 
       try {
@@ -197,6 +232,9 @@ export function useProductsManager(providerId: string) {
     startEdit,
     cancel,
     onChange,
+    toggleCodEnabled,
+    togglePartialPayEnabled,
+    toggleUnlimitedStock,
     applySuggestion,
     selectMeasure,
     pickImage,

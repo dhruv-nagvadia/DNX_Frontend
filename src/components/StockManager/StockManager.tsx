@@ -1,4 +1,4 @@
-import { ChevronDown, PackageMinus, PackagePlus, X } from 'lucide-react';
+import { AlertTriangle, ChevronDown, PackageMinus, PackagePlus, X } from 'lucide-react';
 
 import { AlertBanner } from '@/components/AlertBanner';
 import { Button } from '@/components/Button';
@@ -30,11 +30,19 @@ export function StockManager({ providerId, products }: StockManagerProps) {
     onFieldChange,
     setDirection,
     submit,
+    setAvailability,
   } = useStockManager(providerId);
 
   const items = products.map((p) => ({ label: p.name, meta: p }));
   const disabled = !selectedProduct;
   const unitOptions = measureUnits(selectedProduct?.measure ?? 'count');
+
+  const markOutOfStock = () => {
+    if (!selectedProduct) return;
+    if (window.confirm(`Mark ${selectedProduct.name} as out of stock? This sets its stock to 0.`)) {
+      setAvailability(false);
+    }
+  };
 
   return (
     <Card
@@ -57,6 +65,52 @@ export function StockManager({ providerId, products }: StockManagerProps) {
 
           {successMessage && <AlertBanner tone="success">{successMessage}</AlertBanner>}
 
+          {selectedProduct?.unlimitedStock ? (
+            <div className={ui.panel}>
+              <div className={ui.panelHead}>
+                <div>
+                  <div className={ui.panelName}>{selectedProduct.name}</div>
+                  <p className={ui.panelSub}>
+                    Made to order — currently{' '}
+                    {selectedProduct.stockQty > 0 ? 'in stock' : 'out of stock'}.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className={ui.clearBtn}
+                  onClick={clearSelection}
+                  aria-label="Clear selection"
+                >
+                  <X size={18} aria-hidden="true" />
+                </button>
+              </div>
+
+              <div className={ui.directionRow}>
+                <button
+                  type="button"
+                  className={`${ui.directionBtn} ${
+                    selectedProduct.stockQty > 0 ? ui.directionBtnActiveAdd : ''
+                  }`}
+                  onClick={() => setAvailability(true)}
+                  disabled={saving || selectedProduct.stockQty > 0}
+                >
+                  <PackagePlus size={16} aria-hidden="true" /> Mark in stock
+                </button>
+                <button
+                  type="button"
+                  className={`${ui.directionBtn} ${
+                    selectedProduct.stockQty <= 0 ? ui.directionBtnActiveRemove : ''
+                  }`}
+                  onClick={markOutOfStock}
+                  disabled={saving || selectedProduct.stockQty <= 0}
+                >
+                  <PackageMinus size={16} aria-hidden="true" /> Mark out of stock
+                </button>
+              </div>
+
+              {error && <AlertBanner tone="error">{error}</AlertBanner>}
+            </div>
+          ) : (
           <form className={ui.panel} onSubmit={submit}>
             <div className={ui.panelHead}>
               <div>
@@ -80,6 +134,17 @@ export function StockManager({ providerId, products }: StockManagerProps) {
                 </button>
               )}
             </div>
+
+            {selectedProduct && selectedProduct.stockQty > 0 && (
+              <button
+                type="button"
+                className={`${ui.directionBtn} ${ui.directionBtnActiveRemove}`}
+                onClick={markOutOfStock}
+                disabled={saving}
+              >
+                <AlertTriangle size={16} aria-hidden="true" /> Mark out of stock now
+              </button>
+            )}
 
             <div className={ui.directionRow}>
               <button
@@ -188,6 +253,7 @@ export function StockManager({ providerId, products }: StockManagerProps) {
               </Button>
             </div>
           </form>
+          )}
         </>
       )}
     </Card>

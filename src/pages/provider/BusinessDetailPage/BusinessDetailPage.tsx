@@ -312,6 +312,7 @@ export default function BusinessDetailPage() {
           providerId={business.id}
           services={business.services}
           subcategorySlug={business.subcategory?.slug}
+          businessPartialPayEnabled={business.partialPayEnabled}
         />
       )}
 
@@ -321,6 +322,8 @@ export default function BusinessDetailPage() {
           providerId={business.id}
           products={business.products ?? []}
           subcategorySlug={business.subcategory?.slug}
+          businessCodEnabled={business.codEnabled}
+          businessPartialPayEnabled={business.partialPayEnabled}
         />
       )}
 

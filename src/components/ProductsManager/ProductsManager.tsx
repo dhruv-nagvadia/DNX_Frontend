@@ -16,6 +16,7 @@ import { AlertBanner } from '@/components/AlertBanner';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Combobox } from '@/components/Combobox';
+import { ToggleSwitch } from '@/components/ToggleSwitch';
 import { Measure, Product } from '@/redux/api/provider/types';
 import { useGetProductTypesQuery } from '@/redux/api/productType/productTypeApi';
 import { PRODUCT_SUGGESTIONS } from '@/data/productSuggestions';
@@ -38,7 +39,13 @@ import ui from './ProductsManager.module.css';
 import tagStyles from '@/components/CouponsManager/CouponsManager.module.css';
 
 /** Add / edit / delete the products a STORE business sells. */
-export function ProductsManager({ providerId, products, subcategorySlug }: ProductsManagerProps) {
+export function ProductsManager({
+  providerId,
+  products,
+  subcategorySlug,
+  businessCodEnabled,
+  businessPartialPayEnabled,
+}: ProductsManagerProps) {
   const {
     editing,
     form,
@@ -49,6 +56,9 @@ export function ProductsManager({ providerId, products, subcategorySlug }: Produ
     startEdit,
     cancel,
     onChange,
+    toggleCodEnabled,
+    togglePartialPayEnabled,
+    toggleUnlimitedStock,
     applySuggestion,
     selectMeasure,
     pickImage,
@@ -56,7 +66,7 @@ export function ProductsManager({ providerId, products, subcategorySlug }: Produ
     submit,
     remove,
     toggleActive,
-  } = useProductsManager(providerId);
+  } = useProductsManager(providerId, businessCodEnabled, businessPartialPayEnabled);
 
   const fileRef = useRef<HTMLInputElement>(null);
   const { data: productTypes = [] } = useGetProductTypesQuery();
@@ -132,6 +142,24 @@ export function ProductsManager({ providerId, products, subcategorySlug }: Produ
         </div>
       </div>
 
+      <div className={styles.field}>
+        <ToggleSwitch
+          name="partialPayEnabled"
+          label="Accept Partial Pay for this product"
+          checked={form.partialPayEnabled}
+          onChange={togglePartialPayEnabled}
+        />
+      </div>
+
+      <div className={styles.field}>
+        <ToggleSwitch
+          name="codEnabled"
+          label="Accept Cash on Delivery for this product"
+          checked={form.codEnabled}
+          onChange={toggleCodEnabled}
+        />
+      </div>
+
       <div className={ui.grid2}>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="price">
@@ -175,28 +203,39 @@ export function ProductsManager({ providerId, products, subcategorySlug }: Produ
         </div>
       </div>
 
+      <div className={styles.field}>
+        <ToggleSwitch
+          name="unlimitedStock"
+          label="Always in stock — made to order, no fixed quantity (e.g. a restaurant dish)"
+          checked={form.unlimitedStock}
+          onChange={toggleUnlimitedStock}
+        />
+      </div>
+
       <div className={ui.grid2}>
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="stock">
-            Available stock
-          </label>
-          <div className={ui.affix}>
-            <input
-              id="stock"
-              name="stock"
-              type="number"
-              min="0"
-              step="any"
-              inputMode="decimal"
-              placeholder="15"
-              value={form.stock}
-              onChange={onChange}
-            />
-            <select className={ui.unitSuffix} name="stockUnit" value={form.stockUnit} onChange={onChange}>
-              {unitOptions}
-            </select>
+        {!form.unlimitedStock && (
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="stock">
+              Available stock
+            </label>
+            <div className={ui.affix}>
+              <input
+                id="stock"
+                name="stock"
+                type="number"
+                min="0"
+                step="any"
+                inputMode="decimal"
+                placeholder="15"
+                value={form.stock}
+                onChange={onChange}
+              />
+              <select className={ui.unitSuffix} name="stockUnit" value={form.stockUnit} onChange={onChange}>
+                {unitOptions}
+              </select>
+            </div>
           </div>
-        </div>
+        )}
         <div className={styles.field}>
           <label className={styles.label} htmlFor="step">
             Minimum order (step)
@@ -362,22 +401,34 @@ export function ProductsManager({ providerId, products, subcategorySlug }: Produ
                       </span>
                     )}
                     <span className={styles.metaItem}>
-                      <Boxes size={14} aria-hidden="true" /> {stockLabel(p.stockQty, p.measure)}
+                      <Boxes size={14} aria-hidden="true" />{' '}
+                      {p.unlimitedStock
+                        ? p.stockQty > 0
+                          ? 'In stock'
+                          : 'Out of stock'
+                        : stockLabel(p.stockQty, p.measure)}
                     </span>
-                    {(() => {
-                      const level = stockLevel(p.stockQty, p.stepQty);
-                      if (level === 'ok') return null;
-                      return (
-                        <span
-                          className={`${ui.stockBadge} ${
-                            level === 'out' ? ui.stockOut : ui.stockLow
-                          }`}
-                        >
-                          <AlertTriangle size={12} aria-hidden="true" />
-                          {level === 'out' ? 'Out of stock' : 'Low stock'}
-                        </span>
-                      );
-                    })()}
+                    {p.unlimitedStock
+                      ? p.stockQty <= 0 && (
+                          <span className={`${ui.stockBadge} ${ui.stockOut}`}>
+                            <AlertTriangle size={12} aria-hidden="true" />
+                            Out of stock
+                          </span>
+                        )
+                      : (() => {
+                          const level = stockLevel(p.stockQty, p.stepQty);
+                          if (level === 'ok') return null;
+                          return (
+                            <span
+                              className={`${ui.stockBadge} ${
+                                level === 'out' ? ui.stockOut : ui.stockLow
+                              }`}
+                            >
+                              <AlertTriangle size={12} aria-hidden="true" />
+                              {level === 'out' ? 'Out of stock' : 'Low stock'}
+                            </span>
+                          );
+                        })()}
                     <span className={styles.metaItem}>
                       <Ruler size={14} aria-hidden="true" /> min {formatAmount(p.stepQty, p.measure)}
                     </span>

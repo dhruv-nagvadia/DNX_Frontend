@@ -9,6 +9,7 @@ import { CategoryIcon } from '@/components/CategoryIcon';
 import { PageHeader } from '@/components/PageHeader';
 import { Skeleton } from '@/components/Skeleton';
 import { TextField } from '@/components/TextField';
+import { ToggleSwitch } from '@/components/ToggleSwitch';
 
 import { useBusinessForm } from './useBusinessForm';
 import styles from './BusinessFormPage.module.css';
@@ -31,6 +32,8 @@ export default function BusinessFormPage() {
     selectCategory,
     selectSubcategory,
     onChange,
+    toggleCodEnabled,
+    togglePartialPayEnabled,
     addImages,
     removeImage,
     onSubmit,
@@ -232,16 +235,36 @@ export default function BusinessFormPage() {
               />
             </div>
 
-            <TextField
-              dense
-              label="Advance deposit for partial bookings (%)"
-              name="depositPercent"
-              type="number"
-              inputMode="numeric"
-              placeholder="e.g. 20 — defaults to 20% if left blank"
-              value={form.depositPercent}
-              onChange={onChange}
-            />
+            <div className={styles.field}>
+              <ToggleSwitch
+                name="partialPayEnabled"
+                label="Accept Partial Pay (bookings and store orders)"
+                checked={form.partialPayEnabled}
+                onChange={togglePartialPayEnabled}
+              />
+            </div>
+
+            {form.partialPayEnabled && (
+              <TextField
+                dense
+                label="Advance deposit for partial bookings (%)"
+                name="depositPercent"
+                type="number"
+                inputMode="numeric"
+                placeholder="e.g. 20 — defaults to 20% if left blank"
+                value={form.depositPercent}
+                onChange={onChange}
+              />
+            )}
+
+            <div className={styles.field}>
+              <ToggleSwitch
+                name="codEnabled"
+                label="Accept Cash on Delivery for store orders"
+                checked={form.codEnabled}
+                onChange={toggleCodEnabled}
+              />
+            </div>
           </div>
         </Card>
 

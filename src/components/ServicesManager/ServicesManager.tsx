@@ -28,7 +28,12 @@ const HOUR_OPTIONS = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 const MINUTE_OPTIONS = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
 
 /** Add / edit / delete the services offered by a business. */
-export function ServicesManager({ providerId, services, subcategorySlug }: ServicesManagerProps) {
+export function ServicesManager({
+  providerId,
+  services,
+  subcategorySlug,
+  businessPartialPayEnabled,
+}: ServicesManagerProps) {
   const {
     editing,
     form,
@@ -39,11 +44,12 @@ export function ServicesManager({ providerId, services, subcategorySlug }: Servi
     cancel,
     onChange,
     toggleTravelRequired,
+    togglePartialPayEnabled,
     applySuggestion,
     submit,
     remove,
     toggleActive,
-  } = useServicesManager(providerId);
+  } = useServicesManager(providerId, businessPartialPayEnabled);
 
   const suggestions = (subcategorySlug && SERVICE_SUGGESTIONS[subcategorySlug]) || [];
   const comboItems = suggestions.map((s) => ({ label: s.name, meta: s.durationMin }));
@@ -143,6 +149,15 @@ export function ServicesManager({ providerId, services, subcategorySlug }: Servi
           label="On-location service — the provider travels to the customer"
           checked={form.travelRequired}
           onChange={toggleTravelRequired}
+        />
+      </div>
+
+      <div className={styles.field}>
+        <ToggleSwitch
+          name="partialPayEnabled"
+          label="Accept partial payment for this service"
+          checked={form.partialPayEnabled}
+          onChange={togglePartialPayEnabled}
         />
       </div>
 

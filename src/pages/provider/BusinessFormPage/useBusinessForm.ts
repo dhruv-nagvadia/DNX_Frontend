@@ -31,6 +31,8 @@ const EMPTY: BusinessForm = {
   latitude: '',
   longitude: '',
   depositPercent: '',
+  codEnabled: true,
+  partialPayEnabled: true,
 };
 
 const MAX_IMAGES = 8;
@@ -79,6 +81,8 @@ export function useBusinessForm() {
         latitude: existing.latitude != null ? String(existing.latitude) : '',
         longitude: existing.longitude != null ? String(existing.longitude) : '',
         depositPercent: existing.depositPercent ? String(existing.depositPercent) : '',
+        codEnabled: existing.codEnabled ?? true,
+        partialPayEnabled: existing.partialPayEnabled ?? true,
       });
     }
   }, [existing]);
@@ -117,6 +121,14 @@ export function useBusinessForm() {
     const { name, value } = e.target;
     if (name === 'postalCode') pincodeEditedByUser.current = true;
     setForm((prev) => ({ ...prev, [name]: value }));
+  }, []);
+
+  const toggleCodEnabled = useCallback(() => {
+    setForm((prev) => ({ ...prev, codEnabled: !prev.codEnabled }));
+  }, []);
+
+  const togglePartialPayEnabled = useCallback(() => {
+    setForm((prev) => ({ ...prev, partialPayEnabled: !prev.partialPayEnabled }));
   }, []);
 
   // Debounced PIN → city/state autofill (India Post), only for pincodes the
@@ -226,6 +238,8 @@ export function useBusinessForm() {
         latitude: form.latitude.trim() ? Number(form.latitude) : undefined,
         longitude: form.longitude.trim() ? Number(form.longitude) : undefined,
         depositPercent: form.depositPercent.trim() ? Number(form.depositPercent) : 0,
+        codEnabled: form.codEnabled,
+        partialPayEnabled: form.partialPayEnabled,
       };
 
       try {
@@ -264,6 +278,8 @@ export function useBusinessForm() {
     selectCategory,
     selectSubcategory,
     onChange,
+    toggleCodEnabled,
+    togglePartialPayEnabled,
     addImages,
     removeImage,
     onSubmit,

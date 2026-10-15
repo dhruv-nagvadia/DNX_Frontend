@@ -15,6 +15,8 @@ export interface BusinessForm {
   latitude: string;
   longitude: string;
   depositPercent: string;
+  codEnabled: boolean;
+  partialPayEnabled: boolean;
 }
 
 export type BusinessFormErrors = Partial<Record<keyof BusinessForm, string>>;

@@ -5,6 +5,8 @@ export interface ServicesManagerProps {
   services: Service[];
   /** Used to look up common-service suggestions for this business's type. */
   subcategorySlug?: string;
+  /** The business's own Partial Pay setting — new services default to this. */
+  businessPartialPayEnabled?: boolean;
 }
 
 export interface ServiceForm {
@@ -17,4 +19,5 @@ export interface ServiceForm {
   travelRequired: boolean;
   travelBaseFee: string;
   travelPerKm: string;
+  partialPayEnabled: boolean;
 }

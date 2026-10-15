@@ -12,6 +12,9 @@ export interface Service {
   travelRequired?: boolean;
   travelBaseFeeMinor?: number;
   travelPerKmMinor?: number;
+  // Off = this service can't be booked with Partial Pay, even if the
+  // business otherwise offers it. Defaults to true.
+  partialPayEnabled?: boolean;
 }
 
 export interface ServiceInput {
@@ -24,6 +27,7 @@ export interface ServiceInput {
   // Travel fees in major units (rupees); the API converts to minor units.
   travelBaseFee?: number;
   travelPerKm?: number;
+  partialPayEnabled?: boolean;
 }
 
 export type BusinessType = 'SERVICE' | 'STORE';
@@ -41,6 +45,9 @@ export interface Product {
   unit: string; // base unit label (g / ml / piece)
   section?: string | null;
   stockQty: number; // base units
+  // Made-to-order / no fixed quantity (e.g. a restaurant dish) — stockQty is
+  // ignored everywhere when this is on (never shows as out/low stock).
+  unlimitedStock?: boolean;
   stepQty: number; // minimum + increment, base units
   imageUrl?: string | null;
   isActive?: boolean;
@@ -50,6 +57,11 @@ export interface Product {
   // browse it pooled with the same kind of product from other stores.
   productTypeId?: string | null;
   productType?: { name: string } | null;
+  // Off = this product can't be paid for with Cash on Delivery, even if the
+  // store otherwise accepts it. Defaults to true.
+  codEnabled?: boolean;
+  // Same idea for Partial Pay.
+  partialPayEnabled?: boolean;
 }
 
 export interface ProductInput {
@@ -61,9 +73,12 @@ export interface ProductInput {
   priceQty: number;
   section?: string;
   stockQty?: number; // base units
+  unlimitedStock?: boolean;
   stepQty?: number; // base units
   imageUrl?: string;
   productTypeId?: string | null;
+  codEnabled?: boolean;
+  partialPayEnabled?: boolean;
 }
 
 export type StockAdjustmentReason = 'SALE' | 'RESTOCK' | 'DAMAGED' | 'OTHER';
@@ -117,6 +132,12 @@ export interface Provider {
   ratingCount: number;
   isVerified: boolean;
   depositPercent?: number;
+  // Accepts Cash on Delivery at all — a product's own codEnabled can only
+  // narrow this further, never override it back on.
+  codEnabled?: boolean;
+  // Offers Partial Pay at all — a product's/service's own partialPayEnabled
+  // can only narrow this further, never override it back on.
+  partialPayEnabled?: boolean;
   category: Category;
   subcategory?: Subcategory | null;
   services: Service[];

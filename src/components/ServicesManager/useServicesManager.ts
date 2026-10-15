@@ -17,10 +17,11 @@ const EMPTY: ServiceForm = {
   travelRequired: false,
   travelBaseFee: '',
   travelPerKm: '',
+  partialPayEnabled: true,
 };
 
 /** All state + handlers for adding, editing, and deleting a business's services. */
-export function useServicesManager(providerId: string) {
+export function useServicesManager(providerId: string, businessPartialPayEnabled = true) {
   const [createService, { isLoading: creating }] = useCreateServiceMutation();
   const [updateService, { isLoading: updating }] = useUpdateServiceMutation();
   const [deleteService] = useDeleteServiceMutation();
@@ -44,10 +45,14 @@ export function useServicesManager(providerId: string) {
   }, [travelDefaultKey]);
 
   const startAdd = useCallback(() => {
-    setForm({ ...EMPTY, travelRequired: readTravelDefault() });
+    setForm({
+      ...EMPTY,
+      travelRequired: readTravelDefault(),
+      partialPayEnabled: businessPartialPayEnabled,
+    });
     setError(null);
     setEditing('new');
-  }, [readTravelDefault]);
+  }, [readTravelDefault, businessPartialPayEnabled]);
 
   const startEdit = useCallback((s: Service) => {
     setForm({
@@ -59,6 +64,7 @@ export function useServicesManager(providerId: string) {
       travelRequired: s.travelRequired ?? false,
       travelBaseFee: s.travelBaseFeeMinor ? String(s.travelBaseFeeMinor / 100) : '',
       travelPerKm: s.travelPerKmMinor ? String(s.travelPerKmMinor / 100) : '',
+      partialPayEnabled: s.partialPayEnabled ?? true,
     });
     setError(null);
     setEditing(s.id);
@@ -100,6 +106,10 @@ export function useServicesManager(providerId: string) {
     });
   }, [travelDefaultKey]);
 
+  const togglePartialPayEnabled = useCallback(() => {
+    setForm((prev) => ({ ...prev, partialPayEnabled: !prev.partialPayEnabled }));
+  }, []);
+
   const submit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
@@ -125,6 +135,7 @@ export function useServicesManager(providerId: string) {
         travelRequired: form.travelRequired,
         travelBaseFee,
         travelPerKm,
+        partialPayEnabled: form.partialPayEnabled,
       };
 
       try {
@@ -174,6 +185,7 @@ export function useServicesManager(providerId: string) {
     cancel,
     onChange,
     toggleTravelRequired,
+    togglePartialPayEnabled,
     applySuggestion,
     submit,
     remove,

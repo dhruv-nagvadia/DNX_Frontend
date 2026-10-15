@@ -134,6 +134,13 @@ export function useDashboard() {
     for (const b of businesses) {
       for (const p of b.products ?? []) {
         if (p.isActive === false) continue;
+        // Made-to-order items have no "low stock" concept — only out/in.
+        if (p.unlimitedStock) {
+          if (p.stockQty <= 0) {
+            items.push({ product: p, businessId: b.id, businessName: b.businessName, level: 'out' });
+          }
+          continue;
+        }
         const level = stockLevel(p.stockQty, p.stepQty);
         if (level !== 'ok') {
           items.push({ product: p, businessId: b.id, businessName: b.businessName, level });

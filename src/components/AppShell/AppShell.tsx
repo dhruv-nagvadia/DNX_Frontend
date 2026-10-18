@@ -1,4 +1,4 @@
-import { LayoutDashboard, LifeBuoy, LogOut, Store, UserRound } from 'lucide-react';
+import { LayoutDashboard, LifeBuoy, LogOut, Store, UserRound, Wallet } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
 
 import { NotificationBell } from '@/components/NotificationBell';
@@ -21,6 +21,7 @@ function initialsOf(name: string): string {
 const NAV = [
   { to: '/dashboard', label: 'Home', icon: LayoutDashboard },
   { to: '/businesses', label: 'Businesses', icon: Store },
+  { to: '/earnings', label: 'Earnings', icon: Wallet },
   { to: '/profile', label: 'Profile', icon: UserRound },
   { to: '/support', label: 'Support', icon: LifeBuoy },
 ];

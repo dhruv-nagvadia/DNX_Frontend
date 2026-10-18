@@ -1,0 +1,1 @@
+export { PlatformSettingsCard } from './PlatformSettingsCard';

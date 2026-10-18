@@ -1,0 +1,195 @@
+/* Shared by the admin money screens (finance overview, balances, rates) and the provider earnings page. */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-md);
+}
+
+.tableWrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+.table th {
+  text-align: left;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  background: var(--color-surface-2);
+  padding: 10px 14px;
+  white-space: nowrap;
+}
+.table td {
+  padding: 12px 14px;
+  border-top: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+.table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.cellMain {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.cellTitle {
+  font-weight: 600;
+}
+.muted {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+.positive {
+  color: var(--color-success);
+  font-weight: 600;
+}
+.negative {
+  color: var(--color-error);
+  font-weight: 600;
+}
+
+.hint {
+  margin: var(--space-sm) 0 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.inlineForm {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.smallInput {
+  width: 84px;
+  padding: 7px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+.smallInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-ring);
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+  z-index: 50;
+}
+.modal {
+  width: 100%;
+  max-width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+}
+
+.grid3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+}
+@media (max-width: 720px) {
+  .grid3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Plain stacked form (no box) for use inside a Card. */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* A worked sum: label on the left, signed amount on the right, total underneath. */
+.calc {
+  display: flex;
+  flex-direction: column;
+  max-width: 560px;
+}
+.calcRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--color-border);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+.calcRow small {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+.calcAmount {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.calcTotal {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: 14px 0 4px;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+/* Six tiles as a tidy 3 × 2 (2 × 3 on tablets, stacked on phones) instead of 5 + 1. */
+.stats3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+@media (max-width: 1000px) {
+  .stats3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 560px) {
+  .stats3 {
+    grid-template-columns: 1fr;
+  }
+}

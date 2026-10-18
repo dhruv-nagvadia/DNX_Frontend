@@ -12,6 +12,8 @@ import {
   DashboardBooking,
   DateHour,
   DateHourInput,
+  Earnings,
+  EarningsParams,
   ListProvidersParams,
   OrderStatus,
   PaymentStatus,
@@ -39,6 +41,7 @@ export const providerApi = createApi({
     'BusinessReviews',
     'DateHours',
     'Coupons',
+    'MyEarnings',
   ],
   endpoints: (builder) => ({
     getProviders: builder.query<Paginated<Provider>, ListProvidersParams | void>({
@@ -375,6 +378,16 @@ export const providerApi = createApi({
       invalidatesTags: (_r, _e, { id }) => [{ type: 'DateHours', id }],
     }),
 
+    getMyEarnings: builder.query<Earnings, EarningsParams | void>({
+      query: (params) => ({
+        endpoint: endpoints.myEarnings,
+        method: 'get',
+        params: params ?? undefined,
+      }),
+      transformResponse: (res: ApiEnvelope<Earnings>) => res.data,
+      providesTags: ['MyEarnings'],
+    }),
+
     deleteDateHour: builder.mutation<{ date: string }, { id: string; date: string }>({
       query: ({ id, date }) => ({
         endpoint: `${endpoints.myProviderDateHours(id)}/${date}`,
@@ -396,6 +409,7 @@ export const {
   useGetBusinessBookingsQuery,
   useGetAllMyBookingsQuery,
   useGetMyOrdersQuery,
+  useGetMyEarningsQuery,
   useUpdateOrderStatusMutation,
   useCollectOrderPaymentMutation,
   useUpdateBookingStatusMutation,

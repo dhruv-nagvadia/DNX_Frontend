@@ -18,6 +18,11 @@ import TermsPage from '@/pages/legal/TermsPage';
 import AdminLoginPage from '@/pages/admin/AdminLoginPage';
 import AdminDashboardPage from '@/pages/admin/AdminDashboardPage';
 import AdminCouponsPage from '@/pages/admin/AdminCouponsPage';
+import AdminUsersPage from '@/pages/admin/AdminUsersPage';
+import AdminFinancePage from '@/pages/admin/AdminFinancePage';
+import AdminTransactionsPage from '@/pages/admin/AdminTransactionsPage';
+import EarningsPage from '@/pages/provider/EarningsPage';
+import AdminUserDetailPage from '@/pages/admin/AdminUserDetailPage';
 
 /** Requires an authenticated user; otherwise sends to /login. */
 function Protected({ children }: { children: ReactElement }) {
@@ -133,6 +138,14 @@ export const router = createBrowserRouter([
     ),
   },
   {
+    path: '/earnings',
+    element: (
+      <Protected>
+        <EarningsPage />
+      </Protected>
+    ),
+  },
+  {
     path: '/profile',
     element: (
       <Protected>
@@ -169,6 +182,38 @@ export const router = createBrowserRouter([
     element: (
       <RequireAdmin>
         <AdminCouponsPage />
+      </RequireAdmin>
+    ),
+  },
+  {
+    path: '/admin/transactions',
+    element: (
+      <RequireAdmin>
+        <AdminTransactionsPage />
+      </RequireAdmin>
+    ),
+  },
+  {
+    path: '/admin/finance',
+    element: (
+      <RequireAdmin>
+        <AdminFinancePage />
+      </RequireAdmin>
+    ),
+  },
+  {
+    path: '/admin/users',
+    element: (
+      <RequireAdmin>
+        <AdminUsersPage />
+      </RequireAdmin>
+    ),
+  },
+  {
+    path: '/admin/users/:userId',
+    element: (
+      <RequireAdmin>
+        <AdminUserDetailPage />
       </RequireAdmin>
     ),
   },

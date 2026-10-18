@@ -169,7 +169,7 @@ export interface DashboardBooking extends ProviderBooking {
   provider: { id: string; businessName: string };
 }
 
-export type OrderStatus = 'PENDING' | 'CONFIRMED' | 'READY' | 'COMPLETED' | 'CANCELLED';
+export type OrderStatus = 'PENDING' | 'CONFIRMED' | 'READY' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
 
 export interface ProviderOrderItem {
   id: string;
@@ -186,12 +186,17 @@ export interface ProviderOrder {
   status: OrderStatus;
   amountMinor: number;
   amountPaidMinor: number;
+  // How much of amountPaidMinor was actually refunded — less than the full
+  // amount for a cancelled/no-show order with a mix of made-to-order and
+  // static items (only the made-to-order portion is forfeited).
+  refundedMinor?: number;
   currency: string;
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
   note?: string | null;
   cancelReason?: string | null;
   createdAt: string;
+  readyAt?: string | null;
   items: ProviderOrderItem[];
   user: { fullName: string; phone?: string | null };
   provider: { id: string; businessName: string };
@@ -270,4 +275,79 @@ export interface CreateProviderRequest {
   latitude?: number;
   longitude?: number;
   depositPercent?: number;
+}
+
+// ── Earnings (after the platform's commission) ──────────────────────────────
+
+export interface EarningsParams {
+  from?: string;
+  to?: string;
+  businessId?: string;
+}
+
+export interface EarningsTotals {
+  count: number;
+  grossMinor: number;
+  commissionMinor: number;
+  netMinor: number;
+  /** Part of the sales paid online (held by the platform). */
+  onlineMinor: number;
+  /** Part of the sales the provider collected in person. */
+  cashMinor: number;
+}
+
+export interface EarningsTransaction {
+  kind: 'BOOKING' | 'ORDER';
+  id: string;
+  businessId: string;
+  businessName: string;
+  title: string;
+  status: string;
+  paymentMethod: PaymentMethod;
+  settledAt: string | null;
+  commissionBps: number;
+  grossMinor: number;
+  commissionMinor: number;
+  earningMinor: number;
+  onlineMinor: number;
+  cashMinor: number;
+  /** What this sale adds to (or, for a cash sale, takes off) what DNX pays you: online money minus commission. */
+  payableMinor: number;
+}
+
+export interface EarningsSettlement {
+  id: string;
+  direction: 'TO_PROVIDER' | 'FROM_PROVIDER';
+  amountMinor: number;
+  method: string | null;
+  reference: string | null;
+  note: string | null;
+  paidAt: string;
+}
+
+export interface Earnings {
+  range: { from?: string; to?: string };
+  /** The commission a new sale is charged right now (basis points). */
+  defaultCommissionBps: number;
+  summary: EarningsTotals;
+  /** Open bookings/orders — what they'd be worth if they complete. */
+  upcoming: EarningsTotals;
+  balance: {
+    /** Online money DNX collected for the provider's finished sales (all time). */
+    earnedOnlineMinor: number;
+    /** DNX's commission on all those finished sales, online and cash (all time). */
+    earnedCommissionMinor: number;
+    paidOutMinor: number;
+    receivedMinor: number;
+    /** Positive: the platform owes you. Negative: you owe the platform. */
+    balanceMinor: number;
+  };
+  businesses: (EarningsTotals & {
+    id: string;
+    name: string;
+    commissionBps: number;
+    isCustomRate: boolean;
+  })[];
+  transactions: EarningsTransaction[];
+  payouts: EarningsSettlement[];
 }

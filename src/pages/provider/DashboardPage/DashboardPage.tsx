@@ -63,6 +63,7 @@ const ORDER_TONE: Record<OrderStatus, Tone> = {
   READY: 'brand',
   COMPLETED: 'success',
   CANCELLED: 'neutral',
+  NO_SHOW: 'neutral',
 };
 
 const ORDER_LABEL: Record<OrderStatus, string> = {
@@ -71,6 +72,7 @@ const ORDER_LABEL: Record<OrderStatus, string> = {
   READY: 'ready',
   COMPLETED: 'completed',
   CANCELLED: 'cancelled',
+  NO_SHOW: 'no-show',
 };
 
 /** Home dashboard — a command center across all of the provider's businesses. */

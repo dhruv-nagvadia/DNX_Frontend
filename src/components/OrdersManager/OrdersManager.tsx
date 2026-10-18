@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { LifeBuoy, Phone, ShoppingBag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+import { AlertBanner } from '@/components/AlertBanner';
 import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
 import { BadgeTone } from '@/components/Badge/types';
@@ -45,14 +46,27 @@ const STATUS: Record<OrderStatus, { label: string; tone: BadgeTone }> = {
   READY: { label: 'Ready for pickup', tone: 'brand' },
   COMPLETED: { label: 'Completed', tone: 'success' },
   CANCELLED: { label: 'Cancelled', tone: 'neutral' },
+  NO_SHOW: { label: 'No-show', tone: 'error' },
 };
 
 function payBadge(o: ProviderOrder): { label: string; tone: BadgeTone } {
   if (o.paymentStatus === 'REFUNDED') {
     return { label: `Refunded ${money(o.amountPaidMinor, o.currency)}`, tone: 'accent' };
   }
+  // A cancelled/no-show mixed cart can refund only the static-item portion —
+  // paymentStatus stays as-is since it's not a full refund.
+  if ((o.refundedMinor ?? 0) > 0) {
+    return { label: `Partially refunded ${money(o.refundedMinor ?? 0, o.currency)}`, tone: 'accent' };
+  }
   if (o.paymentStatus === 'PAID') {
     return { label: o.paymentMethod === 'CASH' ? 'Paid (cash)' : 'Paid', tone: 'success' };
+  }
+  // Partial pay: the deposit went through online, the rest is collected at pickup.
+  if (o.paymentStatus === 'PARTIAL') {
+    return {
+      label: `Part-paid · ${money(Math.max(0, o.amountMinor - o.amountPaidMinor), o.currency)} due at pickup`,
+      tone: 'accent',
+    };
   }
   if (o.paymentMethod === 'CASH') return { label: 'Cash · at pickup', tone: 'warning' };
   return { label: 'Payment pending', tone: 'warning' };
@@ -72,8 +86,38 @@ export function OrdersManager({ providerId }: { providerId: string }) {
   const [cancelling, setCancelling] = useState<ProviderOrder | null>(null);
   const [reason, setReason] = useState('');
 
+  // No-show-with-note modal.
+  const [noShowing, setNoShowing] = useState<ProviderOrder | null>(null);
+  const [noShowNote, setNoShowNote] = useState('');
+  const [noShowError, setNoShowError] = useState<string | null>(null);
+
   const setStatus = (o: ProviderOrder, status: OrderStatus) => {
     updateStatus({ orderId: o.id, providerId, status });
+  };
+
+  const openNoShow = (o: ProviderOrder) => {
+    setNoShowNote('');
+    setNoShowError(null);
+    setNoShowing(o);
+  };
+
+  const confirmNoShow = async () => {
+    if (!noShowing) return;
+    setNoShowError(null);
+    try {
+      await updateStatus({
+        orderId: noShowing.id,
+        providerId,
+        status: 'NO_SHOW',
+        reason: noShowNote.trim() || undefined,
+      }).unwrap();
+      setNoShowing(null);
+      setNoShowNote('');
+    } catch (err) {
+      setNoShowError(
+        (err as { data?: { message?: string } })?.data?.message ?? 'Could not mark this order a no-show.',
+      );
+    }
   };
 
   const openCancel = (o: ProviderOrder) => {
@@ -155,6 +199,16 @@ export function OrdersManager({ providerId }: { providerId: string }) {
             Collect {money(outstanding, o.currency)}
           </button>
         )}
+        {o.status === 'READY' && (
+          <button
+            type="button"
+            className={`${styles.btn} ${styles.cancel}`}
+            disabled={busy}
+            onClick={() => openNoShow(o)}
+          >
+            No-show
+          </button>
+        )}
         {canCancel && (
           <button
             type="button"
@@ -224,8 +278,10 @@ export function OrdersManager({ providerId }: { providerId: string }) {
                 <div className={styles.actions}>{renderActions(o)}</div>
               </div>
 
-              {o.status === 'CANCELLED' && o.cancelReason ? (
-                <p className={styles.cancelNote}>Cancellation note: {o.cancelReason}</p>
+              {(o.status === 'CANCELLED' || o.status === 'NO_SHOW') && o.cancelReason ? (
+                <p className={styles.cancelNote}>
+                  {o.status === 'NO_SHOW' ? 'No-show note' : 'Cancellation note'}: {o.cancelReason}
+                </p>
               ) : null}
             </div>
           );
@@ -258,6 +314,42 @@ export function OrdersManager({ providerId }: { providerId: string }) {
             </Button>
             <Button onClick={confirmCancel} loading={updating} loadingText="Cancelling…">
               Cancel order
+            </Button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {noShowing && (
+      <div className={styles.overlay} role="dialog" aria-modal="true">
+        <div className={styles.modal}>
+          <h3 className={styles.modalTitle}>Mark this order a no-show?</h3>
+          <p className={styles.modalSub}>
+            {noShowing.user.fullName} · {money(noShowing.amountMinor, noShowing.currency)}
+          </p>
+          <p className={styles.modalSub}>
+            {noShowing.amountPaidMinor > 0
+              ? "Already paid — it won't be refunded, and the product goes back into stock."
+              : 'No payment was taken — the customer gets a warning instead.'}
+          </p>
+          <label className={styles.modalLabel} htmlFor="orderNoShowNote">
+            Note for the customer <span className={styles.optional}>(optional)</span>
+          </label>
+          <textarea
+            id="orderNoShowNote"
+            className={styles.textarea}
+            placeholder="e.g. Held for 2 days past pickup, never collected."
+            value={noShowNote}
+            onChange={(e) => setNoShowNote(e.target.value)}
+            maxLength={500}
+          />
+          {noShowError && <AlertBanner tone="error">{noShowError}</AlertBanner>}
+          <div className={styles.modalActions}>
+            <Button variant="ghost" onClick={() => setNoShowing(null)} disabled={busy}>
+              Cancel
+            </Button>
+            <Button onClick={confirmNoShow} loading={updating} loadingText="Saving…">
+              Mark no-show
             </Button>
           </div>
         </div>

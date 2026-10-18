@@ -18,6 +18,24 @@ export const endpoints = {
   adminAnalyticsOverview: '/admin/analytics/overview',
   adminCoupons: '/admin/coupons',
   adminCoupon: (id: string) => `/admin/coupons/${id}`,
+  adminUsers: '/admin/users',
+  adminUser: (userId: string) => `/admin/users/${userId}`,
+  adminUserBlock: (userId: string) => `/admin/users/${userId}/block`,
+  adminUserUnblock: (userId: string) => `/admin/users/${userId}/unblock`,
+  adminUserPenalties: (userId: string) => `/admin/users/${userId}/penalties`,
+  adminPenalty: (penaltyId: string) => `/admin/penalties/${penaltyId}`,
+  adminUserDisableCod: (userId: string) => `/admin/users/${userId}/disable-cod`,
+  adminUserEnableCod: (userId: string) => `/admin/users/${userId}/enable-cod`,
+  adminConfig: '/admin/config',
+  adminFinanceOverview: '/admin/finance/overview',
+  adminFinanceTransactions: '/admin/finance/transactions',
+  adminFinanceBreakdown: '/admin/finance/breakdown',
+  adminFinanceBalances: '/admin/finance/balances',
+  adminFinanceBusinesses: '/admin/finance/businesses',
+  adminFinanceBusinessCommission: (businessId: string) =>
+    `/admin/finance/businesses/${businessId}/commission`,
+  adminFinancePayouts: '/admin/finance/payouts',
+  adminFinancePayout: (payoutId: string) => `/admin/finance/payouts/${payoutId}`,
 
   // Categories (shared/public)
   categories: '/categories',
@@ -37,6 +55,7 @@ export const endpoints = {
   providerById: (id: string) => `/customer/providers/${id}`,
 
   // Provider app — manage your own businesses (role PROVIDER)
+  myEarnings: '/provider/earnings',
   myAllBookings: '/provider/bookings',
   myOrders: '/provider/orders',
   myOrder: (orderId: string) => `/provider/orders/${orderId}`,

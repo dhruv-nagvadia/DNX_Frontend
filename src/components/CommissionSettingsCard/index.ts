@@ -1,0 +1,1 @@
+export { CommissionSettingsCard } from './CommissionSettingsCard';

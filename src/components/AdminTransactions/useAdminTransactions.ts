@@ -3,6 +3,7 @@ import {
   useGetFinanceBalancesQuery,
   useGetFinanceBreakdownQuery,
   useGetFinanceBusinessesQuery,
+  useGetFinanceServicesQuery,
   useGetFinanceTransactionsQuery,
 } from '@/redux/api/admin/adminApi';
 import {
@@ -89,11 +90,8 @@ export function useAdminTransactions() {
     { ...filters, by: tab === 'service' ? 'service' : 'business' },
     { ...fresh, skip: tab === 'all' },
   );
-  // The service dropdown lists the chosen business's services (whatever the other filters are).
-  const services = useGetFinanceBreakdownQuery(
-    { by: 'service', businessId: businessId || undefined },
-    { skip: !businessId },
-  );
+  // The service dropdown lists every service — or just the chosen business's.
+  const services = useGetFinanceServicesQuery({ businessId: businessId || undefined });
   const businesses = useGetFinanceBusinessesQuery();
   const balances = useGetFinanceBalancesQuery();
 
@@ -119,6 +117,7 @@ export function useAdminTransactions() {
     breakdownLoading: breakdown.isLoading,
     businessOptions: businesses.data?.businesses ?? [],
     serviceOptions: services.data ?? [],
+    // Picking a service needs no business first; the business just narrows the list.
     onPreset: (p: RangePreset) => update({ range: p }),
     onTab: (t: TransactionTab) => update({ tab: t === 'all' ? undefined : t }),
     onPage: (p: number) => update({ page: p > 1 ? String(p) : undefined }),

@@ -231,6 +231,7 @@ export function AdminTransactions() {
   ];
   const pages = t.data ? Math.max(1, Math.ceil(t.data.total / t.pageSize)) : 1;
   const selectedBusiness = t.businessOptions.find((b) => b.id === t.businessId);
+  const selectedService = t.serviceOptions.find((x) => x.id === t.serviceId);
 
   return (
     <>
@@ -270,13 +271,13 @@ export function AdminTransactions() {
             aria-label="Service"
             value={t.serviceId}
             onChange={(e) => t.onService(e.target.value)}
-            disabled={!t.businessId}
-            title={t.businessId ? undefined : 'Pick a business first'}
           >
-            <option value="">{t.businessId ? 'All services' : 'Service (pick a business)'}</option>
+            <option value="">All services</option>
             {t.serviceOptions.map((s) => (
               <option key={s.id} value={s.id}>
-                {s.name}
+                {/* With no business chosen, say which business each service belongs to. */}
+                {t.businessId ? s.name : `${s.name} — ${s.businessName}`}
+                {s.isActive ? '' : ' (inactive)'}
               </option>
             ))}
           </select>
@@ -346,13 +347,11 @@ export function AdminTransactions() {
             </Button>
           )}
         </div>
-        {selectedBusiness && (
+        {(selectedService || selectedBusiness) && (
           <p className={styles.hint}>
-            Showing {selectedBusiness.name}
-            {t.serviceId && t.serviceOptions.find((s) => s.id === t.serviceId)
-              ? ` · ${t.serviceOptions.find((s) => s.id === t.serviceId)?.name}`
-              : ''}
-            . Owner: {selectedBusiness.ownerName}.
+            {selectedService
+              ? `Showing ${selectedService.name} at ${selectedService.businessName} (bookings only).`
+              : `Showing ${selectedBusiness?.name}. Owner: ${selectedBusiness?.ownerName}.`}
           </p>
         )}
       </Card>

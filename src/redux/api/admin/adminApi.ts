@@ -15,6 +15,7 @@ import {
   FinanceFilterParams,
   FinanceOverview,
   FinanceRangeParams,
+  FinanceServiceOption,
   FinanceTransactionsData,
   FinanceTransactionsParams,
   Payout,
@@ -176,6 +177,17 @@ export const adminApi = createApi({
       providesTags: ['Finance'],
     }),
 
+    // Every service across all businesses (or one business's) — for the Service filter.
+    getFinanceServices: builder.query<FinanceServiceOption[], { businessId?: string } | void>({
+      query: (params) => ({
+        endpoint: endpoints.adminFinanceServices,
+        method: 'get',
+        params: params?.businessId ? { businessId: params.businessId } : undefined,
+      }),
+      transformResponse: (res: ApiEnvelope<FinanceServiceOption[]>) => res.data,
+      providesTags: ['Finance'],
+    }),
+
     getFinanceBalances: builder.query<FinanceBalance[], void>({
       query: () => ({ endpoint: endpoints.adminFinanceBalances, method: 'get' }),
       transformResponse: (res: ApiEnvelope<FinanceBalance[]>) => res.data,
@@ -251,6 +263,7 @@ export const {
   useGetFinanceOverviewQuery,
   useGetFinanceTransactionsQuery,
   useGetFinanceBreakdownQuery,
+  useGetFinanceServicesQuery,
   useGetFinanceBalancesQuery,
   useGetFinanceBusinessesQuery,
   useSetBusinessCommissionMutation,

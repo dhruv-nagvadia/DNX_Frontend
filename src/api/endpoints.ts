@@ -30,6 +30,7 @@ export const endpoints = {
   adminFinanceOverview: '/admin/finance/overview',
   adminFinanceTransactions: '/admin/finance/transactions',
   adminFinanceBreakdown: '/admin/finance/breakdown',
+  adminFinanceServices: '/admin/finance/services',
   adminFinanceBalances: '/admin/finance/balances',
   adminFinanceBusinesses: '/admin/finance/businesses',
   adminFinanceBusinessCommission: (businessId: string) =>

@@ -300,6 +300,15 @@ export interface FinanceTransactionsData {
   rows: FinanceTransaction[];
 }
 
+/** One service, for the Service filter (every service, even ones never booked). */
+export interface FinanceServiceOption {
+  id: string;
+  name: string;
+  isActive: boolean;
+  businessId: string;
+  businessName: string;
+}
+
 export interface FinanceBreakdownRow extends FinanceAgg {
   id: string;
   name: string;

@@ -139,6 +139,10 @@ export default function RegisterPage() {
               <a href="/privacy" target="_blank" rel="noreferrer">
                 Privacy Policy
               </a>
+              , and the{' '}
+              <a href="/refund-policy" target="_blank" rel="noreferrer">
+                Refund &amp; Cancellation Policy
+              </a>
             </>
           }
         />

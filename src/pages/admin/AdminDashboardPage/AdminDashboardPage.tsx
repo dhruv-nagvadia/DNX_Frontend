@@ -1,18 +1,14 @@
-import {
-  CalendarCheck2,
-  IndianRupee,
-  ShoppingBag,
-  Smartphone,
-  Store,
-  Users,
-} from 'lucide-react';
+import { useState } from 'react';
+import { CalendarCheck2, IndianRupee, ShoppingBag, Smartphone, Store, Users } from 'lucide-react';
 
 import { AdminShell } from '@/components/AdminShell';
 import { Card } from '@/components/Card';
 import { PageHeader } from '@/components/PageHeader';
 import { Skeleton } from '@/components/Skeleton';
+import { Tabs } from '@/components/Tabs';
 import { StatTile } from '@/components/StatTile';
-import { useGetAnalyticsOverviewQuery } from '@/redux/api/admin/adminApi';
+import { useGetAdminGrowthQuery, useGetAnalyticsOverviewQuery } from '@/redux/api/admin/adminApi';
+import { GrowthGroupBy } from '@/redux/api/admin/types';
 import { GrowthChart } from './GrowthChart';
 import styles from './AdminDashboardPage.module.css';
 
@@ -24,6 +20,18 @@ function money(minor: number): string {
   }).format(minor / 100);
 }
 
+const GROWTH_TABS = [
+  { id: 'day', label: 'Daily' },
+  { id: 'month', label: 'Monthly' },
+  { id: 'year', label: 'Yearly' },
+];
+
+const GROWTH_SUBTITLE: Record<GrowthGroupBy, string> = {
+  day: 'New signups per day, last 14 days.',
+  month: 'New signups per month, last 12 months.',
+  year: 'New signups per year.',
+};
+
 function growthNote(pct: number): string {
   if (pct === 0) return 'flat vs. previous 30 days';
   return `${pct > 0 ? '+' : ''}${pct}% vs. previous 30 days`;
@@ -32,6 +40,11 @@ function growthNote(pct: number): string {
 /** Platform-wide overview: growth across the customer app and the provider web dashboard. */
 export default function AdminDashboardPage() {
   const { data, isLoading } = useGetAnalyticsOverviewQuery();
+  const [groupBy, setGroupBy] = useState<GrowthGroupBy>('day');
+  // `currentData` is specific to the chosen view, so switching never shows the old view's bars.
+  const { currentData: growth } = useGetAdminGrowthQuery(groupBy, {
+    refetchOnMountOrArgChange: true,
+  });
 
   return (
     <AdminShell wide>
@@ -84,12 +97,27 @@ export default function AdminDashboardPage() {
             />
           </div>
 
-          <Card title="Growth" subtitle="New signups per day, last 14 days.">
-            <GrowthChart
-              labels={data.dailyGrowth.labels}
-              customers={data.dailyGrowth.customers}
-              providers={data.dailyGrowth.providers}
-            />
+          <Card
+            title="Growth"
+            subtitle={GROWTH_SUBTITLE[groupBy]}
+            action={
+              <Tabs
+                tabs={GROWTH_TABS}
+                active={groupBy}
+                onChange={(id) => setGroupBy(id as GrowthGroupBy)}
+              />
+            }
+          >
+            {growth ? (
+              <GrowthChart
+                groupBy={growth.groupBy}
+                labels={growth.labels}
+                customers={growth.customers}
+                providers={growth.providers}
+              />
+            ) : (
+              <Skeleton height={220} radius="var(--radius-md)" />
+            )}
           </Card>
         </>
       )}

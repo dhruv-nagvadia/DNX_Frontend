@@ -79,7 +79,7 @@ export const TERMS_SECTIONS: LegalSection[] = [
   },
   {
     heading: 'Bookings, orders and payments',
-    body: `When a customer books a service or places an order, they're entering into an agreement with that business. Prices, availability and cancellation terms are set by the business. Payments are processed securely via Razorpay. Refunds for a cancelled booking or order follow the cancellation policy shown at the time of booking; where a payment needs to be refunded, it is processed back to the original payment method.`,
+    body: `When a customer books a service or places an order, they're entering into an agreement with that business. Prices and availability are set by the business. Payments are processed securely via Razorpay. Cancellations and refunds follow our Refund & Cancellation Policy; where a payment needs to be refunded, it is processed back to the original payment method.`,
   },
   {
     heading: 'Reviews and conduct',
@@ -108,5 +108,74 @@ export const TERMS_SECTIONS: LegalSection[] = [
   {
     heading: 'Contact us',
     body: `Questions about these terms? Reach us at ${SUPPORT.email} or ${SUPPORT.phoneDisplay}.`,
+  },
+];
+
+export const REFUND_LAST_UPDATED = 'October 2026';
+
+export const REFUND_POLICY_SECTIONS: LegalSection[] = [
+  {
+    heading: 'Overview',
+    body: `This policy explains how cancellations and refunds work on DNX. DNX connects you with independent local businesses (service providers and stores). Whether you get money back when you cancel depends on the kind of booking or order and how far along it is, as described below.
+
+It applies to payments made online through DNX. If you pay a business directly in cash, there is nothing for DNX to refund.`,
+  },
+  {
+    heading: 'How to cancel',
+    body: `Bookings: open the booking under Bookings & Orders and tap Cancel. You can cancel while it is still pending or confirmed.
+
+Orders: open the order under Bookings & Orders and tap Cancel. You can cancel while the order is still placed or confirmed. Once the store marks it ready for pickup it can no longer be cancelled in the app — please contact the store or us.
+
+If you only need a different time for a booking, you can reschedule it instead of cancelling.`,
+  },
+  {
+    heading: 'Service bookings',
+    body: `• Cancel before the appointment start time: full refund of everything you paid online (the full amount, or your deposit if you paid a deposit).
+
+• Cancel after the appointment start time: no refund.
+
+• If you don't show up and the business marks the booking as a no-show: the amount you paid is not refunded.
+
+• If the business cancels the booking: full refund of everything you paid online.`,
+  },
+  {
+    heading: 'Store orders (pickup)',
+    body: `• Cancel before the store has accepted your order: full refund.
+
+• Cancel after the store has accepted it: items taken from the store's ordinary stock are refunded in full. Items the store prepares specially for your order (for example cooked or made-to-order items) are not refunded once the store has accepted the order. The refund is worked out from what you paid for each kind of item.
+
+• If the store cancels your order: full refund.
+
+• If you don't collect a ready order within the pickup window (24 hours unless a different window is shown), the store can close it as a no-show. The same split applies: made-to-order items are not refunded, other items are.
+
+• An order that includes items from more than one store is split into a separate order for each store. Cancelling or being refunded for one store's order doesn't affect the others.`,
+  },
+  {
+    heading: 'Partial payments (deposits)',
+    body: `If you paid only part of the amount online (a deposit) and will pay the rest in person, any refund is based on the amount you actually paid online. There is nothing to refund for the part you had not paid yet.`,
+  },
+  {
+    heading: 'Cash payments',
+    body: `If you choose to pay in cash, no online payment is made, so there is nothing to refund. Repeated no-shows on cash bookings or orders can lead to a warning, a charge, Cash on Delivery being turned off for your account, or your account being restricted.`,
+  },
+  {
+    heading: 'Failed or duplicate payments',
+    body: `If money was deducted from your account but you can't see the booking or order, or you were charged twice, contact us with the date, the amount and your payment reference. We will complete the booking or order, or refund you.
+
+If part of your order can't be placed after you have paid (for example an item became unavailable), that part is refunded.`,
+  },
+  {
+    heading: 'How refunds are paid',
+    body: `Refunds go back to the payment method you used (card, UPI, net banking or wallet) through Razorpay, our payment partner. We don't deduct any fee from a refund you are eligible for.
+
+After we process a refund, banks usually take 5–7 working days to show it, depending on your bank. If you haven't seen it after that, contact us.`,
+  },
+  {
+    heading: 'Changes to this policy',
+    body: `We may update this policy from time to time. We'll update the "last updated" date when we do, and, for significant changes, let you know directly.`,
+  },
+  {
+    heading: 'Contact us',
+    body: `Questions about a cancellation or refund? Reach us at ${SUPPORT.email} or ${SUPPORT.phoneDisplay} with your booking or order details.`,
   },
 ];

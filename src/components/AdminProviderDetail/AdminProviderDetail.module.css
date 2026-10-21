@@ -1,0 +1,54 @@
+.biz {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.bizBlocked {
+  border-color: var(--color-error-border);
+  background: var(--color-error-soft);
+}
+.bizHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+.bizName {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+.badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.bizActions {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+.balance {
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.warn {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: rgba(245, 158, 11, 0.12);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  color: var(--color-text-primary);
+}

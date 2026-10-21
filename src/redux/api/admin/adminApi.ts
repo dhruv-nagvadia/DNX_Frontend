@@ -7,6 +7,9 @@ import {
   AdminAuthData,
   AdminCustomer,
   AdminCustomerDetail,
+  AdminGrowth,
+  AdminProviderDetail,
+  AdminProviderSummary,
   AdminLoginRequest,
   CreatePenaltyInput,
   FinanceBalance,
@@ -18,6 +21,7 @@ import {
   FinanceServiceOption,
   FinanceTransactionsData,
   FinanceTransactionsParams,
+  GrowthGroupBy,
   Payout,
   PlatformConfig,
   PlatformCoupon,
@@ -31,7 +35,7 @@ import {
 export const adminApi = createApi({
   reducerPath: 'adminApi',
   baseQuery: axiosBaseQuery(),
-  tagTypes: ['PlatformCoupons', 'AdminUsers', 'Finance', 'PlatformConfig'],
+  tagTypes: ['PlatformCoupons', 'AdminUsers', 'AdminProviders', 'Finance', 'PlatformConfig'],
   endpoints: (builder) => ({
     loginAdmin: builder.mutation<AdminAuthData, AdminLoginRequest>({
       query: (data) => ({ endpoint: endpoints.adminLogin, method: 'post', data }),
@@ -41,6 +45,15 @@ export const adminApi = createApi({
     getAnalyticsOverview: builder.query<AdminAnalyticsOverview, void>({
       query: () => ({ endpoint: endpoints.adminAnalyticsOverview, method: 'get' }),
       transformResponse: (res: ApiEnvelope<AdminAnalyticsOverview>) => res.data,
+    }),
+
+    getAdminGrowth: builder.query<AdminGrowth, GrowthGroupBy>({
+      query: (groupBy) => ({
+        endpoint: endpoints.adminAnalyticsGrowth,
+        method: 'get',
+        params: { groupBy },
+      }),
+      transformResponse: (res: ApiEnvelope<AdminGrowth>) => res.data,
     }),
 
     getPlatformCoupons: builder.query<PlatformCoupon[], void>({
@@ -137,6 +150,71 @@ export const adminApi = createApi({
       query: (userId) => ({ endpoint: endpoints.adminUserEnableCod(userId), method: 'post' }),
       transformResponse: (res: ApiEnvelope<{ id: string }>) => res.data,
       invalidatesTags: ['AdminUsers'],
+    }),
+
+    // ── Providers (block an account / a business, turn COD off) ───────────
+    getAdminProviders: builder.query<AdminProviderSummary[], { search?: string } | void>({
+      query: (params) => ({
+        endpoint: endpoints.adminProviders,
+        method: 'get',
+        params: params?.search ? { search: params.search } : undefined,
+      }),
+      transformResponse: (res: ApiEnvelope<AdminProviderSummary[]>) => res.data,
+      providesTags: ['AdminProviders'],
+    }),
+
+    getAdminProviderDetail: builder.query<AdminProviderDetail, string>({
+      query: (userId) => ({ endpoint: endpoints.adminProvider(userId), method: 'get' }),
+      transformResponse: (res: ApiEnvelope<AdminProviderDetail>) => res.data,
+      providesTags: ['AdminProviders'],
+    }),
+
+    blockProviderAccount: builder.mutation<{ id: string }, { userId: string; reason?: string }>({
+      query: ({ userId, reason }) => ({
+        endpoint: endpoints.adminProviderBlock(userId),
+        method: 'post',
+        data: { reason },
+      }),
+      transformResponse: (res: ApiEnvelope<{ id: string }>) => res.data,
+      invalidatesTags: ['AdminProviders'],
+    }),
+
+    unblockProviderAccount: builder.mutation<{ id: string }, string>({
+      query: (userId) => ({ endpoint: endpoints.adminProviderUnblock(userId), method: 'post' }),
+      transformResponse: (res: ApiEnvelope<{ id: string }>) => res.data,
+      invalidatesTags: ['AdminProviders'],
+    }),
+
+    blockBusiness: builder.mutation<{ id: string }, { businessId: string; reason?: string }>({
+      query: ({ businessId, reason }) => ({
+        endpoint: endpoints.adminBusinessBlock(businessId),
+        method: 'post',
+        data: { reason },
+      }),
+      transformResponse: (res: ApiEnvelope<{ id: string }>) => res.data,
+      invalidatesTags: ['AdminProviders'],
+    }),
+
+    unblockBusiness: builder.mutation<{ id: string }, string>({
+      query: (businessId) => ({ endpoint: endpoints.adminBusinessUnblock(businessId), method: 'post' }),
+      transformResponse: (res: ApiEnvelope<{ id: string }>) => res.data,
+      invalidatesTags: ['AdminProviders'],
+    }),
+
+    disableBusinessCod: builder.mutation<{ id: string }, { businessId: string; reason?: string }>({
+      query: ({ businessId, reason }) => ({
+        endpoint: endpoints.adminBusinessDisableCod(businessId),
+        method: 'post',
+        data: { reason },
+      }),
+      transformResponse: (res: ApiEnvelope<{ id: string }>) => res.data,
+      invalidatesTags: ['AdminProviders'],
+    }),
+
+    enableBusinessCod: builder.mutation<{ id: string }, string>({
+      query: (businessId) => ({ endpoint: endpoints.adminBusinessEnableCod(businessId), method: 'post' }),
+      transformResponse: (res: ApiEnvelope<{ id: string }>) => res.data,
+      invalidatesTags: ['AdminProviders'],
     }),
 
     // ── Platform-wide settings ─────────────────────────────────────────────
@@ -246,6 +324,7 @@ export const adminApi = createApi({
 export const {
   useLoginAdminMutation,
   useGetAnalyticsOverviewQuery,
+  useGetAdminGrowthQuery,
   useGetPlatformCouponsQuery,
   useCreatePlatformCouponMutation,
   useUpdatePlatformCouponMutation,
@@ -258,6 +337,14 @@ export const {
   useUpdatePenaltyStatusMutation,
   useDisableCodMutation,
   useEnableCodMutation,
+  useGetAdminProvidersQuery,
+  useGetAdminProviderDetailQuery,
+  useBlockProviderAccountMutation,
+  useUnblockProviderAccountMutation,
+  useBlockBusinessMutation,
+  useUnblockBusinessMutation,
+  useDisableBusinessCodMutation,
+  useEnableBusinessCodMutation,
   useGetPlatformConfigQuery,
   useUpdatePlatformConfigMutation,
   useGetFinanceOverviewQuery,

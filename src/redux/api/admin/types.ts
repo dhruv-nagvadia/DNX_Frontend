@@ -340,6 +340,17 @@ export interface RecordPayoutInput {
   note?: string;
 }
 
+export type GrowthGroupBy = 'day' | 'month' | 'year';
+
+/** New customers vs. new providers per day / month / year (labels: "2026-10-18", "2026-10", "2026"). */
+export interface AdminGrowth {
+  groupBy: GrowthGroupBy;
+  labels: string[];
+  customers: number[];
+  providers: number[];
+  totals: { customers: number; providers: number };
+}
+
 export interface AdminAnalyticsOverview {
   totals: {
     customers: number;
@@ -360,4 +371,55 @@ export interface AdminAnalyticsOverview {
     customers: number[];
     providers: number[];
   };
+}
+
+// ── Provider management (block an account or one business, turn COD off) ────
+
+export interface AdminProviderSummary {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string | null;
+  isBlocked: boolean;
+  blockedReason: string | null;
+  createdAt: string;
+  businessCount: number;
+  blockedBusinessCount: number;
+  codDisabledCount: number;
+}
+
+export interface AdminProviderBusiness {
+  id: string;
+  businessName: string;
+  type: 'SERVICE' | 'STORE';
+  city: string | null;
+  isActive: boolean;
+  isBlocked: boolean;
+  blockedReason: string | null;
+  blockedAt: string | null;
+  /** The business's effective COD switch (off if the owner turned it off, or DNX did). */
+  codEnabled: boolean;
+  codDisabledByAdmin: boolean;
+  codDisabledReason: string | null;
+  ratingAvg: number;
+  ratingCount: number;
+  /** Work still open — what a block would leave in limbo. */
+  openBookings: number;
+  openOrders: number;
+}
+
+export interface AdminProviderDetail {
+  user: {
+    id: string;
+    fullName: string;
+    email: string;
+    phone: string | null;
+    isBlocked: boolean;
+    blockedReason: string | null;
+    blockedAt: string | null;
+    createdAt: string;
+  };
+  /** What DNX owes the provider (positive) or they owe DNX (negative). */
+  balanceMinor: number;
+  businesses: AdminProviderBusiness[];
 }

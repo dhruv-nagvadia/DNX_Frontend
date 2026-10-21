@@ -21,6 +21,7 @@ import {
   Trash2,
 } from 'lucide-react';
 
+import { AlertBanner } from '@/components/AlertBanner';
 import { AppShell } from '@/components/AppShell';
 import { Badge } from '@/components/Badge';
 import { BusinessBookings } from '@/components/BusinessBookings';
@@ -46,6 +47,11 @@ import { BusinessTab, useBusinessDetail } from './useBusinessDetail';
 import styles from './BusinessDetailPage.module.css';
 
 /** JSX only — logic comes from useBusinessDetail. */
+/** ": the reason." — always ends in exactly one full stop, so the sentence after it reads on cleanly. */
+function reasonSentence(reason?: string | null): string {
+  return reason ? `: ${reason.trim().replace(/[.!?]+$/, '')}.` : '.';
+}
+
 export default function BusinessDetailPage() {
   const {
     business,
@@ -103,8 +109,18 @@ export default function BusinessDetailPage() {
     .join(', ');
 
   const contact = [
-    { icon: <Phone size={16} aria-hidden="true" />, label: 'Phone', value: business.phone, wide: false },
-    { icon: <Mail size={16} aria-hidden="true" />, label: 'Email', value: business.email, wide: false },
+    {
+      icon: <Phone size={16} aria-hidden="true" />,
+      label: 'Phone',
+      value: business.phone,
+      wide: false,
+    },
+    {
+      icon: <Mail size={16} aria-hidden="true" />,
+      label: 'Email',
+      value: business.email,
+      wide: false,
+    },
     { icon: <MapPin size={16} aria-hidden="true" />, label: 'Address', value: address, wide: true },
   ];
 
@@ -145,7 +161,13 @@ export default function BusinessDetailPage() {
     },
     ...(isStore
       ? []
-      : [{ id: 'calendar', label: 'Calendar', icon: <CalendarRange size={16} aria-hidden="true" /> }]),
+      : [
+          {
+            id: 'calendar',
+            label: 'Calendar',
+            icon: <CalendarRange size={16} aria-hidden="true" />,
+          },
+        ]),
   ];
 
   const contactCard = (
@@ -224,12 +246,24 @@ export default function BusinessDetailPage() {
         </div>
       </header>
 
+      {/* Restrictions DNX has put on this business — the owner should always see why. */}
+      {business.isBlocked && (
+        <AlertBanner tone="error">
+          DNX has blocked this business
+          {reasonSentence(business.blockedReason)} Customers can't see it or place new bookings and
+          orders. You can still finish anything already open. Contact support to get it unblocked.
+        </AlertBanner>
+      )}
+      {business.codDisabledByAdmin && (
+        <AlertBanner tone="error">
+          DNX has turned off Cash on Delivery for this business
+          {reasonSentence(business.codDisabledReason)} Customers can only pay online or with a
+          partial deposit. Contact support to get it turned back on.
+        </AlertBanner>
+      )}
+
       {/* Themed section header. */}
-      <Tabs
-        tabs={sections}
-        active={activeTab}
-        onChange={(id) => setActiveTab(id as BusinessTab)}
-      />
+      <Tabs tabs={sections} active={activeTab} onChange={(id) => setActiveTab(id as BusinessTab)} />
 
       {/* Overview */}
       {activeTab === 'overview' && (
@@ -437,7 +471,11 @@ export default function BusinessDetailPage() {
               and hours. This can’t be undone.
             </p>
             <div className={styles.deleteActions}>
-              <Button variant="ghost" onClick={() => setConfirmingDelete(false)} disabled={deleting}>
+              <Button
+                variant="ghost"
+                onClick={() => setConfirmingDelete(false)}
+                disabled={deleting}
+              >
                 Keep business
               </Button>
               <Button onClick={remove} loading={deleting} loadingText="Deleting…">

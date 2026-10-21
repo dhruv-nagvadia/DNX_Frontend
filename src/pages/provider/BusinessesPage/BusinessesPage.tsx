@@ -101,6 +101,8 @@ export default function BusinessesPage() {
                 >
                   {biz.subcategory?.name ?? biz.category.name}
                 </Badge>
+                {biz.isBlocked && <Badge tone="error">Blocked by DNX</Badge>}
+                {biz.codDisabledByAdmin && <Badge tone="warning">COD off (DNX)</Badge>}
 
                 <div className={styles.metaRow}>
                   <span className={styles.city}>

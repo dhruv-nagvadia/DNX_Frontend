@@ -15,10 +15,13 @@ import ProfilePage from '@/pages/provider/ProfilePage';
 import SupportPage from '@/pages/provider/SupportPage';
 import PrivacyPage from '@/pages/legal/PrivacyPage';
 import TermsPage from '@/pages/legal/TermsPage';
+import RefundPage from '@/pages/legal/RefundPage';
 import AdminLoginPage from '@/pages/admin/AdminLoginPage';
 import AdminDashboardPage from '@/pages/admin/AdminDashboardPage';
 import AdminCouponsPage from '@/pages/admin/AdminCouponsPage';
 import AdminUsersPage from '@/pages/admin/AdminUsersPage';
+import AdminProvidersPage from '@/pages/admin/AdminProvidersPage';
+import AdminProviderDetailPage from '@/pages/admin/AdminProviderDetailPage';
 import AdminFinancePage from '@/pages/admin/AdminFinancePage';
 import AdminTransactionsPage from '@/pages/admin/AdminTransactionsPage';
 import EarningsPage from '@/pages/provider/EarningsPage';
@@ -26,8 +29,9 @@ import AdminUserDetailPage from '@/pages/admin/AdminUserDetailPage';
 
 /** Requires an authenticated user; otherwise sends to /login. */
 function Protected({ children }: { children: ReactElement }) {
-  const isLoggedIn = useAppSelector((s) => s.user.isLoggedIn);
-  return isLoggedIn ? children : <Navigate to="/login" replace />;
+  const { isLoggedIn, currentUser } = useAppSelector((s) => s.user);
+  // An admin session never unlocks provider pages — the two are separate sites.
+  return isLoggedIn && currentUser?.role !== 'ADMIN' ? children : <Navigate to="/login" replace />;
 }
 
 /** For /login and /register — if already signed in, bounce to the landing route. */
@@ -202,6 +206,22 @@ export const router = createBrowserRouter([
     ),
   },
   {
+    path: '/admin/providers',
+    element: (
+      <RequireAdmin>
+        <AdminProvidersPage />
+      </RequireAdmin>
+    ),
+  },
+  {
+    path: '/admin/providers/:userId',
+    element: (
+      <RequireAdmin>
+        <AdminProviderDetailPage />
+      </RequireAdmin>
+    ),
+  },
+  {
     path: '/admin/users',
     element: (
       <RequireAdmin>
@@ -224,6 +244,10 @@ export const router = createBrowserRouter([
   {
     path: '/terms',
     element: <TermsPage />,
+  },
+  {
+    path: '/refund-policy',
+    element: <RefundPage />,
   },
   {
     path: '/',

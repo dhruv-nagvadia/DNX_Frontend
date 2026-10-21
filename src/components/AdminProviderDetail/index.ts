@@ -1,0 +1,1 @@
+export { AdminProviderDetail } from './AdminProviderDetail';

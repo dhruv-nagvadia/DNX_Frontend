@@ -138,6 +138,13 @@ export interface Provider {
   // Offers Partial Pay at all — a product's/service's own partialPayEnabled
   // can only narrow this further, never override it back on.
   partialPayEnabled?: boolean;
+  // Set by DNX, not the owner: a blocked business is hidden from customers and
+  // takes no new bookings/orders; Cash on Delivery can be turned off for it.
+  // (Only the owner's own endpoints return these.)
+  isBlocked?: boolean;
+  blockedReason?: string | null;
+  codDisabledByAdmin?: boolean;
+  codDisabledReason?: string | null;
   category: Category;
   subcategory?: Subcategory | null;
   services: Service[];

@@ -1,4 +1,4 @@
-import { LayoutDashboard, LogOut, Receipt, Ticket, Users, Wallet } from 'lucide-react';
+import { LayoutDashboard, LogOut, Receipt, Store, Ticket, Users, Wallet } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
 
 // Reuses AppShell's sidebar/content layout classes so the admin console
@@ -23,6 +23,7 @@ const NAV = [
   { to: '/admin/transactions', label: 'Transactions', icon: Receipt },
   { to: '/admin/finance', label: 'Finance', icon: Wallet },
   { to: '/admin/coupons', label: 'Coupons', icon: Ticket },
+  { to: '/admin/providers', label: 'Providers', icon: Store },
   { to: '/admin/users', label: 'Users', icon: Users },
 ];
 

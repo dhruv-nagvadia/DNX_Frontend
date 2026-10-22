@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 import {
   useCreateServiceMutation,
@@ -30,6 +30,10 @@ export function useServicesManager(providerId: string, businessPartialPayEnabled
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState<ServiceForm>(EMPTY);
   const [error, setError] = useState<string | null>(null);
+  // A message about a problem goes away as soon as the form is edited, not only on the next save.
+  useEffect(() => {
+    setError(null);
+  }, [form]);
 
   // Remembers the last on/off state the provider set for "On-location
   // service" so the next NEW service defaults to it too, instead of always

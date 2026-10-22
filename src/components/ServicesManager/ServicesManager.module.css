@@ -314,3 +314,18 @@
     transition: none;
   }
 }
+
+/* A quiet explanatory line under a group of fields. */
+.formHint {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  font-size: var(--font-size-xs);
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+.formHint svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}

@@ -11,8 +11,8 @@ import {
 
 import { isRasterImage, IMAGE_REJECT_MSG } from '@/utils/imageValidation';
 import { lookupPincode, reverseGeocode } from '@/utils/geoLookup';
-import { BusinessForm, BusinessFormErrors, PickedImage } from './types';
-import { validateBusiness } from './validation';
+import { BusinessForm, BusinessFormErrors, BusinessStepId, PickedImage } from './types';
+import { STEP_FIELDS, validateBusiness } from './validation';
 
 const PIN_RE = /^\d{6}$/;
 
@@ -37,6 +37,16 @@ const EMPTY: BusinessForm = {
 
 const MAX_IMAGES = 8;
 
+/** A new step starts at the top of the page. */
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.querySelector('main')?.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Photos are added while creating; an existing business manages them on its detail page.
+const CREATE_STEPS: BusinessStepId[] = ['type', 'details', 'payments', 'photos', 'location'];
+const EDIT_STEPS: BusinessStepId[] = ['type', 'details', 'payments', 'location'];
+
 /** Shared create/edit logic. Edit mode is active when a route :id is present. */
 export function useBusinessForm() {
   const navigate = useNavigate();
@@ -54,6 +64,10 @@ export function useBusinessForm() {
 
   const [form, setForm] = useState<BusinessForm>(EMPTY);
   const [images, setImages] = useState<PickedImage[]>([]);
+  const stepIds = isEdit ? EDIT_STEPS : CREATE_STEPS;
+  const [step, setStep] = useState(0);
+  // The furthest step reached — when creating, you can go back to these but not skip ahead.
+  const [furthest, setFurthest] = useState(0);
   const [errors, setErrors] = useState<BusinessFormErrors>({});
   const [serverError, setServerError] = useState<string | null>(null);
   const [locating, setLocating] = useState(false);
@@ -62,6 +76,8 @@ export function useBusinessForm() {
   // Only auto-fill city/state from a typed PIN — never on the initial edit-mode
   // hydration, so we don't clobber a business's already-saved city/state.
   const pincodeEditedByUser = useRef(false);
+  // Set by the edit-mode "Save now" shortcut so it saves from any step.
+  const saveNowRef = useRef(false);
 
   // Prefill when editing.
   useEffect(() => {
@@ -121,6 +137,8 @@ export function useBusinessForm() {
     const { name, value } = e.target;
     if (name === 'postalCode') pincodeEditedByUser.current = true;
     setForm((prev) => ({ ...prev, [name]: value }));
+    // A message about a field goes away as soon as it's edited, not only on the next submit.
+    setErrors((prev) => (prev[name as keyof BusinessForm] ? { ...prev, [name]: undefined } : prev));
   }, []);
 
   const toggleCodEnabled = useCallback(() => {
@@ -214,14 +232,66 @@ export function useBusinessForm() {
     });
   }, []);
 
+  /** Checks just one step's fields; returns whether they're all fine. */
+  const validateStep = useCallback(
+    (stepId: BusinessStepId): boolean => {
+      const all = validateBusiness(form);
+      const mine: BusinessFormErrors = {};
+      for (const key of STEP_FIELDS[stepId]) if (all[key]) mine[key] = all[key];
+      setErrors(mine);
+      return Object.keys(mine).length === 0;
+    },
+    [form],
+  );
+
+  const goToStep = useCallback(
+    (index: number) => {
+      // Editing: every step already has data, so jump freely. Creating: only back to steps already reached.
+      if (index < 0 || index >= stepIds.length) return;
+      if (!isEdit && index > furthest) return;
+      setServerError(null);
+      setStep(index);
+      scrollToTop();
+    },
+    [stepIds.length, isEdit, furthest],
+  );
+
+  const next = useCallback(() => {
+    if (!validateStep(stepIds[step])) return;
+    const target = Math.min(step + 1, stepIds.length - 1);
+    setStep(target);
+    setFurthest((f) => Math.max(f, target));
+    setServerError(null);
+    scrollToTop();
+  }, [validateStep, stepIds, step]);
+
+  const back = useCallback(() => goToStep(step - 1), [goToStep, step]);
+
+  const isLastStep = step === stepIds.length - 1;
+
   const onSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
       setServerError(null);
 
+      // Pressing Enter on an earlier step moves on instead of saving half a form.
+      if (!isLastStep && !saveNowRef.current) {
+        next();
+        return;
+      }
+      saveNowRef.current = false;
+
       const validationErrors = validateBusiness(form);
       setErrors(validationErrors);
-      if (Object.keys(validationErrors).length > 0) return;
+      if (Object.keys(validationErrors).length > 0) {
+        // Take them to the first step that has a problem.
+        const firstBad = stepIds.findIndex((id) => STEP_FIELDS[id].some((f) => validationErrors[f]));
+        if (firstBad >= 0) {
+          setStep(firstBad);
+          scrollToTop();
+        }
+        return;
+      }
 
       const payload = {
         type: form.type,
@@ -259,7 +329,7 @@ export function useBusinessForm() {
         setServerError('Could not save. Please check your details and try again.');
       }
     },
-    [form, images, isEdit, id, createProvider, updateBusiness, uploadImages, navigate],
+    [form, images, isEdit, id, createProvider, updateBusiness, uploadImages, navigate, isLastStep, next, stepIds],
   );
 
   return {
@@ -283,6 +353,17 @@ export function useBusinessForm() {
     addImages,
     removeImage,
     onSubmit,
+    steps: stepIds,
+    step,
+    furthest: isEdit ? stepIds.length - 1 : furthest,
+    isLastStep,
+    goToStep,
+    next,
+    back,
+    // Edit mode: save from any step without clicking through to the end.
+    saveNow: () => {
+      saveNowRef.current = true;
+    },
     useCurrentLocation,
     locating,
     locationError,

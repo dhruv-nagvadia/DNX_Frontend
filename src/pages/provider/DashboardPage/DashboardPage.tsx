@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   CalendarClock,
   CalendarDays,
@@ -11,6 +12,7 @@ import {
 
 import { AppShell } from '@/components/AppShell';
 import { Badge } from '@/components/Badge';
+import { BusinessChecklist } from '@/components/BusinessChecklist';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
@@ -75,11 +77,15 @@ const ORDER_LABEL: Record<OrderStatus, string> = {
   NO_SHOW: 'no-show',
 };
 
+const ATTENTION_PREVIEW = 5;
+const ORDERS_PREVIEW = 4;
+
 /** Home dashboard — a command center across all of the provider's businesses. */
 export default function DashboardPage() {
   const {
     fullName,
     isLoading,
+    businesses,
     hasBusinesses,
     hasService,
     hasStore,
@@ -93,11 +99,17 @@ export default function DashboardPage() {
     currency,
     lowStock,
     goToBusiness,
+    goToBusinessTab,
+    goToBusinessEdit,
     goToBusinessOrders,
     goToBusinessProducts,
     addBusiness,
-    viewBusinesses,
   } = useDashboard();
+
+  const [showAllAttention, setShowAllAttention] = useState(false);
+  const [showAllOrders, setShowAllOrders] = useState(false);
+  const visibleOrders = showAllOrders ? openOrders : openOrders.slice(0, ORDERS_PREVIEW);
+  const visibleAttention = showAllAttention ? attention : attention.slice(0, ATTENTION_PREVIEW);
 
   const firstName = fullName.trim().split(/\s+/)[0] || 'there';
 
@@ -166,121 +178,156 @@ export default function DashboardPage() {
             />
           </div>
 
-          {hasService && (
-            <div className={styles.columns}>
-              <Card
-                title="Needs your attention"
-                subtitle="Bookings to confirm or payments to collect."
-                action={
-                  <button type="button" className={styles.viewAll} onClick={viewBusinesses}>
-                    All businesses
-                    <ChevronRight size={15} aria-hidden="true" />
-                  </button>
-                }
-              >
-                {attention.length === 0 ? (
-                  <p className={styles.empty}>You're all caught up. Nothing needs action.</p>
-                ) : (
-                  <ul className={styles.list}>
-                    {attention.slice(0, 6).map((item) => (
-                      <AttentionRow
-                        key={item.booking.id}
-                        item={item}
-                        currency={currency}
-                        onOpen={() => goToBusiness(item.booking.provider.id)}
-                      />
-                    ))}
-                  </ul>
-                )}
-              </Card>
+          {/* One card for every business with profile steps pending (none once complete). */}
+          <BusinessChecklist
+            businesses={businesses}
+            onGoTo={goToBusinessTab}
+            onEdit={goToBusinessEdit}
+          />
 
-              <Card title="Today's schedule" subtitle="Your appointments for today, in order.">
-                {todays.length === 0 ? (
-                  <p className={styles.empty}>No bookings today. Enjoy the breather.</p>
-                ) : (
-                  <ul className={styles.list}>
-                    {todays.map((b) => (
-                      <li key={b.id}>
+          {/* Two columns: services on the left (attention, schedule), stores on the right (orders, stock). */}
+          <div className={styles.columns}>
+            {hasService && (
+              <div className={styles.col}>
+                {hasService && (
+                  <Card
+                    title="Needs your attention"
+                    subtitle="Bookings to confirm or payments to collect."
+                    action={
+                      attention.length > ATTENTION_PREVIEW ? (
                         <button
                           type="button"
-                          className={styles.row}
-                          onClick={() => goToBusiness(b.provider.id)}
+                          className={styles.viewAll}
+                          onClick={() => setShowAllAttention((v) => !v)}
+                          aria-expanded={showAllAttention}
                         >
-                          <span className={styles.time}>
-                            {timeFmt.format(new Date(b.startTime))}
-                          </span>
-                          <span className={styles.rowMain}>
-                            <span className={styles.rowTitle}>{b.user.fullName}</span>
-                            <span className={styles.rowSub}>
-                              {b.service.name} · {b.provider.businessName}
-                            </span>
-                          </span>
-                          <Badge tone={STATUS_TONE[b.status]}>{b.status.toLowerCase()}</Badge>
+                          {showAllAttention ? 'Show less' : `View all (${attention.length})`}
+                          <ChevronRight
+                            size={15}
+                            aria-hidden="true"
+                            className={showAllAttention ? styles.chevronUp : undefined}
+                          />
                         </button>
-                      </li>
-                    ))}
-                  </ul>
+                      ) : undefined
+                    }
+                  >
+                    {attention.length === 0 ? (
+                      <p className={styles.empty}>You're all caught up. Nothing needs action.</p>
+                    ) : (
+                      <ul className={styles.list}>
+                        {visibleAttention.map((item) => (
+                          <AttentionRow
+                            key={item.booking.id}
+                            item={item}
+                            currency={currency}
+                            onOpen={() => goToBusiness(item.booking.provider.id)}
+                          />
+                        ))}
+                      </ul>
+                    )}
+                  </Card>
                 )}
-              </Card>
-            </div>
-          )}
-
-          {hasStore && (
-            <Card
-              title="Orders to fulfil"
-              subtitle="Store orders in progress — confirm, mark ready, then hand over."
-              action={
-                <button type="button" className={styles.viewAll} onClick={viewBusinesses}>
-                  All businesses
-                  <ChevronRight size={15} aria-hidden="true" />
-                </button>
-              }
-            >
-              {openOrders.length === 0 ? (
-                <p className={styles.empty}>No open orders. You're all caught up.</p>
-              ) : (
-                <ul className={styles.list}>
-                  {openOrders.slice(0, 6).map((o) => (
-                    <OrderRow
-                      key={o.id}
-                      order={o}
-                      currency={currency}
-                      onOpen={() => goToBusinessOrders(o.provider.id)}
-                    />
-                  ))}
-                </ul>
-              )}
-            </Card>
-          )}
-
-          {hasStore && lowStock.length > 0 && (
-            <Card
-              title="Low stock"
-              subtitle="Products running low or out of stock — restock to keep selling."
-            >
-              <ul className={styles.list}>
-                {lowStock.slice(0, 6).map(({ product, businessId, businessName, level }) => (
-                  <li key={product.id}>
-                    <button
-                      type="button"
-                      className={styles.row}
-                      onClick={() => goToBusinessProducts(businessId)}
-                    >
-                      <span className={styles.rowMain}>
-                        <span className={styles.rowTitle}>{product.name}</span>
-                        <span className={styles.rowSub}>
-                          {businessName} · {stockLabel(product.stockQty, product.measure)}
-                        </span>
-                      </span>
-                      <Badge tone={level === 'out' ? 'error' : 'warning'}>
-                        {level === 'out' ? 'Out of stock' : 'Low'}
-                      </Badge>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          )}
+                {todays.length > 0 && (
+                  <Card title="Today's schedule" subtitle="Your appointments for today, in order.">
+                    {
+                      <ul className={styles.list}>
+                        {todays.map((b) => (
+                          <li key={b.id}>
+                            <button
+                              type="button"
+                              className={styles.row}
+                              onClick={() => goToBusiness(b.provider.id)}
+                            >
+                              <span className={styles.time}>
+                                {timeFmt.format(new Date(b.startTime))}
+                              </span>
+                              <span className={styles.rowMain}>
+                                <span className={styles.rowTitle}>{b.user.fullName}</span>
+                                <span className={styles.rowSub}>
+                                  {b.service.name} · {b.provider.businessName}
+                                </span>
+                              </span>
+                              <Badge tone={STATUS_TONE[b.status]}>{b.status.toLowerCase()}</Badge>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    }
+                  </Card>
+                )}
+              </div>
+            )}
+            {hasStore && (
+              <div className={styles.col}>
+                {hasStore && (
+                  <Card
+                    title="Orders to fulfil"
+                    subtitle="Store orders in progress — confirm, mark ready, then hand over."
+                    action={
+                      openOrders.length > ORDERS_PREVIEW ? (
+                        <button
+                          type="button"
+                          className={styles.viewAll}
+                          onClick={() => setShowAllOrders((v) => !v)}
+                          aria-expanded={showAllOrders}
+                        >
+                          {showAllOrders ? 'Show less' : `View all (${openOrders.length})`}
+                          <ChevronRight
+                            size={15}
+                            aria-hidden="true"
+                            className={showAllOrders ? styles.chevronUp : undefined}
+                          />
+                        </button>
+                      ) : undefined
+                    }
+                  >
+                    {openOrders.length === 0 ? (
+                      <p className={styles.empty}>No open orders. You're all caught up.</p>
+                    ) : (
+                      <ul className={styles.list}>
+                        {visibleOrders.map((o) => (
+                          <OrderRow
+                            key={o.id}
+                            order={o}
+                            currency={currency}
+                            onOpen={() => goToBusinessOrders(o.provider.id)}
+                          />
+                        ))}
+                      </ul>
+                    )}
+                  </Card>
+                )}
+                {hasStore && lowStock.length > 0 && (
+                  <Card
+                    title="Low stock"
+                    subtitle="Products running low or out of stock — restock to keep selling."
+                  >
+                    <ul className={styles.list}>
+                      {lowStock.slice(0, 6).map(({ product, businessId, businessName, level }) => (
+                        <li key={product.id}>
+                          <button
+                            type="button"
+                            className={styles.row}
+                            onClick={() => goToBusinessProducts(businessId)}
+                          >
+                            <span className={styles.rowMain}>
+                              <span className={styles.rowTitle}>{product.name}</span>
+                              <span className={styles.rowSub}>
+                                {businessName} · {stockLabel(product.stockQty, product.measure)}
+                              </span>
+                            </span>
+                            <Badge tone={level === 'out' ? 'error' : 'warning'}>
+                              {level === 'out' ? 'Out of stock' : 'Low'}
+                            </Badge>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </Card>
+                )}
+              </div>
+            )}
+          </div>
         </>
       )}
     </AppShell>
@@ -334,15 +381,15 @@ function AttentionRow({
   return (
     <li>
       <button type="button" className={styles.row} onClick={onOpen}>
-        <span className={styles.badges}>
-          {confirm && <Badge tone="warning">Confirm</Badge>}
-          {collect && <Badge tone="success">Collect {money(due, currency)}</Badge>}
-        </span>
         <span className={styles.rowMain}>
           <span className={styles.rowTitle}>{booking.user.fullName}</span>
           <span className={styles.rowSub}>
             {booking.service.name} · {booking.provider.businessName}
           </span>
+        </span>
+        <span className={styles.badgesInline}>
+          {confirm && <Badge tone="warning">Confirm</Badge>}
+          {collect && <Badge tone="success">Collect {money(due, currency)}</Badge>}
         </span>
         <ChevronRight size={16} aria-hidden="true" className={styles.chevron} />
       </button>

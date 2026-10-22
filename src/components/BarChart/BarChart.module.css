@@ -1,26 +1,70 @@
 .chart {
   display: flex;
-  align-items: flex-end;
-  justify-content: center;
   gap: 10px;
   width: 100%;
-  /* Headroom so the two-line hover tooltip isn't clipped at the top. */
-  padding-top: 56px;
-  overflow-x: auto;
-  scrollbar-width: none;
+  /* Headroom for the hover tooltip and the top axis label. */
+  padding-top: 40px;
+  box-sizing: border-box;
 }
-.chart::-webkit-scrollbar {
-  display: none;
+
+/* ── y-axis ──────────────────────────────────────────────────────────────── */
+.axis {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  justify-content: space-between;
+  /* Same bottom gutter as the x-axis labels so ticks line up with gridlines. */
+  padding-bottom: 26px;
+  text-align: right;
+}
+.tick {
+  /* Centre each label on its gridline. */
+  height: 0;
+  line-height: 0;
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+/* ── plot area ───────────────────────────────────────────────────────────── */
+.plot {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.grid {
+  position: absolute;
+  inset: 0 0 26px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.gridLine {
+  height: 0;
+  border-top: 1px dashed var(--color-border);
+}
+.gridLine:last-child {
+  border-top: 1px solid var(--color-border);
+}
+
+.cols {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-around;
+  gap: 6px;
+  height: 100%;
 }
 
 .col {
   display: flex;
+  flex: 1 1 0;
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  /* Fixed, chunky pillars kept close together regardless of count. */
-  flex: 0 0 auto;
-  width: 40px;
+  min-width: 0;
+  max-width: 56px;
   height: 100%;
 }
 
@@ -34,8 +78,9 @@
 }
 
 .bar {
-  width: 100%;
-  border-radius: var(--radius-sm) var(--radius-sm) 2px 2px;
+  width: 70%;
+  max-width: 34px;
+  border-radius: 6px 6px 2px 2px;
   background: linear-gradient(180deg, var(--color-primary-hover), var(--color-primary));
   transform-origin: bottom;
   animation: grow var(--dur-slow) var(--ease-out) both;
@@ -46,6 +91,17 @@
 }
 .barActive {
   background: linear-gradient(180deg, var(--color-accent), var(--color-accent-2));
+}
+
+.label {
+  height: 18px;
+  max-width: 100%;
+  font-size: var(--font-size-xs);
+  line-height: 18px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Hover tooltip: period label + earning. */
@@ -98,30 +154,12 @@
   font-variant-numeric: tabular-nums;
 }
 
-.label {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-
 @keyframes grow {
   from {
     transform: scaleY(0);
   }
   to {
     transform: scaleY(1);
-  }
-}
-
-@media (max-width: 560px) {
-  .col {
-    width: 32px;
-  }
-  .chart {
-    gap: 8px;
   }
 }
 

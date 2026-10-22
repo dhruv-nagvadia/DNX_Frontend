@@ -11,9 +11,20 @@
   --color-primary-ring: rgba(30, 58, 138, 0.2);
 
   --color-white: #ffffff;
-  --color-background: #f4f7fb;
+  /* The page canvas behind every card — kept as a faint tint rather than
+     pure white so white cards/headers still read as raised off the page. */
+  --color-background: #f8fafc;
   --color-surface: #ffffff;
   --color-surface-2: #f8fafc;
+  /* A card/section's own header strip. White (surface), the page's own
+     background, and --color-surface-2 are all within ~20 points of each
+     other (255 → 248 → 233) — there's no room to find a 4th shade that reads
+     as distinct from all three by sitting "between" them. So this instead
+     steps decisively past --color-background into the same family as
+     --color-border, landing close to it on purpose: a header + the divider
+     below it in matching tones reads as one deliberately "boxed" strip,
+     clearly darker than both the white card body and the page behind it. */
+  --color-surface-header: #e4e9f2;
 
   /* Text (slate) */
   --color-text-primary: #0f172a;

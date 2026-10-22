@@ -169,6 +169,8 @@ export function useDashboard() {
     goToBusinessOrders: (id: string) => navigate(`/businesses/${id}`, { state: { tab: 'bookings' } }),
     goToBusinessProducts: (id: string) =>
       navigate(`/businesses/${id}`, { state: { tab: 'products' } }),
+    goToBusinessTab: (id: string, tab: string) => navigate(`/businesses/${id}`, { state: { tab } }),
+    goToBusinessEdit: (id: string) => navigate(`/businesses/${id}/edit`),
     addBusiness: () => navigate('/businesses/new'),
     viewBusinesses: () => navigate('/businesses'),
   };

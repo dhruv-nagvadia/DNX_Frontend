@@ -19,6 +19,9 @@ export interface BusinessForm {
   partialPayEnabled: boolean;
 }
 
+/** The screens of the add/edit flow, in order (photos only when creating). */
+export type BusinessStepId = 'type' | 'details' | 'payments' | 'photos' | 'location';
+
 export type BusinessFormErrors = Partial<Record<keyof BusinessForm, string>>;
 
 export interface PickedImage {

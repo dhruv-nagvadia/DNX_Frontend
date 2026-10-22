@@ -33,6 +33,69 @@
   gap: var(--space-lg);
 }
 
+.stepper {
+  margin: var(--space-sm) 0 var(--space-lg);
+  padding: var(--space-md) var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+/* The mini-sections of the current step, one under another. */
+.stepBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.example {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-soft);
+  font-size: var(--font-size-xs);
+  line-height: 1.5;
+  color: var(--color-text-primary);
+}
+
+.notes {
+  margin: 0;
+  padding-left: 18px;
+  font-size: var(--font-size-xs);
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+}
+
+.note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.pinned {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(22, 163, 74, 0.1);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-success);
+}
+
+.actionRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
 .fields {
   display: flex;
   flex-direction: column;
@@ -69,9 +132,6 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-md);
-  margin-bottom: var(--space-lg);
-  padding-bottom: var(--space-lg);
-  border-bottom: 1px solid var(--color-border);
 }
 
 .typeCard {
@@ -458,7 +518,18 @@
     display: none;
   }
 
-  .actionBar > button {
+  .stepper {
+    padding: var(--space-md);
+  }
+
+  .actionBar {
+    flex-wrap: wrap;
+  }
+  .actionBar > button,
+  .actionRight {
+    flex: 1 1 auto;
+  }
+  .actionRight > button {
     flex: 1 1 auto;
   }
 }

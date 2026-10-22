@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 import {
   useCreateProductMutation,
@@ -44,6 +44,10 @@ export function useProductsManager(
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState<ProductForm>(EMPTY);
   const [error, setError] = useState<string | null>(null);
+  // A message about a problem goes away as soon as the form is edited, not only on the next save.
+  useEffect(() => {
+    setError(null);
+  }, [form]);
 
   const startAdd = useCallback(() => {
     setForm({

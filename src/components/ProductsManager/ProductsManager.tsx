@@ -1,22 +1,28 @@
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   AlertTriangle,
+  Banknote,
   Boxes,
   ChevronDown,
+  FileText,
+  FolderTree,
   ImagePlus,
   Layers,
   Pencil,
+  Percent,
   Plus,
   Ruler,
   Star,
+  Tag,
   Trash2,
 } from 'lucide-react';
 
-import { AlertBanner } from '@/components/AlertBanner';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Combobox } from '@/components/Combobox';
-import { ToggleSwitch } from '@/components/ToggleSwitch';
+import { FormDialog } from '@/components/FormDialog';
+import { FormSection } from '@/components/FormSection';
+import { OptionSection } from '@/components/OptionSection';
 import { Measure, Product } from '@/redux/api/provider/types';
 import { useGetProductTypesQuery } from '@/redux/api/productType/productTypeApi';
 import { PRODUCT_SUGGESTIONS } from '@/data/productSuggestions';
@@ -79,285 +85,22 @@ export function ProductsManager({
   const suggestions = (subcategorySlug && PRODUCT_SUGGESTIONS[subcategorySlug]) || [];
   const comboItems = suggestions.map((name) => ({ label: name }));
 
-  const renderForm = (isNew: boolean) => (
-    <form className={styles.form} onSubmit={submit}>
-      <p className={styles.formTitle}>{isNew ? 'New product' : 'Edit product'}</p>
+  const isNew = editing === 'new';
 
-      <div className={styles.field}>
-        <label className={styles.label} htmlFor="name">
-          Product name
-        </label>
-        <Combobox
-          id="name"
-          name="name"
-          placeholder="e.g. Basmati Rice — or search common products"
-          value={form.name}
-          items={isNew ? comboItems : []}
-          onChange={onChange}
-          onSelect={(item) => applySuggestion(item.label)}
-        />
-      </div>
+  // The form is split into tabs; it always opens on the first one.
+  const [tab, setTab] = useState('basics');
+  useEffect(() => {
+    if (editing !== null) setTab('basics');
+  }, [editing]);
+  const tabs = [
+    { id: 'basics', label: 'Basics' },
+    { id: 'pricing', label: 'Price & stock' },
+    { id: 'payments', label: 'Payments' },
+    { id: 'photo', label: 'Photo' },
+  ];
 
-      <div className={styles.field}>
-        <label className={styles.label} htmlFor="measure">
-          Measured by
-        </label>
-        <div className={ui.selectWrap}>
-          <select
-            id="measure"
-            className={ui.select}
-            value={form.measure}
-            onChange={(e) => selectMeasure(e.target.value as Measure)}
-          >
-            {MEASURES.map((m) => (
-              <option key={m.value} value={m.value}>
-                {m.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown size={16} className={ui.chev} aria-hidden="true" />
-        </div>
-      </div>
-
-      <div className={styles.field}>
-        <label className={styles.label} htmlFor="productTypeId">
-          Product type <span className={styles.optional}>(lets customers find it by "shop by product")</span>
-        </label>
-        <div className={ui.selectWrap}>
-          <select
-            id="productTypeId"
-            name="productTypeId"
-            className={ui.select}
-            value={form.productTypeId}
-            onChange={onChange}
-          >
-            <option value="">Not tagged</option>
-            {productTypes.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
-              </option>
-            ))}
-          </select>
-          <ChevronDown size={16} className={ui.chev} aria-hidden="true" />
-        </div>
-      </div>
-
-      <div className={styles.field}>
-        <ToggleSwitch
-          name="partialPayEnabled"
-          label="Accept Partial Pay for this product"
-          checked={form.partialPayEnabled}
-          onChange={togglePartialPayEnabled}
-        />
-      </div>
-
-      <div className={styles.field}>
-        <ToggleSwitch
-          name="codEnabled"
-          label="Accept Cash on Delivery for this product"
-          checked={form.codEnabled}
-          onChange={toggleCodEnabled}
-        />
-      </div>
-
-      <div className={ui.grid2}>
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="price">
-            Price (₹)
-          </label>
-          <div className={ui.affix}>
-            <span className={ui.pre}>₹</span>
-            <input
-              id="price"
-              name="price"
-              type="number"
-              min="0"
-              step="any"
-              inputMode="decimal"
-              placeholder="200"
-              value={form.price}
-              onChange={onChange}
-            />
-          </div>
-        </div>
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="priceQty">
-            For this quantity
-          </label>
-          <div className={ui.affix}>
-            <input
-              id="priceQty"
-              name="priceQty"
-              type="number"
-              min="0"
-              step="any"
-              inputMode="decimal"
-              placeholder="100"
-              value={form.priceQty}
-              onChange={onChange}
-            />
-            <select className={ui.unitSuffix} name="priceUnit" value={form.priceUnit} onChange={onChange}>
-              {unitOptions}
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div className={styles.field}>
-        <ToggleSwitch
-          name="unlimitedStock"
-          label="Always in stock — made to order, no fixed quantity (e.g. a restaurant dish)"
-          checked={form.unlimitedStock}
-          onChange={toggleUnlimitedStock}
-        />
-      </div>
-
-      <div className={ui.grid2}>
-        {!form.unlimitedStock && (
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="stock">
-              Available stock
-            </label>
-            <div className={ui.affix}>
-              <input
-                id="stock"
-                name="stock"
-                type="number"
-                min="0"
-                step="any"
-                inputMode="decimal"
-                placeholder="15"
-                value={form.stock}
-                onChange={onChange}
-              />
-              <select className={ui.unitSuffix} name="stockUnit" value={form.stockUnit} onChange={onChange}>
-                {unitOptions}
-              </select>
-            </div>
-          </div>
-        )}
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="step">
-            Minimum order (step)
-          </label>
-          <div className={ui.affix}>
-            <input
-              id="step"
-              name="step"
-              type="number"
-              min="0"
-              step="any"
-              inputMode="decimal"
-              placeholder="100"
-              value={form.step}
-              onChange={onChange}
-            />
-            <select className={ui.unitSuffix} name="stepUnit" value={form.stepUnit} onChange={onChange}>
-              {unitOptions}
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <p className={ui.hint}>
-        <Ruler size={13} aria-hidden="true" /> Sold at{' '}
-        <strong>
-          ₹{form.price || '—'} for {form.priceQty || '—'} {form.priceUnit}
-        </strong>
-        , from a minimum of {form.step || '—'} {form.stepUnit} (customers can add in those steps).
-      </p>
-
-      <div className={styles.row2}>
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="section">
-            Section <span className={styles.optional}>(groups it on the storefront)</span>
-          </label>
-          <input
-            id="section"
-            name="section"
-            className={styles.input}
-            list="product-sections"
-            placeholder="e.g. Grains & Rice"
-            value={form.section}
-            onChange={onChange}
-          />
-          <datalist id="product-sections">
-            {SECTION_SUGGESTIONS.map((s) => (
-              <option key={s} value={s} />
-            ))}
-          </datalist>
-        </div>
-        <div className={styles.field}>
-          <label className={styles.label}>
-            Photo <span className={styles.optional}>(optional)</span>
-          </label>
-          {form.imageUrl ? (
-            <div className={ui.imageRow}>
-              <img className={ui.imagePreview} src={form.imageUrl} alt="Product" />
-              <div className={ui.imageActions}>
-                <button
-                  type="button"
-                  className={ui.imageBtn}
-                  disabled={uploadingImage}
-                  onClick={() => fileRef.current?.click()}
-                >
-                  {uploadingImage ? 'Uploading…' : 'Change'}
-                </button>
-                <button type="button" className={`${ui.imageBtn} ${ui.imageBtnDanger}`} onClick={clearImage}>
-                  Remove
-                </button>
-              </div>
-            </div>
-          ) : (
-            <button
-              type="button"
-              className={ui.uploadBtn}
-              disabled={uploadingImage}
-              onClick={() => fileRef.current?.click()}
-            >
-              <ImagePlus size={16} aria-hidden="true" />
-              {uploadingImage ? 'Uploading…' : 'Upload from device'}
-            </button>
-          )}
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            style={{ display: 'none' }}
-            onChange={(e) => {
-              pickImage(e.target.files?.[0]);
-              e.target.value = '';
-            }}
-          />
-        </div>
-      </div>
-
-      <div className={styles.field}>
-        <label className={styles.label} htmlFor="description">
-          Description <span className={styles.optional}>(optional)</span>
-        </label>
-        <textarea
-          id="description"
-          name="description"
-          className={styles.textarea}
-          placeholder="Brand, quality, or any details customers should know."
-          value={form.description}
-          onChange={onChange}
-        />
-      </div>
-
-      {error && <AlertBanner tone="error">{error}</AlertBanner>}
-
-      <div className={styles.formActions}>
-        <Button type="button" variant="secondary" onClick={cancel}>
-          Cancel
-        </Button>
-        <Button type="submit" loading={saving} loadingText="Saving…">
-          {isNew ? 'Add product' : 'Save changes'}
-        </Button>
-      </div>
-    </form>
-  );
+  const codLocked = businessCodEnabled === false;
+  const partialLocked = businessPartialPayEnabled === false;
 
   return (
     <Card
@@ -365,116 +108,478 @@ export function ProductsManager({
       subtitle="What customers can order — price per quantity, stock, and a minimum."
       action={
         editing === null ? (
-          <Button variant="secondary" onClick={startAdd} iconLeft={<Plus size={16} aria-hidden="true" />}>
+          <Button
+            variant="secondary"
+            onClick={startAdd}
+            iconLeft={<Plus size={16} aria-hidden="true" />}
+          >
             Add product
           </Button>
         ) : undefined
       }
     >
-      {editing === 'new' && renderForm(true)}
-
       {products.length === 0 && editing !== 'new' ? (
         <p className={styles.muted}>
           No products yet. Add the items you sell so customers can browse and order them.
         </p>
       ) : (
         <div className={styles.list}>
-          {products.map((p: Product) =>
-            editing === p.id ? (
-              <div key={p.id}>{renderForm(false)}</div>
-            ) : (
-              <div
-                key={p.id}
-                className={`${styles.row} ${p.isActive === false ? styles.rowInactive : ''}`}
-              >
-                <div className={styles.rowMain}>
-                  <div className={`${styles.rowName} ${tagStyles.rowNameRow}`}>
-                    {p.name}
-                    {p.productType && <span className={tagStyles.scopeTag}>{p.productType.name}</span>}
-                  </div>
-                  {p.description && <div className={styles.rowDesc}>{p.description}</div>}
-                  <div className={styles.rowMeta}>
-                    <span className={styles.price}>{priceLabel(p.priceMinor, p.priceQty, p.measure, p.currency)}</span>
-                    {p.section && (
-                      <span className={styles.metaItem}>
-                        <Layers size={14} aria-hidden="true" /> {p.section}
-                      </span>
-                    )}
-                    <span className={styles.metaItem}>
-                      <Boxes size={14} aria-hidden="true" />{' '}
-                      {p.unlimitedStock
-                        ? p.stockQty > 0
-                          ? 'In stock'
-                          : 'Out of stock'
-                        : stockLabel(p.stockQty, p.measure)}
-                    </span>
-                    {p.unlimitedStock
-                      ? p.stockQty <= 0 && (
-                          <span className={`${ui.stockBadge} ${ui.stockOut}`}>
-                            <AlertTriangle size={12} aria-hidden="true" />
-                            Out of stock
-                          </span>
-                        )
-                      : (() => {
-                          const level = stockLevel(p.stockQty, p.stepQty);
-                          if (level === 'ok') return null;
-                          return (
-                            <span
-                              className={`${ui.stockBadge} ${
-                                level === 'out' ? ui.stockOut : ui.stockLow
-                              }`}
-                            >
-                              <AlertTriangle size={12} aria-hidden="true" />
-                              {level === 'out' ? 'Out of stock' : 'Low stock'}
-                            </span>
-                          );
-                        })()}
-                    <span className={styles.metaItem}>
-                      <Ruler size={14} aria-hidden="true" /> min {formatAmount(p.stepQty, p.measure)}
-                    </span>
-                    {(p.ratingCount ?? 0) > 0 && (
-                      <span className={styles.metaItem}>
-                        <Star size={14} aria-hidden="true" /> {(p.ratingAvg ?? 0).toFixed(1)} (
-                        {p.ratingCount})
-                      </span>
-                    )}
-                    <button
-                      type="button"
-                      className={`${styles.statusChip} ${
-                        p.isActive === false ? styles.inactive : styles.active
-                      }`}
-                      onClick={() => toggleActive(p)}
-                      aria-pressed={p.isActive !== false}
-                    >
-                      <span className={styles.statusDot} aria-hidden="true" />
-                      {p.isActive === false ? 'Hidden' : 'Listed'}
-                    </button>
-                  </div>
+          {products.map((p: Product) => (
+            <div
+              key={p.id}
+              className={`${styles.row} ${p.isActive === false ? styles.rowInactive : ''}`}
+            >
+              <div className={styles.rowMain}>
+                <div className={`${styles.rowName} ${tagStyles.rowNameRow}`}>
+                  {p.name}
+                  {p.productType && (
+                    <span className={tagStyles.scopeTag}>{p.productType.name}</span>
+                  )}
                 </div>
-
-                <div className={styles.rowActions}>
+                {p.description && <div className={styles.rowDesc}>{p.description}</div>}
+                <div className={styles.rowMeta}>
+                  <span className={styles.price}>
+                    {priceLabel(p.priceMinor, p.priceQty, p.measure, p.currency)}
+                  </span>
+                  {p.section && (
+                    <span className={styles.metaItem}>
+                      <Layers size={14} aria-hidden="true" /> {p.section}
+                    </span>
+                  )}
+                  <span className={styles.metaItem}>
+                    <Boxes size={14} aria-hidden="true" />{' '}
+                    {p.unlimitedStock
+                      ? p.stockQty > 0
+                        ? 'In stock'
+                        : 'Out of stock'
+                      : stockLabel(p.stockQty, p.measure)}
+                  </span>
+                  {p.unlimitedStock
+                    ? p.stockQty <= 0 && (
+                        <span className={`${ui.stockBadge} ${ui.stockOut}`}>
+                          <AlertTriangle size={12} aria-hidden="true" />
+                          Out of stock
+                        </span>
+                      )
+                    : (() => {
+                        const level = stockLevel(p.stockQty, p.stepQty);
+                        if (level === 'ok') return null;
+                        return (
+                          <span
+                            className={`${ui.stockBadge} ${
+                              level === 'out' ? ui.stockOut : ui.stockLow
+                            }`}
+                          >
+                            <AlertTriangle size={12} aria-hidden="true" />
+                            {level === 'out' ? 'Out of stock' : 'Low stock'}
+                          </span>
+                        );
+                      })()}
+                  <span className={styles.metaItem}>
+                    <Ruler size={14} aria-hidden="true" /> min {formatAmount(p.stepQty, p.measure)}
+                  </span>
+                  {(p.ratingCount ?? 0) > 0 && (
+                    <span className={styles.metaItem}>
+                      <Star size={14} aria-hidden="true" /> {(p.ratingAvg ?? 0).toFixed(1)} (
+                      {p.ratingCount})
+                    </span>
+                  )}
                   <button
                     type="button"
-                    className={styles.iconBtn}
-                    onClick={() => startEdit(p)}
-                    aria-label={`Edit ${p.name}`}
+                    className={`${styles.statusChip} ${
+                      p.isActive === false ? styles.inactive : styles.active
+                    }`}
+                    onClick={() => toggleActive(p)}
+                    aria-pressed={p.isActive !== false}
                   >
-                    <Pencil size={16} aria-hidden="true" />
-                  </button>
-                  <button
-                    type="button"
-                    className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
-                    onClick={() => remove(p.id)}
-                    aria-label={`Delete ${p.name}`}
-                  >
-                    <Trash2 size={16} aria-hidden="true" />
+                    <span className={styles.statusDot} aria-hidden="true" />
+                    {p.isActive === false ? 'Hidden' : 'Listed'}
                   </button>
                 </div>
               </div>
-            ),
-          )}
+
+              <div className={styles.rowActions}>
+                <button
+                  type="button"
+                  className={styles.iconBtn}
+                  onClick={() => startEdit(p)}
+                  aria-label={`Edit ${p.name}`}
+                >
+                  <Pencil size={16} aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
+                  onClick={() => remove(p.id)}
+                  aria-label={`Delete ${p.name}`}
+                >
+                  <Trash2 size={16} aria-hidden="true" />
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
+
+      <FormDialog
+        open={editing !== null}
+        title={isNew ? 'Add a product' : 'Edit product'}
+        subtitle="What customers can order — its price, how it's sold, and how much you have."
+        onClose={cancel}
+        onSubmit={submit}
+        tabs={tabs}
+        activeTab={tab}
+        onTabChange={setTab}
+        error={error}
+        submitLabel={isNew ? 'Add product' : 'Save changes'}
+        submitting={saving}
+      >
+        {tab === 'basics' && (
+          <>
+            <FormSection
+              icon={<FileText size={16} />}
+              title="Product details"
+              description="The name and description customers see."
+            >
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="name">
+                  Product name
+                </label>
+                <Combobox
+                  id="name"
+                  name="name"
+                  placeholder="e.g. Basmati Rice — or search common products"
+                  value={form.name}
+                  items={isNew ? comboItems : []}
+                  onChange={onChange}
+                  onSelect={(item) => applySuggestion(item.label)}
+                />
+              </div>
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="description">
+                  Description <span className={styles.optional}>(optional)</span>
+                </label>
+                <textarea
+                  id="description"
+                  name="description"
+                  className={styles.textarea}
+                  placeholder="Brand, quality, or any details customers should know."
+                  value={form.description}
+                  onChange={onChange}
+                />
+              </div>
+            </FormSection>
+
+            <FormSection
+              icon={<FolderTree size={16} />}
+              title="Where it appears"
+              description="Helps customers find it in your store and in “shop by product”."
+            >
+              <div className={styles.row2}>
+                <div className={styles.field}>
+                  <label className={styles.label} htmlFor="productTypeId">
+                    Product type <span className={styles.optional}>(optional)</span>
+                  </label>
+                  <div className={ui.selectWrap}>
+                    <select
+                      id="productTypeId"
+                      name="productTypeId"
+                      className={ui.select}
+                      value={form.productTypeId}
+                      onChange={onChange}
+                    >
+                      <option value="">Not tagged</option>
+                      {productTypes.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.name}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown size={16} className={ui.chev} aria-hidden="true" />
+                  </div>
+                </div>
+                <div className={styles.field}>
+                  <label className={styles.label} htmlFor="section">
+                    Section <span className={styles.optional}>(optional)</span>
+                  </label>
+                  <input
+                    id="section"
+                    name="section"
+                    className={styles.input}
+                    list="product-sections"
+                    placeholder="e.g. Grains & Rice"
+                    value={form.section}
+                    onChange={onChange}
+                  />
+                  <datalist id="product-sections">
+                    {SECTION_SUGGESTIONS.map((sec) => (
+                      <option key={sec} value={sec} />
+                    ))}
+                  </datalist>
+                </div>
+              </div>
+            </FormSection>
+          </>
+        )}
+
+        {tab === 'pricing' && (
+          <>
+            <FormSection
+              icon={<Tag size={16} />}
+              title="Price"
+              description="How the product is measured, and what a given quantity costs."
+            >
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="measure">
+                  Measured by
+                </label>
+                <div className={ui.selectWrap}>
+                  <select
+                    id="measure"
+                    className={ui.select}
+                    value={form.measure}
+                    onChange={(e) => selectMeasure(e.target.value as Measure)}
+                  >
+                    {MEASURES.map((m) => (
+                      <option key={m.value} value={m.value}>
+                        {m.label}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown size={16} className={ui.chev} aria-hidden="true" />
+                </div>
+              </div>
+              <div className={ui.grid2}>
+                <div className={styles.field}>
+                  <label className={styles.label} htmlFor="price">
+                    Price (₹)
+                  </label>
+                  <div className={ui.affix}>
+                    <span className={ui.pre}>₹</span>
+                    <input
+                      id="price"
+                      name="price"
+                      type="number"
+                      min="0"
+                      step="any"
+                      inputMode="decimal"
+                      placeholder="200"
+                      value={form.price}
+                      onChange={onChange}
+                    />
+                  </div>
+                </div>
+                <div className={styles.field}>
+                  <label className={styles.label} htmlFor="priceQty">
+                    For this quantity
+                  </label>
+                  <div className={ui.affix}>
+                    <input
+                      id="priceQty"
+                      name="priceQty"
+                      type="number"
+                      min="0"
+                      step="any"
+                      inputMode="decimal"
+                      placeholder="100"
+                      value={form.priceQty}
+                      onChange={onChange}
+                    />
+                    <select
+                      className={ui.unitSuffix}
+                      name="priceUnit"
+                      value={form.priceUnit}
+                      onChange={onChange}
+                    >
+                      {unitOptions}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </FormSection>
+
+            <FormSection
+              icon={<Ruler size={16} />}
+              title="Minimum order"
+              description="The smallest amount a customer can order — they add more in the same steps."
+            >
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="step">
+                  Minimum order (step)
+                </label>
+                <div className={ui.affix}>
+                  <input
+                    id="step"
+                    name="step"
+                    type="number"
+                    min="0"
+                    step="any"
+                    inputMode="decimal"
+                    placeholder="100"
+                    value={form.step}
+                    onChange={onChange}
+                  />
+                  <select
+                    className={ui.unitSuffix}
+                    name="stepUnit"
+                    value={form.stepUnit}
+                    onChange={onChange}
+                  >
+                    {unitOptions}
+                  </select>
+                </div>
+              </div>
+              <p className={ui.hint}>
+                <Ruler size={13} aria-hidden="true" /> Sold at{' '}
+                <strong>
+                  ₹{form.price || '—'} for {form.priceQty || '—'} {form.priceUnit}
+                </strong>
+                , from a minimum of {form.step || '—'} {form.stepUnit} (customers can add in those
+                steps).
+              </p>
+            </FormSection>
+
+            <OptionSection
+              name="trackStock"
+              icon={<Boxes size={16} />}
+              label="Track stock quantity"
+              description="Turn this off for made-to-order items that are always available, like a restaurant dish."
+              checked={!form.unlimitedStock}
+              onChange={(track) => {
+                if (track === form.unlimitedStock) toggleUnlimitedStock();
+              }}
+              settingsTitle="Available stock"
+            >
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="stock">
+                  How much do you have?
+                </label>
+                <div className={ui.affix}>
+                  <input
+                    id="stock"
+                    name="stock"
+                    type="number"
+                    min="0"
+                    step="any"
+                    inputMode="decimal"
+                    placeholder="15"
+                    value={form.stock}
+                    onChange={onChange}
+                  />
+                  <select
+                    className={ui.unitSuffix}
+                    name="stockUnit"
+                    value={form.stockUnit}
+                    onChange={onChange}
+                  >
+                    {unitOptions}
+                  </select>
+                </div>
+              </div>
+              <p className={ui.hint}>
+                Stock goes down as customers order. You&apos;ll see a low-stock warning when it runs
+                low.
+              </p>
+            </OptionSection>
+          </>
+        )}
+
+        {tab === 'payments' && (
+          <>
+            <OptionSection
+              name="partialPayEnabled"
+              icon={<Percent size={16} />}
+              label="Accept partial payment for this product"
+              description={
+                partialLocked
+                  ? 'Partial payment is turned off for the whole business — turn it on under Edit business → Payments.'
+                  : 'Customers can pay a deposit now to confirm the order, and the rest at pickup.'
+              }
+              checked={form.partialPayEnabled && !partialLocked}
+              disabled={partialLocked}
+              onChange={togglePartialPayEnabled}
+              settingsTitle="Deposit"
+            >
+              <p className={ui.hint}>
+                The deposit percentage is set once for your whole business, under Edit business →
+                Payments.
+              </p>
+            </OptionSection>
+
+            <OptionSection
+              name="codEnabled"
+              icon={<Banknote size={16} />}
+              label="Accept Cash on Delivery for this product"
+              description={
+                codLocked
+                  ? 'Cash on Delivery is turned off for the whole business — turn it on under Edit business → Payments.'
+                  : 'Customers can order this and pay in cash when they pick it up.'
+              }
+              checked={form.codEnabled && !codLocked}
+              disabled={codLocked}
+              onChange={toggleCodEnabled}
+              settingsTitle="Cash on delivery"
+            >
+              <p className={ui.hint}>
+                You collect the cash at pickup. DNX&apos;s commission on cash sales is taken off
+                your next payout.
+              </p>
+            </OptionSection>
+          </>
+        )}
+
+        {tab === 'photo' && (
+          <FormSection
+            icon={<ImagePlus size={16} />}
+            title="Product photo"
+            description="A clear photo makes a product much more likely to be ordered."
+          >
+            {form.imageUrl ? (
+              <div className={ui.imageRow}>
+                <img className={ui.imagePreview} src={form.imageUrl} alt="Product" />
+                <div className={ui.imageActions}>
+                  <button
+                    type="button"
+                    className={ui.imageBtn}
+                    disabled={uploadingImage}
+                    onClick={() => fileRef.current?.click()}
+                  >
+                    {uploadingImage ? 'Uploading…' : 'Change'}
+                  </button>
+                  <button
+                    type="button"
+                    className={`${ui.imageBtn} ${ui.imageBtnDanger}`}
+                    onClick={clearImage}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className={ui.uploadBtn}
+                disabled={uploadingImage}
+                onClick={() => fileRef.current?.click()}
+              >
+                <ImagePlus size={16} aria-hidden="true" />
+                {uploadingImage ? 'Uploading…' : 'Upload from device'}
+              </button>
+            )}
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              style={{ display: 'none' }}
+              onChange={(e) => {
+                pickImage(e.target.files?.[0]);
+                e.target.value = '';
+              }}
+            />
+            <p className={ui.hint}>JPG, PNG or WEBP. It's optional — you can add one later.</p>
+          </FormSection>
+        )}
+      </FormDialog>
     </Card>
   );
 }

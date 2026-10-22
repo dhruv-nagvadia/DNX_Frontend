@@ -33,6 +33,20 @@ function money(major: number, currency: string): string {
   }
 }
 
+/** Short axis label, e.g. ₹1.2K. */
+function compact(major: number, currency: string): string {
+  try {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency,
+      notation: 'compact',
+      maximumFractionDigits: 1,
+    }).format(major);
+  } catch {
+    return `${Math.round(major)}`;
+  }
+}
+
 /** Earnings summary + chart for one business, with a period toggle. */
 export function EarningsPanel({
   providerId,
@@ -102,9 +116,10 @@ export function EarningsPanel({
             <div className={styles.chartWrap}>
               <BarChart
                 data={series.points}
-                height={200}
+                height={260}
                 highlightLast
                 formatValue={(v) => money(v, series.currency)}
+                formatAxis={(v) => compact(v, series.currency)}
               />
             </div>
           )}

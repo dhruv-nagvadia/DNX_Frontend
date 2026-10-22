@@ -1,77 +1,87 @@
-import { Check, ChevronRight, PartyPopper } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 import { Card } from '@/components/Card';
 import { Provider } from '@/redux/api/provider/types';
 
+import { stepsFor } from './profile';
 import styles from './BusinessChecklist.module.css';
 
 interface BusinessChecklistProps {
-  business: Provider;
-  /** Jump to a section tab (e.g. 'services', 'photos', 'hours'). */
-  onGoTo: (tab: string) => void;
-  /** Open the edit form (for description / email). */
-  onEdit: () => void;
+  businesses: Provider[];
+  /** Jump to a section tab of one business (e.g. 'services', 'photos', 'calendar'). */
+  onGoTo: (businessId: string, tab: string) => void;
+  /** Open one business's edit form (for description / email). */
+  onEdit: (businessId: string) => void;
 }
 
-/** A completeness checklist that nudges the provider to finish their profile. */
-export function BusinessChecklist({ business, onGoTo, onEdit }: BusinessChecklistProps) {
-  const items = [
-    { label: 'Add a description', done: !!business.description, action: onEdit },
-    {
-      label: 'List at least one service',
-      done: business.services.length > 0,
-      action: () => onGoTo('services'),
-    },
-    { label: 'Upload photos', done: business.images.length > 0, action: () => onGoTo('photos') },
-    {
-      label: 'Set your business hours',
-      done: business.businessHours.some((h) => h.isOpen),
-      action: () => onGoTo('hours'),
-    },
-    { label: 'Add a contact email', done: !!business.email, action: onEdit },
-  ];
+const RING_RADIUS = 21;
+const RING_LENGTH = 2 * Math.PI * RING_RADIUS;
 
-  const done = items.filter((i) => i.done).length;
-  const total = items.length;
-  const pct = Math.round((done / total) * 100);
-  const complete = done === total;
+/** Round progress indicator with the percentage in the middle. */
+function ProgressRing({ pct, label }: { pct: number; label: string }) {
+  return (
+    <div className={styles.ring} role="img" aria-label={label}>
+      <svg viewBox="0 0 52 52" width="52" height="52" aria-hidden="true">
+        <circle className={styles.ringTrack} cx="26" cy="26" r={RING_RADIUS} />
+        <circle
+          className={styles.ringFill}
+          cx="26"
+          cy="26"
+          r={RING_RADIUS}
+          strokeDasharray={RING_LENGTH}
+          strokeDashoffset={RING_LENGTH * (1 - pct / 100)}
+        />
+      </svg>
+      <span className={styles.ringText}>{pct}%</span>
+    </div>
+  );
+}
+
+/**
+ * Nudges the provider to finish their profile — one card per business that
+ * still has steps pending. Complete businesses are left out, and nothing
+ * renders at all once every business is done.
+ */
+export function BusinessChecklist({ businesses, onGoTo, onEdit }: BusinessChecklistProps) {
+  const groups = businesses
+    .map((business) => {
+      const steps = stepsFor(business, onGoTo, onEdit);
+      const pending = steps.filter((st) => !st.done);
+      return {
+        business,
+        pending,
+        pct: Math.round(((steps.length - pending.length) / steps.length) * 100),
+      };
+    })
+    .filter((g) => g.pending.length > 0);
+
+  if (groups.length === 0) return null;
 
   return (
-    <Card title="Complete your profile" subtitle={`${done} of ${total} done`}>
-      <div className={styles.progressRow}>
-        <span className={styles.track}>
-          <span className={styles.fill} style={{ width: `${pct}%` }} />
-        </span>
-        <span className={styles.pct}>{pct}%</span>
-      </div>
-
-      {complete ? (
-        <div className={styles.doneNote}>
-          <PartyPopper size={18} aria-hidden="true" />
-          All set — your profile looks great to customers.
-        </div>
-      ) : (
-        <ul className={styles.list}>
-          {items.map((item) => (
-            <li key={item.label}>
-              {item.done ? (
-                <div className={`${styles.item} ${styles.itemDone}`}>
-                  <span className={`${styles.mark} ${styles.markDone}`}>
-                    <Check size={13} aria-hidden="true" />
-                  </span>
-                  <span className={styles.label}>{item.label}</span>
-                </div>
-              ) : (
-                <button type="button" className={styles.item} onClick={item.action}>
-                  <span className={styles.mark} aria-hidden="true" />
-                  <span className={styles.label}>{item.label}</span>
-                  <ChevronRight size={15} aria-hidden="true" className={styles.chevron} />
+    <div className={styles.grid}>
+      {groups.map(({ business, pending, pct }) => (
+        <Card
+          key={business.id}
+          title={business.businessName}
+          subtitle={`${business.type === 'STORE' ? 'Store' : 'Service'} · ${pending.length} ${
+            pending.length === 1 ? 'step' : 'steps'
+          } left to finish`}
+          action={<ProgressRing pct={pct} label={`${business.businessName} is ${pct}% complete`} />}
+          className={styles.card}
+        >
+          <ul className={styles.list}>
+            {pending.map((step) => (
+              <li key={step.label}>
+                <button type="button" className={styles.item} onClick={step.go}>
+                  <span className={styles.dot} aria-hidden="true" />
+                  <span className={styles.label}>{step.label}</span>
+                  <ArrowRight size={14} aria-hidden="true" className={styles.arrow} />
                 </button>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
-    </Card>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ))}
+    </div>
   );
 }

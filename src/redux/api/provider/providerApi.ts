@@ -222,7 +222,7 @@ export const providerApi = createApi({
         data,
       }),
       transformResponse: (res: ApiEnvelope<Service>) => res.data,
-      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }],
+      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }, 'MyBusinesses'],
     }),
 
     updateService: builder.mutation<
@@ -235,7 +235,7 @@ export const providerApi = createApi({
         data,
       }),
       transformResponse: (res: ApiEnvelope<Service>) => res.data,
-      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }],
+      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }, 'MyBusinesses'],
     }),
 
     deleteService: builder.mutation<null, { providerId: string; serviceId: string }>({
@@ -243,7 +243,7 @@ export const providerApi = createApi({
         endpoint: endpoints.providerService(providerId, serviceId),
         method: 'delete',
       }),
-      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }],
+      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }, 'MyBusinesses'],
     }),
 
     // ── Products (STORE catalog) ──────────────────────────────────────────────
@@ -254,7 +254,7 @@ export const providerApi = createApi({
         data,
       }),
       transformResponse: (res: ApiEnvelope<Product>) => res.data,
-      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }],
+      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }, 'MyBusinesses'],
     }),
 
     updateProduct: builder.mutation<
@@ -267,7 +267,7 @@ export const providerApi = createApi({
         data,
       }),
       transformResponse: (res: ApiEnvelope<Product>) => res.data,
-      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }],
+      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }, 'MyBusinesses'],
     }),
 
     deleteProduct: builder.mutation<null, { providerId: string; productId: string }>({
@@ -275,7 +275,7 @@ export const providerApi = createApi({
         endpoint: endpoints.providerProduct(providerId, productId),
         method: 'delete',
       }),
-      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }],
+      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }, 'MyBusinesses'],
     }),
 
     // Manual stock change (offline sale, restock, damaged/lost) — separate
@@ -290,7 +290,7 @@ export const providerApi = createApi({
         data,
       }),
       transformResponse: (res: ApiEnvelope<Product>) => res.data,
-      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }],
+      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }, 'MyBusinesses'],
     }),
 
     // Quick in/out-of-stock flip for a made-to-order (unlimitedStock) product.
@@ -304,7 +304,7 @@ export const providerApi = createApi({
         data: { inStock },
       }),
       transformResponse: (res: ApiEnvelope<Product>) => res.data,
-      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }],
+      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }, 'MyBusinesses'],
     }),
 
     // ── Coupons ───────────────────────────────────────────────────────────────
@@ -354,7 +354,7 @@ export const providerApi = createApi({
         data: { hours },
       }),
       transformResponse: (res: ApiEnvelope<Provider>) => res.data,
-      invalidatesTags: (_r, _e, { id }) => [{ type: 'MyBusiness', id }],
+      invalidatesTags: (_r, _e, { id }) => [{ type: 'MyBusiness', id }, 'MyBusinesses'],
     }),
 
     // ── Date-specific hour overrides ─────────────────────────────────────────

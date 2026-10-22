@@ -26,7 +26,6 @@ import { AppShell } from '@/components/AppShell';
 import { Badge } from '@/components/Badge';
 import { BusinessBookings } from '@/components/BusinessBookings';
 import { BusinessCalendar } from '@/components/BusinessCalendar';
-import { BusinessChecklist } from '@/components/BusinessChecklist';
 import { BusinessHours } from '@/components/BusinessHours';
 import { BusinessReviews } from '@/components/BusinessReviews';
 import { Button } from '@/components/Button';
@@ -160,7 +159,7 @@ export default function BusinessDetailPage() {
       count: business.images.length,
     },
     ...(isStore
-      ? []
+      ? [{ id: 'hours', label: 'Hours', icon: <Clock size={16} aria-hidden="true" /> }]
       : [
           {
             id: 'calendar',
@@ -306,14 +305,7 @@ export default function BusinessDetailPage() {
                 onViewAll={() => setActiveTab('bookings')}
               />
 
-              <div className={styles.overviewCols}>
-                {contactCard}
-                <BusinessChecklist
-                  business={business}
-                  onGoTo={(t) => setActiveTab(t as BusinessTab)}
-                  onEdit={goToEdit}
-                />
-              </div>
+              {contactCard}
             </>
           )}
 
@@ -460,6 +452,15 @@ export default function BusinessDetailPage() {
           <BusinessCalendar providerId={business.id} businessHours={business.businessHours} />
           <BusinessHours providerId={business.id} hours={business.businessHours} />
         </>
+      )}
+
+      {/* Store opening hours (services set theirs under Calendar). */}
+      {activeTab === 'hours' && (
+        <BusinessHours
+          providerId={business.id}
+          hours={business.businessHours}
+          subtitle="When customers can pick up orders each day."
+        />
       )}
 
       {confirmingDelete && (

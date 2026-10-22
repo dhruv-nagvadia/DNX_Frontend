@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 import {
   useGetCouponsQuery,
@@ -52,6 +52,10 @@ export function useCouponsManager(providerId: string, businessType: BusinessType
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState<CouponForm>(EMPTY);
   const [error, setError] = useState<string | null>(null);
+  // A message about a problem goes away as soon as the form is edited, not only on the next save.
+  useEffect(() => {
+    setError(null);
+  }, [form]);
 
   const startAdd = useCallback(() => {
     setForm(EMPTY);
@@ -133,9 +137,12 @@ export function useCouponsManager(providerId: string, businessType: BusinessType
           form.discountType === 'PERCENT' && form.maxDiscount.trim()
             ? toMinor(form.maxDiscount)
             : undefined,
+        // Create rejects null; only an update may send null (to clear a previous expiry).
         expiresAt: form.expiresAt
           ? new Date(`${form.expiresAt}T23:59:59`).toISOString()
-          : null,
+          : editing === 'new'
+            ? undefined
+            : null,
         usageLimit: form.usageLimit.trim() ? Number(form.usageLimit) : undefined,
         isActive: form.isActive,
       };

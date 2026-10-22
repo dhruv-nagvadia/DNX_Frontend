@@ -1,7 +1,16 @@
-import { BusinessForm, BusinessFormErrors } from './types';
+import { BusinessForm, BusinessFormErrors, BusinessStepId } from './types';
 
 const PHONE_RE = /^[0-9+\-\s()]{8,15}$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** Which fields are filled in on each step — so "Continue" only checks the step you're on. */
+export const STEP_FIELDS: Record<BusinessStepId, (keyof BusinessForm)[]> = {
+  type: ['categoryId', 'subcategoryId'],
+  details: ['businessName', 'phone', 'email'],
+  payments: [],
+  photos: [],
+  location: [],
+};
 
 /** Returns a map of field errors; empty object means valid. */
 export function validateBusiness(form: BusinessForm): BusinessFormErrors {

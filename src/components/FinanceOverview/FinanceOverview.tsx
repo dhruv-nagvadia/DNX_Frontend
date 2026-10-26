@@ -1,6 +1,6 @@
 import { Banknote, Coins, Landmark, TrendingUp } from 'lucide-react';
 
-import { BarChart } from '@/components/BarChart';
+import { TrendChart } from '@/components/TrendChart';
 import { Card } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/Skeleton';
@@ -88,7 +88,7 @@ export function FinanceOverview() {
               />
             ) : (
               <>
-                <BarChart
+                <TrendChart
                   data={data.series.slice(-MAX_BARS).map((s) => ({
                     label: bucketLabel(s.key),
                     value: s.commissionMinor,

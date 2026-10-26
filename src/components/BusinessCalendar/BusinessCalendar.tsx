@@ -48,7 +48,6 @@ export function BusinessCalendar({ providerId, businessHours }: BusinessCalendar
     <>
       <Card
         title="Calendar"
-        subtitle="See booked slots and set hours for any specific date."
         action={
           <div className={styles.viewToggle} role="tablist" aria-label="Calendar view">
             {(['month', 'week'] as const).map((v) => (

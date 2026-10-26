@@ -122,10 +122,6 @@
   max-width: 44ch;
 }
 
-.preview {
-  display: flex;
-}
-
 .trust {
   display: flex;
   flex-wrap: wrap;
@@ -219,8 +215,6 @@
     font-size: clamp(26px, 5vw, 34px);
   }
 
-  /* The bento needs real width to read — drop it rather than shrink it. */
-  .preview,
   .trust {
     display: none;
   }

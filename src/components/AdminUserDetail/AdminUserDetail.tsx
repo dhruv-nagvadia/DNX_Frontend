@@ -125,7 +125,7 @@ export function AdminUserDetail({ userId }: AdminUserDetailProps) {
         )}
       </Card>
 
-      <Card title="No-show history" subtitle="Bookings and orders this customer never showed up for.">
+      <Card title="No-show history">
         {totalNoShows === 0 ? (
           <p className={styles.muted}>No no-shows on record.</p>
         ) : (
@@ -156,7 +156,7 @@ export function AdminUserDetail({ userId }: AdminUserDetailProps) {
         )}
       </Card>
 
-      <Card title="Charges" subtitle="Manual penalties levied against this account.">
+      <Card title="Charges">
         {penalties.length === 0 ? (
           <p className={styles.muted}>No charges yet.</p>
         ) : (

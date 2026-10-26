@@ -1,6 +1,6 @@
 import { TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 
-import { BarChart } from '@/components/BarChart';
+import { TrendChart } from '@/components/TrendChart';
 import { Card } from '@/components/Card';
 import { Skeleton } from '@/components/Skeleton';
 import { BusinessType } from '@/redux/api/provider/types';
@@ -114,7 +114,7 @@ export function EarningsPanel({
             </div>
           ) : (
             <div className={styles.chartWrap}>
-              <BarChart
+              <TrendChart
                 data={series.points}
                 height={260}
                 highlightLast

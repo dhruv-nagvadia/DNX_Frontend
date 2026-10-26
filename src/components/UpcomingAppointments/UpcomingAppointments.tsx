@@ -26,7 +26,6 @@ export function UpcomingAppointments({ providerId, onViewAll }: UpcomingAppointm
   return (
     <Card
       title="Upcoming appointments"
-      subtitle="Your next bookings with customer and payment details."
       action={
         upcoming.length > 0 ? (
           <button type="button" className={styles.viewAll} onClick={onViewAll}>

@@ -45,10 +45,7 @@ export function StockManager({ providerId, products }: StockManagerProps) {
   };
 
   return (
-    <Card
-      title="Manage stock"
-      subtitle="Search a product, then add or remove stock — no need to open each one."
-    >
+    <Card title="Manage stock">
       {products.length === 0 ? (
         <p className={styles.muted}>Add a product first, then you can manage its stock here.</p>
       ) : (

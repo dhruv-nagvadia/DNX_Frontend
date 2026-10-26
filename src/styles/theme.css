@@ -10,21 +10,27 @@
   --color-primary-soft: rgba(30, 58, 138, 0.1);
   --color-primary-ring: rgba(30, 58, 138, 0.2);
 
+  /* Neutral scale — Tailwind's Slate palette (a widely-used, well-tested
+     blue-gray scale; --color-border/--color-text-* below already happen to
+     be slate-200/500/900). Using its actual step values rather than
+     one-off in-between hexes guarantees each tier is clearly, consistently
+     distinct from its neighbors instead of a few points apart. */
   --color-white: #ffffff;
-  /* The page canvas behind every card — kept as a faint tint rather than
+  /* The page canvas behind every card — slate-50. A faint tint rather than
      pure white so white cards/headers still read as raised off the page. */
   --color-background: #f8fafc;
   --color-surface: #ffffff;
-  --color-surface-2: #f8fafc;
-  /* A card/section's own header strip. White (surface), the page's own
-     background, and --color-surface-2 are all within ~20 points of each
-     other (255 → 248 → 233) — there's no room to find a 4th shade that reads
-     as distinct from all three by sitting "between" them. So this instead
-     steps decisively past --color-background into the same family as
-     --color-border, landing close to it on purpose: a header + the divider
-     below it in matching tones reads as one deliberately "boxed" strip,
-     clearly darker than both the white card body and the page behind it. */
-  --color-surface-header: #e4e9f2;
+  /* A secondary surface tint for hover/muted states ON TOP of a white card
+     (tabs, badges, calendar cells…) — slate-100. Deliberately one step
+     darker than --color-background so the two don't collide: this is a
+     "slightly pressed" surface, not the page itself. */
+  --color-surface-2: #f1f5f9;
+  /* A card/section's own header strip — slate-200, i.e. exactly
+     --color-border's value. A header this color plus a matching border
+     underneath it reads as one deliberately "boxed" strip, and because
+     slate-200 sits a full, clearly-visible step below both white (card
+     body) and slate-50 (the page), it can never blend into either. */
+  --color-surface-header: var(--color-border);
 
   /* Text (slate) */
   --color-text-primary: #0f172a;

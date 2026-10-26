@@ -48,54 +48,102 @@
   border-top: 1px solid var(--color-border);
 }
 
+/* The line + its soft area fill, aligned to the same box as .grid so a
+   value's point sits exactly on its gridline. Sized with explicit
+   width/height (not `inset`'s top+bottom shorthand) — an <svg> is a replaced
+   element with its own intrinsic aspect ratio (from its square viewBox), and
+   combining that with `inset`'s implicit auto-sizing let the ratio win,
+   blowing the box out to match its own width instead of the chart's height.
+   An explicit height avoids that ambiguity entirely. Clipped (not visible)
+   so the stroke's own width can never bleed past the zero line into the
+   label row below it. */
+.svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 26px);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Same exact box as .grid and .svg (not a separately-computed flex height) —
+   so a value's dot can never drift out of step with its own gridline. */
 .cols {
-  position: relative;
+  position: absolute;
+  inset: 0 0 26px 0;
   display: flex;
-  align-items: stretch;
-  justify-content: space-around;
-  gap: 6px;
-  height: 100%;
 }
 
 .col {
-  display: flex;
-  flex: 1 1 0;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-  max-width: 56px;
-  height: 100%;
-}
-
-.track {
   position: relative;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  width: 100%;
-  flex: 1 1 auto;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
-.bar {
-  width: 70%;
-  max-width: 34px;
-  border-radius: 6px 6px 2px 2px;
-  background: linear-gradient(180deg, var(--color-primary-hover), var(--color-primary));
-  transform-origin: bottom;
-  animation: grow var(--dur-slow) var(--ease-out) both;
-  transition: filter var(--dur-fast) var(--ease-out);
+/* Vertical guide at the hovered point, from the plot top down to the zero line. */
+.crosshair {
+  position: absolute;
+  inset: 0 auto 0 50%;
+  width: 0;
+  border-left: 1px dashed var(--color-border);
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out);
 }
-.bar:hover {
-  filter: brightness(1.08);
+.col:hover .crosshair {
+  opacity: 1;
 }
-.barActive {
-  background: linear-gradient(180deg, var(--color-accent), var(--color-accent-2));
+
+/* The x-axis labels — a separate strip below the drawable area, exactly as
+   tall as the gutter .grid/.svg/.cols already leave for it, so it can never
+   eat into the value space above it. */
+.labels {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 26px;
+  display: flex;
+  padding-top: 8px;
+  box-sizing: border-box;
+}
+
+.dot {
+  position: absolute;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  transform: translate(-50%, 50%);
+  opacity: 0;
+  transition:
+    opacity var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+.col:hover .dot {
+  opacity: 1;
+}
+
+/* The current period's point stays visible without hovering, and reads as
+   emphasised rather than "a different series" — same hue, just bigger with
+   a soft halo. */
+.dotActive {
+  width: 10px;
+  height: 10px;
+  opacity: 1;
+  box-shadow:
+    0 0 0 4px var(--color-primary-soft),
+    var(--shadow-sm);
 }
 
 .label {
+  flex: 1 1 0;
+  min-width: 0;
   height: 18px;
-  max-width: 100%;
+  text-align: center;
   font-size: var(--font-size-xs);
   line-height: 18px;
   color: var(--color-text-secondary);
@@ -104,7 +152,8 @@
   text-overflow: ellipsis;
 }
 
-/* Hover tooltip: period label + earning. */
+/* Hover tooltip: period label + value. Anchored to the top of the column
+   (not the point) so it holds a steady position regardless of value. */
 .tooltip {
   position: absolute;
   bottom: 100%;
@@ -137,7 +186,7 @@
   border: 5px solid transparent;
   border-top-color: var(--color-ink);
 }
-.track:hover .tooltip {
+.col:hover .tooltip {
   opacity: 1;
   transform: translate(-50%, 0);
 }
@@ -154,17 +203,10 @@
   font-variant-numeric: tabular-nums;
 }
 
-@keyframes grow {
-  from {
-    transform: scaleY(0);
-  }
-  to {
-    transform: scaleY(1);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .bar {
-    animation: none;
+  .dot,
+  .crosshair,
+  .tooltip {
+    transition: none;
   }
 }

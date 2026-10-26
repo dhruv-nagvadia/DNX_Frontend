@@ -166,10 +166,7 @@ export default function EarningsPage() {
           </Card>
 
           {data.businesses.length > 1 && (
-            <Card
-              title="By business"
-              subtitle="Sales in this period, and the commission rate each business is charged."
-            >
+            <Card title="By business">
               <div className={styles.tableWrap}>
                 <table className={styles.table}>
                   <thead>
@@ -200,10 +197,7 @@ export default function EarningsPage() {
             </Card>
           )}
 
-          <Card
-            title="Completed sales"
-            subtitle="Each row shows the price, DNX's commission at the rate it was booked under, and what you keep."
-          >
+          <Card title="Completed sales">
             {data.transactions.length === 0 ? (
               <EmptyState
                 icon={<Banknote size={28} strokeWidth={1.6} aria-hidden="true" />}
@@ -283,10 +277,7 @@ export default function EarningsPage() {
           </Card>
 
           {data.payouts.length > 0 && (
-            <Card
-              title="Settlements"
-              subtitle="Transfers between you and DNX that have been recorded."
-            >
+            <Card title="Settlements">
               <div className={styles.tableWrap}>
                 <table className={styles.table}>
                   <thead>

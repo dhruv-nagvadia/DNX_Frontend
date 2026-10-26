@@ -10,14 +10,14 @@ import styles from './BusinessHours.module.css';
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 /** Weekly availability editor — toggle each day open/closed and set open/close times. */
-export function BusinessHours({ providerId, hours, subtitle }: BusinessHoursProps) {
+export function BusinessHours({ providerId, hours }: BusinessHoursProps) {
   const { days, saving, saved, error, toggleDay, setTime, save } = useBusinessHours(
     providerId,
     hours,
   );
 
   return (
-    <Card title="Business hours" subtitle={subtitle ?? 'When customers can book you each day.'}>
+    <Card title="Business hours">
       <div className={styles.list}>
         {days.map((d) => (
           <div key={d.dayOfWeek} className={`${styles.row} ${d.isOpen ? '' : styles.rowClosed}`}>

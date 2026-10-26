@@ -28,10 +28,7 @@ export function AdminProvidersManager() {
   const providers = data ?? [];
 
   return (
-    <Card
-      title="Providers"
-      subtitle="Block a provider or just one of their businesses, or turn Cash on Delivery off for a business."
-    >
+    <Card title="Providers">
       <form
         className={styles.searchRow}
         onSubmit={(e) => {

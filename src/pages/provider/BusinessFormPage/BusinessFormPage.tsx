@@ -37,7 +37,7 @@ import { BusinessStepId } from './types';
 import { useBusinessForm } from './useBusinessForm';
 import styles from './BusinessFormPage.module.css';
 
-const STEP_COPY: Record<BusinessStepId, { label: string; title: string; subtitle: string; hint?: string }> = {
+const STEP_COPY: Record<BusinessStepId, { label: string; title: string; subtitle?: string; hint?: string }> = {
   type: {
     label: 'Business type',
     title: 'What kind of business is this?',
@@ -46,7 +46,6 @@ const STEP_COPY: Record<BusinessStepId, { label: string; title: string; subtitle
   details: {
     label: 'Details',
     title: 'Business details',
-    subtitle: 'How your business appears to customers.',
   },
   payments: {
     label: 'Payments',
@@ -56,13 +55,12 @@ const STEP_COPY: Record<BusinessStepId, { label: string; title: string; subtitle
   photos: {
     label: 'Photos',
     title: 'Business photos',
-    subtitle: 'A few good photos help customers trust and choose you.',
     hint: 'Optional',
   },
   location: {
     label: 'Location',
     title: 'Where are you?',
-    subtitle: 'Helps customers nearby find you. All fields are optional.',
+    subtitle: 'All fields are optional.',
     hint: 'Optional',
   },
 };
@@ -206,7 +204,6 @@ export default function BusinessFormPage() {
                 <FormSection
                   icon={<LayoutGrid size={16} />}
                   title={form.type === 'STORE' ? 'Store category' : 'Service category'}
-                  description={form.type === 'STORE' ? 'What kind of store is it?' : 'What kind of service?'}
                 >
                   {categoriesLoading ? (
                     <div className={styles.grid}>
@@ -243,7 +240,6 @@ export default function BusinessFormPage() {
                   <FormSection
                     icon={<Tag size={16} />}
                     title="Specific business type"
-                    description="Pick the one that describes you best."
                   >
                     <div className={styles.chips}>
                       {subcategories.map((s) => (
@@ -270,7 +266,6 @@ export default function BusinessFormPage() {
                 <FormSection
                   icon={<Phone size={16} />}
                   title="Basic information"
-                  description="Your business name and how customers can reach you."
                 >
                   <TextField
                     dense
@@ -311,7 +306,6 @@ export default function BusinessFormPage() {
                 <FormSection
                   icon={<FileText size={16} />}
                   title="About your business"
-                  description="A short description helps customers choose you."
                 >
                   <div className={styles.field}>
                     <label className={styles.textareaLabel} htmlFor="description">
@@ -448,7 +442,6 @@ export default function BusinessFormPage() {
                 <FormSection
                   icon={<MapPin size={16} />}
                   title="Address"
-                  description="Where customers find you."
                 >
                   <TextField
                     dense
@@ -491,7 +484,6 @@ export default function BusinessFormPage() {
                 <FormSection
                   icon={<LocateFixed size={16} />}
                   title="Pin your location"
-                  description="Lets customers find you in “nearest” search and see how far you are."
                   action={hasLocation ? <span className={styles.pinned}>Location saved</span> : undefined}
                 >
                   <div className={styles.locationRow}>

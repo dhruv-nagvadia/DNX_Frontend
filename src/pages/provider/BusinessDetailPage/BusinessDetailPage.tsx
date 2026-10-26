@@ -108,19 +108,9 @@ export default function BusinessDetailPage() {
     .join(', ');
 
   const contact = [
-    {
-      icon: <Phone size={16} aria-hidden="true" />,
-      label: 'Phone',
-      value: business.phone,
-      wide: false,
-    },
-    {
-      icon: <Mail size={16} aria-hidden="true" />,
-      label: 'Email',
-      value: business.email,
-      wide: false,
-    },
-    { icon: <MapPin size={16} aria-hidden="true" />, label: 'Address', value: address, wide: true },
+    { icon: <Phone size={16} aria-hidden="true" />, label: 'Phone', value: business.phone },
+    { icon: <Mail size={16} aria-hidden="true" />, label: 'Email', value: business.email },
+    { icon: <MapPin size={16} aria-hidden="true" />, label: 'Address', value: address },
   ];
 
   const isStore = business.type === 'STORE';
@@ -173,17 +163,12 @@ export default function BusinessDetailPage() {
     <Card title="Contact & location">
       <dl className={styles.infoGrid}>
         {contact.map((item) => (
-          <div
-            className={`${styles.infoItem} ${item.wide ? styles.infoItemWide : ''}`}
-            key={item.label}
-          >
+          <div className={styles.infoItem} key={item.label}>
             <span className={styles.infoIcon}>{item.icon}</span>
-            <div className={styles.infoText}>
-              <dt className={styles.infoLabel}>{item.label}</dt>
-              <dd className={styles.infoValue}>
-                {item.value || <span className={styles.muted}>Not added</span>}
-              </dd>
-            </div>
+            <dt className={styles.srOnly}>{item.label}</dt>
+            <dd className={styles.infoValue} title={item.value || undefined}>
+              {item.value || <span className={styles.muted}>Not added</span>}
+            </dd>
           </div>
         ))}
       </dl>
@@ -456,11 +441,7 @@ export default function BusinessDetailPage() {
 
       {/* Store opening hours (services set theirs under Calendar). */}
       {activeTab === 'hours' && (
-        <BusinessHours
-          providerId={business.id}
-          hours={business.businessHours}
-          subtitle="When customers can pick up orders each day."
-        />
+        <BusinessHours providerId={business.id} hours={business.businessHours} />
       )}
 
       {confirmingDelete && (

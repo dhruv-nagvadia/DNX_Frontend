@@ -23,7 +23,7 @@ export function AdminUsersManager() {
   const { users, isLoading, query, onQueryChange, onSubmit } = useAdminUsersManager();
 
   return (
-    <Card title="Customers" subtitle="No-show history, penalty charges, and account restrictions.">
+    <Card title="Customers">
       <form className={styles.searchRow} onSubmit={onSubmit}>
         <input
           className={styles.searchInput}

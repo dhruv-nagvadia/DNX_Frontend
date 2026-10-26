@@ -192,7 +192,6 @@ export default function DashboardPage() {
                 {hasService && (
                   <Card
                     title="Needs your attention"
-                    subtitle="Bookings to confirm or payments to collect."
                     action={
                       attention.length > ATTENTION_PREVIEW ? (
                         <button
@@ -228,7 +227,7 @@ export default function DashboardPage() {
                   </Card>
                 )}
                 {todays.length > 0 && (
-                  <Card title="Today's schedule" subtitle="Your appointments for today, in order.">
+                  <Card title="Today's schedule">
                     {
                       <ul className={styles.list}>
                         {todays.map((b) => (
@@ -262,7 +261,6 @@ export default function DashboardPage() {
                 {hasStore && (
                   <Card
                     title="Orders to fulfil"
-                    subtitle="Store orders in progress — confirm, mark ready, then hand over."
                     action={
                       openOrders.length > ORDERS_PREVIEW ? (
                         <button
@@ -298,10 +296,7 @@ export default function DashboardPage() {
                   </Card>
                 )}
                 {hasStore && lowStock.length > 0 && (
-                  <Card
-                    title="Low stock"
-                    subtitle="Products running low or out of stock — restock to keep selling."
-                  >
+                  <Card title="Low stock">
                     <ul className={styles.list}>
                       {lowStock.slice(0, 6).map(({ product, businessId, businessName, level }) => (
                         <li key={product.id}>

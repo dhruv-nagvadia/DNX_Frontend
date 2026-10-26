@@ -154,7 +154,6 @@ export function BusinessReviews({ providerId, limit, onViewAll }: BusinessReview
   return (
     <Card
       title="Reviews"
-      subtitle="What customers are saying about this business."
       action={
         onViewAll && count > 0 ? (
           <button type="button" className={styles.viewAll} onClick={onViewAll}>

@@ -72,7 +72,6 @@ export function ServicesManager({
   return (
     <Card
       title="Services"
-      subtitle="What customers can book, with price and duration."
       action={
         editing === null ? (
           <Button
@@ -163,7 +162,6 @@ export function ServicesManager({
           <FormSection
             icon={<FileText size={16} />}
             title="Service details"
-            description="The name and description customers see when they book."
           >
             <div className={styles.field}>
               <label className={styles.label} htmlFor="name">

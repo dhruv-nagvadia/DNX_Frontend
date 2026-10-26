@@ -1,11 +1,10 @@
-import { ConsolePreview } from './ConsolePreview';
 import { AuthLayoutProps } from './types';
 import styles from './AuthLayout.module.css';
 
 /**
- * Split-screen auth shell. The left panel is a dark "console" that shows what
- * the provider dashboard actually does; the form (children) sits on the right.
- * Below 1024px the panel collapses to a compact branded header.
+ * Split-screen auth shell. The left panel is a dark branded panel; the form
+ * (children) sits on the right. Below 1024px the panel collapses to a
+ * compact branded header.
  */
 export function AuthLayout({ children }: AuthLayoutProps) {
   return (
@@ -29,10 +28,6 @@ export function AuthLayout({ children }: AuthLayoutProps) {
               Bookings, calendar, payments, invoices and customer history — for salons, clinics,
               gyms, tutors and home services.
             </p>
-          </div>
-
-          <div className={styles.preview}>
-            <ConsolePreview />
           </div>
 
           <p className={styles.trust}>

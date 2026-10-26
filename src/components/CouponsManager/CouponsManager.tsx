@@ -96,7 +96,6 @@ export function CouponsManager({
   return (
     <Card
       title="Offers & coupons"
-      subtitle="Discount codes customers can apply at checkout."
       action={
         editing === null ? (
           <Button
@@ -200,7 +199,6 @@ export function CouponsManager({
             <FormSection
               icon={<Ticket size={16} />}
               title="Coupon code"
-              description="What customers type in at checkout."
             >
               <div className={styles.field}>
                 <label className={styles.label} htmlFor="code">
@@ -234,7 +232,6 @@ export function CouponsManager({
             <FormSection
               icon={<Percent size={16} />}
               title="Discount"
-              description="How much the customer saves."
             >
               <div className={ui.grid2}>
                 <div className={styles.field}>
@@ -305,7 +302,6 @@ export function CouponsManager({
           <FormSection
             icon={<Target size={16} />}
             title="Who it applies to"
-            description="Any order above a minimum, or one specific item."
           >
             <div className={ui.scopeRow}>
               <button
@@ -384,7 +380,6 @@ export function CouponsManager({
             <FormSection
               icon={<CalendarClock size={16} />}
               title="Limits"
-              description="Keep an offer from running forever or being used too many times."
             >
               <div className={ui.grid2}>
                 <div className={styles.field}>

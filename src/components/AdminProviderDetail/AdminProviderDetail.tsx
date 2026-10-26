@@ -165,10 +165,7 @@ export function AdminProviderDetail({ userId }: { userId: string }) {
         )}
       </Card>
 
-      <Card
-        title="Businesses"
-        subtitle="Block one business without touching the others, or turn off Cash on Delivery for it."
-      >
+      <Card title="Businesses">
         {businesses.length === 0 ? (
           <EmptyState
             icon={<Store size={28} strokeWidth={1.6} aria-hidden="true" />}

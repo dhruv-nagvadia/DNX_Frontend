@@ -105,7 +105,7 @@ export function ProviderBalances() {
         )}
       </Card>
 
-      <Card title="Recent settlements" subtitle="Transfers you've recorded, newest first.">
+      <Card title="Recent settlements">
         {b.payouts.length === 0 ? (
           <p className={form.muted}>Nothing recorded yet.</p>
         ) : (

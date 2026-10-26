@@ -105,7 +105,6 @@ export function ProductsManager({
   return (
     <Card
       title="Products"
-      subtitle="What customers can order — price per quantity, stock, and a minimum."
       action={
         editing === null ? (
           <Button
@@ -239,7 +238,6 @@ export function ProductsManager({
             <FormSection
               icon={<FileText size={16} />}
               title="Product details"
-              description="The name and description customers see."
             >
               <div className={styles.field}>
                 <label className={styles.label} htmlFor="name">
@@ -273,7 +271,6 @@ export function ProductsManager({
             <FormSection
               icon={<FolderTree size={16} />}
               title="Where it appears"
-              description="Helps customers find it in your store and in “shop by product”."
             >
               <div className={styles.row2}>
                 <div className={styles.field}>
@@ -532,7 +529,6 @@ export function ProductsManager({
           <FormSection
             icon={<ImagePlus size={16} />}
             title="Product photo"
-            description="A clear photo makes a product much more likely to be ordered."
           >
             {form.imageUrl ? (
               <div className={ui.imageRow}>

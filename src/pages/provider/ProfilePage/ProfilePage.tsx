@@ -109,7 +109,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Business showcase */}
-      <Card title="Your businesses" subtitle="Everything you run on DNX, in one place.">
+      <Card title="Your businesses">
         {isLoading ? (
           <div className={styles.showcase}>
             {[0, 1, 2].map((i) => (

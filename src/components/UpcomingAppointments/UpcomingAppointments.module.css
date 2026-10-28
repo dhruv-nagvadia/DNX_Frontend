@@ -6,7 +6,7 @@
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   font-size: var(--font-size-sm);
   font-weight: 600;
   cursor: pointer;

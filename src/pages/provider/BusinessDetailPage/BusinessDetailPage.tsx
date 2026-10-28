@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Link } from 'react-router-dom';
 import {
-  ArrowLeft,
   BadgeCheck,
   Boxes,
   CalendarDays,
@@ -23,7 +22,8 @@ import {
 
 import { AlertBanner } from '@/components/AlertBanner';
 import { AppShell } from '@/components/AppShell';
-import { Badge } from '@/components/Badge';
+import { useAppShell } from '@/components/AppShell/useAppShell';
+import shellStyles from '@/components/AppShell/AppShell.module.css';
 import { BusinessBookings } from '@/components/BusinessBookings';
 import { BusinessCalendar } from '@/components/BusinessCalendar';
 import { BusinessHours } from '@/components/BusinessHours';
@@ -34,6 +34,7 @@ import { CategoryIcon } from '@/components/CategoryIcon';
 import { EarningsPanel } from '@/components/EarningsPanel';
 import { TopSellersPanel } from '@/components/TopSellersPanel';
 import { CouponsManager } from '@/components/CouponsManager';
+import { NotificationBell } from '@/components/NotificationBell';
 import { OrdersManager } from '@/components/OrdersManager';
 import { ProductsManager } from '@/components/ProductsManager';
 import { ServicesManager } from '@/components/ServicesManager';
@@ -51,6 +52,18 @@ function reasonSentence(reason?: string | null): string {
   return reason ? `: ${reason.trim().replace(/[.!?]+$/, '')}.` : '.';
 }
 
+/** Returns up to two initials for the account avatar (mirrors AppShell's own). */
+function initialsOf(name: string): string {
+  return (
+    name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() ?? '')
+      .join('') || 'DN'
+  );
+}
+
 export default function BusinessDetailPage() {
   const {
     business,
@@ -60,7 +73,6 @@ export default function BusinessDetailPage() {
     uploading,
     savingImages,
     deleting,
-    bookingCount,
     activeTab,
     setActiveTab,
     addImages,
@@ -69,8 +81,8 @@ export default function BusinessDetailPage() {
     remove,
     goToEdit,
     goToReviews,
-    goBack,
   } = useBusinessDetail();
+  const { user } = useAppShell();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
@@ -79,10 +91,6 @@ export default function BusinessDetailPage() {
   if (loadFailed) {
     return (
       <AppShell>
-        <button type="button" className={styles.back} onClick={goBack}>
-          <ArrowLeft size={16} aria-hidden="true" />
-          All businesses
-        </button>
         <Card title="Couldn't load this business">
           <p className={styles.muted}>
             Something went wrong loading it. If you just changed the backend, make sure it has been
@@ -120,18 +128,8 @@ export default function BusinessDetailPage() {
   const sections = [
     { id: 'overview', label: 'Overview', icon: <Info size={16} aria-hidden="true" /> },
     isStore
-      ? {
-          id: 'products',
-          label: 'Products',
-          icon: <Package size={16} aria-hidden="true" />,
-          count: business.products?.length ?? 0,
-        }
-      : {
-          id: 'services',
-          label: 'Services',
-          icon: <ListChecks size={16} aria-hidden="true" />,
-          count: business.services.length,
-        },
+      ? { id: 'products', label: 'Products', icon: <Package size={16} aria-hidden="true" /> }
+      : { id: 'services', label: 'Services', icon: <ListChecks size={16} aria-hidden="true" /> },
     ...(isStore
       ? [{ id: 'stock', label: 'Manage stock', icon: <Boxes size={16} aria-hidden="true" /> }]
       : []),
@@ -140,14 +138,8 @@ export default function BusinessDetailPage() {
       id: 'bookings',
       label: isStore ? 'Orders' : 'Bookings',
       icon: <CalendarDays size={16} aria-hidden="true" />,
-      count: bookingCount,
     },
-    {
-      id: 'photos',
-      label: 'Photos',
-      icon: <ImageIcon size={16} aria-hidden="true" />,
-      count: business.images.length,
-    },
+    { id: 'photos', label: 'Photos', icon: <ImageIcon size={16} aria-hidden="true" /> },
     ...(isStore
       ? [{ id: 'hours', label: 'Hours', icon: <Clock size={16} aria-hidden="true" /> }]
       : [
@@ -184,51 +176,81 @@ export default function BusinessDetailPage() {
     </p>
   );
 
-  return (
-    <AppShell>
-      <button type="button" className={styles.back} onClick={goBack}>
-        <ArrowLeft size={16} aria-hidden="true" />
-        All businesses
-      </button>
-
-      {/* Hero: cover photo with the identity laid over a scrim. */}
-      <header className={styles.hero}>
-        {business.images.length > 0 ? (
-          <img className={styles.heroImg} src={business.images[0]} alt="" />
-        ) : (
-          <span className={styles.heroFallback}>
-            <CategoryIcon slug={business.category.slug} size={56} strokeWidth={1.4} />
-          </span>
-        )}
-
-        <div className={styles.scrim} />
-
-        <button type="button" className={styles.editBtn} onClick={goToEdit}>
-          <Pencil size={15} aria-hidden="true" />
-          Edit business
-        </button>
-
-        <div className={styles.heroContent}>
-          <h1 className={styles.name}>{business.businessName}</h1>
-          <div className={styles.badges}>
-            <Badge tone="accent" icon={<CategoryIcon slug={business.category.slug} size={13} />}>
-              {business.subcategory?.name ?? business.category.name}
-            </Badge>
-            {business.isVerified ? (
-              <Badge tone="success" icon={<BadgeCheck size={13} aria-hidden="true" />}>
-                Verified
-              </Badge>
-            ) : (
-              <Badge tone="warning" icon={<Clock size={13} aria-hidden="true" />}>
-                Verification pending
-              </Badge>
-            )}
-            <Badge tone="neutral" icon={<Star size={13} aria-hidden="true" />}>
-              {business.ratingAvg.toFixed(1)} ({business.ratingCount})
-            </Badge>
-          </div>
+  /* The sticky top bar: this business's identity on the left, the Edit
+     action + the usual notification/profile controls on the right. Shown
+     only on this page — general pages have no top bar at all. */
+  const detailHeader = (
+    <>
+      <div className={styles.headerIdentity}>
+        <div className={styles.headerMedia}>
+          {business.images.length > 0 ? (
+            <img className={styles.headerImg} src={business.images[0]} alt="" />
+          ) : (
+            <span className={styles.headerFallback}>
+              <CategoryIcon slug={business.category.slug} size={20} strokeWidth={1.6} />
+            </span>
+          )}
         </div>
-      </header>
+        <div className={styles.headerText}>
+          <span className={styles.headerNameRow}>
+            <span className={styles.headerName}>{business.businessName}</span>
+            {business.isVerified && (
+              <BadgeCheck className={styles.verifiedIcon} size={16} aria-label="Verified" />
+            )}
+          </span>
+          <span className={styles.headerMeta}>
+            <span className={styles.rating}>
+              <Star size={12} className={styles.ratingStar} aria-hidden="true" />
+              <strong>{business.ratingAvg.toFixed(1)}</strong>
+              <span className={styles.ratingCount}>({business.ratingCount})</span>
+            </span>
+            <span className={styles.metaDot} aria-hidden="true" />
+            <span className={styles.headerCategory}>
+              {business.subcategory?.name ?? business.category.name}
+            </span>
+            {!business.isVerified && (
+              <>
+                <span className={styles.metaDot} aria-hidden="true" />
+                <span className={styles.headerPending}>Verification pending</span>
+              </>
+            )}
+          </span>
+        </div>
+      </div>
+
+      <div className={shellStyles.topbarActions}>
+        <button
+          type="button"
+          className={shellStyles.topbarIconBtn}
+          onClick={goToEdit}
+          aria-label="Edit business"
+        >
+          <Pencil size={16} aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          className={`${shellStyles.topbarIconBtn} ${styles.topbarIconBtnDanger}`}
+          onClick={() => setConfirmingDelete(true)}
+          aria-label="Delete business"
+        >
+          <Trash2 size={16} aria-hidden="true" />
+        </button>
+        <NotificationBell />
+        <Link
+          className={`${shellStyles.topbarIconBtn} ${shellStyles.topbarProfile}`}
+          to="/profile"
+          aria-label="Your profile"
+        >
+          <span className={shellStyles.topbarAvatar} aria-hidden="true">
+            {initialsOf(user?.fullName ?? 'DNX')}
+          </span>
+        </Link>
+      </div>
+    </>
+  );
+
+  return (
+    <AppShell header={detailHeader}>
 
       {/* Restrictions DNX has put on this business — the owner should always see why. */}
       {business.isBlocked && (
@@ -294,26 +316,7 @@ export default function BusinessDetailPage() {
             </>
           )}
 
-          <BusinessReviews providerId={business.id} limit={3} onViewAll={goToReviews} />
-
-          <Card title="Danger zone" subtitle="Irreversible actions for this business.">
-            <div className={styles.dangerZone}>
-              <div className={styles.dangerText}>
-                <span className={styles.dangerTitle}>Delete this business</span>
-                <span className={styles.dangerSub}>
-                  Removes the business and all its bookings, reviews, services and hours.
-                </span>
-              </div>
-              <button
-                type="button"
-                className={styles.dangerBtn}
-                onClick={() => setConfirmingDelete(true)}
-              >
-                <Trash2 size={15} aria-hidden="true" />
-                Delete business
-              </button>
-            </div>
-          </Card>
+          <BusinessReviews providerId={business.id} limit={2} onViewAll={goToReviews} />
         </>
       )}
 

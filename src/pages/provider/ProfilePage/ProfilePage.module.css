@@ -122,7 +122,7 @@
 }
 .showcaseItem:hover {
   transform: translateY(-2px);
-  border-color: #cbd5e1;
+  border-color: var(--color-border-strong);
   box-shadow: var(--shadow-md);
 }
 .showcaseItem:focus-visible {
@@ -147,7 +147,7 @@
   object-fit: cover;
 }
 .showcaseFallback {
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   opacity: 0.55;
 }
 .showcaseBody {
@@ -200,13 +200,6 @@
   color: var(--color-text-primary);
   word-break: break-word;
 }
-.hint {
-  margin: var(--space-lg) 0 0;
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
-  font-style: italic;
-}
-
 .editForm {
   display: flex;
   flex-direction: column;

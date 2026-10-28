@@ -51,10 +51,6 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
   const [cancelling, setCancelling] = useState<ProviderBooking | null>(null);
   const [reason, setReason] = useState('');
 
-  // No-show-with-note modal.
-  const [noShowing, setNoShowing] = useState<ProviderBooking | null>(null);
-  const [noShowNote, setNoShowNote] = useState('');
-
   // Collect-cash confirmation modal.
   const [settling, setSettling] = useState<ProviderBooking | null>(null);
 
@@ -72,22 +68,6 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
       }).unwrap();
       setCancelling(null);
       setReason('');
-    } catch {
-      // surfaced via mutation state
-    }
-  };
-
-  const confirmNoShow = async () => {
-    if (!noShowing) return;
-    try {
-      await updateStatus({
-        id: providerId,
-        bookingId: noShowing.id,
-        status: 'NO_SHOW',
-        reason: noShowNote.trim() || undefined,
-      }).unwrap();
-      setNoShowing(null);
-      setNoShowNote('');
     } catch {
       // surfaced via mutation state
     }
@@ -146,7 +126,6 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
       );
     }
     if (b.status === 'CONFIRMED') {
-      const isPastStart = new Date(b.startTime).getTime() <= Date.now();
       return (
         <>
           <button
@@ -157,19 +136,6 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
           >
             Complete
           </button>
-          {isPastStart && (
-            <button
-              type="button"
-              className={`${styles.actionBtn} ${styles.cancel}`}
-              disabled={updating}
-              onClick={() => {
-                setNoShowNote('');
-                setNoShowing(b);
-              }}
-            >
-              No-show
-            </button>
-          )}
           {cancelBtn}
           {collectBtn}
         </>
@@ -201,16 +167,10 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
     );
   }
 
-  const now = Date.now();
-  const upcoming = bookings.filter(
-    (b) => b.status !== 'CANCELLED' && new Date(b.endTime).getTime() >= now,
-  );
-
   return (
     <>
       <Card
         title="Bookings"
-        subtitle={`${bookings.length} total · ${upcoming.length} upcoming`}
         action={
           <Button
             variant="secondary"
@@ -248,41 +208,6 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
               </Button>
               <Button onClick={confirmCancel} loading={updating} loadingText="Cancelling…">
                 Cancel booking
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {noShowing && (
-        <div className={styles.overlay} role="dialog" aria-modal="true">
-          <div className={styles.modal}>
-            <h3 className={styles.modalTitle}>Mark this booking a no-show?</h3>
-            <p className={styles.modalSub}>
-              {noShowing.user.fullName} · {noShowing.service.name}
-            </p>
-            <p className={styles.modalSub}>
-              {noShowing.amountPaidMinor && noShowing.amountPaidMinor > 0
-                ? `${money(noShowing.amountPaidMinor, noShowing.currency)} already paid won't be refunded.`
-                : "No payment was taken — the customer gets a warning instead."}
-            </p>
-            <label className={styles.modalLabel} htmlFor="noShowNote">
-              Note for the customer <span className={styles.optional}>(optional)</span>
-            </label>
-            <textarea
-              id="noShowNote"
-              className={styles.textarea}
-              placeholder="e.g. Waited 20 minutes past the appointment time."
-              value={noShowNote}
-              onChange={(e) => setNoShowNote(e.target.value)}
-              maxLength={500}
-            />
-            <div className={styles.modalActions}>
-              <Button variant="ghost" onClick={() => setNoShowing(null)} disabled={updating}>
-                Cancel
-              </Button>
-              <Button onClick={confirmNoShow} loading={updating} loadingText="Saving…">
-                Mark no-show
               </Button>
             </div>
           </div>

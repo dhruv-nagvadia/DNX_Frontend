@@ -37,14 +37,62 @@
   font-weight: 700;
 }
 
-.select {
-  width: 100%;
-  padding: 10px 12px;
+/* ── Offers table ─────────────────────────────────────────────────── */
+.tableWrap {
+  overflow-x: auto;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: var(--color-surface);
-  font: inherit;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
   color: var(--color-text-primary);
+}
+.table th {
+  text-align: left;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  background: var(--color-surface-2);
+  padding: 10px 14px;
+  white-space: nowrap;
+}
+.table td {
+  padding: 12px 14px;
+  border-top: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+/* The code column can wrap to a second line (code + description), so it
+   stays top-aligned; every other column has a single line and reads better
+   centered against it. */
+.table td:first-child {
+  vertical-align: top;
+}
+.table tr.rowInactive td {
+  opacity: 0.6;
+}
+.cellSub {
+  margin-top: 6px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+/* Applies to / Expires column text — same size as .cellSub (the description
+   caption under the code), not larger. */
+.cellText {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+.used {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.actionsCell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 /* Coupon code chip in a row */
@@ -58,8 +106,12 @@
   border-radius: var(--radius-sm);
 }
 .discount {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-md);
   font-weight: 700;
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 .toggleRow {
   display: flex;
@@ -100,7 +152,7 @@
 .scopeBtnActive {
   border-color: var(--color-primary);
   background: var(--color-primary-soft);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 
 .noItems {

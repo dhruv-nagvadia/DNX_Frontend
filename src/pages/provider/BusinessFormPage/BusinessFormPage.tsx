@@ -100,22 +100,13 @@ export default function BusinessFormPage() {
     locating,
     locationError,
     resolvingPincode,
-    goBack,
   } = useBusinessForm();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const backButton = (
-    <button type="button" className={styles.back} onClick={goBack}>
-      <ArrowLeft size={16} aria-hidden="true" />
-      <span className={styles.backLabel}>{isEdit ? 'Back to business' : 'All businesses'}</span>
-    </button>
-  );
-
   if (loadingExisting) {
     return (
       <AppShell>
-        {backButton}
         <Skeleton width="40%" height={34} />
         <Skeleton height={64} radius="var(--radius-xl)" />
         <Skeleton height={320} radius="var(--radius-xl)" />
@@ -130,7 +121,6 @@ export default function BusinessFormPage() {
 
   return (
     <AppShell>
-      {backButton}
       <PageHeader
         title={isEdit ? 'Edit business' : 'Add a new business'}
         subtitle={

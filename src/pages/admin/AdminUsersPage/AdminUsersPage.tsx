@@ -5,7 +5,7 @@ import { PlatformSettingsCard } from '@/components/PlatformSettingsCard';
 
 export default function AdminUsersPage() {
   return (
-    <AdminShell wide>
+    <AdminShell>
       <PageHeader
         title="Users"
         subtitle="Track repeat no-shows, levy charges, disable Cash on Delivery, or block an account."

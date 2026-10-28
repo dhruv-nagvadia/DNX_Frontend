@@ -20,12 +20,12 @@ export function useProfilePage() {
 
   const stats = useMemo(() => {
     const services = businesses.reduce((sum, b) => sum + b.services.length, 0);
-    const photos = businesses.reduce((sum, b) => sum + b.images.length, 0);
+    const products = businesses.reduce((sum, b) => sum + (b.products?.length ?? 0), 0);
     const rated = businesses.filter((b) => b.ratingCount > 0);
     const avgRating = rated.length
       ? rated.reduce((sum, b) => sum + b.ratingAvg, 0) / rated.length
       : 0;
-    return { businesses: businesses.length, services, photos, avgRating };
+    return { businesses: businesses.length, services, products, avgRating };
   }, [businesses]);
 
   const startEdit = () => {

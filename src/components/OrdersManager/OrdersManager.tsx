@@ -1,8 +1,7 @@
-import { useState } from 'react';
-import { LifeBuoy, Phone, ShoppingBag } from 'lucide-react';
+import { Fragment, useState } from 'react';
+import { ChevronDown, Clock, ImagePlus, LifeBuoy, Phone, ShoppingBag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-import { AlertBanner } from '@/components/AlertBanner';
 import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
 import { BadgeTone } from '@/components/Badge/types';
@@ -15,7 +14,7 @@ import {
   useCollectOrderPaymentMutation,
 } from '@/redux/api/provider/providerApi';
 import { OrderStatus, ProviderOrder, ProviderOrderItem } from '@/redux/api/provider/types';
-import { formatAmount } from '@/utils/units';
+import { formatAmount, priceLabel } from '@/utils/units';
 
 import styles from './OrdersManager.module.css';
 
@@ -75,7 +74,15 @@ function payBadge(o: ProviderOrder): { label: string; tone: BadgeTone } {
 /** Store order management: view incoming orders and move them through fulfilment. */
 export function OrdersManager({ providerId }: { providerId: string }) {
   const navigate = useNavigate();
-  const { data: allOrders = [], isLoading } = useGetMyOrdersQuery();
+  // Refetch whenever this tab is opened, the browser tab regains focus, or
+  // every 30s while it's open — new orders come from the customer app, a
+  // separate client, so nothing in this app's own cache would otherwise know
+  // to invalidate a stale result.
+  const { data: allOrders = [], isLoading } = useGetMyOrdersQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+    refetchOnFocus: true,
+    pollingInterval: 30_000,
+  });
   const [updateStatus, { isLoading: updating }] = useUpdateOrderStatusMutation();
   const [collect, { isLoading: collecting }] = useCollectOrderPaymentMutation();
 
@@ -86,38 +93,14 @@ export function OrdersManager({ providerId }: { providerId: string }) {
   const [cancelling, setCancelling] = useState<ProviderOrder | null>(null);
   const [reason, setReason] = useState('');
 
-  // No-show-with-note modal.
-  const [noShowing, setNoShowing] = useState<ProviderOrder | null>(null);
-  const [noShowNote, setNoShowNote] = useState('');
-  const [noShowError, setNoShowError] = useState<string | null>(null);
+  // Which order's row is expanded to show its full item breakdown.
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const toggleExpanded = (orderId: string) => {
+    setExpandedId((prev) => (prev === orderId ? null : orderId));
+  };
 
   const setStatus = (o: ProviderOrder, status: OrderStatus) => {
     updateStatus({ orderId: o.id, providerId, status });
-  };
-
-  const openNoShow = (o: ProviderOrder) => {
-    setNoShowNote('');
-    setNoShowError(null);
-    setNoShowing(o);
-  };
-
-  const confirmNoShow = async () => {
-    if (!noShowing) return;
-    setNoShowError(null);
-    try {
-      await updateStatus({
-        orderId: noShowing.id,
-        providerId,
-        status: 'NO_SHOW',
-        reason: noShowNote.trim() || undefined,
-      }).unwrap();
-      setNoShowing(null);
-      setNoShowNote('');
-    } catch (err) {
-      setNoShowError(
-        (err as { data?: { message?: string } })?.data?.message ?? 'Could not mark this order a no-show.',
-      );
-    }
   };
 
   const openCancel = (o: ProviderOrder) => {
@@ -163,8 +146,6 @@ export function OrdersManager({ providerId }: { providerId: string }) {
     );
   }
 
-  const active = orders.filter((o) => o.status !== 'COMPLETED' && o.status !== 'CANCELLED').length;
-
   const renderActions = (o: ProviderOrder) => {
     const outstanding = o.amountMinor - o.amountPaidMinor;
     const needsCollect = o.status !== 'CANCELLED' && o.paymentStatus !== 'PAID' && outstanding > 0;
@@ -199,16 +180,6 @@ export function OrdersManager({ providerId }: { providerId: string }) {
             Collect {money(outstanding, o.currency)}
           </button>
         )}
-        {o.status === 'READY' && (
-          <button
-            type="button"
-            className={`${styles.btn} ${styles.cancel}`}
-            disabled={busy}
-            onClick={() => openNoShow(o)}
-          >
-            No-show
-          </button>
-        )}
         {canCancel && (
           <button
             type="button"
@@ -228,7 +199,6 @@ export function OrdersManager({ providerId }: { providerId: string }) {
     <>
     <Card
       title="Orders"
-      subtitle={`${orders.length} total · ${active} to fulfil`}
       action={
         <Button
           variant="secondary"
@@ -239,53 +209,132 @@ export function OrdersManager({ providerId }: { providerId: string }) {
         </Button>
       }
     >
-      <div className={styles.list}>
-        {orders.map((o) => {
-          const st = STATUS[o.status];
-          const pay = payBadge(o);
-          return (
-            <div className={styles.order} key={o.id}>
-              <div className={styles.top}>
-                <div className={styles.cust}>
-                  <span className={styles.name}>{o.user.fullName}</span>
-                  {o.user.phone ? (
-                    <a className={styles.phone} href={`tel:${o.user.phone}`}>
-                      <Phone size={13} aria-hidden="true" />
-                      {o.user.phone}
-                    </a>
-                  ) : null}
-                  <span className={styles.when}>{dateFmt.format(new Date(o.createdAt))}</span>
-                </div>
-                <div className={styles.badges}>
-                  <Badge tone={st.tone}>{st.label}</Badge>
-                  <Badge tone={pay.tone}>{pay.label}</Badge>
-                </div>
-              </div>
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th aria-hidden="true" />
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {orders.map((o) => {
+              const st = STATUS[o.status];
+              const pay = payBadge(o);
+              const expanded = expandedId === o.id;
+              const itemCount = o.items.length;
+              const shownItems = o.items.slice(0, 2);
+              const moreCount = itemCount - shownItems.length;
+              return (
+                <Fragment key={o.id}>
+                  <tr
+                    className={styles.row}
+                    onClick={() => toggleExpanded(o.id)}
+                    aria-expanded={expanded}
+                  >
+                    <td className={styles.expandCell}>
+                      <ChevronDown
+                        size={16}
+                        className={`${styles.chevron} ${expanded ? styles.chevronOpen : ''}`}
+                        aria-hidden="true"
+                      />
+                    </td>
+                    <td>
+                      <div className={styles.cust}>
+                        <span className={styles.name}>{o.user.fullName}</span>
+                        {o.user.phone ? (
+                          <a
+                            className={styles.phone}
+                            href={`tel:${o.user.phone}`}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Phone size={12} aria-hidden="true" />
+                            {o.user.phone}
+                          </a>
+                        ) : null}
+                        <span className={styles.when}>
+                          <Clock size={12} aria-hidden="true" />
+                          {dateFmt.format(new Date(o.createdAt))}
+                        </span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className={styles.itemsSummary}>
+                        {shownItems.map((it) => (
+                          <span className={styles.itemsSummaryLine} key={it.id}>
+                            {it.name}
+                          </span>
+                        ))}
+                        {moreCount > 0 && (
+                          <span className={styles.itemsSummaryMore}>+{moreCount} more</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className={styles.total}>{money(o.amountMinor, o.currency)}</td>
+                    <td>
+                      <div className={styles.statusStack}>
+                        <Badge tone={st.tone}>{st.label}</Badge>
+                        <Badge tone={pay.tone}>{pay.label}</Badge>
+                      </div>
+                    </td>
+                    <td>
+                      <div className={styles.actions} onClick={(e) => e.stopPropagation()}>
+                        {renderActions(o)}
+                      </div>
+                    </td>
+                  </tr>
 
-              <div className={styles.items}>
-                {o.items.map((it) => (
-                  <div className={styles.item} key={it.id}>
-                    <span className={styles.itemName}>
-                      {it.name} · {formatAmount(it.quantity, it.measure)}
-                    </span>
-                    <span className={styles.itemPrice}>{money(lineTotal(it), o.currency)}</span>
-                  </div>
-                ))}
-              </div>
+                  {expanded && (
+                    <tr className={styles.detailRow}>
+                      <td colSpan={6}>
+                        <div className={styles.detailPanel}>
+                          <ul className={styles.detailItems}>
+                            {o.items.map((it) => (
+                              <li className={styles.detailItem} key={it.id}>
+                                {it.product?.imageUrl ? (
+                                  <img
+                                    className={styles.detailThumb}
+                                    src={it.product.imageUrl}
+                                    alt=""
+                                  />
+                                ) : (
+                                  <span className={styles.detailThumbPlaceholder} aria-hidden="true">
+                                    <ImagePlus size={16} />
+                                  </span>
+                                )}
+                                <span className={styles.detailItemName}>
+                                  {it.name} · {formatAmount(it.quantity, it.measure)}
+                                  <span className={styles.detailItemUnitPrice}>
+                                    {' '}
+                                    · {priceLabel(it.priceMinor, it.priceQty, it.measure, o.currency)}
+                                  </span>
+                                </span>
+                                <span className={styles.detailItemPrice}>
+                                  {money(lineTotal(it), o.currency)}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
 
-              <div className={styles.footer}>
-                <span className={styles.total}>Total {money(o.amountMinor, o.currency)}</span>
-                <div className={styles.actions}>{renderActions(o)}</div>
-              </div>
-
-              {(o.status === 'CANCELLED' || o.status === 'NO_SHOW') && o.cancelReason ? (
-                <p className={styles.cancelNote}>
-                  {o.status === 'NO_SHOW' ? 'No-show note' : 'Cancellation note'}: {o.cancelReason}
-                </p>
-              ) : null}
-            </div>
-          );
-        })}
+                          {(o.status === 'CANCELLED' || o.status === 'NO_SHOW') && o.cancelReason ? (
+                            <p className={styles.cancelNote}>
+                              {o.status === 'NO_SHOW' ? 'No-show note' : 'Cancellation note'}:{' '}
+                              {o.cancelReason}
+                            </p>
+                          ) : null}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </Card>
 
@@ -320,41 +369,6 @@ export function OrdersManager({ providerId }: { providerId: string }) {
       </div>
     )}
 
-    {noShowing && (
-      <div className={styles.overlay} role="dialog" aria-modal="true">
-        <div className={styles.modal}>
-          <h3 className={styles.modalTitle}>Mark this order a no-show?</h3>
-          <p className={styles.modalSub}>
-            {noShowing.user.fullName} · {money(noShowing.amountMinor, noShowing.currency)}
-          </p>
-          <p className={styles.modalSub}>
-            {noShowing.amountPaidMinor > 0
-              ? "Already paid — it won't be refunded, and the product goes back into stock."
-              : 'No payment was taken — the customer gets a warning instead.'}
-          </p>
-          <label className={styles.modalLabel} htmlFor="orderNoShowNote">
-            Note for the customer <span className={styles.optional}>(optional)</span>
-          </label>
-          <textarea
-            id="orderNoShowNote"
-            className={styles.textarea}
-            placeholder="e.g. Held for 2 days past pickup, never collected."
-            value={noShowNote}
-            onChange={(e) => setNoShowNote(e.target.value)}
-            maxLength={500}
-          />
-          {noShowError && <AlertBanner tone="error">{noShowError}</AlertBanner>}
-          <div className={styles.modalActions}>
-            <Button variant="ghost" onClick={() => setNoShowing(null)} disabled={busy}>
-              Cancel
-            </Button>
-            <Button onClick={confirmNoShow} loading={updating} loadingText="Saving…">
-              Mark no-show
-            </Button>
-          </div>
-        </div>
-      </div>
-    )}
     </>
   );
 }

@@ -7,6 +7,7 @@ import { Combobox } from '@/components/Combobox';
 import { FormDialog } from '@/components/FormDialog';
 import { FormSection } from '@/components/FormSection';
 import { OptionSection } from '@/components/OptionSection';
+import { Select } from '@/components/Select';
 import { Service } from '@/redux/api/provider/types';
 import { SERVICE_SUGGESTIONS } from '@/data/serviceSuggestions';
 import { ServicesManagerProps } from './types';
@@ -89,59 +90,74 @@ export function ServicesManager({
           No services yet. Add the services you offer so customers know what they can book.
         </p>
       ) : (
-        <div className={styles.list}>
-          {services.map((s: Service) => (
-            <div
-              key={s.id}
-              className={`${styles.row} ${s.isActive === false ? styles.rowInactive : ''}`}
-            >
-              <div className={styles.rowMain}>
-                <div className={styles.rowName}>{s.name}</div>
-                {s.description && <div className={styles.rowDesc}>{s.description}</div>}
-                <div className={styles.rowMeta}>
-                  <span className={styles.price}>{formatPrice(s.priceMinor, s.currency)}</span>
-                  <span className={styles.metaItem}>
-                    <Clock size={14} aria-hidden="true" /> {formatDuration(s.durationMin)}
-                  </span>
-                  {s.travelRequired && (
-                    <span className={styles.metaItem}>
-                      <MapPin size={14} aria-hidden="true" /> On-location
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th>Price</th>
+                <th>Duration</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {services.map((s: Service) => (
+                <tr key={s.id} className={s.isActive === false ? styles.rowInactive : ''}>
+                  <td>
+                    <div className={styles.rowNameRow}>
+                      <span className={styles.cellTitle}>{s.name}</span>
+                      {s.travelRequired && (
+                        <span className={styles.scopeTag}>
+                          <MapPin size={11} aria-hidden="true" /> On-location
+                        </span>
+                      )}
+                    </div>
+                    {s.description && <div className={styles.cellSub}>{s.description}</div>}
+                  </td>
+                  <td className={styles.price}>{formatPrice(s.priceMinor, s.currency)}</td>
+                  <td>
+                    <span className={styles.durationCell}>
+                      <Clock size={13} aria-hidden="true" /> {formatDuration(s.durationMin)}
                     </span>
-                  )}
-                  <button
-                    type="button"
-                    className={`${styles.statusChip} ${
-                      s.isActive === false ? styles.inactive : styles.active
-                    }`}
-                    onClick={() => toggleActive(s)}
-                    aria-pressed={s.isActive !== false}
-                  >
-                    <span className={styles.statusDot} aria-hidden="true" />
-                    {s.isActive === false ? 'Inactive' : 'Active'}
-                  </button>
-                </div>
-              </div>
-
-              <div className={styles.rowActions}>
-                <button
-                  type="button"
-                  className={styles.iconBtn}
-                  onClick={() => startEdit(s)}
-                  aria-label={`Edit ${s.name}`}
-                >
-                  <Pencil size={16} aria-hidden="true" />
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
-                  onClick={() => remove(s.id)}
-                  aria-label={`Delete ${s.name}`}
-                >
-                  <Trash2 size={16} aria-hidden="true" />
-                </button>
-              </div>
-            </div>
-          ))}
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      className={`${styles.statusChip} ${
+                        s.isActive === false ? styles.inactive : styles.active
+                      }`}
+                      onClick={() => toggleActive(s)}
+                      aria-pressed={s.isActive !== false}
+                    >
+                      <span className={styles.statusDot} aria-hidden="true" />
+                      {s.isActive === false ? 'Inactive' : 'Active'}
+                    </button>
+                  </td>
+                  <td>
+                    <div className={styles.actionsCell}>
+                      <button
+                        type="button"
+                        className={styles.iconBtn}
+                        onClick={() => startEdit(s)}
+                        aria-label={`Edit ${s.name}`}
+                      >
+                        <Pencil size={16} aria-hidden="true" />
+                      </button>
+                      <button
+                        type="button"
+                        className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
+                        onClick={() => remove(s.id)}
+                        aria-label={`Delete ${s.name}`}
+                      >
+                        <Trash2 size={16} aria-hidden="true" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 
@@ -170,7 +186,7 @@ export function ServicesManager({
               <Combobox
                 id="name"
                 name="name"
-                placeholder="e.g. Root Canal Treatment — or search common services"
+                placeholder="e.g. Root Canal Treatment, or search common services"
                 value={form.name}
                 items={isNew ? comboItems : []}
                 onChange={onChange}
@@ -225,22 +241,15 @@ export function ServicesManager({
                   Duration
                 </label>
                 <div className={styles.durationSelects}>
-                  <select
-                    id="hours"
-                    name="hours"
-                    className={styles.select}
-                    value={form.hours}
-                    onChange={onChange}
-                  >
+                  <Select id="hours" name="hours" value={form.hours} onChange={onChange}>
                     {HOUR_OPTIONS.map((h) => (
                       <option key={h} value={h}>
                         {h} hr
                       </option>
                     ))}
-                  </select>
-                  <select
+                  </Select>
+                  <Select
                     name="minutes"
-                    className={styles.select}
                     value={form.minutes}
                     onChange={onChange}
                     aria-label="Duration minutes"
@@ -250,7 +259,7 @@ export function ServicesManager({
                         {m} min
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 </div>
               </div>
             </div>
@@ -334,7 +343,7 @@ export function ServicesManager({
               label="Accept partial payment for this service"
               description={
                 businessPartialPayEnabled === false
-                  ? 'Partial payment is turned off for the whole business — turn it on under Edit business → Payments.'
+                  ? 'Partial payment is turned off for the whole business. Turn it on under Edit business → Payments.'
                   : 'Customers can pay a deposit now to confirm, and the rest at the appointment.'
               }
               checked={form.partialPayEnabled && businessPartialPayEnabled !== false}

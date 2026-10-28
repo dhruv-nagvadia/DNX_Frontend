@@ -3,6 +3,7 @@ import { TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 import { TrendChart } from '@/components/TrendChart';
 import { Card } from '@/components/Card';
 import { Skeleton } from '@/components/Skeleton';
+import { Tabs } from '@/components/Tabs';
 import { BusinessType } from '@/redux/api/provider/types';
 
 import { EarningsPeriod } from './types';
@@ -62,20 +63,11 @@ export function EarningsPanel({
       title="Earnings"
       subtitle={PERIOD_NOTE[period]}
       action={
-        <div className={styles.toggle} role="tablist" aria-label="Earnings period">
-          {PERIODS.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              role="tab"
-              aria-selected={period === p.id}
-              className={`${styles.toggleBtn} ${period === p.id ? styles.toggleBtnActive : ''}`}
-              onClick={() => setPeriod(p.id)}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
+        <Tabs
+          tabs={PERIODS}
+          active={period}
+          onChange={(id) => setPeriod(id as EarningsPeriod)}
+        />
       }
     >
       {isLoading ? (
@@ -104,24 +96,23 @@ export function EarningsPanel({
             )}
           </div>
 
-          {series.isEmpty ? (
-            <div className={styles.empty}>
-              <Wallet size={28} aria-hidden="true" className={styles.emptyIcon} />
-              <p className={styles.emptyText}>
-                No earnings yet for this period. Your revenue will appear here once bookings or
-                orders come in.
-              </p>
-            </div>
-          ) : (
-            <div className={styles.chartWrap}>
-              <TrendChart
-                data={series.points}
-                height={260}
-                highlightLast
-                formatValue={(v) => money(v, series.currency)}
-                formatAxis={(v) => compact(v, series.currency)}
-              />
-            </div>
+          {/* Always show the chart, even at a flat zero — the day/week/month
+              labels on it already say "no revenue in this period" on their
+              own; a quiet period isn't the same as "never had any data". */}
+          <div className={styles.chartWrap}>
+            <TrendChart
+              data={series.points}
+              height={260}
+              highlightLast
+              formatValue={(v) => money(v, series.currency)}
+              formatAxis={(v) => compact(v, series.currency)}
+            />
+          </div>
+          {series.isEmpty && (
+            <p className={styles.emptyNote}>
+              No earnings yet for this period. Your revenue will appear here once bookings or
+              orders come in.
+            </p>
           )}
         </>
       )}

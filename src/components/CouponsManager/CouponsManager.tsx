@@ -17,6 +17,7 @@ import { Card } from '@/components/Card';
 import { FormDialog } from '@/components/FormDialog';
 import { FormSection } from '@/components/FormSection';
 import { OptionSection } from '@/components/OptionSection';
+import { Select } from '@/components/Select';
 import { BusinessType, Coupon, Product, Service } from '@/redux/api/provider/types';
 import { useCouponsManager } from './useCouponsManager';
 import styles from '@/components/ServicesManager/ServicesManager.module.css';
@@ -113,71 +114,92 @@ export function CouponsManager({
           No coupons yet. Create a discount code to run an offer on your business.
         </p>
       ) : (
-        <div className={styles.list}>
-          {coupons.map((c) => (
-            <div key={c.id} className={`${styles.row} ${!c.isActive ? styles.rowInactive : ''}`}>
-              <div className={styles.rowMain}>
-                <div className={`${styles.rowName} ${ui.rowNameRow}`}>
-                  <span className={ui.code}>{c.code}</span>
-                  {c.scope !== 'ORDER' && (
-                    <span className={ui.scopeTag}>
-                      <Ticket size={12} aria-hidden="true" />
-                      {c.scope === 'SERVICE' ? 'Service offer' : 'Product offer'}
+        <div className={ui.tableWrap}>
+          <table className={ui.table}>
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Discount</th>
+                <th>Applies to</th>
+                <th>Expires</th>
+                <th>Used</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {coupons.map((c) => (
+                <tr key={c.id} className={!c.isActive ? ui.rowInactive : ''}>
+                  <td>
+                    <div className={ui.rowNameRow}>
+                      <span className={ui.code}>{c.code}</span>
+                      {c.scope !== 'ORDER' && (
+                        <span className={ui.scopeTag}>
+                          <Ticket size={11} aria-hidden="true" />
+                          {c.scope === 'SERVICE' ? 'Service' : 'Product'}
+                        </span>
+                      )}
+                    </div>
+                    {c.description && <div className={ui.cellSub}>{c.description}</div>}
+                  </td>
+                  <td>
+                    <span className={ui.discount}>
+                      <Tag size={13} aria-hidden="true" /> {discountLabel(c)}
                     </span>
-                  )}
-                </div>
-                {c.description && <div className={styles.rowDesc}>{c.description}</div>}
-                <div className={styles.rowMeta}>
-                  <span className={ui.discount}>
-                    <Tag size={13} aria-hidden="true" /> {discountLabel(c)}
-                  </span>
-                  <span className={styles.metaItem}>{eligibilityLabel(c)}</span>
-                  {c.expiresAt && (
-                    <span
-                      className={`${styles.metaItem} ${isExpired(c.expiresAt) ? ui.expired : ''}`}
+                  </td>
+                  <td className={ui.cellText}>{eligibilityLabel(c)}</td>
+                  <td>
+                    {c.expiresAt ? (
+                      <span
+                        className={`${ui.cellText} ${isExpired(c.expiresAt) ? ui.expired : ''}`}
+                      >
+                        {isExpired(c.expiresAt)
+                          ? 'Expired'
+                          : dateFmt.format(new Date(c.expiresAt))}
+                      </span>
+                    ) : (
+                      <span className={ui.cellText}>No expiry</span>
+                    )}
+                  </td>
+                  <td className={ui.used}>
+                    {c.usedCount}
+                    {c.usageLimit ? ` / ${c.usageLimit}` : ''}
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      className={`${styles.statusChip} ${c.isActive ? styles.active : styles.inactive}`}
+                      onClick={() => toggleCouponActive(c)}
+                      aria-pressed={c.isActive}
                     >
-                      <CalendarClock size={13} aria-hidden="true" />
-                      {isExpired(c.expiresAt)
-                        ? 'Expired'
-                        : `till ${dateFmt.format(new Date(c.expiresAt))}`}
-                    </span>
-                  )}
-                  <span className={styles.metaItem}>
-                    <Users size={13} aria-hidden="true" /> {c.usedCount}
-                    {c.usageLimit ? ` / ${c.usageLimit}` : ''} used
-                  </span>
-                  <button
-                    type="button"
-                    className={`${styles.statusChip} ${c.isActive ? styles.active : styles.inactive}`}
-                    onClick={() => toggleCouponActive(c)}
-                    aria-pressed={c.isActive}
-                  >
-                    <span className={styles.statusDot} aria-hidden="true" />
-                    {c.isActive ? 'Active' : 'Off'}
-                  </button>
-                </div>
-              </div>
-
-              <div className={styles.rowActions}>
-                <button
-                  type="button"
-                  className={styles.iconBtn}
-                  onClick={() => startEdit(c)}
-                  aria-label={`Edit ${c.code}`}
-                >
-                  <Pencil size={16} aria-hidden="true" />
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
-                  onClick={() => remove(c.id)}
-                  aria-label={`Delete ${c.code}`}
-                >
-                  <Trash2 size={16} aria-hidden="true" />
-                </button>
-              </div>
-            </div>
-          ))}
+                      <span className={styles.statusDot} aria-hidden="true" />
+                      {c.isActive ? 'Active' : 'Off'}
+                    </button>
+                  </td>
+                  <td>
+                    <div className={ui.actionsCell}>
+                      <button
+                        type="button"
+                        className={styles.iconBtn}
+                        onClick={() => startEdit(c)}
+                        aria-label={`Edit ${c.code}`}
+                      >
+                        <Pencil size={16} aria-hidden="true" />
+                      </button>
+                      <button
+                        type="button"
+                        className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
+                        onClick={() => remove(c.id)}
+                        aria-label={`Delete ${c.code}`}
+                      >
+                        <Trash2 size={16} aria-hidden="true" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 
@@ -238,15 +260,14 @@ export function CouponsManager({
                   <label className={styles.label} htmlFor="discountType">
                     Discount type
                   </label>
-                  <select
+                  <Select
                     id="discountType"
-                    className={ui.select}
                     value={form.discountType}
                     onChange={(e) => setType(e.target.value as 'PERCENT' | 'FLAT')}
                   >
                     <option value="PERCENT">Percentage (%)</option>
                     <option value="FLAT">Flat amount (₹)</option>
-                  </select>
+                  </Select>
                 </div>
                 <div className={styles.field}>
                   <label className={styles.label} htmlFor="discountValue">
@@ -275,7 +296,7 @@ export function CouponsManager({
                   <label className={styles.label} htmlFor="maxDiscount">
                     Max discount{' '}
                     <span className={styles.optional}>
-                      (optional — caps how much one order can save)
+                      (optional, caps how much one order can save)
                     </span>
                   </label>
                   <div className={ui.affix}>
@@ -325,7 +346,7 @@ export function CouponsManager({
               <div className={styles.field}>
                 <label className={styles.label} htmlFor="minOrder">
                   Min order{' '}
-                  <span className={styles.optional}>(optional — leave blank for any order)</span>
+                  <span className={styles.optional}>(optional, leave blank for any order)</span>
                 </label>
                 <div className={ui.affix}>
                   <span className={ui.pre}>₹</span>
@@ -352,13 +373,12 @@ export function CouponsManager({
                 </label>
                 {items.length === 0 ? (
                   <p className={ui.noItems}>
-                    You don’t have any {itemLabel}s yet — add one first to scope a coupon to it.
+                    You don’t have any {itemLabel}s yet. Add one first to scope a coupon to it.
                   </p>
                 ) : (
-                  <select
+                  <Select
                     id={businessType === 'STORE' ? 'productId' : 'serviceId'}
                     name={businessType === 'STORE' ? 'productId' : 'serviceId'}
-                    className={ui.select}
                     value={businessType === 'STORE' ? form.productId : form.serviceId}
                     onChange={onChange}
                   >
@@ -368,7 +388,7 @@ export function CouponsManager({
                         {it.name}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 )}
               </div>
             )}
@@ -417,7 +437,7 @@ export function CouponsManager({
             <OptionSection
               name="isActive"
               icon={<Users size={16} />}
-              label="Active — customers can use this coupon"
+              label="Active, customers can use this coupon"
               description="Untick to pause it without deleting it."
               checked={form.isActive}
               onChange={() => toggleActive()}

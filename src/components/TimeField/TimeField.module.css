@@ -1,0 +1,162 @@
+.wrap {
+  position: relative;
+  display: inline-flex;
+  min-width: 0;
+}
+
+.field {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-family: inherit;
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+.field:hover {
+  border-color: var(--color-border-strong);
+}
+.field:focus-visible {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-ring);
+}
+.field:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.icon {
+  flex: 0 0 auto;
+  color: var(--color-text-secondary);
+}
+
+.value {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chevron {
+  flex: 0 0 auto;
+  color: var(--color-text-secondary);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+/* Portaled to document.body (see TimeField.tsx) so it's never clipped by an
+   ancestor's overflow: hidden (e.g. the shared Card). */
+.dropdown {
+  position: fixed;
+  z-index: 1000;
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+  animation: popIn var(--dur-fast) var(--ease-out);
+  transform-origin: top left;
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ── Hour / minute / AM-PM columns — scrollable wheels, like setting the
+   fields of a native time input, not one long combined 24-hour list. ───── */
+.columns {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 48px;
+  max-height: 208px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  /* Scrollable, but no visible scrollbar — it still scrolls by wheel/touch/
+     drag, it just doesn't draw the browser's thick default bar over it. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.column::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+.colon {
+  flex: 0 0 auto;
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+.meridiemColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 0 0 auto;
+  width: 44px;
+  margin-left: 4px;
+  padding-left: 8px;
+  border-left: 1px solid var(--color-border);
+}
+
+.option {
+  flex: 0 0 auto;
+  padding: 7px 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  text-align: center;
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+.option:hover {
+  background: var(--color-surface-2);
+}
+/* Theme blue — the brand primary, not a generic browser-default blue. */
+.optionActive,
+.optionActive:hover {
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .field,
+  .option,
+  .chevron,
+  .dropdown {
+    transition: none;
+    animation: none;
+  }
+}

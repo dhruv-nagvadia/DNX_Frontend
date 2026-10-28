@@ -32,7 +32,7 @@
 }
 
 .shell:hover {
-  border-color: #cbd5e1;
+  border-color: var(--color-border-strong);
 }
 
 .shell:focus-within {
@@ -47,7 +47,7 @@
 
 .shellError:focus-within {
   border-color: var(--color-error);
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.16);
+  box-shadow: 0 0 0 3px var(--color-error-soft);
 }
 
 .input {
@@ -68,7 +68,7 @@
 }
 
 .input::placeholder {
-  color: var(--color-text-secondary);
+  color: var(--color-text-placeholder);
 }
 
 /* Keep the browser's autofill wash from painting over the rounded shell. */

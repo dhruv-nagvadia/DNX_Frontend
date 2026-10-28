@@ -72,7 +72,7 @@
 .option:hover,
 .optionActive {
   background: var(--color-primary-soft);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 
 .empty {

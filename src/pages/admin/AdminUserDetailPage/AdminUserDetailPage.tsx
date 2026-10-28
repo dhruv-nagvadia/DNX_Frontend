@@ -8,7 +8,7 @@ export default function AdminUserDetailPage() {
   if (!userId) return null;
 
   return (
-    <AdminShell wide>
+    <AdminShell>
       <AdminUserDetail userId={userId} />
     </AdminShell>
   );

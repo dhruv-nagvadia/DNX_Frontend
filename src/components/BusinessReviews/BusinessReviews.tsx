@@ -58,8 +58,22 @@ function relativeDate(iso: string): string {
   return `${m} month${m === 1 ? '' : 's'} ago`;
 }
 
-/** The owner's reply to one review, or the button/form to add one. */
-function ReplyBlock({ providerId, review }: { providerId: string; review: BusinessReview }) {
+/**
+ * One review row: avatar, name/date/rating/comment, and the owner's reply
+ * (or the control to add one). In `compact` mode (the Overview preview,
+ * limited to 3) the "Reply" trigger moves into the header row next to the
+ * date instead of its own line, and the comment/reply text is clamped, so
+ * three rows stay short — the full list page (`compact=false`) is untouched.
+ */
+function ReviewItem({
+  providerId,
+  review,
+  compact,
+}: {
+  providerId: string;
+  review: BusinessReview;
+  compact: boolean;
+}) {
   const [replyToReview, { isLoading: saving }] = useReplyToReviewMutation();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(review.providerReply ?? '');
@@ -76,58 +90,98 @@ function ReplyBlock({ providerId, review }: { providerId: string; review: Busine
     setEditing(false);
   };
 
-  if (editing) {
-    return (
-      <div className={styles.replyForm}>
-        <textarea
-          className={styles.replyInput}
-          placeholder="Write a public reply to this review…"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          maxLength={1000}
-          rows={3}
-          autoFocus
-        />
-        <div className={styles.replyActions}>
-          <Button variant="ghost" onClick={() => setEditing(false)} disabled={saving}>
-            Cancel
-          </Button>
-          <Button onClick={save} loading={saving} loadingText="Saving…">
-            Save reply
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  if (review.providerReply) {
-    return (
-      <div className={styles.reply}>
-        <span className={styles.replyIcon}>
-          <Store size={13} aria-hidden="true" />
-        </span>
-        <div className={styles.replyBody}>
-          <div className={styles.replyHead}>
-            <span className={styles.replyLabel}>Your reply</span>
-            {review.repliedAt && (
-              <span className={styles.replyDate}>{relativeDate(review.repliedAt)}</span>
-            )}
-            <button type="button" className={styles.replyEditBtn} onClick={startEdit}>
-              <Pencil size={12} aria-hidden="true" />
-              Edit
-            </button>
-          </div>
-          <p className={styles.replyText}>{review.providerReply}</p>
-        </div>
-      </div>
-    );
-  }
+  const showHeaderTrigger = compact && !editing && !review.providerReply;
 
   return (
-    <button type="button" className={styles.replyBtn} onClick={startEdit}>
-      <MessageSquare size={13} aria-hidden="true" />
-      Reply
-    </button>
+    <li className={`${styles.review} ${compact ? styles.reviewCompact : ''}`}>
+      <span className={`${styles.avatar} ${compact ? styles.avatarCompact : ''}`} aria-hidden="true">
+        {initialsOf(review.user.fullName)}
+      </span>
+      <div className={`${styles.reviewBody} ${compact ? styles.reviewBodyCompact : ''}`}>
+        <div className={styles.reviewHead}>
+          <span className={styles.reviewName}>{review.user.fullName}</span>
+          <span className={styles.reviewHeadRight}>
+            <span className={styles.reviewDate}>{relativeDate(review.createdAt)}</span>
+            {showHeaderTrigger && (
+              <button type="button" className={styles.replyBtnCompact} onClick={startEdit}>
+                <MessageSquare size={12} aria-hidden="true" />
+                Reply
+              </button>
+            )}
+          </span>
+        </div>
+        <Stars rating={review.rating} />
+        {review.comment && (
+          <p className={`${styles.reviewText} ${compact ? styles.reviewTextClamp : ''}`}>
+            {review.comment}
+          </p>
+        )}
+
+        {editing ? (
+          <div className={styles.replyForm}>
+            <textarea
+              className={styles.replyInput}
+              placeholder="Write a public reply to this review…"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              maxLength={1000}
+              rows={3}
+              autoFocus
+            />
+            <div className={styles.replyActions}>
+              <Button variant="ghost" onClick={() => setEditing(false)} disabled={saving}>
+                Cancel
+              </Button>
+              <Button onClick={save} loading={saving} loadingText="Saving…">
+                Save reply
+              </Button>
+            </div>
+          </div>
+        ) : review.providerReply ? (
+          <div className={`${styles.reply} ${compact ? styles.replyCompact : ''}`}>
+            {!compact && (
+              <span className={styles.replyIcon}>
+                <Store size={13} aria-hidden="true" />
+              </span>
+            )}
+            {compact ? (
+              <div className={styles.replyInlineRow}>
+                <p className={`${styles.replyInlineText} ${styles.reviewTextClamp}`}>
+                  <span className={styles.replyLabel}>Your reply:</span> {review.providerReply}
+                </p>
+                <button
+                  type="button"
+                  className={styles.replyEditIconBtn}
+                  onClick={startEdit}
+                  aria-label="Edit reply"
+                >
+                  <Pencil size={15} aria-hidden="true" />
+                </button>
+              </div>
+            ) : (
+              <div className={styles.replyBody}>
+                <div className={styles.replyHead}>
+                  <span className={styles.replyLabel}>Your reply</span>
+                  {review.repliedAt && (
+                    <span className={styles.replyDate}>{relativeDate(review.repliedAt)}</span>
+                  )}
+                  <button type="button" className={styles.replyEditBtn} onClick={startEdit}>
+                    <Pencil size={15} aria-hidden="true" />
+                    Edit
+                  </button>
+                </div>
+                <p className={styles.replyText}>{review.providerReply}</p>
+              </div>
+            )}
+          </div>
+        ) : !compact ? (
+          <button type="button" className={styles.replyBtn} onClick={startEdit}>
+            <MessageSquare size={13} aria-hidden="true" />
+            Reply
+          </button>
+        ) : null}
+      </div>
+    </li>
   );
 }
 
@@ -150,6 +204,7 @@ export function BusinessReviews({ providerId, limit, onViewAll }: BusinessReview
     n: reviews.filter((r) => r.rating === star).length,
   }));
   const shown = limit ? reviews.slice(0, limit) : reviews;
+  const compact = Boolean(limit);
 
   return (
     <Card
@@ -167,9 +222,9 @@ export function BusinessReviews({ providerId, limit, onViewAll }: BusinessReview
         <p className={styles.empty}>
           No reviews yet. Reviews appear here after customers complete a booking and rate you.
         </p>
-      ) : (
-        <>
-          <div className={styles.summary}>
+      ) : (() => {
+        const summary = (
+          <div className={compact ? styles.summary : styles.summaryWide}>
             <div className={styles.score}>
               <span className={styles.scoreNum}>{avg.toFixed(1)}</span>
               <Stars rating={avg} size={16} />
@@ -195,27 +250,31 @@ export function BusinessReviews({ providerId, limit, onViewAll }: BusinessReview
               ))}
             </div>
           </div>
+        );
 
-          <ul className={styles.list}>
+        const list = (
+          <ul className={`${styles.list} ${compact ? styles.listCompact : ''}`}>
             {shown.map((r) => (
-              <li className={styles.review} key={r.id}>
-                <span className={styles.avatar} aria-hidden="true">
-                  {initialsOf(r.user.fullName)}
-                </span>
-                <div className={styles.reviewBody}>
-                  <div className={styles.reviewHead}>
-                    <span className={styles.reviewName}>{r.user.fullName}</span>
-                    <span className={styles.reviewDate}>{relativeDate(r.createdAt)}</span>
-                  </div>
-                  <Stars rating={r.rating} />
-                  {r.comment && <p className={styles.reviewText}>{r.comment}</p>}
-                  <ReplyBlock providerId={providerId} review={r} />
-                </div>
-              </li>
+              <ReviewItem key={r.id} providerId={providerId} review={r} compact={compact} />
             ))}
           </ul>
-        </>
-      )}
+        );
+
+        // Compact (Overview preview): summary as a narrow left column beside
+        // the review list. Full list page: summary full-width on top, list
+        // below it — the original layout, unchanged.
+        return compact ? (
+          <div className={styles.layout}>
+            {summary}
+            {list}
+          </div>
+        ) : (
+          <>
+            {summary}
+            {list}
+          </>
+        );
+      })()}
     </Card>
   );
 }

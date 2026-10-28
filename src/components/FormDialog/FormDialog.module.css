@@ -18,7 +18,7 @@
   max-width: 720px;
   max-height: min(92vh, 860px);
   border-radius: var(--radius-xl);
-  background: var(--color-surface);
+  background: var(--color-surface-elevated);
   box-shadow: var(--shadow-xl);
   outline: none;
   animation: rise var(--dur-mid) var(--ease-out);

@@ -47,7 +47,7 @@
   margin: 0;
   padding: 10px 12px;
   border-radius: var(--radius-md);
-  background: rgba(245, 158, 11, 0.12);
+  background: var(--color-warning-soft);
   font-size: var(--font-size-sm);
   line-height: 1.5;
   color: var(--color-text-primary);

@@ -1,5 +1,4 @@
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Ban, CreditCard, ShieldCheck } from 'lucide-react';
+import { Ban, CreditCard, ShieldCheck } from 'lucide-react';
 
 import { AlertBanner } from '@/components/AlertBanner';
 import { Badge } from '@/components/Badge';
@@ -16,7 +15,6 @@ const dateFmt = new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short
 const money = (minor: number) => `₹${(minor / 100).toLocaleString('en-IN')}`;
 
 export function AdminUserDetail({ userId }: AdminUserDetailProps) {
-  const navigate = useNavigate();
   const {
     data,
     isLoading,
@@ -59,14 +57,6 @@ export function AdminUserDetail({ userId }: AdminUserDetailProps) {
 
   return (
     <>
-      <Button
-        variant="ghost"
-        iconLeft={<ArrowLeft size={16} aria-hidden="true" />}
-        onClick={() => navigate('/admin/users')}
-      >
-        Back to customers
-      </Button>
-
       <Card title="Customer">
         <div className={local.header}>
           <div>

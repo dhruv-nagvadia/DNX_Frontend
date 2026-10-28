@@ -10,7 +10,7 @@ import { splitAmount, toBase } from '@/utils/units';
 import { StockAdjustForm } from './types';
 
 const EMPTY_FORM: StockAdjustForm = {
-  direction: 'remove',
+  direction: 'add',
   amount: '',
   unit: 'piece',
   reason: '',

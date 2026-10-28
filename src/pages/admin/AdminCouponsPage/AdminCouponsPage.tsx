@@ -4,7 +4,7 @@ import { PlatformCouponsManager } from '@/components/PlatformCouponsManager';
 
 export default function AdminCouponsPage() {
   return (
-    <AdminShell wide>
+    <AdminShell>
       <PageHeader
         title="Coupons"
         subtitle="Create and manage platform-wide discount codes, usable across any business."

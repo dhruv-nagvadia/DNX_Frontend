@@ -5,6 +5,7 @@ import { Badge } from '@/components/Badge';
 import { Card } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
 import { PageHeader } from '@/components/PageHeader';
+import { Select } from '@/components/Select';
 import { Skeleton } from '@/components/Skeleton';
 import { StatTile } from '@/components/StatTile';
 import { Tabs } from '@/components/Tabs';
@@ -12,8 +13,6 @@ import { EarningsTransaction } from '@/redux/api/provider/types';
 import { RANGE_PRESETS } from '@/utils/dateRange';
 import { bpsToPercentText, formatMoney } from '@/utils/money';
 import { useEarningsPage } from './useEarningsPage';
-// Generic field/label/form styling shared across provider/admin forms.
-import form from '@/components/ServicesManager/ServicesManager.module.css';
 import styles from '@/components/FinanceTable/FinanceTable.module.css';
 
 const dateFmt = new Intl.DateTimeFormat('en-IN', {
@@ -46,8 +45,7 @@ export default function EarningsPage() {
       <div className={styles.controls}>
         <Tabs tabs={tabs} active={e.preset} onChange={(id) => e.onPreset(id as typeof e.preset)} />
         {e.businesses.length > 1 && (
-          <select
-            className={form.select}
+          <Select
             style={{ width: 'auto', minWidth: 200 }}
             aria-label="Filter by business"
             value={e.businessId}
@@ -59,7 +57,7 @@ export default function EarningsPage() {
                 {b.businessName}
               </option>
             ))}
-          </select>
+          </Select>
         )}
       </div>
 

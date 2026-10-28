@@ -120,7 +120,7 @@ export default function DashboardPage() {
   );
 
   return (
-    <AppShell wide>
+    <AppShell>
       <PageHeader
         eyebrow={dateFmt.format(new Date())}
         title={`Welcome back, ${firstName}`}

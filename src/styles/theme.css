@@ -1,48 +1,54 @@
 /**
  * Single source of truth for design tokens (colors, fonts, spacing, radius).
  * Reference these variables from every *.module.css file — never hardcode.
+ *
+ * Light/dark: `:root` below holds the light defaults. A viewer with no saved
+ * preference who prefers dark gets the `prefers-color-scheme` block; once the
+ * user explicitly picks a mode (the sidebar toggle), `data-theme` on <html>
+ * wins outright. See src/hooks/useTheme.ts and src/utils/theme.ts.
  */
 :root {
-  /* Brand — navy blue */
+  /* Brand blue — the same value in both themes (per spec); only its hover/
+     soft/ring derivatives shift between light and dark. */
   --color-primary: #1e3a8a;
-  --color-primary-dark: #172554;
-  --color-primary-hover: #24479c;
+  --color-primary-hover: #172f70;
+  --color-primary-dark: #172f70;
   --color-primary-soft: rgba(30, 58, 138, 0.1);
   --color-primary-ring: rgba(30, 58, 138, 0.2);
 
-  /* Neutral scale — Tailwind's Slate palette (a widely-used, well-tested
-     blue-gray scale; --color-border/--color-text-* below already happen to
-     be slate-200/500/900). Using its actual step values rather than
-     one-off in-between hexes guarantees each tier is clearly, consistently
-     distinct from its neighbors instead of a few points apart. */
   --color-white: #ffffff;
-  /* The page canvas behind every card — slate-50. A faint tint rather than
-     pure white so white cards/headers still read as raised off the page. */
-  --color-background: #f8fafc;
+  /* Page canvas behind every card. */
+  --color-background: #f5f8fc;
   --color-surface: #ffffff;
-  /* A secondary surface tint for hover/muted states ON TOP of a white card
-     (tabs, badges, calendar cells…) — slate-100. Deliberately one step
-     darker than --color-background so the two don't collide: this is a
-     "slightly pressed" surface, not the page itself. */
-  --color-surface-2: #f1f5f9;
-  /* A card/section's own header strip — slate-200, i.e. exactly
-     --color-border's value. A header this color plus a matching border
-     underneath it reads as one deliberately "boxed" strip, and because
-     slate-200 sits a full, clearly-visible step below both white (card
-     body) and slate-50 (the page), it can never blend into either. */
-  --color-surface-header: var(--color-border);
+  /* Alternate section backgrounds (bands within a page). */
+  --color-surface-2: #edf3fb;
+  /* A card/section's own header strip. */
+  --color-surface-header: #e7effa;
+  /* Modals and other surfaces that sit above a card. */
+  --color-surface-elevated: #ffffff;
 
-  /* Text (slate) */
+  /* Text */
   --color-text-primary: #0f172a;
-  --color-text-secondary: #64748b;
+  --color-text-secondary: #52637a;
+  --color-text-muted: #64748b;
+  --color-text-placeholder: #94a3b8;
+
+  --color-border: #dce5f0;
+  --color-border-strong: #cbd5e1;
 
   /* State */
-  --color-error: #ef4444;
-  --color-error-soft: rgba(239, 68, 68, 0.08);
-  --color-error-border: rgba(239, 68, 68, 0.3);
-  --color-success: #16a34a;
-  --color-warning: #f59e0b;
-  --color-border: #e2e8f0;
+  --color-error: #dc2626;
+  --color-error-soft: rgba(220, 38, 38, 0.1);
+  --color-error-border: rgba(220, 38, 38, 0.26);
+  --color-success: #15803d;
+  --color-success-soft: rgba(21, 128, 61, 0.1);
+  --color-success-border: rgba(21, 128, 61, 0.28);
+  --color-warning: #b45309;
+  --color-warning-soft: rgba(180, 83, 9, 0.12);
+  --color-warning-border: rgba(180, 83, 9, 0.28);
+  --color-info: #1d4ed8;
+  --color-info-soft: rgba(29, 78, 216, 0.1);
+  --color-info-border: rgba(29, 78, 216, 0.26);
 
   /* Typography */
   --font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -63,18 +69,21 @@
   --space-2xl: 48px;
   --space-3xl: 64px;
 
-  /* Radius & shadow */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-  --radius-pill: 999px;
+  /* Radius & shadow — squared-off, not round (overrides the design spec's
+     rounder 9px/14px guidance per explicit, repeated instruction). */
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 6px;
+  --radius-pill: 4px;
   --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.05);
   --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
   --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.12);
   --shadow-xl: 0 24px 64px rgba(15, 23, 42, 0.16);
 
-  /* ── Dark "ink" surfaces — used by the auth brand panel ───────────── */
+  /* ── Dark "ink" surfaces — used by the auth brand panel only; these are
+     intentionally NOT part of the light/dark toggle (a fixed brand look,
+     like the auth page's hero panel). ───────────────────────────────── */
   --color-ink: #060b18;
   --color-ink-2: #0d1730;
   --color-on-dark: #f8fafc;
@@ -87,10 +96,11 @@
   --glass-border: rgba(255, 255, 255, 0.11);
   --glass-border-strong: rgba(255, 255, 255, 0.2);
 
-  /* Accent — cyan. Reserved for "live"/AI signals only, never body text. */
-  --color-accent: #38bdf8;
+  /* Accent — AI highlight. Theme-aware (used on normal content surfaces,
+     not just the always-dark ink panel). */
+  --color-accent: #0891b2;
   --color-accent-2: #818cf8;
-  --color-accent-soft: rgba(56, 189, 248, 0.16);
+  --color-accent-soft: rgba(8, 145, 178, 0.14);
 
   /* Motion */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -101,4 +111,94 @@
 
   /* Film-grain overlay (pure CSS/SVG — no WebGL, no image asset) */
   --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='180' height='180' filter='url(%23g)' opacity='0.55'/></svg>");
+}
+
+/* Dark mode — applied either because the OS prefers it (and the user hasn't
+   explicitly chosen light) or because the user explicitly chose dark. Only
+   the tokens that actually change between themes are listed here; the ink,
+   glass, primary, radius, spacing and typography tokens stay the same. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-primary-hover: #294aa0;
+    --color-primary-dark: #93b4ff;
+    --color-primary-soft: rgba(30, 58, 138, 0.22);
+    --color-primary-ring: rgba(30, 58, 138, 0.35);
+
+    --color-background: #061326;
+    --color-surface: #102642;
+    --color-surface-2: #0b1e36;
+    --color-surface-header: #122c4a;
+    --color-surface-elevated: #173555;
+
+    --color-text-primary: #f8fafc;
+    --color-text-secondary: #b8c7db;
+    --color-text-muted: #a0aeca;
+    --color-text-placeholder: #8496af;
+
+    --color-border: #203b5b;
+    --color-border-strong: #35506f;
+
+    --color-error: #f87171;
+    --color-error-soft: rgba(248, 113, 113, 0.16);
+    --color-error-border: rgba(248, 113, 113, 0.32);
+    --color-success: #34d399;
+    --color-success-soft: rgba(52, 211, 153, 0.16);
+    --color-success-border: rgba(52, 211, 153, 0.32);
+    --color-warning: #fbbf24;
+    --color-warning-soft: rgba(251, 191, 36, 0.16);
+    --color-warning-border: rgba(251, 191, 36, 0.32);
+    --color-info: #93b4ff;
+    --color-info-soft: rgba(147, 180, 255, 0.16);
+    --color-info-border: rgba(147, 180, 255, 0.32);
+
+    --color-accent: #22d3ee;
+    --color-accent-soft: rgba(34, 211, 238, 0.16);
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.24);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.32);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.4);
+    --shadow-xl: 0 24px 64px rgba(0, 0, 0, 0.48);
+  }
+}
+
+:root[data-theme='dark'] {
+  --color-primary-hover: #294aa0;
+  --color-primary-dark: #93b4ff;
+  --color-primary-soft: rgba(30, 58, 138, 0.22);
+  --color-primary-ring: rgba(30, 58, 138, 0.35);
+
+  --color-background: #061326;
+  --color-surface: #102642;
+  --color-surface-2: #0b1e36;
+  --color-surface-header: #122c4a;
+  --color-surface-elevated: #173555;
+
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #b8c7db;
+  --color-text-muted: #a0aeca;
+  --color-text-placeholder: #8496af;
+
+  --color-border: #203b5b;
+  --color-border-strong: #35506f;
+
+  --color-error: #f87171;
+  --color-error-soft: rgba(248, 113, 113, 0.16);
+  --color-error-border: rgba(248, 113, 113, 0.32);
+  --color-success: #34d399;
+  --color-success-soft: rgba(52, 211, 153, 0.16);
+  --color-success-border: rgba(52, 211, 153, 0.32);
+  --color-warning: #fbbf24;
+  --color-warning-soft: rgba(251, 191, 36, 0.16);
+  --color-warning-border: rgba(251, 191, 36, 0.32);
+  --color-info: #93b4ff;
+  --color-info-soft: rgba(147, 180, 255, 0.16);
+  --color-info-border: rgba(147, 180, 255, 0.32);
+
+  --color-accent: #22d3ee;
+  --color-accent-soft: rgba(34, 211, 238, 0.16);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.24);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.32);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 24px 64px rgba(0, 0, 0, 0.48);
 }

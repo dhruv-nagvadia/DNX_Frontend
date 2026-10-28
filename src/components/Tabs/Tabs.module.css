@@ -1,6 +1,10 @@
 .tabs {
+  position: relative;
   display: flex;
-  gap: 4px;
+  /* Wide enough that the hover box on one tab and the selected pill on its
+     neighbour clearly don't touch — 4px read as "no gap at all" once both
+     are solid, square-cornered fills sitting right next to each other. */
+  gap: 10px;
   padding: 5px;
   background: var(--color-surface-2);
   border: 1px solid var(--color-border);
@@ -12,7 +16,26 @@
   display: none;
 }
 
+/* The single sliding pill — it carries the active background, so a tab
+   switch reads as one continuous motion instead of two tabs cross-fading. */
+.indicator {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  left: 0;
+  z-index: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform var(--dur-mid) var(--ease-out),
+    width var(--dur-mid) var(--ease-out);
+  will-change: transform, width;
+}
+
 .tab {
+  position: relative;
+  z-index: 1;
   flex: 1 1 auto;
   display: inline-flex;
   align-items: center;
@@ -29,24 +52,33 @@
   cursor: pointer;
   transition:
     background var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out),
-    box-shadow var(--dur-fast) var(--ease-out);
+    color var(--dur-fast) var(--ease-out);
 }
 
 .tab:hover {
   color: var(--color-text-primary);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.tab:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-ring);
 }
 
 .tabActive,
 .tabActive:hover {
-  background: var(--color-primary);
   color: var(--color-white);
-  box-shadow: var(--shadow-sm);
+  background: transparent;
 }
 
 .icon {
   display: inline-flex;
   align-items: center;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.tab:active .icon {
+  transform: scale(0.9);
 }
 
 .count {
@@ -55,14 +87,26 @@
   height: 18px;
   border-radius: var(--radius-pill);
   background: var(--color-primary-soft);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   font-size: var(--font-size-xs);
   font-weight: 700;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
 }
 .tabActive .count {
   background: rgba(255, 255, 255, 0.24);
   color: var(--color-white);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .indicator {
+    transition: none;
+  }
+  .icon {
+    transition: none;
+  }
 }

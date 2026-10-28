@@ -33,7 +33,7 @@
   height: 40px;
   border-radius: var(--radius-md);
   background: var(--color-primary-soft);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 
 .ctaText {
@@ -100,7 +100,7 @@
   height: 40px;
   border-radius: var(--radius-md);
   background: var(--color-primary-soft);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 
 .name {

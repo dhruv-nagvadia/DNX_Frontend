@@ -2,9 +2,11 @@ import { CalendarOff, ChevronLeft, ChevronRight, Clock, RotateCcw } from 'lucide
 
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
+import { Tabs } from '@/components/Tabs';
+import { TimeField } from '@/components/TimeField';
 
 import { BusinessCalendarProps } from './types';
-import { CalendarDay, useBusinessCalendar, WEEKDAYS_SHORT } from './useBusinessCalendar';
+import { CalendarDay, CalendarView, useBusinessCalendar, WEEKDAYS_SHORT } from './useBusinessCalendar';
 import styles from './BusinessCalendar.module.css';
 
 // Week-view vertical time axis.
@@ -13,6 +15,11 @@ const AXIS_END = 22; // 22:00
 const HOUR_PX = 44;
 
 const timeFmt = new Intl.DateTimeFormat('en-IN', { hour: 'numeric', minute: '2-digit' });
+
+const VIEW_TABS = [
+  { id: 'month', label: 'Month' },
+  { id: 'week', label: 'Week' },
+];
 
 function firstName(name: string): string {
   return name.trim().split(/\s+/)[0] ?? name;
@@ -40,67 +47,59 @@ function fmtLongDate(key: string): string {
   });
 }
 
-/** Month/week schedule with booked slots + per-date hour overrides. */
+/** Month/week schedule with booked slots + per-date hour overrides. Picking a
+ * date updates the side panel immediately — bookings and the hours editor
+ * for that date sit together in one place, instead of a separate section
+ * further down the page. */
 export function BusinessCalendar({ providerId, businessHours }: BusinessCalendarProps) {
   const cal = useBusinessCalendar(providerId, businessHours);
 
   return (
-    <>
-      <Card
-        title="Calendar"
-        action={
-          <div className={styles.viewToggle} role="tablist" aria-label="Calendar view">
-            {(['month', 'week'] as const).map((v) => (
-              <button
-                key={v}
-                type="button"
-                role="tab"
-                aria-selected={cal.view === v}
-                className={`${styles.viewBtn} ${cal.view === v ? styles.viewBtnActive : ''}`}
-                onClick={() => cal.setView(v)}
-              >
-                {v === 'month' ? 'Month' : 'Week'}
-              </button>
-            ))}
+    <Card
+      title="Calendar"
+      action={
+        <Tabs
+          tabs={VIEW_TABS}
+          active={cal.view}
+          onChange={(id) => cal.setView(id as CalendarView)}
+        />
+      }
+    >
+      <div className={styles.toolbar}>
+        <div className={styles.nav}>
+          <button type="button" className={styles.navBtn} onClick={cal.prev} aria-label="Previous">
+            <ChevronLeft size={18} aria-hidden="true" />
+          </button>
+          <button type="button" className={styles.navBtn} onClick={cal.next} aria-label="Next">
+            <ChevronRight size={18} aria-hidden="true" />
+          </button>
+          <button type="button" className={styles.todayBtn} onClick={cal.today}>
+            Today
+          </button>
+        </div>
+        <h3 className={styles.period}>{cal.label}</h3>
+      </div>
+
+      <div className={styles.layout}>
+        <div className={styles.gridCol}>
+          {cal.view === 'month' ? <MonthView cal={cal} /> : <WeekView cal={cal} />}
+
+          <div className={styles.legend}>
+            <span className={styles.legendItem}>
+              <span className={`${styles.dot} ${styles.dotOpen}`} /> Open
+            </span>
+            <span className={styles.legendItem}>
+              <span className={`${styles.dot} ${styles.dotClosed}`} /> Closed
+            </span>
+            <span className={styles.legendItem}>
+              <span className={`${styles.dot} ${styles.dotOverride}`} /> Custom hours
+            </span>
           </div>
-        }
-      >
-        <div className={styles.toolbar}>
-          <div className={styles.nav}>
-            <button type="button" className={styles.navBtn} onClick={cal.prev} aria-label="Previous">
-              <ChevronLeft size={18} aria-hidden="true" />
-            </button>
-            <button type="button" className={styles.navBtn} onClick={cal.next} aria-label="Next">
-              <ChevronRight size={18} aria-hidden="true" />
-            </button>
-            <button type="button" className={styles.todayBtn} onClick={cal.today}>
-              Today
-            </button>
-          </div>
-          <h3 className={styles.period}>{cal.label}</h3>
         </div>
 
-        {cal.view === 'month' ? (
-          <MonthView cal={cal} />
-        ) : (
-          <WeekView cal={cal} />
-        )}
-
-        <div className={styles.legend}>
-          <span className={styles.legendItem}>
-            <span className={`${styles.dot} ${styles.dotOpen}`} /> Open
-          </span>
-          <span className={styles.legendItem}>
-            <span className={`${styles.dot} ${styles.dotClosed}`} /> Closed
-          </span>
-          <span className={styles.legendItem}>
-            <span className={`${styles.dot} ${styles.dotOverride}`} /> Custom hours
-          </span>
-        </div>
-      </Card>
-
-      <DayDetail cal={cal} />
-    </>
+        <DayPanel cal={cal} />
+      </div>
+    </Card>
   );
 }
 
@@ -231,46 +230,50 @@ function OpenBand({ day }: { day: CalendarDay }) {
   return <div className={styles.openBand} style={{ top, height: Math.max(0, height) }} />;
 }
 
-/* ── Day detail + override editor ─────────────────────────────────── */
-function DayDetail({ cal }: { cal: Cal }) {
+/* ── Day panel: bookings + the hours editor for the selected date, both in
+   one place next to the grid — picking a date is the only step needed. ──── */
+function DayPanel({ cal }: { cal: Cal }) {
   const { selectedDay, form, setForm, saveOverride, resetOverride, saving, removing, hasOverride } =
     cal;
 
   return (
-    <Card
-      title={fmtLongDate(cal.selectedKey)}
-      subtitle={
-        selectedDay.hours.isOpen
-          ? `Open ${selectedDay.hours.openTime}–${selectedDay.hours.closeTime} · ${
-              selectedDay.hours.source === 'override' ? 'custom for this date' : 'weekly hours'
-            }`
-          : 'Closed on this date'
-      }
-    >
-      {/* Bookings that day */}
-      {selectedDay.bookings.length > 0 ? (
-        <ul className={styles.dayBookings}>
-          {selectedDay.bookings.map((b) => (
-            <li key={b.id} className={styles.dayBooking}>
-              <span className={styles.dbTime}>
-                {hhmm(b.startTime)}–{hhmm(b.endTime)}
-              </span>
-              <span className={styles.dbWho}>{b.user.fullName}</span>
-              <span className={styles.dbService}>{b.service.name}</span>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className={styles.noBookings}>
-          <CalendarOff size={15} aria-hidden="true" /> No bookings on this date.
-        </p>
-      )}
+    <aside className={styles.dayPanel}>
+      <div className={styles.dayPanelHead}>
+        <span className={styles.dayPanelDate}>{fmtLongDate(cal.selectedKey)}</span>
+        <span className={styles.dayPanelStatus}>
+          {selectedDay.hours.isOpen
+            ? `Open ${selectedDay.hours.openTime}–${selectedDay.hours.closeTime}`
+            : 'Closed'}
+          {selectedDay.hours.source === 'override' && (
+            <span className={styles.customTag}>Custom</span>
+          )}
+        </span>
+      </div>
 
-      {/* Per-date hours editor */}
-      <div className={styles.editor}>
-        <div className={styles.editorHead}>
-          <Clock size={15} aria-hidden="true" />
-          Hours for this date
+      <div className={styles.dayPanelSection}>
+        <div className={styles.dayPanelSectionTitle}>Bookings</div>
+        {selectedDay.bookings.length > 0 ? (
+          <ul className={styles.dayBookings}>
+            {selectedDay.bookings.map((b) => (
+              <li key={b.id} className={styles.dayBooking}>
+                <span className={styles.dbTime}>
+                  {hhmm(b.startTime)}–{hhmm(b.endTime)}
+                </span>
+                <span className={styles.dbWho}>{b.user.fullName}</span>
+                <span className={styles.dbService}>{b.service.name}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className={styles.noBookings}>
+            <CalendarOff size={15} aria-hidden="true" /> No bookings on this date.
+          </p>
+        )}
+      </div>
+
+      <div className={styles.dayPanelSection}>
+        <div className={styles.dayPanelSectionTitle}>
+          <Clock size={14} aria-hidden="true" /> Hours for this date
         </div>
 
         <label className={styles.openRow}>
@@ -288,26 +291,24 @@ function DayDetail({ cal }: { cal: Cal }) {
 
         {form.isOpen && (
           <div className={styles.times}>
-            <input
-              type="time"
-              className={styles.timeInput}
+            <TimeField
+              className={styles.timeField}
               value={form.openTime}
-              onChange={(e) => setForm({ ...form, openTime: e.target.value })}
+              onChange={(v) => setForm({ ...form, openTime: v })}
               aria-label="Opening time"
             />
             <span className={styles.dash}>to</span>
-            <input
-              type="time"
-              className={styles.timeInput}
+            <TimeField
+              className={styles.timeField}
               value={form.closeTime}
-              onChange={(e) => setForm({ ...form, closeTime: e.target.value })}
+              onChange={(v) => setForm({ ...form, closeTime: v })}
               aria-label="Closing time"
             />
           </div>
         )}
 
         <div className={styles.editorActions}>
-          <Button onClick={saveOverride} loading={saving} loadingText="Saving…">
+          <Button onClick={saveOverride} loading={saving} loadingText="Saving…" fullWidth>
             Save for this date
           </Button>
           {hasOverride && (
@@ -317,12 +318,13 @@ function DayDetail({ cal }: { cal: Cal }) {
               loading={removing}
               loadingText="Removing…"
               iconLeft={<RotateCcw size={15} aria-hidden="true" />}
+              fullWidth
             >
               Reset to weekly
             </Button>
           )}
         </div>
       </div>
-    </Card>
+    </aside>
   );
 }

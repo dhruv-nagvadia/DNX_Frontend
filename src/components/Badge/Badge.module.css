@@ -24,30 +24,30 @@
 
 .brand {
   background: var(--color-primary-soft);
-  border-color: rgba(30, 58, 138, 0.18);
-  color: var(--color-primary);
+  border-color: var(--color-primary-ring);
+  color: var(--color-primary-dark);
 }
 
 .success {
-  background: rgba(22, 163, 74, 0.1);
-  border-color: rgba(22, 163, 74, 0.24);
-  color: #15803d;
+  background: var(--color-success-soft);
+  border-color: var(--color-success-border);
+  color: var(--color-success);
 }
 
 .warning {
-  background: rgba(245, 158, 11, 0.12);
-  border-color: rgba(245, 158, 11, 0.28);
-  color: #b45309;
+  background: var(--color-warning-soft);
+  border-color: var(--color-warning-border);
+  color: var(--color-warning);
 }
 
 .accent {
-  background: rgba(2, 132, 199, 0.1);
-  border-color: rgba(2, 132, 199, 0.22);
-  color: #0369a1;
+  background: var(--color-info-soft);
+  border-color: var(--color-info-border);
+  color: var(--color-info);
 }
 
 .error {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: rgba(239, 68, 68, 0.26);
-  color: #b91c1c;
+  background: var(--color-error-soft);
+  border-color: var(--color-error-border);
+  color: var(--color-error);
 }

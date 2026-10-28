@@ -18,13 +18,13 @@
 .error {
   background: var(--color-error-soft);
   border-color: var(--color-error-border);
-  color: #b42318;
+  color: var(--color-error);
 }
 
 .success {
-  background: rgba(22, 163, 74, 0.08);
-  border-color: rgba(22, 163, 74, 0.3);
-  color: #15803d;
+  background: var(--color-success-soft);
+  border-color: var(--color-success-border);
+  color: var(--color-success);
 }
 
 @keyframes slideIn {

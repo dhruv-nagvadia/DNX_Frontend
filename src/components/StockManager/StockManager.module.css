@@ -1,6 +1,21 @@
 .searchWrap {
   max-width: 480px;
 }
+.searchLabel {
+  display: block;
+  margin-bottom: 6px;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.hint {
+  margin: var(--space-md) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
 
 /* The picked-product mini form, shown once a product is selected. */
 .panel {
@@ -16,9 +31,12 @@
 
 .panelHead {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-sm);
+}
+.panelHeadText {
+  min-width: 0;
 }
 
 .panelName {
@@ -31,6 +49,104 @@
   margin: 2px 0 0;
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
+}
+
+/* ── Current-stock stat: the flow's first beat — see where things stand
+   before deciding what to do about it. ──────────────────────────────── */
+.statRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+/* Tinted red when the product is actually out of stock — a plain neutral
+   box made "Out of stock" easy to miss. */
+.statRowOut {
+  border-color: var(--color-error-border);
+  background: var(--color-error-soft);
+}
+.statIconOut {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-error);
+}
+.statValue {
+  font-size: var(--font-size-lg);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.statValueOk {
+  color: var(--color-success);
+}
+.statValueOut {
+  color: var(--color-error);
+}
+.statLabel {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+.quickOutBtn {
+  margin-left: auto;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.quickOutBtn:hover:not(:disabled) {
+  color: var(--color-error);
+}
+.quickOutBtn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Groups a step's label with its own controls, tighter than the gap between
+   steps, so the flow reads top-to-bottom instead of one undifferentiated
+   block. */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sectionLabel {
+  margin-top: 2px;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.stockBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.stockLow {
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
 }
 
 .clearBtn {
@@ -75,10 +191,18 @@
     color var(--dur-fast) var(--ease-out),
     background var(--dur-fast) var(--ease-out);
 }
+/* Clearly greyed out — e.g. "Remove stock" when there's nothing to remove —
+   so it reads as unavailable, not just unstyled. */
+.directionBtn:disabled {
+  opacity: 0.45;
+  background: var(--color-surface-2);
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+}
 .directionBtnActiveAdd {
   border-color: var(--color-success);
   color: var(--color-success);
-  background: var(--color-success-soft, rgba(22, 163, 74, 0.1));
+  background: var(--color-success-soft);
 }
 .directionBtnActiveRemove {
   border-color: var(--color-error);
@@ -100,7 +224,7 @@
 }
 .affix:focus-within {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(30, 58, 138, 0.15));
+  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(30, 64, 175, 0.15));
 }
 .affix input {
   flex: 1;
@@ -130,42 +254,6 @@
   font-weight: 700;
   color: var(--color-text-secondary);
   cursor: pointer;
-}
-
-.selectWrap {
-  position: relative;
-}
-.select {
-  width: 100%;
-  appearance: none;
-  -webkit-appearance: none;
-  padding: 10px 34px 10px 12px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  color: var(--color-text-primary);
-  cursor: pointer;
-  transition:
-    border-color var(--dur-fast) var(--ease-out),
-    box-shadow var(--dur-fast) var(--ease-out);
-}
-.select:hover {
-  border-color: #cbd5e1;
-}
-.select:focus-visible {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(30, 58, 138, 0.15));
-}
-.chev {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--color-text-secondary);
-  pointer-events: none;
 }
 
 @media (max-width: 640px) {

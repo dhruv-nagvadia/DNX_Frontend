@@ -32,16 +32,16 @@
 
 .iconCall {
   background: var(--color-primary-soft);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 
 .iconWhatsapp {
-  background: rgba(22, 163, 74, 0.1);
+  background: var(--color-success-soft);
   color: var(--color-success);
 }
 
 .iconEmail {
-  background: rgba(245, 158, 11, 0.12);
+  background: var(--color-warning-soft);
   color: var(--color-warning);
 }
 

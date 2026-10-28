@@ -1,37 +1,3 @@
-/* Segmented period toggle */
-.toggle {
-  display: inline-flex;
-  padding: 3px;
-  border-radius: var(--radius-pill);
-  background: var(--color-surface-2);
-  border: 1px solid var(--color-border);
-}
-.toggleBtn {
-  padding: 5px 14px;
-  border: none;
-  border-radius: var(--radius-pill);
-  background: transparent;
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition:
-    background var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out);
-}
-.toggleBtn:hover {
-  color: var(--color-text-primary);
-}
-.toggleBtnActive {
-  background: var(--color-primary);
-  color: var(--color-white);
-  box-shadow: var(--shadow-sm);
-}
-.toggleBtn:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--color-primary-ring);
-}
-
 /* Headline total */
 .headline {
   display: flex;
@@ -47,7 +13,7 @@
   height: 40px;
   border-radius: var(--radius-md);
   background: var(--color-primary-soft);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   flex: 0 0 auto;
 }
 .totalText {
@@ -78,7 +44,7 @@
   font-weight: 700;
 }
 .trendUp {
-  background: rgba(22, 163, 74, 0.12);
+  background: var(--color-success-soft);
   color: var(--color-success);
 }
 .trendDown {
@@ -90,23 +56,13 @@
   padding-top: var(--space-md);
 }
 
-.empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-sm);
-  padding: var(--space-xl) var(--space-md);
-  text-align: center;
+/* A quiet caption under the (still-shown, flat-at-zero) chart — not a
+   replacement for it. */
+.emptyNote {
+  margin: var(--space-sm) 0 0;
+  font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
-}
-.emptyIcon {
-  color: var(--color-text-tertiary, var(--color-text-secondary));
-  opacity: 0.6;
-}
-.emptyText {
-  max-width: 320px;
-  font-size: var(--font-size-sm);
-  margin: 0;
+  text-align: center;
 }
 
 @media (max-width: 560px) {

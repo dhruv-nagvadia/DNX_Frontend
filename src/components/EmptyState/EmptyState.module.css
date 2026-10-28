@@ -18,7 +18,7 @@
   margin-bottom: var(--space-md);
   border-radius: 50%;
   background: var(--color-primary-soft);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 
 .title {

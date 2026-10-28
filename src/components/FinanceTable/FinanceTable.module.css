@@ -115,7 +115,7 @@
   max-width: 440px;
   max-height: 90vh;
   overflow-y: auto;
-  background: var(--color-surface);
+  background: var(--color-surface-elevated);
   border-radius: var(--radius-lg);
   padding: var(--space-lg);
 }

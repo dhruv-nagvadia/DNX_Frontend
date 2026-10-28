@@ -1,31 +1,3 @@
-/* ── View toggle (header action) ──────────────────────────────────── */
-.viewToggle {
-  display: inline-flex;
-  padding: 3px;
-  border-radius: var(--radius-pill);
-  background: var(--color-surface-2);
-  border: 1px solid var(--color-border);
-}
-.viewBtn {
-  padding: 5px 14px;
-  border: none;
-  border-radius: var(--radius-pill);
-  background: transparent;
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
-}
-.viewBtn:hover {
-  color: var(--color-text-primary);
-}
-.viewBtnActive {
-  background: var(--color-primary);
-  color: var(--color-white);
-  box-shadow: var(--shadow-sm);
-}
-
 /* ── Toolbar ──────────────────────────────────────────────────────── */
 .toolbar {
   display: flex;
@@ -106,7 +78,7 @@
   transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
 }
 .cell:hover {
-  border-color: #cbd5e1;
+  border-color: var(--color-border-strong);
 }
 .cellMuted {
   background: var(--color-surface-2);
@@ -124,9 +96,16 @@
     var(--color-surface) 12px
   );
 }
+/* Selected date reads as a filled, tinted cell (not just an outline) — the
+   same "you're looking at this one" treatment Outlook/Teams-style calendars
+   use, distinct from the solid "today" dot. */
 .cellSelected {
   border-color: var(--color-primary);
+  background: var(--color-primary-soft);
   box-shadow: 0 0 0 1px var(--color-primary);
+}
+.cellSelected.cellMuted {
+  background: var(--color-primary-soft);
 }
 
 .cellTop {
@@ -170,7 +149,7 @@
   padding: 2px 6px;
   border-radius: var(--radius-sm);
   background: var(--color-primary-soft);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   font-size: var(--font-size-xs);
   font-weight: 600;
 }
@@ -268,7 +247,9 @@
   position: absolute;
   left: 2px;
   right: 2px;
-  background: rgba(30, 58, 138, 0.06);
+  /* Theme-aware soft tint — a fixed light-mode-tuned opacity went nearly
+     invisible against a dark background. */
+  background: var(--color-primary-soft);
   border-radius: var(--radius-sm);
 }
 .block {
@@ -319,7 +300,8 @@
   border-radius: 50%;
 }
 .dotOpen {
-  background: rgba(30, 58, 138, 0.25);
+  /* Theme-aware — the fixed light-mode opacity read too faint in dark mode. */
+  background: var(--color-primary-ring);
 }
 .dotClosed {
   background: var(--color-border);
@@ -328,34 +310,103 @@
   background: var(--color-accent-2);
 }
 
-/* ── Day detail ───────────────────────────────────────────────────── */
-.dayBookings {
+/* ── Side-by-side layout: grid on the left, the selected date's panel on
+   the right — picking a date is the only step, no scrolling to find the
+   editor elsewhere. ──────────────────────────────────────────────────── */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: var(--space-lg);
+  align-items: start;
+}
+.gridCol {
+  min-width: 0;
+}
+
+.dayPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
+  /* Stays level with the grid as the page scrolls past it. */
+  position: sticky;
+  top: var(--space-md);
+}
+.dayPanelHead {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+}
+.dayPanelDate {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--color-text-primary);
+}
+.dayPanelStatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+.customTag {
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-soft, var(--color-primary-soft));
+  color: var(--color-accent, var(--color-primary));
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.dayPanelSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+.dayPanelSectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+.dayPanelSectionTitle svg {
+  color: var(--color-primary-dark);
+}
+
+.dayBookings {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   list-style: none;
-  margin: 0 0 var(--space-lg);
+  margin: 0;
   padding: 0;
 }
 .dayBooking {
   display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  padding: 8px var(--space-md);
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
+  background: var(--color-surface);
 }
 .dbTime {
-  flex: 0 0 auto;
-  min-width: 108px;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   font-weight: 700;
-  color: var(--color-text-primary);
+  color: var(--color-primary-dark);
   font-variant-numeric: tabular-nums;
 }
 .dbWho {
-  flex: 1 1 auto;
-  min-width: 0;
   font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--color-text-primary);
@@ -364,7 +415,6 @@
   white-space: nowrap;
 }
 .dbService {
-  flex: 0 0 auto;
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
 }
@@ -372,28 +422,11 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  margin: 0 0 var(--space-lg);
+  margin: 0;
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
 }
 
-/* Override editor */
-.editor {
-  padding-top: var(--space-lg);
-  border-top: 1px solid var(--color-border);
-}
-.editorHead {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: var(--space-md);
-  font-size: var(--font-size-sm);
-  font-weight: 700;
-  color: var(--color-text-primary);
-}
-.editorHead svg {
-  color: var(--color-primary);
-}
 .openRow {
   display: inline-flex;
   align-items: center;
@@ -401,14 +434,15 @@
   font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--color-text-primary);
-  margin-bottom: var(--space-md);
 }
 .switch {
   position: relative;
-  width: 44px;
-  height: 26px;
+  width: 48px;
+  height: 28px;
   border: none;
-  border-radius: var(--radius-pill);
+  /* A true capsule, not var(--radius-pill) (now a near-square 4px) — an
+     on/off switch reads as a switch only when fully rounded. */
+  border-radius: 999px;
   background: var(--color-border);
   cursor: pointer;
   transition: background var(--dur-fast) var(--ease-out);
@@ -421,42 +455,46 @@
   position: absolute;
   top: 3px;
   left: 3px;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: var(--color-white);
   transition: transform var(--dur-fast) var(--ease-out);
 }
 .switchOn .knob {
-  transform: translateX(18px);
+  transform: translateX(20px);
 }
 .times {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  margin-bottom: var(--space-md);
 }
-.timeInput {
-  padding: 8px 10px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
-}
-.timeInput:focus-visible {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-ring);
+/* Shares the panel's limited width evenly, but never below what "9:00 am"
+   actually needs to render without truncating. */
+.timeField {
+  flex: 1 1 0;
+  min-width: 108px;
 }
 .dash {
   color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
 }
+/* Stacked, full-width (via Button's own `fullWidth` prop) — two side-by-side
+   buttons in a 300px panel either wrap mid-label or shrink to an awkward
+   size; full width reads cleanly. */
 .editorActions {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: var(--space-sm);
+}
+
+@media (max-width: 860px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .dayPanel {
+    position: static;
+  }
 }
 
 @media (max-width: 640px) {

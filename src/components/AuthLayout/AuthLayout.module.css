@@ -28,7 +28,7 @@
   background:
     radial-gradient(42% 44% at 22% 18%, rgba(56, 189, 248, 0.28), transparent 70%),
     radial-gradient(46% 46% at 82% 30%, rgba(129, 140, 248, 0.26), transparent 72%),
-    radial-gradient(60% 55% at 50% 100%, rgba(30, 58, 138, 0.72), transparent 78%);
+    radial-gradient(60% 55% at 50% 100%, rgba(30, 64, 175, 0.72), transparent 78%);
   animation: drift 22s var(--ease-in-out) infinite alternate;
 }
 
@@ -155,7 +155,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(60% 50% at 50% 0%, rgba(30, 58, 138, 0.05), transparent 70%);
+  background: radial-gradient(60% 50% at 50% 0%, rgba(30, 64, 175, 0.05), transparent 70%);
   pointer-events: none;
 }
 

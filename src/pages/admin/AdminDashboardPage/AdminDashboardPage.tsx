@@ -47,7 +47,7 @@ export default function AdminDashboardPage() {
   });
 
   return (
-    <AdminShell wide>
+    <AdminShell>
       <PageHeader
         title="Admin console"
         subtitle="Platform-wide activity across the customer app and provider dashboard."

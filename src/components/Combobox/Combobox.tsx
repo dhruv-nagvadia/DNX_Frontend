@@ -151,7 +151,7 @@ export function Combobox<T = unknown>({
                 </button>
               ))
             ) : (
-              <p className={styles.empty}>No matches — this will be added as a new, custom item.</p>
+              <p className={styles.empty}>No matches. This will be added as a new, custom item.</p>
             )}
           </div>,
           document.body,

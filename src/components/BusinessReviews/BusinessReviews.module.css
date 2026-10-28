@@ -13,7 +13,7 @@
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   font-size: var(--font-size-sm);
   font-weight: 600;
   cursor: pointer;
@@ -27,8 +27,27 @@
   box-shadow: 0 0 0 3px var(--color-primary-ring);
 }
 
-/* ── Summary ──────────────────────────────────────────────────────── */
+/* ── Summary + review list side by side: the average-rating/distribution
+   block sits in a fixed-width left column, the review list fills the rest. */
+.layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: var(--space-xl);
+  align-items: start;
+}
+
 .summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding-right: var(--space-xl);
+  border-right: 1px solid var(--color-border);
+}
+
+/* Full "All reviews" page (not compact): the original full-width summary —
+   score and the star distribution side by side, full width, with the
+   review list stacked below it. */
+.summaryWide {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: var(--space-xl);
@@ -37,14 +56,17 @@
   margin-bottom: var(--space-md);
   border-bottom: 1px solid var(--color-border);
 }
+.summaryWide .score {
+  align-items: center;
+  padding-right: var(--space-xl);
+  border-right: 1px solid var(--color-border);
+}
 
 .score {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 4px;
-  padding-right: var(--space-xl);
-  border-right: 1px solid var(--color-border);
 }
 .scoreNum {
   font-size: var(--font-size-3xl);
@@ -58,13 +80,15 @@
   color: var(--color-text-secondary);
 }
 
+/* Fixed gold, not the (now dark-orange) warning status token — a rating
+   star's color isn't a semantic "warning". */
 .stars {
   display: inline-flex;
   gap: 2px;
-  color: var(--color-warning);
+  color: #f59e0b;
 }
 .starOn {
-  color: var(--color-warning);
+  color: #f59e0b;
 }
 .starOff {
   color: var(--color-border);
@@ -92,7 +116,7 @@
   color: var(--color-text-secondary);
 }
 .distStar svg {
-  color: var(--color-warning);
+  color: #f59e0b;
 }
 .distTrack {
   height: 7px;
@@ -104,7 +128,7 @@
   display: block;
   height: 100%;
   border-radius: var(--radius-pill);
-  background: var(--color-warning);
+  background: #f59e0b;
   transition: width var(--dur-slow) var(--ease-out);
 }
 .distN {
@@ -123,9 +147,22 @@
   margin: 0;
   padding: 0;
 }
+/* Compact (Overview preview): flatter rows, tighter rhythm, with a thin
+   divider instead of a full gap so three reviews read as one neat block. */
+.listCompact {
+  gap: 0;
+}
+.listCompact > li + li {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-border);
+}
 .review {
   display: flex;
   gap: var(--space-md);
+}
+.reviewCompact {
+  gap: 10px;
 }
 .avatar {
   display: inline-flex;
@@ -136,9 +173,15 @@
   height: 40px;
   border-radius: 50%;
   background: var(--color-primary-soft);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   font-size: var(--font-size-sm);
   font-weight: 800;
+}
+.avatarCompact {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  font-size: var(--font-size-xs);
 }
 .reviewBody {
   display: flex;
@@ -146,6 +189,9 @@
   gap: 4px;
   min-width: 0;
   flex: 1 1 auto;
+}
+.reviewBodyCompact {
+  gap: 2px;
 }
 .reviewHead {
   display: flex;
@@ -158,6 +204,12 @@
   font-weight: 700;
   color: var(--color-text-primary);
 }
+.reviewHeadRight {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
 .reviewDate {
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
@@ -168,6 +220,36 @@
   font-size: var(--font-size-sm);
   line-height: 1.6;
   color: var(--color-text-primary);
+}
+
+/* Compact (Overview preview) only: clamp long text so three reviews stay short. */
+.reviewTextClamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.5;
+}
+
+/* Compact (Overview preview) only: the "Reply" trigger moves into the
+   header row next to the date instead of its own line below. */
+.replyBtnCompact {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.replyBtnCompact:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 
 .sample {
@@ -194,7 +276,7 @@
 }
 .replyBtn:hover {
   border-color: var(--color-primary);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 
 .reply {
@@ -206,6 +288,39 @@
   background: var(--color-surface-2);
   border-left: 3px solid var(--color-primary);
 }
+/* Contained inside its own subtle box in compact mode, so it reads as part
+   of the review section rather than floating loose under it. */
+.replyCompact {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: var(--color-surface-2);
+  border-left: 2px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+}
+
+/* Compact (Overview preview) only: "Your reply: <text>" on one line, edit
+   icon stuck to the right edge of it. */
+.replyInlineRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  /* .reply is itself a flex row (for the non-compact icon layout) — without
+     this, this row shrinks to fit its content instead of filling it, and
+     the edit button ends up stuck to the text instead of the section edge. */
+  width: 100%;
+}
+.replyInlineText {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  /* Same size/weight as the review's own comment text (.reviewText). */
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  color: var(--color-text-primary);
+}
+.replyInlineText .replyLabel {
+  font-size: var(--font-size-sm);
+}
 .replyIcon {
   display: inline-flex;
   align-items: center;
@@ -215,7 +330,7 @@
   height: 22px;
   border-radius: 50%;
   background: var(--color-primary-soft);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   margin-top: 1px;
 }
 .replyBody {
@@ -230,7 +345,7 @@
 .replyLabel {
   font-size: 12px;
   font-weight: 800;
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 .replyDate {
   font-size: 11px;
@@ -239,18 +354,43 @@
 .replyEditBtn {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   margin-left: auto;
   padding: 0;
   border: none;
   background: none;
   color: var(--color-text-secondary);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
 }
 .replyEditBtn:hover {
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
+}
+
+/* Compact (Overview preview) only: icon-only edit trigger, right-aligned. */
+.replyEditIconBtn {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+.replyEditIconBtn:hover {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 .replyText {
   margin: 3px 0 0;
@@ -285,12 +425,30 @@
   gap: 8px;
 }
 
-@media (max-width: 560px) {
-  .summary {
+@media (max-width: 720px) {
+  .layout {
     grid-template-columns: 1fr;
     gap: var(--space-md);
   }
+  .summary {
+    padding-right: 0;
+    padding-bottom: var(--space-md);
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+  }
   .score {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-md);
+  }
+}
+
+@media (max-width: 560px) {
+  .summaryWide {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+  .summaryWide .score {
     flex-direction: row;
     gap: var(--space-md);
     padding-right: 0;

@@ -49,27 +49,45 @@ export function TopSellersPanel({
     >
       {data.items.length === 0 ? (
         <p className={styles.empty}>
-          No {data.itemLabel === 'product' ? 'orders' : 'bookings'} yet — top {data.itemLabel}s will
+          No {data.itemLabel === 'product' ? 'orders' : 'bookings'} yet. Top {data.itemLabel}s will
           show up here once they come in.
         </p>
       ) : (
-        <ul className={styles.list}>
-          {data.items.map((item, i) => (
-            <li key={item.name} className={styles.row}>
-              <span className={styles.rank}>{i === 0 ? <Award size={16} aria-hidden="true" /> : i + 1}</span>
-              <span className={styles.icon}>
-                <Icon size={15} aria-hidden="true" />
-              </span>
-              <span className={styles.name} title={item.name}>
-                {item.name}
-              </span>
-              <span className={styles.count}>
-                {item.count} {data.itemLabel === 'product' ? 'orders' : 'bookings'}
-              </span>
-              <span className={styles.revenue}>{money(item.revenueMinor, data.currency)}</span>
-            </li>
-          ))}
-        </ul>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th aria-hidden="true" />
+                <th>{data.itemLabel === 'product' ? 'Product' : 'Service'}</th>
+                <th>{data.itemLabel === 'product' ? 'Orders' : 'Bookings'}</th>
+                <th>Revenue</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.items.map((item, i) => (
+                <tr key={item.name}>
+                  <td className={styles.rankCell}>
+                    <span className={styles.rank}>
+                      {i === 0 ? <Award size={16} aria-hidden="true" /> : i + 1}
+                    </span>
+                  </td>
+                  <td>
+                    <div className={styles.nameCell}>
+                      <span className={styles.icon}>
+                        <Icon size={15} aria-hidden="true" />
+                      </span>
+                      <span className={styles.name} title={item.name}>
+                        {item.name}
+                      </span>
+                    </div>
+                  </td>
+                  <td className={styles.count}>{item.count}</td>
+                  <td className={styles.revenue}>{money(item.revenueMinor, data.currency)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </Card>
   );

@@ -1,20 +1,34 @@
-import { Check } from 'lucide-react';
+import { Check, Coffee, Plus, X } from 'lucide-react';
 
 import { AlertBanner } from '@/components/AlertBanner';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
+import { TimeField } from '@/components/TimeField';
 import { BusinessHoursProps } from './types';
 import { useBusinessHours } from './useBusinessHours';
 import styles from './BusinessHours.module.css';
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-/** Weekly availability editor — toggle each day open/closed and set open/close times. */
+/** Weekly availability editor — toggle each day open/closed, set open/close
+ * times, and optionally block out one shared midday break (applied to every
+ * open day) so it never shows up as a bookable slot to customers. */
 export function BusinessHours({ providerId, hours }: BusinessHoursProps) {
-  const { days, saving, saved, error, toggleDay, setTime, save } = useBusinessHours(
-    providerId,
-    hours,
-  );
+  const {
+    days,
+    hasBreak,
+    breakStart,
+    breakEnd,
+    dirty,
+    saving,
+    saved,
+    error,
+    toggleDay,
+    setTime,
+    toggleBreak,
+    setBreakTime,
+    save,
+  } = useBusinessHours(providerId, hours);
 
   return (
     <Card title="Business hours">
@@ -36,19 +50,17 @@ export function BusinessHours({ providerId, hours }: BusinessHoursProps) {
 
             {d.isOpen ? (
               <div className={styles.times}>
-                <input
-                  type="time"
-                  className={styles.timeInput}
+                <TimeField
+                  className={styles.timeField}
                   value={d.openTime}
-                  onChange={(e) => setTime(d.dayOfWeek, 'openTime', e.target.value)}
+                  onChange={(v) => setTime(d.dayOfWeek, 'openTime', v)}
                   aria-label={`${DAY_NAMES[d.dayOfWeek]} opening time`}
                 />
                 <span className={styles.dash}>to</span>
-                <input
-                  type="time"
-                  className={styles.timeInput}
+                <TimeField
+                  className={styles.timeField}
                   value={d.closeTime}
-                  onChange={(e) => setTime(d.dayOfWeek, 'closeTime', e.target.value)}
+                  onChange={(v) => setTime(d.dayOfWeek, 'closeTime', v)}
                   aria-label={`${DAY_NAMES[d.dayOfWeek]} closing time`}
                 />
               </div>
@@ -59,10 +71,55 @@ export function BusinessHours({ providerId, hours }: BusinessHoursProps) {
         ))}
       </div>
 
+      <div className={styles.breakSection}>
+        <div className={styles.breakSectionHead}>
+          <div className={styles.breakSectionHeadText}>
+            <span className={styles.breakSectionTitle}>
+              <Coffee size={14} aria-hidden="true" /> Break time
+            </span>
+            <span className={styles.breakSectionSub}>
+              Applies to every open day, so customers can't book it.
+            </span>
+          </div>
+          {hasBreak && (
+            <button
+              type="button"
+              className={styles.removeBreakBtn}
+              onClick={toggleBreak}
+              aria-label="Remove break time"
+            >
+              <X size={18} aria-hidden="true" />
+            </button>
+          )}
+        </div>
+
+        {hasBreak ? (
+          <div className={styles.breakRow}>
+            <TimeField
+              className={styles.timeField}
+              value={breakStart}
+              onChange={(v) => setBreakTime('breakStart', v)}
+              aria-label="Break start time"
+            />
+            <span className={styles.dash}>to</span>
+            <TimeField
+              className={styles.timeField}
+              value={breakEnd}
+              onChange={(v) => setBreakTime('breakEnd', v)}
+              aria-label="Break end time"
+            />
+          </div>
+        ) : (
+          <button type="button" className={styles.addBreakBtn} onClick={toggleBreak}>
+            <Plus size={13} aria-hidden="true" /> Add break time
+          </button>
+        )}
+      </div>
+
       {error && <AlertBanner tone="error">{error}</AlertBanner>}
 
       <div className={styles.footer}>
-        <Button onClick={save} loading={saving} loadingText="Saving…">
+        <Button onClick={save} loading={saving} loadingText="Saving…" disabled={!dirty}>
           Save hours
         </Button>
         {saved && (

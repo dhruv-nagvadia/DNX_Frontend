@@ -6,6 +6,8 @@ export const StorageKeys = {
   // session — see utils/tokenStorage.ts.
   adminAccessToken: 'dnx.admin.accessToken',
   adminRefreshToken: 'dnx.admin.refreshToken',
+  theme: 'dnx.theme',
+  sidebarCollapsed: 'dnx.sidebarCollapsed',
 } as const;
 
 export const AppConfig = {

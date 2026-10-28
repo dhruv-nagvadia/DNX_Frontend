@@ -8,6 +8,10 @@ export interface AppShellProps {
    * whole area.
    */
   rail?: ReactNode;
-  /** Widen the content column for dense screens. Defaults to 1120px. */
-  wide?: boolean;
+  /**
+   * Shows a sticky top bar with this content — e.g. a business's
+   * photo/name/rating plus its notification/profile controls. Omitted
+   * (the default) means no top bar at all for this page.
+   */
+  header?: ReactNode;
 }

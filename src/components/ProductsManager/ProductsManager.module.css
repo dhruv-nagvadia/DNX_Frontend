@@ -61,12 +61,12 @@
     box-shadow var(--dur-fast) var(--ease-out);
 }
 .select:hover {
-  border-color: #cbd5e1;
+  border-color: var(--color-border-strong);
 }
 .select:focus-visible {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(30, 58, 138, 0.15));
+  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(30, 64, 175, 0.15));
 }
 .chev {
   position: absolute;
@@ -91,7 +91,7 @@
 }
 .affix:focus-within {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(30, 58, 138, 0.15));
+  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(30, 64, 175, 0.15));
 }
 .affix input {
   flex: 1;
@@ -142,7 +142,7 @@
 }
 .uploadBtn:hover:not(:disabled) {
   border-color: var(--color-primary);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 .uploadBtn:disabled {
   opacity: 0.6;
@@ -194,12 +194,143 @@
   white-space: nowrap;
 }
 .stockLow {
-  background: rgba(245, 158, 11, 0.15);
-  color: #92400e;
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
 }
 .stockOut {
   background: var(--color-error-soft);
   color: var(--color-error);
+}
+
+/* ── Products table ───────────────────────────────────────────────── */
+.tableWrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+.table th {
+  text-align: left;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  background: var(--color-surface-2);
+  padding: 10px 14px;
+  white-space: nowrap;
+}
+.table td {
+  padding: 12px 14px;
+  border-top: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+/* The product name/description column can wrap to a second line, so it
+   stays top-aligned; every other column has short, single-line content and
+   reads better centered against it. */
+.table td:first-child {
+  vertical-align: top;
+}
+.table tr.rowInactive td {
+  opacity: 0.6;
+}
+/* Left-aligned like every other column in this table (these are compound
+   display strings — "₹100 / 1 pc" — not a column of pure numbers meant to
+   be compared by their last digit, so right-aligning them just made each
+   row's text start at a different x position depending on its length). */
+.price,
+.minOrder {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.productCell {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  min-width: 220px;
+}
+.thumb {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  border: 1px solid var(--color-border);
+}
+.thumbPlaceholder {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2, #f8fafc);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+}
+.cellMain {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.cellTitle {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  overflow-wrap: break-word;
+}
+/* Long text wraps onto a second line instead of being cut off mid-word —
+   clamped at two lines so one unusually long description can't blow out
+   the whole row's height. */
+.cellSub {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+  white-space: normal;
+  overflow-wrap: break-word;
+  max-width: 260px;
+}
+
+.categoryCell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.stockCell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.ratingCell {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  color: var(--color-text-secondary);
+}
+.ratingCell svg {
+  color: #f59e0b;
+}
+
+.actionsCell {
+  display: flex;
+  gap: var(--space-xs);
 }
 
 @media (max-width: 640px) {

@@ -1,9 +1,9 @@
 import {
   Briefcase,
   ChevronRight,
-  Image as ImageIcon,
   ListChecks,
   Mail,
+  Package,
   Pencil,
   ShieldCheck,
   Star,
@@ -92,9 +92,9 @@ export default function ProfilePage() {
             icon: <ListChecks size={16} aria-hidden="true" />,
           },
           {
-            label: 'Photos',
-            value: stats.photos,
-            icon: <ImageIcon size={16} aria-hidden="true" />,
+            label: 'Products',
+            value: stats.products,
+            icon: <Package size={16} aria-hidden="true" />,
           },
           {
             label: 'Avg rating',
@@ -207,9 +207,6 @@ export default function ProfilePage() {
                 <dd className={styles.detailValue}>Provider</dd>
               </div>
             </dl>
-            <p className={styles.hint}>
-              Business details like email, address and hours are managed on each business page.
-            </p>
           </>
         )}
       </Card>

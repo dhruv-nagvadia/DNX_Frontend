@@ -1,5 +1,5 @@
-import { ArrowLeft, Ban, Banknote, Receipt, ShieldCheck, Store } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Ban, Banknote, Receipt, ShieldCheck, Store } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 import { AlertBanner } from '@/components/AlertBanner';
 import { Badge } from '@/components/Badge';
@@ -65,7 +65,6 @@ function describe(a: ReasonAction, openCount: number, otherBusinesses: number) {
 
 /** One provider: block the account, or block / restrict each of their businesses. */
 export function AdminProviderDetail({ userId }: { userId: string }) {
-  const navigate = useNavigate();
   const p = useAdminProviderDetail(userId);
 
   if (p.isLoading || !p.data) {
@@ -89,14 +88,6 @@ export function AdminProviderDetail({ userId }: { userId: string }) {
 
   return (
     <>
-      <Button
-        variant="ghost"
-        iconLeft={<ArrowLeft size={16} aria-hidden="true" />}
-        onClick={() => navigate('/admin/providers')}
-      >
-        Back to providers
-      </Button>
-
       <Card title="Provider">
         <div className={shared.header}>
           <div>

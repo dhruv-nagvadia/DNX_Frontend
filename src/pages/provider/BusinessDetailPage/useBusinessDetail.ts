@@ -3,7 +3,6 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import {
   useDeleteBusinessMutation,
-  useGetBusinessBookingsQuery,
   useGetMyBusinessQuery,
   useSetBusinessImagesMutation,
   useUploadBusinessImagesMutation,
@@ -28,7 +27,6 @@ export function useBusinessDetail() {
   const { id = '' } = useParams<{ id: string }>();
 
   const { data: business, isLoading, error } = useGetMyBusinessQuery(id, { skip: !id });
-  const { data: bookings } = useGetBusinessBookingsQuery(id, { skip: !id });
   const [uploadImages, { isLoading: uploading }] = useUploadBusinessImagesMutation();
   const [setImages, { isLoading: savingImages }] = useSetBusinessImagesMutation();
   const [deleteBusiness, { isLoading: deleting }] = useDeleteBusinessMutation();
@@ -39,7 +37,6 @@ export function useBusinessDetail() {
   const notFound = !!error && (error as { status?: number }).status === 404;
   // Any other load failure (e.g. server down / not restarted after a schema change).
   const loadFailed = !!error && !notFound;
-  const bookingCount = bookings?.length ?? 0;
 
   const addImages = useCallback(
     async (fileList: FileList | null) => {
@@ -105,7 +102,6 @@ export function useBusinessDetail() {
     uploading,
     savingImages,
     deleting,
-    bookingCount,
     activeTab,
     setActiveTab,
     addImages,
@@ -114,6 +110,5 @@ export function useBusinessDetail() {
     remove,
     goToEdit: () => navigate(`/businesses/${id}/edit`),
     goToReviews: () => navigate(`/businesses/${id}/reviews`),
-    goBack: () => navigate('/businesses'),
   };
 }

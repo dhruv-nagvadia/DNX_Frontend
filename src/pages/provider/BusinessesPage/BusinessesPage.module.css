@@ -1,6 +1,10 @@
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 340px));
+  /* auto-fit + a 1fr max (not a fixed 340px cap) lets the existing columns
+     stretch to fill the row exactly — a fixed max left leftover space once
+     3 columns fit but there wasn't room for a 4th at that width, pushing it
+     to its own near-empty row instead of evening out across the row. */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: var(--space-md);
 }
 
@@ -72,7 +76,7 @@
   object-fit: cover;
 }
 .coverIcon {
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 .titles {
   flex: 1 1 auto;
@@ -117,7 +121,7 @@
 }
 .edit:hover {
   background: var(--color-primary-soft);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 .edit:focus-visible {
   outline: none;
@@ -143,8 +147,9 @@
 .dot {
   margin: 0 2px;
 }
+/* Fixed gold, not the (now dark-orange) warning status token. */
 .star {
-  color: var(--color-warning);
+  color: #f59e0b;
   fill: currentColor;
 }
 

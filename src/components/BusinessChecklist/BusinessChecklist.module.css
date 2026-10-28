@@ -43,7 +43,7 @@
   font-size: var(--font-size-xs);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 
 /* ── pending steps ───────────────────────────────────────────────────────── */

@@ -368,6 +368,5 @@ export function useBusinessForm() {
     locating,
     locationError,
     resolvingPincode,
-    goBack: () => navigate(isEdit && id ? `/businesses/${id}` : '/businesses'),
   };
 }

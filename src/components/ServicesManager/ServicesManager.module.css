@@ -6,76 +6,89 @@
   color: var(--color-text-secondary);
 }
 
-/* ── Service rows ─────────────────────────────────────────────────── */
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
-
-.row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-md);
-  padding: var(--space-md);
+/* ── Services table ───────────────────────────────────────────────── */
+.tableWrap {
+  overflow-x: auto;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface);
-  transition:
-    border-color var(--dur-fast) var(--ease-out),
-    background var(--dur-fast) var(--ease-out);
+  border-radius: var(--radius-md);
 }
-
-.row:hover {
-  border-color: #cbd5e1;
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+.table th {
+  text-align: left;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
   background: var(--color-surface-2);
+  padding: 10px 14px;
+  white-space: nowrap;
 }
-
-.rowInactive {
+.table td {
+  padding: 12px 14px;
+  border-top: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+.table td:first-child {
+  vertical-align: top;
+}
+.table tr.rowInactive td {
   opacity: 0.6;
 }
 
-.rowMain {
-  min-width: 0;
-  flex: 1 1 auto;
+.rowNameRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
-
-.rowName {
-  font-size: var(--font-size-md);
-  font-weight: 600;
+.cellTitle {
+  font-weight: 700;
   color: var(--color-text-primary);
 }
-
-.rowDesc {
-  margin-top: 3px;
+.cellSub {
+  margin-top: 4px;
   font-size: var(--font-size-sm);
-  line-height: 1.5;
   color: var(--color-text-secondary);
 }
-
-.rowMeta {
-  display: flex;
-  flex-wrap: wrap;
+/* "On-location" tag next to the service name, same look as Coupons' scope tag. */
+.scopeTag {
+  display: inline-flex;
   align-items: center;
-  gap: var(--space-sm);
-  margin-top: var(--space-sm);
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+  font-size: 11px;
+  font-weight: 700;
 }
 
 .price {
-  font-size: var(--font-size-md);
   font-weight: 700;
   letter-spacing: -0.01em;
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
-.metaItem {
+.durationCell {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: var(--font-size-sm);
+  white-space: nowrap;
   color: var(--color-text-secondary);
+}
+
+.actionsCell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 /* Availability toggle, shaped like a status chip. */
@@ -106,21 +119,15 @@
 }
 
 .active {
-  background: rgba(22, 163, 74, 0.1);
-  border-color: rgba(22, 163, 74, 0.24);
-  color: #15803d;
+  background: var(--color-success-soft);
+  border-color: var(--color-success-border);
+  color: var(--color-success);
 }
 
 .inactive {
   background: var(--color-surface-2);
   border-color: var(--color-border);
   color: var(--color-text-secondary);
-}
-
-.rowActions {
-  display: flex;
-  gap: var(--space-xs);
-  flex: 0 0 auto;
 }
 
 .iconBtn {
@@ -140,7 +147,7 @@
 }
 
 .iconBtn:hover {
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   border-color: var(--color-primary);
   background: var(--color-primary-soft);
 }
@@ -174,7 +181,7 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 
 .field {
@@ -202,7 +209,6 @@
 }
 
 .input,
-.select,
 .textarea {
   width: 100%;
   min-width: 0;
@@ -219,7 +225,6 @@
 }
 
 .input:focus,
-.select:focus,
 .textarea:focus {
   outline: none;
   border-color: var(--color-primary);
@@ -282,14 +287,6 @@
 }
 
 @media (max-width: 640px) {
-  .row {
-    flex-direction: column;
-  }
-
-  .rowActions {
-    align-self: flex-end;
-  }
-
   .row2 {
     grid-template-columns: 1fr;
   }
@@ -304,11 +301,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .row,
   .iconBtn,
   .statusChip,
   .input,
-  .select,
   .textarea,
   .inputPrefix {
     transition: none;

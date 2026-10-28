@@ -7,7 +7,6 @@ import {
   FileText,
   FolderTree,
   ImagePlus,
-  Layers,
   Pencil,
   Percent,
   Plus,
@@ -122,108 +121,132 @@ export function ProductsManager({
           No products yet. Add the items you sell so customers can browse and order them.
         </p>
       ) : (
-        <div className={styles.list}>
-          {products.map((p: Product) => (
-            <div
-              key={p.id}
-              className={`${styles.row} ${p.isActive === false ? styles.rowInactive : ''}`}
-            >
-              <div className={styles.rowMain}>
-                <div className={`${styles.rowName} ${tagStyles.rowNameRow}`}>
-                  {p.name}
-                  {p.productType && (
-                    <span className={tagStyles.scopeTag}>{p.productType.name}</span>
-                  )}
-                </div>
-                {p.description && <div className={styles.rowDesc}>{p.description}</div>}
-                <div className={styles.rowMeta}>
-                  <span className={styles.price}>
-                    {priceLabel(p.priceMinor, p.priceQty, p.measure, p.currency)}
-                  </span>
-                  {p.section && (
-                    <span className={styles.metaItem}>
-                      <Layers size={14} aria-hidden="true" /> {p.section}
-                    </span>
-                  )}
-                  <span className={styles.metaItem}>
-                    <Boxes size={14} aria-hidden="true" />{' '}
-                    {p.unlimitedStock
-                      ? p.stockQty > 0
-                        ? 'In stock'
-                        : 'Out of stock'
-                      : stockLabel(p.stockQty, p.measure)}
-                  </span>
-                  {p.unlimitedStock
-                    ? p.stockQty <= 0 && (
-                        <span className={`${ui.stockBadge} ${ui.stockOut}`}>
-                          <AlertTriangle size={12} aria-hidden="true" />
-                          Out of stock
-                        </span>
-                      )
-                    : (() => {
-                        const level = stockLevel(p.stockQty, p.stepQty);
-                        if (level === 'ok') return null;
-                        return (
-                          <span
-                            className={`${ui.stockBadge} ${
-                              level === 'out' ? ui.stockOut : ui.stockLow
-                            }`}
-                          >
-                            <AlertTriangle size={12} aria-hidden="true" />
-                            {level === 'out' ? 'Out of stock' : 'Low stock'}
+        <div className={ui.tableWrap}>
+          <table className={ui.table}>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Min. order</th>
+                <th>Rating</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((p: Product) => {
+                const level = p.unlimitedStock ? null : stockLevel(p.stockQty, p.stepQty);
+                const outOfStock = p.unlimitedStock ? p.stockQty <= 0 : level === 'out';
+                const lowStock = level === 'low';
+                return (
+                  <tr key={p.id} className={p.isActive === false ? ui.rowInactive : ''}>
+                    <td>
+                      <div className={ui.productCell}>
+                        {p.imageUrl ? (
+                          <img className={ui.thumb} src={p.imageUrl} alt="" />
+                        ) : (
+                          <span className={ui.thumbPlaceholder} aria-hidden="true">
+                            <ImagePlus size={16} />
                           </span>
-                        );
-                      })()}
-                  <span className={styles.metaItem}>
-                    <Ruler size={14} aria-hidden="true" /> min {formatAmount(p.stepQty, p.measure)}
-                  </span>
-                  {(p.ratingCount ?? 0) > 0 && (
-                    <span className={styles.metaItem}>
-                      <Star size={14} aria-hidden="true" /> {(p.ratingAvg ?? 0).toFixed(1)} (
-                      {p.ratingCount})
-                    </span>
-                  )}
-                  <button
-                    type="button"
-                    className={`${styles.statusChip} ${
-                      p.isActive === false ? styles.inactive : styles.active
-                    }`}
-                    onClick={() => toggleActive(p)}
-                    aria-pressed={p.isActive !== false}
-                  >
-                    <span className={styles.statusDot} aria-hidden="true" />
-                    {p.isActive === false ? 'Hidden' : 'Listed'}
-                  </button>
-                </div>
-              </div>
-
-              <div className={styles.rowActions}>
-                <button
-                  type="button"
-                  className={styles.iconBtn}
-                  onClick={() => startEdit(p)}
-                  aria-label={`Edit ${p.name}`}
-                >
-                  <Pencil size={16} aria-hidden="true" />
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
-                  onClick={() => remove(p.id)}
-                  aria-label={`Delete ${p.name}`}
-                >
-                  <Trash2 size={16} aria-hidden="true" />
-                </button>
-              </div>
-            </div>
-          ))}
+                        )}
+                        <div className={ui.cellMain}>
+                          <span className={ui.cellTitle}>{p.name}</span>
+                          {p.description && <span className={ui.cellSub}>{p.description}</span>}
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div className={ui.categoryCell}>
+                        {p.productType && (
+                          <span className={tagStyles.scopeTag}>{p.productType.name}</span>
+                        )}
+                        {p.section ? (
+                          <span className={ui.cellSub}>{p.section}</span>
+                        ) : (
+                          !p.productType && <span className={ui.cellSub}>—</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className={ui.price}>
+                      {priceLabel(p.priceMinor, p.priceQty, p.measure, p.currency)}
+                    </td>
+                    <td>
+                      <div className={ui.stockCell}>
+                        <span>
+                          {p.unlimitedStock
+                            ? p.stockQty > 0
+                              ? 'In stock'
+                              : 'Out of stock'
+                            : stockLabel(p.stockQty, p.measure)}
+                        </span>
+                        {(outOfStock || lowStock) && (
+                          <span
+                            className={`${ui.stockBadge} ${outOfStock ? ui.stockOut : ui.stockLow}`}
+                          >
+                            <AlertTriangle size={11} aria-hidden="true" />
+                            {outOfStock ? 'Out of stock' : 'Low stock'}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className={ui.minOrder}>{formatAmount(p.stepQty, p.measure)}</td>
+                    <td>
+                      {(p.ratingCount ?? 0) > 0 ? (
+                        <span className={ui.ratingCell}>
+                          <Star size={13} aria-hidden="true" /> {(p.ratingAvg ?? 0).toFixed(1)} (
+                          {p.ratingCount})
+                        </span>
+                      ) : (
+                        <span className={ui.cellSub}>—</span>
+                      )}
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        className={`${styles.statusChip} ${
+                          p.isActive === false ? styles.inactive : styles.active
+                        }`}
+                        onClick={() => toggleActive(p)}
+                        aria-pressed={p.isActive !== false}
+                      >
+                        <span className={styles.statusDot} aria-hidden="true" />
+                        {p.isActive === false ? 'Hidden' : 'Listed'}
+                      </button>
+                    </td>
+                    <td>
+                      <div className={ui.actionsCell}>
+                        <button
+                          type="button"
+                          className={styles.iconBtn}
+                          onClick={() => startEdit(p)}
+                          aria-label={`Edit ${p.name}`}
+                        >
+                          <Pencil size={16} aria-hidden="true" />
+                        </button>
+                        <button
+                          type="button"
+                          className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
+                          onClick={() => remove(p.id)}
+                          aria-label={`Delete ${p.name}`}
+                        >
+                          <Trash2 size={16} aria-hidden="true" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
 
       <FormDialog
         open={editing !== null}
         title={isNew ? 'Add a product' : 'Edit product'}
-        subtitle="What customers can order — its price, how it's sold, and how much you have."
+        subtitle="What customers can order: its price, how it's sold, and how much you have."
         onClose={cancel}
         onSubmit={submit}
         tabs={tabs}
@@ -246,7 +269,7 @@ export function ProductsManager({
                 <Combobox
                   id="name"
                   name="name"
-                  placeholder="e.g. Basmati Rice — or search common products"
+                  placeholder="e.g. Basmati Rice, or search common products"
                   value={form.name}
                   items={isNew ? comboItems : []}
                   onChange={onChange}
@@ -398,7 +421,7 @@ export function ProductsManager({
             <FormSection
               icon={<Ruler size={16} />}
               title="Minimum order"
-              description="The smallest amount a customer can order — they add more in the same steps."
+              description="The smallest amount a customer can order; they add more in the same steps."
             >
               <div className={styles.field}>
                 <label className={styles.label} htmlFor="step">
@@ -489,7 +512,7 @@ export function ProductsManager({
               label="Accept partial payment for this product"
               description={
                 partialLocked
-                  ? 'Partial payment is turned off for the whole business — turn it on under Edit business → Payments.'
+                  ? 'Partial payment is turned off for the whole business. Turn it on under Edit business → Payments.'
                   : 'Customers can pay a deposit now to confirm the order, and the rest at pickup.'
               }
               checked={form.partialPayEnabled && !partialLocked}
@@ -509,7 +532,7 @@ export function ProductsManager({
               label="Accept Cash on Delivery for this product"
               description={
                 codLocked
-                  ? 'Cash on Delivery is turned off for the whole business — turn it on under Edit business → Payments.'
+                  ? 'Cash on Delivery is turned off for the whole business. Turn it on under Edit business → Payments.'
                   : 'Customers can order this and pay in cash when they pick it up.'
               }
               checked={form.codEnabled && !codLocked}
@@ -572,7 +595,7 @@ export function ProductsManager({
                 e.target.value = '';
               }}
             />
-            <p className={ui.hint}>JPG, PNG or WEBP. It's optional — you can add one later.</p>
+            <p className={ui.hint}>JPG, PNG or WEBP. It's optional; you can add one later.</p>
           </FormSection>
         )}
       </FormDialog>

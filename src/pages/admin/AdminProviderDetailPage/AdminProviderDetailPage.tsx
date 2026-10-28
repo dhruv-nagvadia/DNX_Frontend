@@ -8,7 +8,7 @@ export default function AdminProviderDetailPage() {
   if (!userId) return null;
 
   return (
-    <AdminShell wide>
+    <AdminShell>
       <AdminProviderDetail userId={userId} />
     </AdminShell>
   );

@@ -4,7 +4,11 @@
   margin-bottom: var(--space-md);
 }
 .searchInput {
+  /* Capped, not stretched full-width across the whole card — shared by the
+     admin Providers and Users pages (AdminProvidersManager reuses this
+     module). */
   flex: 1;
+  max-width: 360px;
   padding: 10px 14px;
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-md);

@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import type { GrowthGroupBy } from '@/redux/api/admin/types';
+import { TrendChart } from '@/components/TrendChart';
 import styles from './GrowthChart.module.css';
 
 interface GrowthChartProps {
@@ -23,14 +23,14 @@ const longDay = new Intl.DateTimeFormat('en-IN', {
 const dayDate = (label: string) => new Date(`${label}T12:00:00`);
 const monthDate = (label: string) => new Date(`${label}-15T12:00:00`);
 
-/** The short text under each bar. */
+/** The short text under each point. */
 function axisLabel(label: string, groupBy: GrowthGroupBy): string {
   if (groupBy === 'day') return shortDay.format(dayDate(label));
   if (groupBy === 'month') return shortMonth.format(monthDate(label));
   return label;
 }
 
-/** The full text in the hover tooltip. */
+/** The full text in the hover tooltip's heading. */
 function fullLabel(label: string, groupBy: GrowthGroupBy): string {
   if (groupBy === 'day') return longDay.format(dayDate(label));
   if (groupBy === 'month') return longMonth.format(monthDate(label));
@@ -39,14 +39,19 @@ function fullLabel(label: string, groupBy: GrowthGroupBy): string {
 
 const PERIOD_WORD: Record<GrowthGroupBy, string> = { day: 'day', month: 'month', year: 'year' };
 
-/** A simple grouped-bar chart: new customers vs. new providers, per day, month or year. */
+/** New customers vs. new providers per day, month or year — the same trend-
+ * line treatment as the provider's earnings chart, with one line per series. */
 export function GrowthChart({ groupBy, labels, customers, providers }: GrowthChartProps) {
-  const max = Math.max(1, ...customers, ...providers);
-  const [hovered, setHovered] = useState<number | null>(null);
   const sum = (a: number[]) => a.reduce((x, y) => x + y, 0);
 
+  const points = labels.map((label, i) => ({
+    label: axisLabel(label, groupBy),
+    fullLabel: fullLabel(label, groupBy),
+    i,
+  }));
+
   return (
-    <div>
+    <div role="img" aria-label={`New customers and providers per ${PERIOD_WORD[groupBy]}`}>
       <div className={styles.legend}>
         <span className={styles.legendItem}>
           <span className={`${styles.dot} ${styles.dotCustomers}`} aria-hidden="true" />
@@ -58,49 +63,25 @@ export function GrowthChart({ groupBy, labels, customers, providers }: GrowthCha
         </span>
       </div>
 
-      <div
-        className={styles.chart}
-        role="img"
-        aria-label={`New customers and providers per ${PERIOD_WORD[groupBy]}`}
-      >
-        {labels.map((label, i) => {
-          const c = customers[i] ?? 0;
-          const p = providers[i] ?? 0;
-          return (
-            <div
-              key={label}
-              className={styles.column}
-              onMouseEnter={() => setHovered(i)}
-              onMouseLeave={() => setHovered((h) => (h === i ? null : h))}
-            >
-              {hovered === i && (
-                <div className={styles.tooltip} role="tooltip">
-                  <div className={styles.tooltipDate}>{fullLabel(label, groupBy)}</div>
-                  <div className={styles.tooltipRow}>
-                    <span className={`${styles.dot} ${styles.dotCustomers}`} aria-hidden="true" />
-                    {c} new customer{c === 1 ? '' : 's'}
-                  </div>
-                  <div className={styles.tooltipRow}>
-                    <span className={`${styles.dot} ${styles.dotProviders}`} aria-hidden="true" />
-                    {p} new provider{p === 1 ? '' : 's'}
-                  </div>
-                </div>
-              )}
-              <div className={styles.bars}>
-                <div
-                  className={`${styles.bar} ${styles.barCustomers}`}
-                  style={{ height: `${(c / max) * 100}%` }}
-                />
-                <div
-                  className={`${styles.bar} ${styles.barProviders}`}
-                  style={{ height: `${(p / max) * 100}%` }}
-                />
-              </div>
-              <span className={styles.axisLabel}>{axisLabel(label, groupBy)}</span>
-            </div>
-          );
-        })}
-      </div>
+      <TrendChart
+        height={220}
+        highlightLast
+        formatValue={(v) => `${Math.round(v)}`}
+        series={[
+          {
+            id: 'customers',
+            label: 'New customers',
+            color: 'var(--color-primary)',
+            data: points.map((p) => ({ label: p.label, fullLabel: p.fullLabel, value: customers[p.i] ?? 0 })),
+          },
+          {
+            id: 'providers',
+            label: 'New providers',
+            color: 'var(--color-accent)',
+            data: points.map((p) => ({ label: p.label, fullLabel: p.fullLabel, value: providers[p.i] ?? 0 })),
+          },
+        ]}
+      />
     </div>
   );
 }

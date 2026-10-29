@@ -1,0 +1,18 @@
+/* A compact inline row — a small number field plus one action button, not
+   the wide 2-column form grid meant for full label/value field pairs (which
+   stretched the Save button to fill an oversized column). */
+.row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-md);
+}
+
+.hoursInput {
+  width: 90px;
+}
+
+@media (max-width: 480px) {
+  .row {
+    flex-wrap: wrap;
+  }
+}

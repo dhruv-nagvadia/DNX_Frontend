@@ -1,10 +1,22 @@
-import { Banknote, Coins, HandCoins, Landmark, PiggyBank, ReceiptText, Wallet } from 'lucide-react';
+import {
+  Banknote,
+  ChevronLeft,
+  ChevronRight,
+  Coins,
+  HandCoins,
+  Landmark,
+  PiggyBank,
+  ReceiptText,
+  Search,
+  Wallet,
+} from 'lucide-react';
 
 import { Badge } from '@/components/Badge';
 import { BadgeTone } from '@/components/Badge/types';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
+import { Select } from '@/components/Select';
 import { Skeleton } from '@/components/Skeleton';
 import { StatTile } from '@/components/StatTile';
 import { Tabs } from '@/components/Tabs';
@@ -252,68 +264,8 @@ export function AdminTransactions() {
       </p>
 
       <Card>
-        <div className={local.filters}>
-          <select
-            className={form.select}
-            aria-label="Business"
-            value={t.businessId}
-            onChange={(e) => t.onBusiness(e.target.value)}
-          >
-            <option value="">All businesses</option>
-            {t.businessOptions.map((b) => (
-              <option key={b.id} value={b.id}>
-                {b.name}
-              </option>
-            ))}
-          </select>
-          <select
-            className={form.select}
-            aria-label="Service"
-            value={t.serviceId}
-            onChange={(e) => t.onService(e.target.value)}
-          >
-            <option value="">All services</option>
-            {t.serviceOptions.map((s) => (
-              <option key={s.id} value={s.id}>
-                {/* With no business chosen, say which business each service belongs to. */}
-                {t.businessId ? s.name : `${s.name} — ${s.businessName}`}
-                {s.isActive ? '' : ' (inactive)'}
-              </option>
-            ))}
-          </select>
-          <select
-            className={form.select}
-            aria-label="Payment type"
-            value={t.method}
-            onChange={(e) => t.onMethod(e.target.value)}
-          >
-            <option value="">All payment types</option>
-            <option value="ONLINE">Online</option>
-            <option value="CASH">COD / Cash</option>
-            <option value="PARTIAL">Partial</option>
-          </select>
-          <select
-            className={form.select}
-            aria-label="Type"
-            value={t.kind}
-            onChange={(e) => t.onKind(e.target.value)}
-          >
-            <option value="">Bookings &amp; orders</option>
-            <option value="BOOKING">Bookings</option>
-            <option value="ORDER">Orders</option>
-          </select>
-          <select
-            className={form.select}
-            aria-label="Status"
-            value={t.status}
-            onChange={(e) => t.onStatus(e.target.value)}
-          >
-            <option value="">Any status</option>
-            <option value="OPEN">Open (not finished)</option>
-            <option value="COMPLETED">Completed</option>
-            <option value="CANCELLED">Cancelled</option>
-            <option value="NO_SHOW">No-show</option>
-          </select>
+        <div className={local.searchRow}>
+          <Search size={16} className={local.searchIcon} aria-hidden="true" />
           <input
             key={t.search}
             className={`${form.input} ${local.search}`}
@@ -328,6 +280,70 @@ export function AdminTransactions() {
                 t.onSearch(e.currentTarget.value.trim());
             }}
           />
+        </div>
+
+        <div className={local.filters}>
+          <Select
+            className={local.filterSelect}
+            aria-label="Business"
+            value={t.businessId}
+            onChange={(e) => t.onBusiness(e.target.value)}
+          >
+            <option value="">All businesses</option>
+            {t.businessOptions.map((b) => (
+              <option key={b.id} value={b.id}>
+                {b.name}
+              </option>
+            ))}
+          </Select>
+          <Select
+            className={local.filterSelect}
+            aria-label="Service"
+            value={t.serviceId}
+            onChange={(e) => t.onService(e.target.value)}
+          >
+            <option value="">All services</option>
+            {t.serviceOptions.map((s) => (
+              <option key={s.id} value={s.id}>
+                {/* With no business chosen, say which business each service belongs to. */}
+                {t.businessId ? s.name : `${s.name} — ${s.businessName}`}
+                {s.isActive ? '' : ' (inactive)'}
+              </option>
+            ))}
+          </Select>
+          <Select
+            className={local.filterSelect}
+            aria-label="Payment type"
+            value={t.method}
+            onChange={(e) => t.onMethod(e.target.value)}
+          >
+            <option value="">All payment types</option>
+            <option value="ONLINE">Online</option>
+            <option value="CASH">COD / Cash</option>
+            <option value="PARTIAL">Partial</option>
+          </Select>
+          <Select
+            className={local.filterSelect}
+            aria-label="Type"
+            value={t.kind}
+            onChange={(e) => t.onKind(e.target.value)}
+          >
+            <option value="">Bookings &amp; orders</option>
+            <option value="BOOKING">Bookings</option>
+            <option value="ORDER">Orders</option>
+          </Select>
+          <Select
+            className={local.filterSelect}
+            aria-label="Status"
+            value={t.status}
+            onChange={(e) => t.onStatus(e.target.value)}
+          >
+            <option value="">Any status</option>
+            <option value="OPEN">Open (not finished)</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="CANCELLED">Cancelled</option>
+            <option value="NO_SHOW">No-show</option>
+          </Select>
           {t.ownerId && (
             <span className={local.chip}>
               Provider: {t.ownerName ?? 'selected'}
@@ -454,23 +470,27 @@ export function AdminTransactions() {
                   {t.data.total}
                 </span>
                 <span className={styles.inlineForm}>
-                  <Button
-                    variant="secondary"
+                  <button
+                    type="button"
+                    className={local.pagerBtn}
                     disabled={t.page <= 1}
                     onClick={() => t.onPage(t.page - 1)}
+                    aria-label="Previous page"
                   >
-                    Previous
-                  </Button>
+                    <ChevronLeft size={16} aria-hidden="true" />
+                  </button>
                   <span className={styles.muted}>
                     Page {t.page} of {pages}
                   </span>
-                  <Button
-                    variant="secondary"
+                  <button
+                    type="button"
+                    className={local.pagerBtn}
                     disabled={t.page >= pages}
                     onClick={() => t.onPage(t.page + 1)}
+                    aria-label="Next page"
                   >
-                    Next
-                  </Button>
+                    <ChevronRight size={16} aria-hidden="true" />
+                  </button>
                 </span>
               </div>
             </>

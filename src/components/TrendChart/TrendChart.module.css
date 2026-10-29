@@ -162,8 +162,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1px;
-  padding: 5px 10px;
+  gap: 3px;
+  padding: 6px 10px;
   border-radius: var(--radius-sm);
   background: var(--color-ink);
   color: var(--color-white);
@@ -201,6 +201,26 @@
   font-size: var(--font-size-xs);
   font-weight: 800;
   font-variant-numeric: tabular-nums;
+}
+
+/* One row per series, in a multi-series tooltip (e.g. customers vs. providers) —
+   a single-series tooltip's one implicit row renders with no dot/label, so it
+   looks exactly like before. */
+.tipRow {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.tipDot {
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.tipSeriesLabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-on-dark-muted);
+  white-space: nowrap;
 }
 
 @media (prefers-reduced-motion: reduce) {

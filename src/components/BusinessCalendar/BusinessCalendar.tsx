@@ -51,8 +51,8 @@ function fmtLongDate(key: string): string {
  * date updates the side panel immediately — bookings and the hours editor
  * for that date sit together in one place, instead of a separate section
  * further down the page. */
-export function BusinessCalendar({ providerId, businessHours }: BusinessCalendarProps) {
-  const cal = useBusinessCalendar(providerId, businessHours);
+export function BusinessCalendar({ providerId, businessHours, businessType }: BusinessCalendarProps) {
+  const cal = useBusinessCalendar(providerId, businessHours, businessType);
 
   return (
     <Card
@@ -139,13 +139,13 @@ function MonthView({ cal }: { cal: Cal }) {
 
             {day.hours.isOpen ? (
               <span className={styles.chips}>
-                {day.bookings.slice(0, 2).map((b) => (
-                  <span key={b.id} className={styles.chip}>
-                    {hhmm(b.startTime)} {firstName(b.user.fullName)}
+                {day.items.slice(0, 2).map((item) => (
+                  <span key={item.id} className={styles.chip}>
+                    {hhmm(item.time)} {firstName(item.title)}
                   </span>
                 ))}
-                {day.bookings.length > 2 && (
-                  <span className={styles.more}>+{day.bookings.length - 2} more</span>
+                {day.items.length > 2 && (
+                  <span className={styles.more}>+{day.items.length - 2} more</span>
                 )}
               </span>
             ) : (
@@ -199,20 +199,22 @@ function WeekView({ cal }: { cal: Cal }) {
 
             {day.hours.isOpen && <OpenBand day={day} />}
 
-            {day.bookings.map((b) => {
-              const top = Math.max(0, (minsFromDate(b.startTime) / 60) * HOUR_PX);
-              const durMin =
-                (new Date(b.endTime).getTime() - new Date(b.startTime).getTime()) / 60000;
+            {day.items.map((item) => {
+              const top = Math.max(0, (minsFromDate(item.time) / 60) * HOUR_PX);
+              // Orders have no end time — show them as a fixed-size marker instead of a span.
+              const durMin = item.endTime
+                ? (new Date(item.endTime).getTime() - new Date(item.time).getTime()) / 60000
+                : 30;
               const height = Math.max(20, (durMin / 60) * HOUR_PX - 2);
               return (
                 <div
-                  key={b.id}
+                  key={item.id}
                   className={styles.block}
                   style={{ top, height }}
-                  title={`${hhmm(b.startTime)} · ${b.user.fullName} · ${b.service.name}`}
+                  title={`${hhmm(item.time)} · ${item.title} · ${item.subtitle}`}
                 >
-                  <span className={styles.blockTime}>{hhmm(b.startTime)}</span>
-                  <span className={styles.blockName}>{firstName(b.user.fullName)}</span>
+                  <span className={styles.blockTime}>{hhmm(item.time)}</span>
+                  <span className={styles.blockName}>{firstName(item.title)}</span>
                 </div>
               );
             })}
@@ -251,22 +253,24 @@ function DayPanel({ cal }: { cal: Cal }) {
       </div>
 
       <div className={styles.dayPanelSection}>
-        <div className={styles.dayPanelSectionTitle}>Bookings</div>
-        {selectedDay.bookings.length > 0 ? (
+        <div className={styles.dayPanelSectionTitle}>{cal.itemLabel === 'order' ? 'Orders' : 'Bookings'}</div>
+        {selectedDay.items.length > 0 ? (
           <ul className={styles.dayBookings}>
-            {selectedDay.bookings.map((b) => (
-              <li key={b.id} className={styles.dayBooking}>
+            {selectedDay.items.map((item) => (
+              <li key={item.id} className={styles.dayBooking}>
                 <span className={styles.dbTime}>
-                  {hhmm(b.startTime)}–{hhmm(b.endTime)}
+                  {hhmm(item.time)}
+                  {item.endTime ? `–${hhmm(item.endTime)}` : ''}
                 </span>
-                <span className={styles.dbWho}>{b.user.fullName}</span>
-                <span className={styles.dbService}>{b.service.name}</span>
+                <span className={styles.dbWho}>{item.title}</span>
+                <span className={styles.dbService}>{item.subtitle}</span>
               </li>
             ))}
           </ul>
         ) : (
           <p className={styles.noBookings}>
-            <CalendarOff size={15} aria-hidden="true" /> No bookings on this date.
+            <CalendarOff size={15} aria-hidden="true" /> No {cal.itemLabel === 'order' ? 'orders' : 'bookings'} on
+            this date.
           </p>
         )}
       </div>

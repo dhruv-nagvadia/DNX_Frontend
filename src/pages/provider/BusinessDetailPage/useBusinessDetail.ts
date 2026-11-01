@@ -17,8 +17,8 @@ export type BusinessTab =
   | 'coupons'
   | 'bookings'
   | 'photos'
-  | 'calendar'
-  | 'hours';
+  | 'hours'
+  | 'calendar';
 
 /** Loads one owned business and exposes image-upload + navigation actions. */
 export function useBusinessDetail() {

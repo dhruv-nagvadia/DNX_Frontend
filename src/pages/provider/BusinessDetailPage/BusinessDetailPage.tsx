@@ -140,15 +140,11 @@ export default function BusinessDetailPage() {
       icon: <CalendarDays size={16} aria-hidden="true" />,
     },
     { id: 'photos', label: 'Photos', icon: <ImageIcon size={16} aria-hidden="true" /> },
-    ...(isStore
-      ? [{ id: 'hours', label: 'Hours', icon: <Clock size={16} aria-hidden="true" /> }]
-      : [
-          {
-            id: 'calendar',
-            label: 'Calendar',
-            icon: <CalendarRange size={16} aria-hidden="true" />,
-          },
-        ]),
+    // Weekly hours + break time is its own tab; per-date overrides (mark a day
+    // closed, see that date's bookings/orders) is Calendar — both tabs for
+    // every business type, store included.
+    { id: 'hours', label: 'Hours', icon: <Clock size={16} aria-hidden="true" /> },
+    { id: 'calendar', label: 'Calendar', icon: <CalendarRange size={16} aria-hidden="true" /> },
   ];
 
   const contactCard = (
@@ -434,17 +430,19 @@ export default function BusinessDetailPage() {
         </Card>
       )}
 
-      {/* Calendar: month/week schedule + per-date overrides, plus weekly hours. */}
-      {activeTab === 'calendar' && (
-        <>
-          <BusinessCalendar providerId={business.id} businessHours={business.businessHours} />
-          <BusinessHours providerId={business.id} hours={business.businessHours} />
-        </>
-      )}
-
-      {/* Store opening hours (services set theirs under Calendar). */}
+      {/* Weekly hours + break time — every business type. */}
       {activeTab === 'hours' && (
         <BusinessHours providerId={business.id} hours={business.businessHours} />
+      )}
+
+      {/* Calendar: per-date overrides (mark a day closed) + that date's
+          bookings (service) or orders (store) — every business type. */}
+      {activeTab === 'calendar' && (
+        <BusinessCalendar
+          providerId={business.id}
+          businessHours={business.businessHours}
+          businessType={business.type}
+        />
       )}
 
       {confirmingDelete && (

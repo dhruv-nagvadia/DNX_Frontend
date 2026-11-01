@@ -4,9 +4,10 @@ import {
   useDeleteDateHourMutation,
   useGetBusinessBookingsQuery,
   useGetDateHoursQuery,
+  useGetMyOrdersQuery,
   useSetDateHourMutation,
 } from '@/redux/api/provider/providerApi';
-import { BusinessHour, ProviderBooking } from '@/redux/api/provider/types';
+import { BusinessHour, BusinessType } from '@/redux/api/provider/types';
 
 export type CalendarView = 'month' | 'week';
 
@@ -17,13 +18,25 @@ export interface EffectiveHours {
   source: 'override' | 'weekly' | 'none';
 }
 
+/** A booking or an order, normalized to one shape the calendar UI can render
+ * without caring which it is — a store's calendar shows orders (by
+ * `createdAt`, no duration), a service's shows bookings (by `startTime`,
+ * with a real end time). */
+export interface CalendarItem {
+  id: string;
+  time: string;
+  endTime?: string;
+  title: string;
+  subtitle: string;
+}
+
 export interface CalendarDay {
   date: Date;
   key: string; // YYYY-MM-DD
   inMonth: boolean;
   isToday: boolean;
   hours: EffectiveHours;
-  bookings: ProviderBooking[];
+  items: CalendarItem[];
 }
 
 export const WEEKDAYS_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -43,8 +56,13 @@ const addDays = (d: Date, n: number) => {
 const startOfWeek = (d: Date) => addDays(startOfDay(d), -startOfDay(d).getDay()); // Sunday
 const addMonths = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth() + n, 1);
 
-/** Calendar state: month/week navigation, bookings, and per-date hour overrides. */
-export function useBusinessCalendar(providerId: string, weeklyHours: BusinessHour[]) {
+/** Calendar state: month/week navigation, bookings/orders, and per-date hour overrides. */
+export function useBusinessCalendar(
+  providerId: string,
+  weeklyHours: BusinessHour[],
+  businessType: BusinessType = 'SERVICE',
+) {
+  const isStore = businessType === 'STORE';
   const [view, setView] = useState<CalendarView>('month');
   const [cursor, setCursor] = useState(() => startOfDay(new Date()));
   const [selectedKey, setSelectedKey] = useState(() => ymd(new Date()));
@@ -59,7 +77,8 @@ export function useBusinessCalendar(providerId: string, weeklyHours: BusinessHou
   );
   const gridEnd = useMemo(() => addDays(gridStart, view === 'week' ? 6 : 41), [gridStart, view]);
 
-  const { data: bookings = [] } = useGetBusinessBookingsQuery(providerId);
+  const { data: bookings = [] } = useGetBusinessBookingsQuery(providerId, { skip: isStore });
+  const { data: orders = [] } = useGetMyOrdersQuery(undefined, { skip: !isStore });
   const { data: overrides = [] } = useGetDateHoursQuery({
     id: providerId,
     from: ymd(gridStart),
@@ -84,21 +103,42 @@ export function useBusinessCalendar(providerId: string, weeklyHours: BusinessHou
     return m;
   }, [overrides]);
 
-  const bookingsByKey = useMemo(() => {
-    const m = new Map<string, ProviderBooking[]>();
-    bookings
-      .filter((b) => b.status !== 'CANCELLED')
-      .forEach((b) => {
-        const k = ymd(new Date(b.startTime));
-        const arr = m.get(k) ?? [];
-        arr.push(b);
-        m.set(k, arr);
-      });
-    m.forEach((arr) =>
-      arr.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()),
-    );
+  const itemsByKey = useMemo(() => {
+    const m = new Map<string, CalendarItem[]>();
+    const push = (k: string, item: CalendarItem) => {
+      const arr = m.get(k) ?? [];
+      arr.push(item);
+      m.set(k, arr);
+    };
+
+    if (isStore) {
+      orders
+        .filter((o) => o.provider.id === providerId && o.status !== 'CANCELLED')
+        .forEach((o) => {
+          push(ymd(new Date(o.createdAt)), {
+            id: o.id,
+            time: o.createdAt,
+            title: o.user.fullName,
+            subtitle: `${o.items.length} item${o.items.length === 1 ? '' : 's'}`,
+          });
+        });
+    } else {
+      bookings
+        .filter((b) => b.status !== 'CANCELLED')
+        .forEach((b) => {
+          push(ymd(new Date(b.startTime)), {
+            id: b.id,
+            time: b.startTime,
+            endTime: b.endTime,
+            title: b.user.fullName,
+            subtitle: b.service.name,
+          });
+        });
+    }
+
+    m.forEach((arr) => arr.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime()));
     return m;
-  }, [bookings]);
+  }, [isStore, orders, bookings, providerId]);
 
   const todayKey = ymd(new Date());
 
@@ -118,10 +158,10 @@ export function useBusinessCalendar(providerId: string, weeklyHours: BusinessHou
         inMonth,
         isToday: key === todayKey,
         hours: effective(key, date.getDay()),
-        bookings: bookingsByKey.get(key) ?? [],
+        items: itemsByKey.get(key) ?? [],
       };
     };
-  }, [overrideByKey, weeklyByDay, bookingsByKey, todayKey]);
+  }, [overrideByKey, weeklyByDay, itemsByKey, todayKey]);
 
   const monthWeeks = useMemo<CalendarDay[][]>(() => {
     const weeks: CalendarDay[][] = [];
@@ -199,6 +239,7 @@ export function useBusinessCalendar(providerId: string, weeklyHours: BusinessHou
     view,
     setView,
     label,
+    itemLabel: isStore ? ('order' as const) : ('booking' as const),
     prev,
     next,
     today,

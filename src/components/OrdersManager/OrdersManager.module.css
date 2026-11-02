@@ -65,6 +65,12 @@
   font-weight: 700;
   color: var(--color-text-primary);
 }
+.business {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
 .phone {
   display: inline-flex;
   align-items: center;

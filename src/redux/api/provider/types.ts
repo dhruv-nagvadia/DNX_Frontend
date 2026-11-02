@@ -237,6 +237,8 @@ export interface Coupon {
   usedCount: number;
   isActive: boolean;
   createdAt: string;
+  /** Only present on the cross-business "all my coupons" list. */
+  provider?: { id: string; businessName: string };
 }
 
 export interface CouponInput {
@@ -262,6 +264,8 @@ export interface BusinessReview {
   repliedAt?: string | null;
   createdAt: string;
   user: { fullName: string };
+  /** Only present on the cross-business "all my reviews" list. */
+  provider?: { id: string; businessName: string };
 }
 
 export interface ListProvidersParams {

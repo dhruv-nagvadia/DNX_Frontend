@@ -199,10 +199,21 @@
   justify-content: space-between;
   gap: var(--space-sm);
 }
+.reviewNameGroup {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
 .reviewName {
   font-size: var(--font-size-sm);
   font-weight: 700;
   color: var(--color-text-primary);
+}
+.reviewBusiness {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--color-text-secondary);
 }
 .reviewHeadRight {
   display: inline-flex;

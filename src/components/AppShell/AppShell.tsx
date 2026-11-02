@@ -1,12 +1,15 @@
 import {
+  CalendarDays,
   LayoutDashboard,
   LifeBuoy,
   LogOut,
   Moon,
   PanelLeftClose,
   PanelLeftOpen,
+  Star,
   Store,
   Sun,
+  Ticket,
   UserRound,
   Wallet,
 } from 'lucide-react';
@@ -31,8 +34,11 @@ function initialsOf(name: string): string {
 }
 
 const NAV = [
-  { to: '/dashboard', label: 'Home', icon: LayoutDashboard },
-  { to: '/businesses', label: 'Businesses', icon: Store },
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/businesses', label: 'My Businesses', icon: Store },
+  { to: '/bookings-orders', label: 'Bookings & Orders', icon: CalendarDays },
+  { to: '/coupons', label: 'Coupons / Offers', icon: Ticket },
+  { to: '/reviews', label: 'Reviews', icon: Star },
   { to: '/earnings', label: 'Earnings', icon: Wallet },
   { to: '/profile', label: 'Profile', icon: UserRound },
   { to: '/support', label: 'Support', icon: LifeBuoy },
@@ -67,8 +73,9 @@ export function AppShell({ children, rail, header }: AppShellProps) {
           <span className={styles.mark} aria-hidden="true">
             D
           </span>
-          <span className={styles.wordmark}>
-            DNX <span className={styles.wordmarkThin}>Business</span>
+          <span className={styles.brandText}>
+            <span className={styles.wordmark}>DNX Marketplace</span>
+            <span className={styles.wordmarkSub}>Provider Portal</span>
           </span>
         </Link>
 

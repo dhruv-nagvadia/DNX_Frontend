@@ -3,7 +3,7 @@ import { Phone } from 'lucide-react';
 
 import { Badge } from '@/components/Badge';
 import { BadgeTone } from '@/components/Badge/types';
-import { BookingStatus, ProviderBooking } from '@/redux/api/provider/types';
+import { BookingStatus, DashboardBooking, ProviderBooking } from '@/redux/api/provider/types';
 
 import styles from './BookingsTable.module.css';
 
@@ -57,19 +57,34 @@ interface BookingsTableProps {
   variant?: 'status' | 'payment' | 'both';
   /** Optional actions column (e.g. confirm/complete/cancel buttons). */
   renderActions?: (booking: ProviderBooking) => ReactNode;
+  /** Shows a Business column — for cross-business lists (e.g. the global
+   * Bookings & Orders page) where rows aren't already scoped to one business. */
+  showBusiness?: boolean;
 }
 
 /** Shared table used by the Bookings tab and the Overview appointments panel. */
-export function BookingsTable({ bookings, variant = 'status', renderActions }: BookingsTableProps) {
+export function BookingsTable({
+  bookings,
+  variant = 'status',
+  renderActions,
+  showBusiness,
+}: BookingsTableProps) {
   const trailingLabel =
     variant === 'payment' ? 'Payment' : variant === 'both' ? 'Status & payment' : 'Status';
-  const rowClass = `${styles.row} ${renderActions ? styles.withActions : ''}`;
+  const rowClass = [
+    styles.row,
+    renderActions ? styles.withActions : '',
+    showBusiness ? styles.withBusiness : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <div className={styles.table}>
       <div className={`${rowClass} ${styles.head}`} aria-hidden="true">
         <span>When</span>
         <span>Customer</span>
+        {showBusiness && <span>Business</span>}
         <span>Contact</span>
         <span className={styles.colService}>Service</span>
         <span className={`${styles.right} ${styles.colAmount}`}>Amount</span>
@@ -82,6 +97,7 @@ export function BookingsTable({ bookings, variant = 'status', renderActions }: B
         const statusBadge = STATUS[b.status];
         const payBadge = payment(b);
         const badge = variant === 'payment' ? payBadge : statusBadge;
+        const businessName = (b as DashboardBooking).provider?.businessName;
         return (
           <div className={rowClass} key={b.id}>
             <span className={styles.when} data-label="When">
@@ -91,6 +107,11 @@ export function BookingsTable({ bookings, variant = 'status', renderActions }: B
             <span className={styles.customer} data-label="Customer">
               {b.user.fullName}
             </span>
+            {showBusiness && (
+              <span className={styles.business} data-label="Business">
+                {businessName}
+              </span>
+            )}
             <span className={styles.contact} data-label="Contact">
               {b.user.phone ? (
                 <a className={styles.phone} href={`tel:${b.user.phone}`}>

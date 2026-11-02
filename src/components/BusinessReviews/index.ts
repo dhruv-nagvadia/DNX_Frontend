@@ -1,1 +1,1 @@
-export { BusinessReviews } from './BusinessReviews';
+export { BusinessReviews, ReviewItem, Stars } from './BusinessReviews';

@@ -85,6 +85,18 @@
   box-shadow: var(--shadow-md);
 }
 
+/* Bordered red-outline button for destructive actions (e.g. delete a business). */
+.danger {
+  background: var(--color-surface);
+  color: var(--color-error);
+  border-color: var(--color-error-border);
+}
+
+.danger:not(:disabled):hover {
+  border-color: var(--color-error);
+  background: var(--color-error-soft);
+}
+
 /* ── Loading spinner ──────────────────────────────────────────────── */
 .spinner {
   width: 16px;

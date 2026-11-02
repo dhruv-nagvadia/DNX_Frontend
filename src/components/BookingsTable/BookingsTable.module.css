@@ -18,6 +18,20 @@
 .withActions {
   grid-template-columns: 110px 1fr 1fr 1fr 96px 140px 248px;
 }
+.withBusiness {
+  grid-template-columns: 110px 1fr 1fr 1fr 1fr 96px 140px;
+}
+.withActions.withBusiness {
+  grid-template-columns: 100px 0.9fr 0.9fr 0.9fr 0.9fr 90px 130px 230px;
+}
+.business {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 .actions {
   display: inline-flex;

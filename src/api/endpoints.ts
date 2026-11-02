@@ -68,6 +68,8 @@ export const endpoints = {
   myEarnings: '/provider/earnings',
   myAllBookings: '/provider/bookings',
   myOrders: '/provider/orders',
+  myAllCoupons: '/provider/coupons',
+  myAllReviews: '/provider/reviews',
   myOrder: (orderId: string) => `/provider/orders/${orderId}`,
   myOrderCollect: (orderId: string) => `/provider/orders/${orderId}/collect`,
   uploadImage: '/provider/uploads/image',

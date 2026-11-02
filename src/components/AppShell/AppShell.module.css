@@ -23,7 +23,7 @@
   flex-direction: column;
   gap: var(--space-lg);
   padding: var(--space-lg) var(--space-md);
-  background: var(--color-ink);
+  background: var(--color-nav);
   border-right: 1px solid rgba(255, 255, 255, 0.06);
   overflow: hidden;
   z-index: 20;
@@ -73,6 +73,7 @@
   align-items: center;
   gap: 10px;
   padding: 4px 6px;
+  margin-bottom: 4px;
   color: var(--color-on-dark);
   text-decoration: none;
   border-radius: var(--radius-md);
@@ -85,9 +86,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-sm);
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
   /* Fixed bright cyan, not the theme-aware accent token — see the aurora
      glow comment above. */
   background: #38bdf8;
@@ -96,13 +97,24 @@
   font-weight: 800;
   flex: 0 0 auto;
 }
+.brandText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
 .wordmark {
   font-size: var(--font-size-md);
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: -0.01em;
+  color: var(--color-on-dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.wordmarkThin {
-  font-weight: 400;
+.wordmarkSub {
+  font-size: 12px;
+  font-weight: 500;
   color: var(--color-on-dark-muted);
 }
 
@@ -133,8 +145,11 @@
   color: var(--color-on-dark);
 }
 .navItemActive {
-  background: var(--glass-bg-strong);
+  /* A solid, clearly-colored pill (not just a translucent overlay) — the
+     active item should read at a glance, not just slightly lighter. */
+  background: rgba(56, 189, 248, 0.22);
   color: var(--color-on-dark);
+  font-weight: 700;
 }
 .navItemActive::before {
   content: '';
@@ -313,7 +328,7 @@
 .sidebarCollapsed .brand {
   padding: 4px 0;
 }
-.sidebarCollapsed .wordmark,
+.sidebarCollapsed .brandText,
 .sidebarCollapsed .navLabel,
 .sidebarCollapsed .accountText,
 .sidebarCollapsed .accountEmail {
@@ -339,18 +354,18 @@
 }
 
 /* ── Sticky per-page top bar (back + notifications + profile) ───────── */
-/* The bar itself is just the page background + a bottom divider. Everything
-   on it — back button, identity, actions — lives together inside ONE
-   bordered box (.headerBox), not as separately-boxed pieces. */
+/* A plain row on the page background with just a bottom-border separator —
+   not a boxed/bordered "section" of its own. */
 .topbar {
   position: sticky;
   top: 0;
   z-index: 15;
   display: flex;
   align-items: stretch;
-  min-height: 92px;
-  padding: var(--space-lg) var(--space-xl);
+  min-height: 56px;
+  padding: var(--space-sm) var(--space-xl);
   background: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
 }
 .headerBox {
   display: flex;
@@ -358,10 +373,6 @@
   justify-content: space-between;
   gap: var(--space-md);
   width: 100%;
-  padding: 10px 16px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface);
 }
 .topbarActions {
   display: flex;
@@ -521,7 +532,7 @@
 }
 
 @media (max-width: 560px) {
-  .wordmark {
+  .brandText {
     display: none;
   }
   .navLabel {

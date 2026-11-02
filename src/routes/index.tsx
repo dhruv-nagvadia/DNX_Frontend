@@ -29,6 +29,9 @@ import TodaysSchedulePage from '@/pages/provider/TodaysSchedulePage';
 import AttentionPage from '@/pages/provider/AttentionPage';
 import OpenOrdersPage from '@/pages/provider/OpenOrdersPage';
 import LowStockPage from '@/pages/provider/LowStockPage';
+import BookingsOrdersPage from '@/pages/provider/BookingsOrdersPage';
+import CouponsPage from '@/pages/provider/CouponsPage';
+import AllReviewsPage from '@/pages/provider/AllReviewsPage';
 import AdminUserDetailPage from '@/pages/admin/AdminUserDetailPage';
 
 /** Requires an authenticated user; otherwise sends to /login. */
@@ -182,6 +185,30 @@ export const router = createBrowserRouter([
     element: (
       <Protected>
         <LowStockPage />
+      </Protected>
+    ),
+  },
+  {
+    path: '/bookings-orders',
+    element: (
+      <Protected>
+        <BookingsOrdersPage />
+      </Protected>
+    ),
+  },
+  {
+    path: '/coupons',
+    element: (
+      <Protected>
+        <CouponsPage />
+      </Protected>
+    ),
+  },
+  {
+    path: '/reviews',
+    element: (
+      <Protected>
+        <AllReviewsPage />
       </Protected>
     ),
   },

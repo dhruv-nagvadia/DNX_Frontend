@@ -42,6 +42,8 @@ export const providerApi = createApi({
     'DateHours',
     'Coupons',
     'MyEarnings',
+    'AllCoupons',
+    'AllReviews',
   ],
   endpoints: (builder) => ({
     getProviders: builder.query<Paginated<Provider>, ListProvidersParams | void>({
@@ -156,6 +158,13 @@ export const providerApi = createApi({
       query: (id) => ({ endpoint: endpoints.myProviderReviews(id), method: 'get' }),
       transformResponse: (res: ApiEnvelope<BusinessReview[]>) => res.data,
       providesTags: (_r, _e, id) => [{ type: 'BusinessReviews', id }],
+    }),
+
+    // Every review across all of this provider's businesses (global page).
+    getAllReviews: builder.query<BusinessReview[], void>({
+      query: () => ({ endpoint: endpoints.myAllReviews, method: 'get' }),
+      transformResponse: (res: ApiEnvelope<BusinessReview[]>) => res.data,
+      providesTags: ['AllReviews'],
     }),
 
     // Reply to (or clear the reply on) a business review.
@@ -313,6 +322,13 @@ export const providerApi = createApi({
       transformResponse: (res: ApiEnvelope<Coupon[]>) => res.data,
       providesTags: (_r, _e, providerId) => [{ type: 'Coupons', id: providerId }],
     }),
+
+    // Every coupon across all of this provider's businesses (global page).
+    getAllCoupons: builder.query<Coupon[], void>({
+      query: () => ({ endpoint: endpoints.myAllCoupons, method: 'get' }),
+      transformResponse: (res: ApiEnvelope<Coupon[]>) => res.data,
+      providesTags: ['AllCoupons'],
+    }),
     createCoupon: builder.mutation<Coupon, { providerId: string; data: CouponInput }>({
       query: ({ providerId, data }) => ({
         endpoint: endpoints.providerCoupons(providerId),
@@ -409,6 +425,8 @@ export const {
   useGetBusinessBookingsQuery,
   useGetAllMyBookingsQuery,
   useGetMyOrdersQuery,
+  useGetAllCouponsQuery,
+  useGetAllReviewsQuery,
   useGetMyEarningsQuery,
   useUpdateOrderStatusMutation,
   useCollectOrderPaymentMutation,

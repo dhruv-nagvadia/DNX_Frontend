@@ -21,7 +21,7 @@ interface BusinessReviewsProps {
 }
 
 /** Renders a 5-star row, filled to the nearest whole star. */
-function Stars({ rating, size = 14 }: { rating: number; size?: number }) {
+export function Stars({ rating, size = 14 }: { rating: number; size?: number }) {
   return (
     <span className={styles.stars} aria-label={`${rating.toFixed(1)} out of 5`}>
       {[0, 1, 2, 3, 4].map((i) => (
@@ -65,7 +65,7 @@ function relativeDate(iso: string): string {
  * date instead of its own line, and the comment/reply text is clamped, so
  * three rows stay short — the full list page (`compact=false`) is untouched.
  */
-function ReviewItem({
+export function ReviewItem({
   providerId,
   review,
   compact,
@@ -99,7 +99,12 @@ function ReviewItem({
       </span>
       <div className={`${styles.reviewBody} ${compact ? styles.reviewBodyCompact : ''}`}>
         <div className={styles.reviewHead}>
-          <span className={styles.reviewName}>{review.user.fullName}</span>
+          <span className={styles.reviewNameGroup}>
+            <span className={styles.reviewName}>{review.user.fullName}</span>
+            {review.provider?.businessName && (
+              <span className={styles.reviewBusiness}>{review.provider.businessName}</span>
+            )}
+          </span>
           <span className={styles.reviewHeadRight}>
             <span className={styles.reviewDate}>{relativeDate(review.createdAt)}</span>
             {showHeaderTrigger && (
@@ -219,9 +224,7 @@ export function BusinessReviews({ providerId, limit, onViewAll }: BusinessReview
       }
     >
       {count === 0 ? (
-        <p className={styles.empty}>
-          No reviews yet. Reviews appear here after customers complete a booking and rate you.
-        </p>
+        <p className={styles.empty}>No reviews yet.</p>
       ) : (() => {
         const summary = (
           <div className={compact ? styles.summary : styles.summaryWide}>

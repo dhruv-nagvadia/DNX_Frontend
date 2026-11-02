@@ -71,9 +71,12 @@ function payBadge(o: ProviderOrder): { label: string; tone: BadgeTone } {
   return { label: 'Payment pending', tone: 'warning' };
 }
 
-/** Store order management: view incoming orders and move them through fulfilment. */
-export function OrdersManager({ providerId }: { providerId: string }) {
+/** Store order management: view incoming orders and move them through fulfilment.
+ * Omit `providerId` to show every order across every business (the global
+ * Bookings & Orders page) — a Business column is added automatically. */
+export function OrdersManager({ providerId }: { providerId?: string }) {
   const navigate = useNavigate();
+  const showBusiness = !providerId;
   // Refetch whenever this tab is opened, the browser tab regains focus, or
   // every 30s while it's open — new orders come from the customer app, a
   // separate client, so nothing in this app's own cache would otherwise know
@@ -86,7 +89,7 @@ export function OrdersManager({ providerId }: { providerId: string }) {
   const [updateStatus, { isLoading: updating }] = useUpdateOrderStatusMutation();
   const [collect, { isLoading: collecting }] = useCollectOrderPaymentMutation();
 
-  const orders = allOrders.filter((o) => o.provider.id === providerId);
+  const orders = providerId ? allOrders.filter((o) => o.provider.id === providerId) : allOrders;
   const busy = updating || collecting;
 
   // Cancel-with-reason modal.
@@ -100,7 +103,7 @@ export function OrdersManager({ providerId }: { providerId: string }) {
   };
 
   const setStatus = (o: ProviderOrder, status: OrderStatus) => {
-    updateStatus({ orderId: o.id, providerId, status });
+    updateStatus({ orderId: o.id, providerId: o.provider.id, status });
   };
 
   const openCancel = (o: ProviderOrder) => {
@@ -113,7 +116,7 @@ export function OrdersManager({ providerId }: { providerId: string }) {
     try {
       await updateStatus({
         orderId: cancelling.id,
-        providerId,
+        providerId: cancelling.provider.id,
         status: 'CANCELLED',
         reason: reason.trim() || undefined,
       }).unwrap();
@@ -175,7 +178,7 @@ export function OrdersManager({ providerId }: { providerId: string }) {
             type="button"
             className={`${styles.btn} ${styles.collect}`}
             disabled={busy}
-            onClick={() => collect({ orderId: o.id, providerId })}
+            onClick={() => collect({ orderId: o.id, providerId: o.provider.id })}
           >
             Collect {money(outstanding, o.currency)}
           </button>
@@ -215,6 +218,7 @@ export function OrdersManager({ providerId }: { providerId: string }) {
             <tr>
               <th aria-hidden="true" />
               <th>Customer</th>
+              {showBusiness && <th>Business</th>}
               <th>Items</th>
               <th>Total</th>
               <th>Status</th>
@@ -262,6 +266,11 @@ export function OrdersManager({ providerId }: { providerId: string }) {
                         </span>
                       </div>
                     </td>
+                    {showBusiness && (
+                      <td>
+                        <span className={styles.business}>{o.provider.businessName}</span>
+                      </td>
+                    )}
                     <td>
                       <div className={styles.itemsSummary}>
                         {shownItems.map((it) => (
@@ -290,7 +299,7 @@ export function OrdersManager({ providerId }: { providerId: string }) {
 
                   {expanded && (
                     <tr className={styles.detailRow}>
-                      <td colSpan={6}>
+                      <td colSpan={showBusiness ? 7 : 6}>
                         <div className={styles.detailPanel}>
                           <ul className={styles.detailItems}>
                             {o.items.map((it) => (

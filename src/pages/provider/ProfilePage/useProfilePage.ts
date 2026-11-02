@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useUpdateMeMutation } from '@/redux/api/auth/authApi';
-import { useGetMyBusinessesQuery } from '@/redux/api/provider/providerApi';
+import { useGetMyBusinessesQuery, useUploadImageMutation } from '@/redux/api/provider/providerApi';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { setCurrentUser } from '@/redux/slices/userSlice';
 
@@ -13,10 +13,12 @@ export function useProfilePage() {
   const user = useAppSelector((s) => s.user.currentUser);
   const { data: businesses = [], isLoading } = useGetMyBusinessesQuery();
   const [updateMe, { isLoading: saving }] = useUpdateMeMutation();
+  const [uploadImage, { isLoading: uploadingPhoto }] = useUploadImageMutation();
 
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ fullName: '', email: '' });
   const [error, setError] = useState<string | null>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
 
   const stats = useMemo(() => {
     const services = businesses.reduce((sum, b) => sum + b.services.length, 0);
@@ -44,17 +46,24 @@ export function useProfilePage() {
         fullName: form.fullName.trim(),
         email: form.email.trim(),
       }).unwrap();
-      dispatch(
-        setCurrentUser({
-          id: updated.id,
-          email: updated.email,
-          fullName: updated.fullName,
-          role: updated.role,
-        }),
-      );
+      dispatch(setCurrentUser(updated));
       setEditing(false);
     } catch {
       setError('Could not save. That email may already be in use.');
+    }
+  };
+
+  /** Uploads a new avatar photo, then saves its URL onto the account. */
+  const changePhoto = async (file: File) => {
+    setPhotoError(null);
+    try {
+      const fd = new FormData();
+      fd.append('image', file);
+      const { url } = await uploadImage(fd).unwrap();
+      const updated = await updateMe({ avatarUrl: url }).unwrap();
+      dispatch(setCurrentUser(updated));
+    } catch {
+      setPhotoError('Could not upload that photo. Please try again.');
     }
   };
 
@@ -71,6 +80,9 @@ export function useProfilePage() {
     cancelEdit,
     onField,
     saveProfile,
+    photoError,
+    uploadingPhoto,
+    changePhoto,
     openBusiness: (id: string) => navigate(`/businesses/${id}`),
   };
 }

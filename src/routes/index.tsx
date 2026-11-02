@@ -25,6 +25,10 @@ import AdminProviderDetailPage from '@/pages/admin/AdminProviderDetailPage';
 import AdminFinancePage from '@/pages/admin/AdminFinancePage';
 import AdminTransactionsPage from '@/pages/admin/AdminTransactionsPage';
 import EarningsPage from '@/pages/provider/EarningsPage';
+import TodaysSchedulePage from '@/pages/provider/TodaysSchedulePage';
+import AttentionPage from '@/pages/provider/AttentionPage';
+import OpenOrdersPage from '@/pages/provider/OpenOrdersPage';
+import LowStockPage from '@/pages/provider/LowStockPage';
 import AdminUserDetailPage from '@/pages/admin/AdminUserDetailPage';
 
 /** Requires an authenticated user; otherwise sends to /login. */
@@ -146,6 +150,38 @@ export const router = createBrowserRouter([
     element: (
       <Protected>
         <EarningsPage />
+      </Protected>
+    ),
+  },
+  {
+    path: '/dashboard/schedule',
+    element: (
+      <Protected>
+        <TodaysSchedulePage />
+      </Protected>
+    ),
+  },
+  {
+    path: '/dashboard/attention',
+    element: (
+      <Protected>
+        <AttentionPage />
+      </Protected>
+    ),
+  },
+  {
+    path: '/dashboard/orders',
+    element: (
+      <Protected>
+        <OpenOrdersPage />
+      </Protected>
+    ),
+  },
+  {
+    path: '/dashboard/low-stock',
+    element: (
+      <Protected>
+        <LowStockPage />
       </Protected>
     ),
   },

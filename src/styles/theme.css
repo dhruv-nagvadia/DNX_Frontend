@@ -18,7 +18,7 @@
 
   --color-white: #ffffff;
   /* Page canvas behind every card. */
-  --color-background: #f5f8fc;
+  --color-background: #f4f7fc;
   --color-surface: #ffffff;
   /* Alternate section backgrounds (bands within a page). */
   --color-surface-2: #edf3fb;
@@ -29,26 +29,29 @@
 
   /* Text */
   --color-text-primary: #0f172a;
-  --color-text-secondary: #52637a;
+  --color-text-secondary: #475569;
   --color-text-muted: #64748b;
   --color-text-placeholder: #94a3b8;
 
-  --color-border: #dce5f0;
+  --color-border: #e2e8f0;
   --color-border-strong: #cbd5e1;
 
   /* State */
   --color-error: #dc2626;
   --color-error-soft: rgba(220, 38, 38, 0.1);
   --color-error-border: rgba(220, 38, 38, 0.26);
-  --color-success: #15803d;
-  --color-success-soft: rgba(21, 128, 61, 0.1);
-  --color-success-border: rgba(21, 128, 61, 0.28);
-  --color-warning: #b45309;
-  --color-warning-soft: rgba(180, 83, 9, 0.12);
-  --color-warning-border: rgba(180, 83, 9, 0.28);
+  --color-success: #16a34a;
+  --color-success-soft: rgba(22, 163, 74, 0.1);
+  --color-success-border: rgba(22, 163, 74, 0.28);
+  --color-warning: #d97706;
+  --color-warning-soft: rgba(217, 119, 6, 0.12);
+  --color-warning-border: rgba(217, 119, 6, 0.28);
   --color-info: #1d4ed8;
   --color-info-soft: rgba(29, 78, 216, 0.1);
   --color-info-border: rgba(29, 78, 216, 0.26);
+  --color-special: #6b21a8;
+  --color-special-soft: rgba(107, 33, 168, 0.1);
+  --color-special-border: rgba(107, 33, 168, 0.28);
 
   /* Typography */
   --font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;

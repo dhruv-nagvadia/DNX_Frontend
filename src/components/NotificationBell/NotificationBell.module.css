@@ -46,7 +46,7 @@
   box-shadow: 0 0 0 2px var(--color-surface);
 }
 
-/* Fixed so it escapes the sidebar's overflow:hidden; coords set inline. */
+/* Fixed-positioned, anchored below the bell button; coords set inline. */
 .panel {
   position: fixed;
   width: 340px;

@@ -1,5 +1,7 @@
+import { useRef } from 'react';
 import {
   Briefcase,
+  Camera,
   ChevronRight,
   ListChecks,
   Mail,
@@ -47,9 +49,13 @@ export default function ProfilePage() {
     cancelEdit,
     onField,
     saveProfile,
+    photoError,
+    uploadingPhoto,
+    changePhoto,
     openBusiness,
   } = useProfilePage();
   const name = user?.fullName ?? 'Your account';
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <AppShell>
@@ -59,10 +65,37 @@ export default function ProfilePage() {
         <div className={styles.grain} aria-hidden="true" />
 
         <div className={styles.identity}>
-          <span className={styles.avatar} aria-hidden="true">
-            {initialsOf(name)}
-          </span>
+          <div className={styles.avatarWrap}>
+            {user?.avatarUrl ? (
+              <img className={styles.avatarImg} src={user.avatarUrl} alt="" />
+            ) : (
+              <span className={styles.avatar} aria-hidden="true">
+                {initialsOf(name)}
+              </span>
+            )}
+            <button
+              type="button"
+              className={styles.avatarEditBtn}
+              onClick={() => photoInputRef.current?.click()}
+              disabled={uploadingPhoto}
+              aria-label="Change profile photo"
+            >
+              <Camera size={14} aria-hidden="true" />
+            </button>
+            <input
+              ref={photoInputRef}
+              type="file"
+              accept="image/*"
+              className={styles.hiddenInput}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) void changePhoto(file);
+                e.target.value = '';
+              }}
+            />
+          </div>
           <div className={styles.idText}>
+            {photoError && <span className={styles.photoError}>{photoError}</span>}
             <h1 className={styles.name}>{name}</h1>
             {user?.email && (
               <span className={styles.email}>

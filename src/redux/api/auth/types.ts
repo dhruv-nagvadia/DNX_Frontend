@@ -5,6 +5,8 @@ export interface AuthUser {
   email: string;
   fullName: string;
   role: Role;
+  phone?: string | null;
+  avatarUrl?: string | null;
 }
 
 export interface LoginRequest {

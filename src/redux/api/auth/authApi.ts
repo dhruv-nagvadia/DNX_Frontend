@@ -34,7 +34,7 @@ export const authApi = createApi({
       providesTags: ['Me'],
     }),
 
-    updateMe: builder.mutation<AuthUser, { fullName?: string; email?: string; phone?: string }>({
+    updateMe: builder.mutation<AuthUser, { fullName?: string; email?: string; phone?: string; avatarUrl?: string }>({
       query: (data) => ({ endpoint: endpoints.me, method: 'patch', data }),
       transformResponse: (res: ApiEnvelope<AuthUser>) => res.data,
       invalidatesTags: ['Me'],

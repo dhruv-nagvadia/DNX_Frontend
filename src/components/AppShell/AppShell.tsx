@@ -89,9 +89,13 @@ export function AppShell({ children, rail, header }: AppShellProps) {
         </nav>
 
         <div className={styles.account}>
-          <span className={styles.avatar} aria-hidden="true">
-            {initialsOf(name)}
-          </span>
+          {user?.avatarUrl ? (
+            <img className={styles.avatarImg} src={user.avatarUrl} alt="" aria-hidden="true" />
+          ) : (
+            <span className={styles.avatar} aria-hidden="true">
+              {initialsOf(name)}
+            </span>
+          )}
           <span className={styles.accountText}>
             <span className={styles.accountName} title={name}>
               {name}

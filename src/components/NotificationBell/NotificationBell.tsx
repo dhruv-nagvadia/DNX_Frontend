@@ -37,13 +37,14 @@ function timeAgo(iso: string): string {
 }
 
 /**
- * Sidebar notification bell with an unread badge and a dropdown of recent
- * notifications. The panel is fixed-positioned (measured from the button) so it
- * escapes the sidebar's `overflow: hidden`.
+ * Top-bar notification bell with an unread badge and a dropdown of recent
+ * notifications. The panel is fixed-positioned (measured from the button) so
+ * it always opens directly below the bell, regardless of where in the page
+ * the bell sits.
  */
 export function NotificationBell() {
   const [open, setOpen] = useState(false);
-  const [pos, setPos] = useState<{ left: number; bottom: number } | null>(null);
+  const [pos, setPos] = useState<{ right: number; top: number } | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
 
@@ -70,7 +71,10 @@ export function NotificationBell() {
   const toggle = () => {
     if (!open && btnRef.current) {
       const r = btnRef.current.getBoundingClientRect();
-      setPos({ left: r.left, bottom: window.innerHeight - r.top + 10 });
+      // Anchored to the button's right edge (growing leftward), not its left
+      // edge — the bell sits near the right side of the top bar, so a
+      // left-anchored panel ran off the right side of the screen.
+      setPos({ right: Math.max(12, window.innerWidth - r.right), top: r.bottom + 10 });
     }
     setOpen((o) => !o);
   };
@@ -99,7 +103,7 @@ export function NotificationBell() {
           className={styles.panel}
           role="dialog"
           aria-label="Notifications"
-          style={pos ? { left: pos.left, bottom: pos.bottom } : undefined}
+          style={pos ? { right: pos.right, top: pos.top } : undefined}
         >
           <header className={styles.panelHead}>
             <span className={styles.panelTitle}>Notifications</span>

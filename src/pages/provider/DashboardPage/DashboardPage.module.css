@@ -1,10 +1,278 @@
-.stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 12px;
-  margin-bottom: var(--space-md);
+/* ── Top row: greeting + business switcher / bell / profile ─────────── */
+.topRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+  /* Matches the sidebar's own top padding before the "DNX Business" wordmark,
+     so the greeting + header buttons line up with it across the page. */
+  padding-top: var(--space-lg);
+  margin-bottom: var(--space-lg);
 }
 
+.greetBlock {
+  min-width: 0;
+}
+.greetTitle {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+.greetSub {
+  margin: 4px 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.topActions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+.switcher:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+}
+
+.switcherWrap {
+  position: relative;
+}
+
+.switcherMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 100;
+  width: 220px;
+  max-height: 320px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+}
+
+.switcherItem {
+  display: block;
+  width: 100%;
+  padding: 9px 10px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.switcherItem:hover {
+  background: var(--color-primary-soft);
+}
+
+.switcherEmpty {
+  margin: 0;
+  padding: 10px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.profileChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 10px 0 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+}
+.profileChip:hover {
+  border-color: var(--color-primary);
+}
+.profileAvatar,
+.profileAvatarImg {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+.profileAvatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(140deg, var(--color-accent), var(--color-accent-2));
+  color: var(--color-ink);
+  font-size: 12px;
+  font-weight: 800;
+}
+.profileAvatarImg {
+  object-fit: cover;
+}
+.profileName {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+/* ── Hero row: revenue card + 4 pastel stat tiles ────────────────────── */
+.heroRow {
+  display: grid;
+  grid-template-columns: 2.2fr repeat(4, 1fr);
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.revenueCard {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, #1e3a8a 0%, #102b65 50%, #0b1b3a 100%);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+.revenueIcon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--glass-bg-strong);
+  color: var(--color-on-dark);
+}
+.revenueBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1 1 auto;
+  z-index: 1;
+}
+.revenueLabel {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-on-dark-muted);
+}
+.revenueValue {
+  font-size: clamp(22px, 2.4vw, 28px);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--color-white);
+}
+.revenueTrendRow {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: var(--font-size-xs);
+}
+.revenueTrendPct {
+  color: #4ade80;
+  font-weight: 700;
+}
+.revenueTrendLabel {
+  color: var(--color-on-dark-muted);
+  font-weight: 600;
+}
+.revenueChart {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-end;
+  gap: 7px;
+  height: 64px;
+  z-index: 1;
+}
+.revenueBar {
+  width: 16px;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(180deg, #7dd3fc 0%, #0ea5e9 100%);
+}
+
+.tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+}
+.tileIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+}
+.tileLabel {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+.tileValue {
+  font-size: var(--font-size-xxl);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+.tilePrimary {
+  background: var(--color-primary-soft);
+}
+.tilePrimary .tileIcon {
+  color: var(--color-primary);
+}
+.tilePurple {
+  background: var(--color-special-soft);
+}
+.tilePurple .tileIcon {
+  color: var(--color-special);
+}
+.tileAmber {
+  background: var(--color-warning-soft);
+}
+.tileAmber .tileIcon {
+  color: var(--color-warning);
+}
+.tileRed {
+  background: var(--color-error-soft);
+}
+.tileRed .tileIcon {
+  color: var(--color-error);
+}
+
+/* ── Two-column data sections ────────────────────────────────────────── */
 .columns {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -30,94 +298,92 @@
   grid-column: 1 / -1;
 }
 
-.chevronUp {
-  transform: rotate(-90deg);
-}
-
-.list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-}
-
-.row {
+/* ── Table rows (schedule / attention / orders / low stock) ─────────── */
+.table {
   width: 100%;
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  padding: 8px 12px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  text-align: left;
-  cursor: pointer;
-  transition:
-    border-color var(--dur-fast) var(--ease-out),
-    background var(--dur-fast) var(--ease-out);
+  border-collapse: collapse;
 }
-.row:hover {
-  border-color: var(--color-primary);
+.table th {
+  padding: 10px 20px;
+  text-align: left;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+.table td {
+  padding: 10px 20px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+.table tbody tr:not(:last-child) td {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tr {
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.tr:hover {
   background: var(--color-primary-soft, rgba(30, 64, 175, 0.04));
 }
-
-.time {
-  flex-shrink: 0;
-  min-width: 68px;
-  font-size: var(--font-size-sm);
-  font-weight: 700;
-  color: var(--color-text-primary);
+.tr:focus-visible {
+  outline: 2px solid var(--color-primary-ring);
+  outline-offset: -2px;
 }
 
-.badges {
-  flex-shrink: 0;
+.idCell {
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+.timeCell {
+  font-weight: 700;
+}
+.paymentCell {
+  font-weight: 600;
+}
+.chevronCell {
+  width: 1%;
+}
+.table td.actionCell {
+  width: 1%;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+}
+.actionStack {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 4px;
 }
-
-.badgesInline {
-  flex-shrink: 0;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 4px;
+.chevron {
+  color: var(--color-text-secondary);
 }
 
-.rowMain {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-  flex: 1;
-}
 .rowTitle {
-  font-size: var(--font-size-sm);
+  display: block;
   font-weight: 600;
+}
+.businessName {
+  font-weight: 700;
   color: var(--color-text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 .rowSub {
+  display: block;
   font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.chevron {
-  flex-shrink: 0;
   color: var(--color-text-secondary);
 }
 
 .empty {
   margin: 0;
-  padding: var(--space-sm) 0;
+  padding: var(--space-md) 20px;
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
 }
@@ -138,18 +404,41 @@
   text-decoration: underline;
 }
 
-@media (max-width: 1000px) {
-  .stats {
-    grid-template-columns: repeat(2, 1fr);
+@media (max-width: 1100px) {
+  .heroRow {
+    grid-template-columns: 1fr 1fr;
   }
+  .revenueCard {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 1000px) {
   .columns,
   .col:only-child {
     grid-template-columns: 1fr;
   }
+  .table {
+    display: block;
+    overflow-x: auto;
+  }
 }
 
-@media (max-width: 560px) {
-  .stats {
+@media (max-width: 640px) {
+  .topRow {
+    flex-direction: column;
+  }
+  .topActions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .heroRow {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroRow {
     grid-template-columns: 1fr;
   }
 }

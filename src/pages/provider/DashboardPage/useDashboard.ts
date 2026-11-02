@@ -55,7 +55,8 @@ export interface AttentionItem {
 /** Loads businesses + all bookings and derives the home dashboard figures. */
 export function useDashboard() {
   const navigate = useNavigate();
-  const fullName = useAppSelector((s) => s.user.currentUser?.fullName ?? '');
+  const currentUser = useAppSelector((s) => s.user.currentUser);
+  const fullName = currentUser?.fullName ?? '';
 
   const { data: businesses = [], isLoading: bizLoading } = useGetMyBusinessesQuery();
   const { data: bookings = [], isLoading: bookingsLoading } = useGetAllMyBookingsQuery();
@@ -72,6 +73,9 @@ export function useDashboard() {
     const monthStart = new Date();
     monthStart.setDate(1);
     monthStart.setHours(0, 0, 0, 0);
+
+    const lastMonthStart = new Date(monthStart);
+    lastMonthStart.setMonth(lastMonthStart.getMonth() - 1);
 
     const active = bookings.filter((b) => b.status !== 'CANCELLED');
 
@@ -115,6 +119,31 @@ export function useDashboard() {
     const orderRevenue = orders
       .filter((o) => new Date(o.createdAt).getTime() >= monthStart.getTime())
       .reduce((sum, o) => sum + (o.amountPaidMinor ?? 0), 0);
+    const collectedThisMonth = bookingRevenue + orderRevenue;
+
+    // Same, for the previous calendar month — used only for the trend arrow.
+    const lastMonthBookingRevenue = bookings
+      .filter((b) => {
+        const t = new Date(b.startTime).getTime();
+        return t >= lastMonthStart.getTime() && t < monthStart.getTime();
+      })
+      .reduce((sum, b) => sum + (b.amountPaidMinor ?? 0), 0);
+    const lastMonthOrderRevenue = orders
+      .filter((o) => {
+        const t = new Date(o.createdAt).getTime();
+        return t >= lastMonthStart.getTime() && t < monthStart.getTime();
+      })
+      .reduce((sum, o) => sum + (o.amountPaidMinor ?? 0), 0);
+    const collectedLastMonth = lastMonthBookingRevenue + lastMonthOrderRevenue;
+
+    // % change vs. last month — null when there's nothing to compare against
+    // (no revenue either month, or none last month so a ratio is meaningless).
+    const monthOverMonthPct =
+      collectedLastMonth > 0
+        ? Math.round(((collectedThisMonth - collectedLastMonth) / collectedLastMonth) * 100)
+        : collectedThisMonth > 0
+          ? null // "new" — can't express as a %, but it is an increase
+          : 0;
 
     return {
       todays,
@@ -123,7 +152,8 @@ export function useDashboard() {
       openOrders,
       openOrdersCount: openOrders.length,
       needsActionCount: attention.length + orderAttentionCount,
-      collectedThisMonth: bookingRevenue + orderRevenue,
+      collectedThisMonth,
+      monthOverMonthPct,
       currency: bookings[0]?.currency ?? orders[0]?.currency ?? 'INR',
     };
   }, [bookings, orders]);
@@ -158,6 +188,7 @@ export function useDashboard() {
 
   return {
     fullName,
+    avatarUrl: currentUser?.avatarUrl ?? null,
     businesses,
     isLoading: bizLoading || bookingsLoading || ordersLoading,
     hasBusinesses: businesses.length > 0,

@@ -4,7 +4,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-md);
-  /* Matches the sidebar's own top padding before the "DNX Business" wordmark,
+  /* Matches the sidebar's own top padding before the wordmark,
      so the greeting + header buttons line up with it across the page. */
   padding-top: var(--space-lg);
   margin-bottom: var(--space-lg);
@@ -15,14 +15,18 @@
 }
 .greetTitle {
   margin: 0;
-  font-size: var(--font-size-xl);
+  font-size: clamp(24px, 2.2vw, 30px);
   font-weight: 800;
-  letter-spacing: -0.01em;
-  color: var(--color-text-primary);
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  color: var(--m-ink);
+}
+.wave {
+  display: inline-block;
 }
 .greetSub {
-  margin: 4px 0 0;
-  font-size: var(--font-size-sm);
+  margin: 6px 0 0;
+  font-size: var(--font-size-md, 16px);
   color: var(--color-text-secondary);
 }
 
@@ -30,27 +34,26 @@
   flex: 0 0 auto;
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  gap: var(--space-md);
 }
 
 .switcher {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 38px;
-  padding: 0 14px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
+  gap: 10px;
+  height: 42px;
+  padding: 0 14px 0 16px;
+  border: 1px solid var(--m-divider);
+  border-radius: var(--m-radius-box);
   background: var(--color-surface);
-  color: var(--color-text-primary);
+  color: var(--m-ink);
   font-size: var(--font-size-sm);
   font-weight: 600;
   cursor: pointer;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--m-shadow-card);
 }
 .switcher:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary-dark);
+  border-color: var(--m-link);
 }
 
 .switcherWrap {
@@ -69,8 +72,8 @@
   flex-direction: column;
   padding: 6px;
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--m-divider);
+  border-radius: var(--m-radius-box);
   box-shadow: var(--shadow-xl);
 }
 
@@ -79,16 +82,16 @@
   width: 100%;
   padding: 9px 10px;
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: 8px;
   background: transparent;
-  color: var(--color-text-primary);
+  color: var(--m-ink);
   font-size: var(--font-size-sm);
   font-weight: 600;
   text-align: left;
   cursor: pointer;
 }
 .switcherItem:hover {
-  background: var(--color-primary-soft);
+  background: var(--m-table-head);
 }
 
 .switcherEmpty {
@@ -98,28 +101,36 @@
   color: var(--color-text-secondary);
 }
 
+/* Round white bell, matching the mockup. Targets only the bell button itself
+   (the direct child of NotificationBell's root), not buttons in its panel. */
+.bellWrap > div > button {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border-color: var(--m-divider);
+  color: var(--m-ink);
+  box-shadow: var(--m-shadow-card);
+}
+
 .profileChip {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  height: 38px;
-  padding: 0 10px 0 4px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
-  background: var(--color-surface);
-  color: var(--color-text-primary);
+  gap: 12px;
+  padding: 2px 4px 2px 2px;
+  border-radius: var(--m-radius-pill);
+  color: var(--m-ink);
   text-decoration: none;
-  box-shadow: var(--shadow-sm);
 }
-.profileChip:hover {
-  border-color: var(--color-primary);
+.profileChip:hover .profileName {
+  color: var(--m-link);
 }
 .profileAvatar,
 .profileAvatarImg {
   flex: 0 0 auto;
-  width: 30px;
-  height: 30px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
+  box-shadow: var(--m-shadow-card);
 }
 .profileAvatar {
   display: inline-flex;
@@ -127,203 +138,285 @@
   justify-content: center;
   background: linear-gradient(140deg, var(--color-accent), var(--color-accent-2));
   color: var(--color-ink);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 800;
 }
 .profileAvatarImg {
   object-fit: cover;
 }
 .profileName {
-  max-width: 140px;
+  max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-md, 16px);
   font-weight: 600;
 }
 
 /* ── Hero row: revenue card + 4 pastel stat tiles ────────────────────── */
 .heroRow {
   display: grid;
-  grid-template-columns: 2.2fr repeat(4, 1fr);
+  grid-template-columns: minmax(0, 2.9fr) repeat(4, minmax(0, 1fr));
   gap: var(--space-md);
   margin-bottom: var(--space-lg);
 }
 
+/* Fixed navy in both themes — it's the page's one dark hero surface. */
 .revenueCard {
   position: relative;
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  padding: var(--space-md);
-  border-radius: var(--radius-xl);
-  background: linear-gradient(135deg, #1e3a8a 0%, #102b65 50%, #0b1b3a 100%);
-  box-shadow: var(--shadow-md);
+  min-height: 172px;
+  padding: var(--space-lg);
+  border-radius: var(--m-radius-card);
+  background: linear-gradient(135deg, #1e3a8a 0%, #17306f 45%, #0f2152 100%);
+  box-shadow: var(--m-shadow-card);
   overflow: hidden;
 }
 .revenueIcon {
   flex: 0 0 auto;
+  align-self: flex-start;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
-  background: var(--glass-bg-strong);
-  color: var(--color-on-dark);
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
 }
 .revenueBody {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
   flex: 1 1 auto;
   z-index: 1;
 }
 .revenueLabel {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-md, 16px);
   font-weight: 600;
-  color: var(--color-on-dark-muted);
+  color: rgba(255, 255, 255, 0.92);
 }
 .revenueValue {
-  font-size: clamp(22px, 2.4vw, 28px);
+  font-size: clamp(30px, 3.2vw, 44px);
   font-weight: 800;
-  letter-spacing: -0.01em;
-  color: var(--color-white);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #ffffff;
 }
 .revenueTrendRow {
   display: flex;
-  align-items: baseline;
-  gap: 4px;
-  font-size: var(--font-size-xs);
+  align-items: center;
+  gap: 8px;
+  font-size: var(--font-size-sm);
 }
 .revenueTrendPct {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: var(--m-radius-pill);
+  background: rgba(74, 222, 128, 0.18);
   color: #4ade80;
   font-weight: 700;
 }
+.revenueTrendDown {
+  background: rgba(248, 113, 113, 0.2);
+  color: #fca5a5;
+}
 .revenueTrendLabel {
-  color: var(--color-on-dark-muted);
-  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
 }
 .revenueChart {
   flex: 0 0 auto;
+  align-self: center;
   display: flex;
   align-items: flex-end;
-  gap: 7px;
-  height: 64px;
+  gap: 10px;
+  height: 92px;
+  margin-right: var(--space-sm);
   z-index: 1;
 }
 .revenueBar {
-  width: 16px;
-  border-radius: 3px 3px 0 0;
-  background: linear-gradient(180deg, #7dd3fc 0%, #0ea5e9 100%);
+  width: 26px;
+  border-radius: 5px 5px 2px 2px;
+  background: linear-gradient(180deg, rgba(96, 165, 250, 0.75) 0%, rgba(59, 130, 246, 0.45) 100%);
 }
 
 .tile {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
-  padding: var(--space-md);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-sm);
+  gap: 8px;
+  min-height: 172px;
+  padding: var(--space-md) var(--space-md) var(--space-md) 28px;
+  border-radius: var(--m-radius-card);
+  border: 1px solid transparent;
+  box-shadow: var(--m-shadow-card);
 }
 .tileIcon {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   width: 36px;
   height: 36px;
 }
 .tileLabel {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-md, 16px);
   font-weight: 700;
-  color: var(--color-text-primary);
+  line-height: 1.25;
+  color: var(--m-ink);
 }
 .tileValue {
-  font-size: var(--font-size-xxl);
+  margin-top: auto;
+  font-size: clamp(30px, 2.8vw, 40px);
   font-weight: 800;
+  line-height: 1;
   letter-spacing: -0.01em;
-  color: var(--color-text-primary);
+  color: var(--m-ink);
 }
 
-.tilePrimary {
-  background: var(--color-primary-soft);
+.tileBlue {
+  background: var(--m-tint-blue);
+  border-color: var(--m-tint-blue-border);
 }
-.tilePrimary .tileIcon {
-  color: var(--color-primary);
+.tileBlue .tileIcon {
+  color: var(--m-tint-blue-icon);
 }
-.tilePurple {
-  background: var(--color-special-soft);
+.tileLavender {
+  background: var(--m-tint-lavender);
+  border-color: var(--m-tint-lavender-border);
 }
-.tilePurple .tileIcon {
-  color: var(--color-special);
+.tileLavender .tileIcon,
+.tileLavender .tileValue {
+  color: var(--m-tint-lavender-icon);
 }
-.tileAmber {
-  background: var(--color-warning-soft);
+.tilePeach {
+  background: var(--m-tint-peach);
+  border-color: var(--m-tint-peach-border);
 }
-.tileAmber .tileIcon {
-  color: var(--color-warning);
+.tilePeach .tileIcon {
+  color: var(--m-tint-peach-icon);
 }
-.tileRed {
-  background: var(--color-error-soft);
+.tilePink {
+  background: var(--m-tint-pink);
+  border-color: var(--m-tint-pink-border);
 }
-.tileRed .tileIcon {
-  color: var(--color-error);
+.tilePink .tileIcon,
+.tilePink .tileValue {
+  color: var(--m-tint-pink-icon);
 }
 
-/* ── Two-column data sections ────────────────────────────────────────── */
-.columns {
+/* ── 2×2 card grid ───────────────────────────────────────────────────── */
+.grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-md);
-  align-items: start;
+  align-items: stretch;
 }
 
-.col {
+.card {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
   min-width: 0;
+  padding: var(--space-md) var(--space-md) var(--space-sm);
+  background: var(--color-surface);
+  border: 1px solid var(--m-divider);
+  border-radius: var(--m-radius-card);
+  box-shadow: var(--m-shadow-card);
 }
-/* Only one kind of business → its widgets spread across both columns instead of one long stack. */
-.col:only-child {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: start;
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: 4px 6px var(--space-sm);
 }
-/* A lone widget in that column takes the full width. */
-.col:only-child > :only-child {
-  grid-column: 1 / -1;
+.cardTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+  font-size: clamp(18px, 1.6vw, 22px);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--m-ink);
+}
+.cardBody {
+  min-width: 0;
+  overflow-x: auto;
 }
 
-/* ── Table rows (schedule / attention / orders / low stock) ─────────── */
+.sectionIcon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.sectionIconBlue {
+  color: var(--m-tint-blue-icon);
+}
+.sectionIconRed {
+  color: var(--m-tint-pink-icon);
+}
+.sectionIconOrange {
+  color: var(--m-tint-peach-icon);
+}
+
+.viewAll {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: var(--font-size-md, 16px);
+  font-weight: 600;
+  color: var(--m-link);
+  cursor: pointer;
+}
+.viewAll:hover {
+  text-decoration: underline;
+}
+
+/* ── Tables ──────────────────────────────────────────────────────────── */
 .table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 .table th {
-  padding: 10px 20px;
+  padding: 10px 12px;
+  background: var(--m-table-head);
   text-align: left;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--color-text-secondary);
-  border-bottom: 1px solid var(--color-border);
+  color: var(--m-ink);
   white-space: nowrap;
 }
+.table th:first-child {
+  border-radius: 8px 0 0 8px;
+}
+.table th:last-child {
+  border-radius: 0 8px 8px 0;
+}
 .table td {
-  padding: 10px 20px;
+  padding: 9px 12px;
   font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
+  color: var(--m-ink);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 220px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--m-divider);
 }
-.table tbody tr:not(:last-child) td {
-  border-bottom: 1px solid var(--color-border);
+.table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .tr {
@@ -331,31 +424,42 @@
   transition: background var(--dur-fast) var(--ease-out);
 }
 .tr:hover {
-  background: var(--color-primary-soft, rgba(30, 64, 175, 0.04));
+  background: var(--m-table-head);
 }
 .tr:focus-visible {
   outline: 2px solid var(--color-primary-ring);
   outline-offset: -2px;
 }
 
-.idCell {
-  font-weight: 700;
-  color: var(--color-primary-dark);
-}
-.timeCell {
+.strong {
   font-weight: 700;
 }
-.paymentCell {
+
+.timePill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 8px;
+  background: var(--m-pill-blue-bg);
+  color: var(--m-ink);
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
-.chevronCell {
+
+.table td.chevronCell {
   width: 1%;
+  padding-left: 4px;
+  text-align: right;
 }
+.chevron {
+  display: block;
+  margin-left: auto;
+  color: var(--m-ink);
+}
+
 .table td.actionCell {
   width: 1%;
   overflow: visible;
   text-overflow: clip;
-  white-space: normal;
 }
 .actionStack {
   display: flex;
@@ -363,82 +467,136 @@
   align-items: flex-start;
   gap: 4px;
 }
-.chevron {
-  color: var(--color-text-secondary);
+.collectBlock {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+.collectAmount {
+  padding-left: 12px;
+  font-size: var(--font-size-md, 16px);
+  font-weight: 800;
+  color: var(--m-ink);
 }
 
 .rowTitle {
   display: block;
-  font-weight: 600;
-}
-.businessName {
   font-weight: 700;
-  color: var(--color-text-primary);
 }
 .rowSub {
   display: block;
+  margin-top: 2px;
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
 }
 
+/* The leading "what kind of thing is this" square (confirm vs. collect). */
+.table td.iconCell {
+  width: 1%;
+  padding-right: 4px;
+}
+.rowIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+}
+.rowIconBlue {
+  background: var(--m-pill-blue-bg);
+  color: var(--m-pill-blue-fg);
+}
+.rowIconYellow {
+  background: var(--m-pill-yellow-bg);
+  color: var(--m-pill-yellow-fg);
+}
+
+.customerCell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.customerIcon {
+  flex: 0 0 auto;
+  color: var(--color-text-secondary);
+}
+
+.productCell {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+.productThumb {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--m-table-head);
+  color: var(--color-text-secondary);
+  object-fit: cover;
+}
+
 .empty {
   margin: 0;
-  padding: var(--space-md) 20px;
+  padding: var(--space-md) 6px;
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
 }
 
-.viewAll {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--color-primary-dark);
-  cursor: pointer;
-}
-.viewAll:hover {
-  text-decoration: underline;
-}
-
-@media (max-width: 1100px) {
+/* ── Responsive ──────────────────────────────────────────────────────── */
+@media (max-width: 1280px) {
   .heroRow {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
   .revenueCard {
     grid-column: 1 / -1;
   }
 }
 
-@media (max-width: 1000px) {
-  .columns,
-  .col:only-child {
-    grid-template-columns: 1fr;
-  }
-  .table {
-    display: block;
-    overflow-x: auto;
+@media (max-width: 1100px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 760px) {
   .topRow {
     flex-direction: column;
   }
   .topActions {
     width: 100%;
-    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
   }
   .heroRow {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .tile {
+    min-height: 0;
+    padding-left: var(--space-md);
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 520px) {
+  .revenueCard {
+    flex-wrap: wrap;
+    padding: var(--space-md);
+  }
+  .revenueChart {
+    display: none;
+  }
+  .profileName {
+    display: none;
+  }
+}
+
+@media (max-width: 380px) {
   .heroRow {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }

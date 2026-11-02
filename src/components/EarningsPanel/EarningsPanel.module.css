@@ -1,55 +1,73 @@
-/* Headline total */
-.headline {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  margin-bottom: var(--space-lg);
-}
-.totalIcon {
+/* Week / Month / Year pill toggle (mockup) */
+.segment {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-md);
-  background: var(--color-primary-soft);
-  color: var(--color-primary-dark);
-  flex: 0 0 auto;
+  padding: 3px;
+  border-radius: var(--m-radius-pill);
+  background: var(--m-table-head);
+  border: 1px solid var(--m-divider);
 }
-.totalText {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
+.segmentBtn {
+  padding: 6px 16px;
+  border: none;
+  border-radius: var(--m-radius-pill);
+  background: transparent;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--m-ink);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
-.totalValue {
-  font-size: var(--font-size-xxl);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: var(--color-text-primary);
-  line-height: 1.1;
-  font-variant-numeric: tabular-nums;
+.segmentBtn:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 1px;
 }
-.totalLabel {
+.segmentBtnActive {
+  background: var(--m-action);
+  color: #fff;
+}
+
+/* Headline */
+.range {
+  margin: 0 0 6px;
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
+}
+.totalValue {
+  display: block;
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--m-ink);
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+.trendRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: 6px;
 }
 .trend {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  margin-left: auto;
-  padding: 4px 10px;
-  border-radius: var(--radius-pill);
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: var(--m-radius-pill);
   font-size: var(--font-size-sm);
   font-weight: 700;
 }
 .trendUp {
-  background: var(--color-success-soft);
-  color: var(--color-success);
+  background: var(--m-pill-green-bg);
+  color: var(--m-pill-green-fg);
 }
 .trendDown {
-  background: var(--color-error-soft);
-  color: var(--color-error);
+  background: var(--m-pill-red-bg);
+  color: var(--m-pill-red-fg);
+}
+.trendLabel {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
 }
 
 .chartWrap {
@@ -68,5 +86,8 @@
 @media (max-width: 560px) {
   .totalValue {
     font-size: var(--font-size-xl);
+  }
+  .segmentBtn {
+    padding: 5px 10px;
   }
 }

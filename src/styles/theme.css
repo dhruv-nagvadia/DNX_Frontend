@@ -89,6 +89,10 @@
      like the auth page's hero panel). ───────────────────────────────── */
   --color-ink: #060b18;
   --color-ink-2: #0d1730;
+  /* The sidebar's own fixed navy — a separate brand surface from --color-ink
+     (matches the mobile app's Color.primaryDark). Also fixed, not part of
+     the light/dark toggle — a navy sidebar is a constant brand element. */
+  --color-nav: #14264e;
   --color-on-dark: #f8fafc;
   --color-on-dark-muted: rgba(248, 250, 252, 0.66);
   --color-on-dark-faint: rgba(248, 250, 252, 0.42);
@@ -104,6 +108,37 @@
   --color-accent: #0891b2;
   --color-accent-2: #818cf8;
   --color-accent-soft: rgba(8, 145, 178, 0.14);
+
+  /* ── Mockup look ("DNX Marketplace Provider Dashboard.png" / "Salon
+     Provider Portal Dashboard.png"): rounded cards, deep-navy ink headings,
+     pastel pills and tiles. Used by the redesigned Dashboard and Business
+     Detail pages ONLY — every other page keeps the squared-off radius above. */
+  --m-radius-card: 16px;
+  --m-radius-box: 12px;
+  --m-radius-pill: 999px;
+  --m-shadow-card: 0 4px 16px rgba(30, 41, 59, 0.06), 0 1px 2px rgba(30, 41, 59, 0.04);
+  --m-ink: #0f1e4a;
+  --m-divider: #dce2eb;
+  --m-table-head: #f3f5f9;
+  --m-link: #1d4ed8;
+  --m-action: #1e40af;
+
+  --m-pill-orange-bg: #fdebd8;  --m-pill-orange-fg: #c2410c;
+  --m-pill-green-bg: #dcfce7;   --m-pill-green-fg: #15803d;
+  --m-pill-lavender-bg: #ede9fe; --m-pill-lavender-fg: #5b21b6;
+  --m-pill-blue-bg: #dbeafe;    --m-pill-blue-fg: #1d4ed8;
+  --m-pill-grey-bg: #f1f3f7;    --m-pill-grey-fg: #0f1e4a;
+  --m-pill-red-bg: #fde2e2;     --m-pill-red-fg: #dc2626;
+  --m-pill-yellow-bg: #fef3c7;  --m-pill-yellow-fg: #b45309;
+
+  --m-tint-blue: linear-gradient(135deg, #eef4ff, #dde8fc);      --m-tint-blue-border: #d5e2fa;     --m-tint-blue-icon: #2563eb;
+  --m-tint-lavender: linear-gradient(135deg, #f4f1ff, #e7e2fb);  --m-tint-lavender-border: #e0daf7; --m-tint-lavender-icon: #4f46e5;
+  --m-tint-peach: linear-gradient(135deg, #fff9ee, #fcefda);     --m-tint-peach-border: #f7e6c8;    --m-tint-peach-icon: #d97706;
+  --m-tint-pink: linear-gradient(135deg, #fff3f3, #fce1e1);      --m-tint-pink-border: #f8d4d4;     --m-tint-pink-icon: #dc2626;
+  --m-tint-mint: linear-gradient(135deg, #eefbf4, #ddf3e7);      --m-tint-mint-border: #cdebdb;     --m-tint-mint-icon: #15803d;
+
+  --m-banner-error-bg: #fdecec;   --m-banner-error-border: #f7c9c9;   --m-banner-error-fg: #991b1b;
+  --m-banner-warning-bg: #fff6e0; --m-banner-warning-border: #f6dfa6; --m-banner-warning-fg: #92400e;
 
   /* Motion */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -161,6 +196,30 @@
     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.32);
     --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.4);
     --shadow-xl: 0 24px 64px rgba(0, 0, 0, 0.48);
+
+    --m-shadow-card: 0 4px 16px rgba(0, 0, 0, 0.3);
+    --m-ink: #f8fafc;
+    --m-divider: #2a4566;
+    --m-table-head: #0b1e36;
+    --m-link: #93b4ff;
+    --m-action: #3b63c9;
+
+    --m-pill-orange-bg: rgba(251, 146, 60, 0.18);  --m-pill-orange-fg: #fdba74;
+    --m-pill-green-bg: rgba(52, 211, 153, 0.18);   --m-pill-green-fg: #6ee7b7;
+    --m-pill-lavender-bg: rgba(167, 139, 250, 0.2); --m-pill-lavender-fg: #c4b5fd;
+    --m-pill-blue-bg: rgba(147, 180, 255, 0.18);   --m-pill-blue-fg: #93b4ff;
+    --m-pill-grey-bg: rgba(148, 163, 184, 0.16);   --m-pill-grey-fg: #e2e8f0;
+    --m-pill-red-bg: rgba(248, 113, 113, 0.18);    --m-pill-red-fg: #fca5a5;
+    --m-pill-yellow-bg: rgba(251, 191, 36, 0.18);  --m-pill-yellow-fg: #fcd34d;
+
+    --m-tint-blue: linear-gradient(135deg, #14305a, #102642);      --m-tint-blue-border: #23436d;     --m-tint-blue-icon: #93b4ff;
+    --m-tint-lavender: linear-gradient(135deg, #251f52, #1a1840);  --m-tint-lavender-border: #362f6e; --m-tint-lavender-icon: #a5b4fc;
+    --m-tint-peach: linear-gradient(135deg, #3a2a14, #2a1f10);     --m-tint-peach-border: #4d3a1c;    --m-tint-peach-icon: #fbbf24;
+    --m-tint-pink: linear-gradient(135deg, #3d1a22, #2c141a);      --m-tint-pink-border: #55242d;     --m-tint-pink-icon: #f87171;
+    --m-tint-mint: linear-gradient(135deg, #12352a, #0e281f);      --m-tint-mint-border: #1d4a3a;     --m-tint-mint-icon: #34d399;
+
+    --m-banner-error-bg: rgba(248, 113, 113, 0.12);  --m-banner-error-border: rgba(248, 113, 113, 0.32);  --m-banner-error-fg: #fca5a5;
+    --m-banner-warning-bg: rgba(251, 191, 36, 0.12); --m-banner-warning-border: rgba(251, 191, 36, 0.32); --m-banner-warning-fg: #fcd34d;
   }
 }
 
@@ -204,4 +263,27 @@
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.32);
   --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.4);
   --shadow-xl: 0 24px 64px rgba(0, 0, 0, 0.48);
+  --m-shadow-card: 0 4px 16px rgba(0, 0, 0, 0.3);
+  --m-ink: #f8fafc;
+  --m-divider: #2a4566;
+  --m-table-head: #0b1e36;
+  --m-link: #93b4ff;
+  --m-action: #3b63c9;
+
+  --m-pill-orange-bg: rgba(251, 146, 60, 0.18);  --m-pill-orange-fg: #fdba74;
+  --m-pill-green-bg: rgba(52, 211, 153, 0.18);   --m-pill-green-fg: #6ee7b7;
+  --m-pill-lavender-bg: rgba(167, 139, 250, 0.2); --m-pill-lavender-fg: #c4b5fd;
+  --m-pill-blue-bg: rgba(147, 180, 255, 0.18);   --m-pill-blue-fg: #93b4ff;
+  --m-pill-grey-bg: rgba(148, 163, 184, 0.16);   --m-pill-grey-fg: #e2e8f0;
+  --m-pill-red-bg: rgba(248, 113, 113, 0.18);    --m-pill-red-fg: #fca5a5;
+  --m-pill-yellow-bg: rgba(251, 191, 36, 0.18);  --m-pill-yellow-fg: #fcd34d;
+
+  --m-tint-blue: linear-gradient(135deg, #14305a, #102642);      --m-tint-blue-border: #23436d;     --m-tint-blue-icon: #93b4ff;
+  --m-tint-lavender: linear-gradient(135deg, #251f52, #1a1840);  --m-tint-lavender-border: #362f6e; --m-tint-lavender-icon: #a5b4fc;
+  --m-tint-peach: linear-gradient(135deg, #3a2a14, #2a1f10);     --m-tint-peach-border: #4d3a1c;    --m-tint-peach-icon: #fbbf24;
+  --m-tint-pink: linear-gradient(135deg, #3d1a22, #2c141a);      --m-tint-pink-border: #55242d;     --m-tint-pink-icon: #f87171;
+  --m-tint-mint: linear-gradient(135deg, #12352a, #0e281f);      --m-tint-mint-border: #1d4a3a;     --m-tint-mint-icon: #34d399;
+
+  --m-banner-error-bg: rgba(248, 113, 113, 0.12);  --m-banner-error-border: rgba(248, 113, 113, 0.32);  --m-banner-error-fg: #fca5a5;
+  --m-banner-warning-bg: rgba(251, 191, 36, 0.12); --m-banner-warning-border: rgba(251, 191, 36, 0.32); --m-banner-warning-fg: #fcd34d;
 }

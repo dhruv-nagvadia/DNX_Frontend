@@ -1,0 +1,91 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--m-divider);
+  border-radius: var(--m-radius-card);
+  box-shadow: var(--m-shadow-card);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: 18px var(--space-lg) 12px;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  min-width: 0;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--m-ink);
+}
+
+.suffix {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+.icon_brand {
+  color: var(--m-link);
+}
+.icon_error {
+  color: var(--color-error);
+}
+.icon_warning {
+  color: var(--m-tint-peach-icon);
+}
+.icon_gold {
+  color: #d99a06;
+}
+.icon_ink {
+  color: var(--m-ink);
+}
+
+.action {
+  flex: 0 0 auto;
+}
+
+.body {
+  padding: 0 var(--space-lg) var(--space-lg);
+  min-width: 0;
+}
+.bodyFlush {
+  padding: 0 var(--space-md) var(--space-md);
+  min-width: 0;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--m-link);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.link:hover {
+  text-decoration: underline;
+}
+.link:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 2px;
+  border-radius: 4px;
+}

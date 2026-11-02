@@ -1,11 +1,15 @@
-import { Award, CalendarDays, Package, Wrench } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 
-import { Card } from '@/components/Card';
+import { ModernCard } from '@/components/ModernCard';
 import { Skeleton } from '@/components/Skeleton';
 import { BusinessType } from '@/redux/api/provider/types';
 
 import { useTopSellers } from './useTopSellers';
 import styles from './TopSellersPanel.module.css';
+
+const MAX_ROWS = 5;
+/** Rank badge colours: gold, silver, bronze, then neutral. */
+const RANK_CLASS = [styles.rankGold, styles.rankSilver, styles.rankBronze];
 
 function money(minor: number, currency: string): string {
   try {
@@ -19,7 +23,7 @@ function money(minor: number, currency: string): string {
   }
 }
 
-/** Top services/products by revenue, plus the business's busiest weekday. */
+/** Top services/products by revenue, all time (mockup: "Top Sellers (All Time)"). */
 export function TopSellersPanel({
   providerId,
   businessType,
@@ -28,67 +32,47 @@ export function TopSellersPanel({
   businessType: BusinessType;
 }) {
   const { data, isLoading } = useTopSellers(providerId, businessType);
-  const Icon = businessType === 'STORE' ? Package : Wrench;
+  const isProduct = data.itemLabel === 'product';
 
   if (isLoading) {
-    return <Skeleton height={220} radius="var(--radius-xl)" />;
+    return <Skeleton height={260} radius="var(--m-radius-card)" />;
   }
 
   return (
-    <Card
-      title={businessType === 'STORE' ? 'Top products' : 'Top services'}
-      subtitle="By revenue, all time"
-      action={
-        data.busiestDay && (
-          <span className={styles.busiest}>
-            <CalendarDays size={14} aria-hidden="true" />
-            Busiest: {data.busiestDay}
-          </span>
-        )
-      }
-    >
+    <ModernCard icon={<Trophy size={22} aria-hidden="true" />} iconTone="gold" title="Top Sellers" suffix="(All Time)" flush>
       {data.items.length === 0 ? (
         <p className={styles.empty}>
-          No {data.itemLabel === 'product' ? 'orders' : 'bookings'} yet. Top {data.itemLabel}s will
-          show up here once they come in.
+          No {isProduct ? 'orders' : 'bookings'} yet. Top {data.itemLabel}s will show up here once
+          they come in.
         </p>
       ) : (
         <div className={styles.tableWrap}>
           <table className={styles.table}>
             <thead>
               <tr>
-                <th aria-hidden="true" />
-                <th>{data.itemLabel === 'product' ? 'Product' : 'Service'}</th>
-                <th>{data.itemLabel === 'product' ? 'Orders' : 'Bookings'}</th>
-                <th>Revenue</th>
+                <th className={styles.rankCell}>#</th>
+                <th>{isProduct ? 'Product' : 'Service'}</th>
+                <th className={styles.num}>{isProduct ? 'Orders' : 'Bookings'}</th>
+                <th className={styles.num}>Revenue</th>
               </tr>
             </thead>
             <tbody>
-              {data.items.map((item, i) => (
+              {data.items.slice(0, MAX_ROWS).map((item, i) => (
                 <tr key={item.name}>
                   <td className={styles.rankCell}>
-                    <span className={styles.rank}>
-                      {i === 0 ? <Award size={16} aria-hidden="true" /> : i + 1}
-                    </span>
+                    <span className={`${styles.rank} ${RANK_CLASS[i] ?? ''}`}>{i + 1}</span>
                   </td>
-                  <td>
-                    <div className={styles.nameCell}>
-                      <span className={styles.icon}>
-                        <Icon size={15} aria-hidden="true" />
-                      </span>
-                      <span className={styles.name} title={item.name}>
-                        {item.name}
-                      </span>
-                    </div>
+                  <td className={styles.name} title={item.name}>
+                    {item.name}
                   </td>
-                  <td className={styles.count}>{item.count}</td>
-                  <td className={styles.revenue}>{money(item.revenueMinor, data.currency)}</td>
+                  <td className={styles.num}>{item.count.toLocaleString('en-IN')}</td>
+                  <td className={styles.num}>{money(item.revenueMinor, data.currency)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
-    </Card>
+    </ModernCard>
   );
 }

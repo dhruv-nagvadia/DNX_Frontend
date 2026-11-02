@@ -1,9 +1,8 @@
-import { TrendingDown, TrendingUp, Wallet } from 'lucide-react';
+import { ArrowDown, ArrowUp, BarChart3 } from 'lucide-react';
 
 import { TrendChart } from '@/components/TrendChart';
-import { Card } from '@/components/Card';
+import { ModernCard } from '@/components/ModernCard';
 import { Skeleton } from '@/components/Skeleton';
-import { Tabs } from '@/components/Tabs';
 import { BusinessType } from '@/redux/api/provider/types';
 
 import { EarningsPeriod } from './types';
@@ -16,11 +15,26 @@ const PERIODS: { id: EarningsPeriod; label: string }[] = [
   { id: 'year', label: 'Year' },
 ];
 
-const PERIOD_NOTE: Record<EarningsPeriod, string> = {
-  week: 'Last 7 days',
-  month: 'Last 4 weeks',
-  year: 'Last 12 months',
+/** The trend compares the latest point with the one before it. */
+const COMPARE_LABEL: Record<EarningsPeriod, string> = {
+  week: 'vs. previous day',
+  month: 'vs. previous week',
+  year: 'vs. previous month',
 };
+
+const rangeFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+/** "Oct 1, 2026 – Oct 30, 2026" — the window the chart covers (matches useEarnings' buckets). */
+function rangeLabel(period: EarningsPeriod): string {
+  const now = new Date();
+  const from =
+    period === 'week'
+      ? new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6)
+      : period === 'month'
+        ? new Date(now.getFullYear(), now.getMonth(), now.getDate() - 27)
+        : new Date(now.getFullYear(), now.getMonth() - 11, 1);
+  return `${rangeFmt.format(from)} – ${rangeFmt.format(now)}`;
+}
 
 function money(major: number, currency: string): string {
   try {
@@ -58,43 +72,45 @@ export function EarningsPanel({
 }) {
   const { period, setPeriod, series, isLoading } = useEarnings(providerId, businessType);
 
+  const up = (series.trendPct ?? 0) >= 0;
+
   return (
-    <Card
+    <ModernCard
+      icon={<BarChart3 size={22} aria-hidden="true" />}
       title="Earnings"
-      subtitle={PERIOD_NOTE[period]}
       action={
-        <Tabs
-          tabs={PERIODS}
-          active={period}
-          onChange={(id) => setPeriod(id as EarningsPeriod)}
-        />
+        <div className={styles.segment} role="tablist" aria-label="Earnings period">
+          {PERIODS.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              role="tab"
+              aria-selected={period === p.id}
+              className={`${styles.segmentBtn} ${period === p.id ? styles.segmentBtnActive : ''}`}
+              onClick={() => setPeriod(p.id)}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
       }
     >
       {isLoading ? (
-        <Skeleton height={260} radius="var(--radius-lg)" />
+        <Skeleton height={190} radius="var(--m-radius-box)" />
       ) : (
         <>
-          <div className={styles.headline}>
-            <span className={styles.totalIcon}>
-              <Wallet size={18} aria-hidden="true" />
-            </span>
-            <div className={styles.totalText}>
-              <span className={styles.totalValue}>{money(series.total, series.currency)}</span>
-              <span className={styles.totalLabel}>Total this {period}</span>
-            </div>
-            {series.trendPct !== null && (
-              <span
-                className={`${styles.trend} ${series.trendPct >= 0 ? styles.trendUp : styles.trendDown}`}
-              >
-                {series.trendPct >= 0 ? (
-                  <TrendingUp size={14} aria-hidden="true" />
-                ) : (
-                  <TrendingDown size={14} aria-hidden="true" />
-                )}
+          <p className={styles.range}>{rangeLabel(period)}</p>
+          <span className={styles.totalValue}>{money(series.total, series.currency)}</span>
+          {series.trendPct !== null && (
+            <div className={styles.trendRow}>
+              <span className={`${styles.trend} ${up ? styles.trendUp : styles.trendDown}`}>
+                {up ? <ArrowUp size={14} aria-hidden="true" /> : <ArrowDown size={14} aria-hidden="true" />}
+                {up ? '+' : '−'}
                 {Math.abs(series.trendPct)}%
               </span>
-            )}
-          </div>
+              <span className={styles.trendLabel}>{COMPARE_LABEL[period]}</span>
+            </div>
+          )}
 
           {/* Always show the chart, even at a flat zero — the day/week/month
               labels on it already say "no revenue in this period" on their
@@ -102,20 +118,15 @@ export function EarningsPanel({
           <div className={styles.chartWrap}>
             <TrendChart
               data={series.points}
-              height={260}
+              height={190}
               highlightLast
               formatValue={(v) => money(v, series.currency)}
               formatAxis={(v) => compact(v, series.currency)}
             />
           </div>
-          {series.isEmpty && (
-            <p className={styles.emptyNote}>
-              No earnings yet for this period. Your revenue will appear here once bookings or
-              orders come in.
-            </p>
-          )}
+          {series.isEmpty && <p className={styles.emptyNote}>No earnings yet for this period.</p>}
         </>
       )}
-    </Card>
+    </ModernCard>
   );
 }

@@ -13,25 +13,36 @@ const MAX_ITEMS = 5;
 
 const lineTotal = (it: ProviderOrderItem) => Math.round((it.quantity / it.priceQty) * it.priceMinor);
 
-/** Weekday label with the most activity, or null if there's nothing to rank. */
-function busiestWeekday(dates: Date[]): string | null {
+/** The weekday with the most activity, plus its average (total on that
+ * weekday ÷ distinct dates of it that had any activity). */
+function busiestWeekday(dates: Date[]): { day: string; avg: number } | null {
   if (dates.length === 0) return null;
   const counts = new Array(7).fill(0);
-  for (const d of dates) counts[d.getDay()]++;
+  const distinct: Set<string>[] = Array.from({ length: 7 }, () => new Set<string>());
+  for (const d of dates) {
+    counts[d.getDay()]++;
+    distinct[d.getDay()].add(d.toDateString());
+  }
   const max = Math.max(...counts);
   if (max === 0) return null;
-  return WEEKDAYS[counts.indexOf(max)];
+  const day = counts.indexOf(max);
+  return { day: WEEKDAYS[day], avg: Math.round(max / Math.max(distinct[day].size, 1)) };
 }
+
+const busiestFields = (b: { day: string; avg: number } | null) => ({
+  busiestDay: b?.day ?? null,
+  busiestAvg: b?.avg ?? null,
+});
 
 /** Top services (by booking revenue) or top products (by order revenue) for one business. */
 export function useTopSellers(providerId: string, businessType: BusinessType = 'SERVICE') {
   const isStore = businessType === 'STORE';
   const { data: bookings = [], isLoading: loadingBookings } = useGetBusinessBookingsQuery(
     providerId,
-    { skip: isStore },
+    { skip: isStore || !providerId },
   );
   const { data: orders = [], isLoading: loadingOrders } = useGetMyOrdersQuery(undefined, {
-    skip: !isStore,
+    skip: !isStore || !providerId,
   });
   const isLoading = isStore ? loadingOrders : loadingBookings;
 
@@ -51,7 +62,7 @@ export function useTopSellers(providerId: string, businessType: BusinessType = '
       return {
         items,
         currency: myOrders[0]?.currency ?? 'INR',
-        busiestDay: busiestWeekday(myOrders.map((o) => new Date(o.createdAt))),
+        ...busiestFields(busiestWeekday(myOrders.map((o) => new Date(o.createdAt)))),
         itemLabel: 'product',
       };
     }
@@ -68,7 +79,7 @@ export function useTopSellers(providerId: string, businessType: BusinessType = '
     return {
       items,
       currency: active[0]?.currency ?? 'INR',
-      busiestDay: busiestWeekday(active.map((b) => new Date(b.startTime))),
+      ...busiestFields(busiestWeekday(active.map((b) => new Date(b.startTime)))),
       itemLabel: 'service',
     };
   }, [isStore, orders, bookings, providerId]);

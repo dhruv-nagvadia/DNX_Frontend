@@ -1,38 +1,43 @@
 import { useRef, useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import {
+  AlertTriangle,
+  Ban,
   BadgeCheck,
   Boxes,
+  Calendar,
   CalendarDays,
-  CalendarRange,
+  ChevronDown,
+  ChevronRight,
   Clock,
+  FileText,
+  Home,
   Image as ImageIcon,
   ImagePlus,
-  Info,
-  ListChecks,
   Mail,
   MapPin,
   Package,
   Pencil,
   Phone,
+  Scissors,
   Star,
-  Ticket,
+  Tag,
   Trash2,
+  X,
 } from 'lucide-react';
 
-import { AlertBanner } from '@/components/AlertBanner';
 import { AppShell } from '@/components/AppShell';
 import { useAppShell } from '@/components/AppShell/useAppShell';
 import shellStyles from '@/components/AppShell/AppShell.module.css';
 import { BusinessBookings } from '@/components/BusinessBookings';
 import { BusinessCalendar } from '@/components/BusinessCalendar';
 import { BusinessHours } from '@/components/BusinessHours';
-import { BusinessReviews } from '@/components/BusinessReviews';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { CategoryIcon } from '@/components/CategoryIcon';
 import { EarningsPanel } from '@/components/EarningsPanel';
-import { TopSellersPanel } from '@/components/TopSellersPanel';
+import { TopSellersPanel, useTopSellers } from '@/components/TopSellersPanel';
+import { ModernCard, ModernCardLink } from '@/components/ModernCard';
 import { CouponsManager } from '@/components/CouponsManager';
 import { NotificationBell } from '@/components/NotificationBell';
 import { OrdersManager } from '@/components/OrdersManager';
@@ -40,9 +45,9 @@ import { ProductsManager } from '@/components/ProductsManager';
 import { ServicesManager } from '@/components/ServicesManager';
 import { Skeleton } from '@/components/Skeleton';
 import { StockManager } from '@/components/StockManager';
-import { Tabs } from '@/components/Tabs';
 import { UpcomingAppointments } from '@/components/UpcomingAppointments';
 
+import { RecentReviews } from './RecentReviews';
 import { BusinessTab, useBusinessDetail } from './useBusinessDetail';
 import styles from './BusinessDetailPage.module.css';
 
@@ -85,6 +90,10 @@ export default function BusinessDetailPage() {
   const { user } = useAppShell();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [blockedBannerDismissed, setBlockedBannerDismissed] = useState(false);
+  const [codBannerDismissed, setCodBannerDismissed] = useState(false);
+  // Shares the Top Sellers query (RTK dedupes it) — feeds the "Busiest Day" card.
+  const { data: sellers } = useTopSellers(business?.id ?? '', business?.type ?? 'SERVICE');
 
   if (notFound) return <Navigate to="/businesses" replace />;
 
@@ -111,56 +120,72 @@ export default function BusinessDetailPage() {
     );
   }
 
-  const address = [business.addressLine, business.city, business.state, business.postalCode]
+  // "A-102, Silver Arc, Thaltej, Ahmedabad – 380054, Gujarat"
+  const address = [
+    business.addressLine,
+    [business.city, business.postalCode].filter(Boolean).join(' – '),
+    business.state,
+  ]
     .filter(Boolean)
     .join(', ');
 
   const contact = [
-    { icon: <Phone size={16} aria-hidden="true" />, label: 'Phone', value: business.phone },
-    { icon: <Mail size={16} aria-hidden="true" />, label: 'Email', value: business.email },
-    { icon: <MapPin size={16} aria-hidden="true" />, label: 'Address', value: address },
+    { icon: <Phone size={20} aria-hidden="true" />, label: 'Phone', value: business.phone },
+    { icon: <Mail size={20} aria-hidden="true" />, label: 'Email', value: business.email },
+    { icon: <MapPin size={20} aria-hidden="true" />, label: 'Address', value: address },
   ];
 
   const isStore = business.type === 'STORE';
 
   // A store manages products & pickup orders (no time slots); a service manages
   // bookable services with hours/calendar.
-  const sections = [
-    { id: 'overview', label: 'Overview', icon: <Info size={16} aria-hidden="true" /> },
+  const sections: { id: BusinessTab; label: string; icon: JSX.Element }[] = [
+    { id: 'overview', label: 'Overview', icon: <Home size={18} aria-hidden="true" /> },
     isStore
-      ? { id: 'products', label: 'Products', icon: <Package size={16} aria-hidden="true" /> }
-      : { id: 'services', label: 'Services', icon: <ListChecks size={16} aria-hidden="true" /> },
+      ? { id: 'products', label: 'Products', icon: <Package size={18} aria-hidden="true" /> }
+      : { id: 'services', label: 'Services', icon: <Scissors size={18} aria-hidden="true" /> },
     ...(isStore
-      ? [{ id: 'stock', label: 'Manage stock', icon: <Boxes size={16} aria-hidden="true" /> }]
+      ? [{ id: 'stock' as const, label: 'Manage stock', icon: <Boxes size={18} aria-hidden="true" /> }]
       : []),
-    { id: 'coupons', label: 'Offers', icon: <Ticket size={16} aria-hidden="true" /> },
+    { id: 'coupons', label: 'Offers', icon: <Tag size={18} aria-hidden="true" /> },
     {
       id: 'bookings',
       label: isStore ? 'Orders' : 'Bookings',
-      icon: <CalendarDays size={16} aria-hidden="true" />,
+      icon: <CalendarDays size={18} aria-hidden="true" />,
     },
-    { id: 'photos', label: 'Photos', icon: <ImageIcon size={16} aria-hidden="true" /> },
+    { id: 'photos', label: 'Photos', icon: <ImageIcon size={18} aria-hidden="true" /> },
     // Weekly hours + break time is its own tab; per-date overrides (mark a day
     // closed, see that date's bookings/orders) is Calendar — both tabs for
     // every business type, store included.
-    { id: 'hours', label: 'Hours', icon: <Clock size={16} aria-hidden="true" /> },
-    { id: 'calendar', label: 'Calendar', icon: <CalendarRange size={16} aria-hidden="true" /> },
+    { id: 'hours', label: 'Hours', icon: <Clock size={18} aria-hidden="true" /> },
+    { id: 'calendar', label: 'Calendar', icon: <Calendar size={18} aria-hidden="true" /> },
   ];
 
+  const editLink = (
+    <ModernCardLink onClick={goToEdit} iconLeft={<Pencil size={14} aria-hidden="true" />}>
+      Edit
+    </ModernCardLink>
+  );
+
   const contactCard = (
-    <Card title="Contact & location">
+    <ModernCard
+      icon={<MapPin size={22} aria-hidden="true" />}
+      iconTone="ink"
+      title="Contact & Location"
+      action={editLink}
+    >
       <dl className={styles.infoGrid}>
         {contact.map((item) => (
           <div className={styles.infoItem} key={item.label}>
             <span className={styles.infoIcon}>{item.icon}</span>
-            <dt className={styles.srOnly}>{item.label}</dt>
+            <dt className={styles.infoLabel}>{item.label}</dt>
             <dd className={styles.infoValue} title={item.value || undefined}>
               {item.value || <span className={styles.muted}>Not added</span>}
             </dd>
           </div>
         ))}
       </dl>
-    </Card>
+    </ModernCard>
   );
 
   const aboutContent = business.description ? (
@@ -172,147 +197,201 @@ export default function BusinessDetailPage() {
     </p>
   );
 
-  /* The sticky top bar: this business's identity on the left, the Edit
-     action + the usual notification/profile controls on the right. Shown
-     only on this page — general pages have no top bar at all. */
+  /* The sticky top bar is now just a plain breadcrumb + the usual
+     notification/profile controls — the business's own identity (image,
+     name, rating, category, Edit/Delete) is a large block in the page body
+     instead, not squeezed into the slim sticky bar. */
   const detailHeader = (
     <>
-      <div className={styles.headerIdentity}>
-        <div className={styles.headerMedia}>
-          {business.images.length > 0 ? (
-            <img className={styles.headerImg} src={business.images[0]} alt="" />
-          ) : (
-            <span className={styles.headerFallback}>
-              <CategoryIcon slug={business.category.slug} size={20} strokeWidth={1.6} />
-            </span>
-          )}
-        </div>
-        <div className={styles.headerText}>
-          <span className={styles.headerNameRow}>
-            <span className={styles.headerName}>{business.businessName}</span>
-            {business.isVerified && (
-              <BadgeCheck className={styles.verifiedIcon} size={16} aria-label="Verified" />
-            )}
-          </span>
-          <span className={styles.headerMeta}>
-            <span className={styles.rating}>
-              <Star size={12} className={styles.ratingStar} aria-hidden="true" />
-              <strong>{business.ratingAvg.toFixed(1)}</strong>
-              <span className={styles.ratingCount}>({business.ratingCount})</span>
-            </span>
-            <span className={styles.metaDot} aria-hidden="true" />
-            <span className={styles.headerCategory}>
-              {business.subcategory?.name ?? business.category.name}
-            </span>
-            {!business.isVerified && (
-              <>
-                <span className={styles.metaDot} aria-hidden="true" />
-                <span className={styles.headerPending}>Verification pending</span>
-              </>
-            )}
-          </span>
-        </div>
-      </div>
+      <nav className={styles.breadcrumb} aria-label="Breadcrumb">
+        <Link to="/businesses" className={styles.breadcrumbLink}>
+          My Businesses
+        </Link>
+        <ChevronRight size={14} className={styles.breadcrumbSep} aria-hidden="true" />
+        <span className={styles.breadcrumbCurrent}>{business.businessName}</span>
+      </nav>
 
       <div className={shellStyles.topbarActions}>
-        <button
-          type="button"
-          className={shellStyles.topbarIconBtn}
-          onClick={goToEdit}
-          aria-label="Edit business"
-        >
-          <Pencil size={16} aria-hidden="true" />
-        </button>
-        <button
-          type="button"
-          className={`${shellStyles.topbarIconBtn} ${styles.topbarIconBtnDanger}`}
-          onClick={() => setConfirmingDelete(true)}
-          aria-label="Delete business"
-        >
-          <Trash2 size={16} aria-hidden="true" />
-        </button>
         <NotificationBell />
         <Link
-          className={`${shellStyles.topbarIconBtn} ${shellStyles.topbarProfile}`}
+          className={`${shellStyles.topbarProfile} ${styles.profileChip}`}
           to="/profile"
           aria-label="Your profile"
         >
           <span className={shellStyles.topbarAvatar} aria-hidden="true">
             {initialsOf(user?.fullName ?? 'DNX')}
           </span>
+          {user?.fullName && <span className={styles.topbarName}>{user.fullName}</span>}
+          <ChevronDown size={16} aria-hidden="true" className={styles.topbarChevron} />
         </Link>
       </div>
     </>
   );
 
+  /* The large business-identity block — image, name, rating, category, and
+     the Edit/Delete actions — sits at the top of the page content itself
+     (not the sticky bar), matching the commissioned mockup's proportions. */
+  const bizHero = (
+    <div className={styles.bizHero}>
+      <div className={styles.bizHeroIdentity}>
+        <div className={styles.bizHeroMedia}>
+          {business.images.length > 0 ? (
+            <img className={styles.bizHeroImg} src={business.images[0]} alt="" />
+          ) : (
+            <span className={styles.bizHeroFallback}>
+              <CategoryIcon slug={business.category.slug} size={36} strokeWidth={1.6} />
+            </span>
+          )}
+        </div>
+        <div className={styles.bizHeroInfo}>
+          <span className={styles.bizHeroNameRow}>
+            <h1 className={styles.bizHeroName}>{business.businessName}</h1>
+            {business.isVerified && (
+              <BadgeCheck className={styles.verifiedIcon} size={30} aria-label="Verified" />
+            )}
+          </span>
+          <span className={styles.bizHeroMetaRow}>
+            <span className={styles.rating}>
+              <Star size={20} className={styles.ratingStar} aria-hidden="true" />
+              <strong>{business.ratingAvg.toFixed(1)}</strong>
+              <span className={styles.ratingCount}>({business.ratingCount} reviews)</span>
+            </span>
+            <span className={styles.bizHeroDivider} aria-hidden="true" />
+            <span className={styles.categoryTag}>
+              <Tag size={15} aria-hidden="true" />
+              {business.subcategory?.name ?? business.category.name}
+            </span>
+            {!business.isVerified && (
+              <span className={styles.headerPending}>Verification pending</span>
+            )}
+          </span>
+        </div>
+      </div>
+      <div className={styles.bizHeroActions}>
+        <button type="button" className={`${styles.heroBtn} ${styles.heroBtnEdit}`} onClick={goToEdit}>
+          <Pencil size={18} aria-hidden="true" />
+          Edit Business
+        </button>
+        <button
+          type="button"
+          className={`${styles.heroBtn} ${styles.heroBtnDelete}`}
+          onClick={() => setConfirmingDelete(true)}
+        >
+          <Trash2 size={18} aria-hidden="true" />
+          Delete Business
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <AppShell header={detailHeader}>
+      {bizHero}
 
       {/* Restrictions DNX has put on this business — the owner should always see why. */}
-      {business.isBlocked && (
-        <AlertBanner tone="error">
-          DNX has blocked this business
-          {reasonSentence(business.blockedReason)} Customers can't see it or place new bookings and
-          orders. You can still finish anything already open. Contact support to get it unblocked.
-        </AlertBanner>
+      {business.isBlocked && !blockedBannerDismissed && (
+        <div className={`${styles.banner} ${styles.bannerError}`} role="alert">
+          <Ban size={22} className={styles.bannerIcon} aria-hidden="true" />
+          <p className={styles.bannerText}>
+            <strong>This business is blocked by the platform.</strong>
+            {business.blockedReason ? ` Reason${reasonSentence(business.blockedReason)}` : ''} Customers
+            can't see it or place new bookings and orders. You can still finish anything already open.
+          </p>
+          <button
+            type="button"
+            className={styles.bannerDismiss}
+            onClick={() => setBlockedBannerDismissed(true)}
+            aria-label="Dismiss"
+          >
+            <X size={18} aria-hidden="true" />
+          </button>
+        </div>
       )}
-      {business.codDisabledByAdmin && (
-        <AlertBanner tone="error">
-          DNX has turned off Cash on Delivery for this business
-          {reasonSentence(business.codDisabledReason)} Customers can only pay online or with a
-          partial deposit. Contact support to get it turned back on.
-        </AlertBanner>
+      {business.codDisabledByAdmin && !codBannerDismissed && (
+        <div className={`${styles.banner} ${styles.bannerWarning}`} role="alert">
+          <AlertTriangle size={22} className={styles.bannerIcon} aria-hidden="true" />
+          <p className={styles.bannerText}>
+            <strong>Cash on Delivery is disabled for this business.</strong>
+            {business.codDisabledReason ? ` Reason${reasonSentence(business.codDisabledReason)}` : ''}{' '}
+            Customers can only pay online or with a partial deposit.
+          </p>
+          <button
+            type="button"
+            className={styles.bannerDismiss}
+            onClick={() => setCodBannerDismissed(true)}
+            aria-label="Dismiss"
+          >
+            <X size={18} aria-hidden="true" />
+          </button>
+        </div>
       )}
 
-      {/* Themed section header. */}
-      <Tabs tabs={sections} active={activeTab} onChange={(id) => setActiveTab(id as BusinessTab)} />
+      {/* Section tabs — icon + label, blue underline on the active one. */}
+      <div className={styles.tabs} role="tablist">
+        {sections.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            className={`${styles.tab} ${activeTab === tab.id ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            {tab.icon}
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
-      {/* Overview */}
+      {/* Overview — row 1: Earnings / (About + Busiest Day) / Contact;
+          row 2: Top Sellers / Upcoming Appointments (service only) / Reviews. */}
       {activeTab === 'overview' && (
         <>
-          {isStore ? (
-            <>
-              {/* Narrower graph on the left, About on the right. About matches the
-                  graph's height and scrolls internally — it never resizes the graph. */}
-              <div className={`${styles.overviewCols} ${styles.overviewTop}`}>
-                <EarningsPanel providerId={business.id} businessType="STORE" />
-                <div className={styles.aboutCell}>
-                  <Card title="About" className={styles.aboutCard}>
-                    {aboutContent}
-                  </Card>
+          <div className={styles.overviewRow}>
+            <EarningsPanel providerId={business.id} businessType={isStore ? 'STORE' : 'SERVICE'} />
+            <div className={styles.aboutCell}>
+              <div className={styles.aboutStack}>
+              <ModernCard
+                icon={<FileText size={22} aria-hidden="true" />}
+                iconTone="ink"
+                title="About"
+                action={editLink}
+                className={styles.aboutCard}
+              >
+                {aboutContent}
+              </ModernCard>
+              {sellers.busiestDay && (
+                <div className={styles.busiestCard}>
+                  <Calendar size={26} aria-hidden="true" className={styles.busiestIcon} />
+                  <div className={styles.busiestMain}>
+                    <span className={styles.busiestLabel}>Busiest Day</span>
+                    <span className={styles.busiestDay}>{sellers.busiestDay}</span>
+                  </div>
+                  {sellers.busiestAvg !== null && (
+                    <span className={styles.busiestAvg}>
+                      ({sellers.busiestAvg} {isStore ? 'orders' : 'bookings'} on avg.)
+                    </span>
+                  )}
                 </div>
+              )}
               </div>
+            </div>
+            {contactCard}
+          </div>
 
-              <TopSellersPanel providerId={business.id} businessType="STORE" />
-
-              {contactCard}
-            </>
-          ) : (
-            <>
-              {/* Narrower graph on the left, About on the right. About matches the
-                  graph's height and scrolls internally — it never resizes the graph. */}
-              <div className={`${styles.overviewCols} ${styles.overviewTop}`}>
-                <EarningsPanel providerId={business.id} businessType="SERVICE" />
-                <div className={styles.aboutCell}>
-                  <Card title="About" className={styles.aboutCard}>
-                    {aboutContent}
-                  </Card>
-                </div>
-              </div>
-
-              <TopSellersPanel providerId={business.id} businessType="SERVICE" />
-
-              {/* Full-width appointments with customer + payment details. */}
+          <div className={isStore ? styles.overviewRowTwo : styles.overviewRow}>
+            <TopSellersPanel
+              providerId={business.id}
+              businessType={isStore ? 'STORE' : 'SERVICE'}
+            />
+            {!isStore && (
               <UpcomingAppointments
                 providerId={business.id}
                 onViewAll={() => setActiveTab('bookings')}
               />
-
-              {contactCard}
-            </>
-          )}
-
-          <BusinessReviews providerId={business.id} limit={2} onViewAll={goToReviews} />
+            )}
+            <RecentReviews providerId={business.id} limit={2} onViewAll={goToReviews} />
+          </div>
         </>
       )}
 

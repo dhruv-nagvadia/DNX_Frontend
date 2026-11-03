@@ -1,10 +1,10 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import {
   AlertTriangle,
   Ban,
   BadgeCheck,
-  Boxes,
+  Box,
   Calendar,
   CalendarDays,
   ChevronDown,
@@ -13,7 +13,7 @@ import {
   FileText,
   Home,
   Image as ImageIcon,
-  ImagePlus,
+  Layers,
   Mail,
   MapPin,
   Package,
@@ -31,6 +31,7 @@ import { useAppShell } from '@/components/AppShell/useAppShell';
 import shellStyles from '@/components/AppShell/AppShell.module.css';
 import { BusinessBookings } from '@/components/BusinessBookings';
 import { BusinessCalendar } from '@/components/BusinessCalendar';
+import { BusinessPhotos } from '@/components/BusinessPhotos';
 import { BusinessHours } from '@/components/BusinessHours';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
@@ -48,7 +49,7 @@ import { StockManager } from '@/components/StockManager';
 import { UpcomingAppointments } from '@/components/UpcomingAppointments';
 
 import { RecentReviews } from './RecentReviews';
-import { BusinessTab, useBusinessDetail } from './useBusinessDetail';
+import { BusinessTab, MAX_BUSINESS_IMAGES, useBusinessDetail } from './useBusinessDetail';
 import styles from './BusinessDetailPage.module.css';
 
 /** JSX only — logic comes from useBusinessDetail. */
@@ -83,12 +84,12 @@ export default function BusinessDetailPage() {
     addImages,
     setCover,
     removeImage,
+    reorderImages,
     remove,
     goToEdit,
     goToReviews,
   } = useBusinessDetail();
   const { user } = useAppShell();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [blockedBannerDismissed, setBlockedBannerDismissed] = useState(false);
   const [codBannerDismissed, setCodBannerDismissed] = useState(false);
@@ -142,16 +143,16 @@ export default function BusinessDetailPage() {
   const sections: { id: BusinessTab; label: string; icon: JSX.Element }[] = [
     { id: 'overview', label: 'Overview', icon: <Home size={18} aria-hidden="true" /> },
     isStore
-      ? { id: 'products', label: 'Products', icon: <Package size={18} aria-hidden="true" /> }
+      ? { id: 'products', label: 'Products', icon: <Box size={18} aria-hidden="true" /> }
       : { id: 'services', label: 'Services', icon: <Scissors size={18} aria-hidden="true" /> },
     ...(isStore
-      ? [{ id: 'stock' as const, label: 'Manage stock', icon: <Boxes size={18} aria-hidden="true" /> }]
+      ? [{ id: 'stock' as const, label: 'Manage Stock', icon: <Layers size={18} aria-hidden="true" /> }]
       : []),
     { id: 'coupons', label: 'Offers', icon: <Tag size={18} aria-hidden="true" /> },
     {
       id: 'bookings',
       label: isStore ? 'Orders' : 'Bookings',
-      icon: <CalendarDays size={18} aria-hidden="true" />,
+      icon: isStore ? <Package size={18} aria-hidden="true" /> : <CalendarDays size={18} aria-hidden="true" />,
     },
     { id: 'photos', label: 'Photos', icon: <ImageIcon size={18} aria-hidden="true" /> },
     // Weekly hours + break time is its own tab; per-date overrides (mark a day
@@ -413,6 +414,7 @@ export default function BusinessDetailPage() {
           subcategorySlug={business.subcategory?.slug}
           businessCodEnabled={business.codEnabled}
           businessPartialPayEnabled={business.partialPayEnabled}
+          onManageStock={() => setActiveTab('stock')}
         />
       )}
 
@@ -439,79 +441,29 @@ export default function BusinessDetailPage() {
           <BusinessBookings providerId={business.id} />
         ))}
 
-      {/* Photos */}
+      {/* Photos — cover, drag & drop upload, reorderable gallery (max 12). */}
       {activeTab === 'photos' && (
-        <Card
-          title="Photos"
-          subtitle="The first photo is used as your cover image."
-          action={
-            <>
-              <Button
-                variant="secondary"
-                onClick={() => fileInputRef.current?.click()}
-                loading={uploading}
-                loadingText="Uploading…"
-                iconLeft={<ImagePlus size={16} aria-hidden="true" />}
-              >
-                Add photos
-              </Button>
-              <input
-                ref={fileInputRef}
-                className={styles.hiddenInput}
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                multiple
-                onChange={(e) => {
-                  addImages(e.target.files);
-                  e.target.value = '';
-                }}
-              />
-            </>
-          }
-        >
-          {business.images.length > 0 ? (
-            <div className={styles.gallery}>
-              {business.images.map((url, i) => (
-                <div className={styles.galleryItem} key={url}>
-                  <img className={styles.galleryImg} src={url} alt="" loading="lazy" />
-                  {i === 0 && <span className={styles.coverTag}>Cover</span>}
-                  <div className={styles.galleryOverlay}>
-                    {i !== 0 && (
-                      <button
-                        type="button"
-                        className={styles.galleryBtn}
-                        disabled={savingImages}
-                        onClick={() => setCover(url)}
-                      >
-                        <Star size={13} aria-hidden="true" />
-                        Set cover
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      className={`${styles.galleryBtn} ${styles.galleryBtnDanger}`}
-                      disabled={savingImages}
-                      onClick={() => removeImage(url)}
-                      aria-label="Remove photo"
-                    >
-                      <Trash2 size={13} aria-hidden="true" />
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className={styles.muted}>
-              No photos yet. Businesses with photos get noticeably more bookings.
-            </p>
-          )}
-        </Card>
+        <BusinessPhotos
+          images={business.images}
+          maxImages={MAX_BUSINESS_IMAGES}
+          uploading={uploading}
+          saving={savingImages}
+          onAddFiles={addImages}
+          onSetCover={setCover}
+          onRemove={removeImage}
+          onReorder={reorderImages}
+        />
       )}
 
       {/* Weekly hours + break time — every business type. */}
       {activeTab === 'hours' && (
-        <BusinessHours providerId={business.id} hours={business.businessHours} />
+        <BusinessHours
+          providerId={business.id}
+          hours={business.businessHours}
+          businessName={business.businessName}
+          coverImage={business.images[0] ?? null}
+          onOpenCalendar={() => setActiveTab('calendar')}
+        />
       )}
 
       {/* Calendar: per-date overrides (mark a day closed) + that date's
@@ -521,6 +473,7 @@ export default function BusinessDetailPage() {
           providerId={business.id}
           businessHours={business.businessHours}
           businessType={business.type}
+          onViewAll={() => setActiveTab('bookings')}
         />
       )}
 

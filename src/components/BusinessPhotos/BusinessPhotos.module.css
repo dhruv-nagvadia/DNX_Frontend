@@ -1,0 +1,552 @@
+/* Business Detail → Photos tab ("Dhruv's Salon Photo Dashboard.png"). */
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Summary tiles ─────────────────────────────────────────────────── */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+.tile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  min-height: 84px;
+  padding: 14px var(--space-md);
+  border: 1px solid;
+  border-radius: var(--m-radius-box);
+  min-width: 0;
+}
+.tileIcon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+.tileText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.tileLabel {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--m-ink);
+}
+.tileValue {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--m-ink);
+  font-variant-numeric: tabular-nums;
+}
+.tileStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--m-ink);
+}
+.tileCheck {
+  flex: 0 0 auto;
+  color: var(--m-tint-mint-icon);
+}
+.tileWarn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--m-pill-orange-fg);
+}
+.progress {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  height: 7px;
+  margin-top: 6px;
+  border-radius: var(--m-radius-pill);
+  background: color-mix(in srgb, var(--m-tint-blue-icon) 16%, transparent);
+  overflow: hidden;
+}
+.progressFill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--m-tint-blue-icon);
+  transition: width var(--dur-mid) var(--ease-out);
+}
+.tile_blue {
+  background: var(--m-tint-blue);
+  border-color: var(--m-tint-blue-border);
+}
+.tile_blue .tileIcon {
+  color: var(--m-tint-blue-icon);
+}
+.tile_mint {
+  background: var(--m-tint-mint);
+  border-color: var(--m-tint-mint-border);
+}
+.tile_mint .tileIcon {
+  color: var(--m-tint-mint-icon);
+}
+.tile_lavender {
+  background: var(--m-tint-lavender);
+  border-color: var(--m-tint-lavender-border);
+}
+.tile_lavender .tileIcon {
+  color: var(--m-tint-lavender-icon);
+}
+
+/* ── Two columns ───────────────────────────────────────────────────── */
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 34fr) minmax(0, 66fr);
+  gap: 20px;
+  align-items: start;
+}
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+.galleryAnchor {
+  min-width: 0;
+  border-radius: var(--m-radius-card);
+  scroll-margin-top: var(--space-lg);
+}
+.galleryAnchor:focus {
+  outline: none;
+}
+.galleryAnchor:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 3px;
+}
+
+/* ── Cover card ────────────────────────────────────────────────────── */
+.coverFrame {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--m-radius-box);
+  overflow: hidden;
+  background: var(--m-table-head);
+}
+.coverImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.coverEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  aspect-ratio: 4 / 3;
+  border: 2px dashed var(--m-divider);
+  border-radius: var(--m-radius-box);
+  background: var(--m-table-head);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+.helper {
+  margin: 12px 0 0;
+  font-size: var(--font-size-sm);
+  line-height: 1.45;
+  color: var(--color-text-secondary);
+}
+.coverHint {
+  margin: 8px 0 0;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--m-link);
+  text-align: center;
+}
+
+/* Blue "★ Cover" pill (cover card top-left, gallery tile bottom-right). */
+.coverPill {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: var(--m-radius-pill);
+  background: #2563eb;
+  color: #ffffff;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.25);
+  z-index: 2;
+}
+.coverPillTopLeft {
+  top: 12px;
+  left: 12px;
+}
+.coverPillBottomRight {
+  right: 10px;
+  bottom: 10px;
+}
+
+/* ── Buttons ───────────────────────────────────────────────────────── */
+.outlineBtn,
+.primaryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    opacity var(--dur-fast) var(--ease-out);
+}
+.outlineBtn {
+  width: 100%;
+  margin-top: 14px;
+  border: 1.5px solid var(--m-link);
+  background: var(--color-surface);
+  color: var(--m-link);
+}
+.outlineBtn:hover {
+  background: var(--m-pill-blue-bg);
+}
+.primaryBtn {
+  min-width: 170px;
+  border: none;
+  background: var(--m-action);
+  color: #ffffff;
+}
+.primaryBtn:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+.outlineBtn:focus-visible,
+.primaryBtn:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 2px;
+}
+.primaryBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Upload drop zone ──────────────────────────────────────────────── */
+.dropZone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: var(--space-lg) var(--space-md);
+  border: 1.5px dashed var(--color-border-strong);
+  border-radius: var(--m-radius-box);
+  text-align: center;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+.dropZoneActive {
+  border-color: var(--m-link);
+  border-style: solid;
+  background: var(--m-pill-blue-bg);
+}
+.dropZoneDisabled {
+  background: var(--m-table-head);
+}
+.dropZoneDisabled .zoneIcon {
+  color: var(--color-text-muted);
+}
+.zoneIcon {
+  color: var(--m-link);
+}
+.zoneTitle {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--m-ink);
+}
+.zoneOr {
+  margin-bottom: 6px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+.zoneNote {
+  margin: 8px 0 0;
+  font-size: var(--font-size-xs);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+.zoneNote strong {
+  color: var(--m-ink);
+}
+
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Gallery ───────────────────────────────────────────────────────── */
+.headHint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  white-space: normal;
+}
+.emptyMsg {
+  margin: 0 0 var(--space-md);
+  padding: 12px 14px;
+  border-radius: var(--m-radius-box);
+  background: var(--m-table-head);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-md);
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+.gridSaving {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.tilePhoto {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--m-radius-box);
+  overflow: hidden;
+  background: var(--m-table-head);
+  cursor: grab;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  transition:
+    outline-color var(--dur-fast) var(--ease-out),
+    opacity var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+.tilePhoto:active {
+  cursor: grabbing;
+}
+.tileDragging {
+  opacity: 0.4;
+}
+.tileDropTarget {
+  outline: 2px dashed var(--m-link);
+  transform: scale(0.97);
+}
+.tileDropTarget::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--m-link) 18%, transparent);
+  pointer-events: none;
+}
+.photoImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Drag handle — ⋮⋮ grip in a small white rounded square. */
+.grip {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #0f1e4a;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
+  cursor: grab;
+  z-index: 2;
+}
+.grip:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* Round white position chip, bottom-left. */
+.position {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  color: #0f1e4a;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
+  z-index: 2;
+}
+
+/* "☆ Set as cover" / "🗑 Remove" chips, bottom-right — on hover/focus. */
+.tileActions {
+  position: absolute;
+  right: 8px;
+  bottom: 10px;
+  left: 44px;
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 6px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+  z-index: 2;
+}
+.tilePhoto:hover .tileActions,
+.tilePhoto:focus-within .tileActions {
+  opacity: 1;
+  transform: none;
+}
+@media (hover: none) {
+  .tileActions {
+    opacity: 1;
+    transform: none;
+  }
+}
+.chipBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 9px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: #ffffff;
+  font: inherit;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.18);
+  cursor: pointer;
+}
+.chipBtn:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 1px;
+}
+.chipBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.chipCover {
+  color: #1d4ed8;
+}
+.chipCover:hover:not(:disabled) {
+  background: #eff6ff;
+}
+.chipRemove {
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+.chipRemove:hover:not(:disabled) {
+  background: #fef2f2;
+}
+
+/* Dashed "+ Add photo" tile. */
+.addTile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  aspect-ratio: 4 / 3;
+  padding: 0;
+  border: 1.5px dashed var(--m-link);
+  border-radius: var(--m-radius-box);
+  background: color-mix(in srgb, var(--m-pill-blue-bg) 35%, transparent);
+  color: var(--m-link);
+  font: inherit;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.addTile:hover:not(:disabled) {
+  background: var(--m-pill-blue-bg);
+}
+.addTile:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 2px;
+}
+.addTile:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ── Responsive ────────────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 900px) {
+  .tiles {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 760px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation-duration: 2s;
+  }
+  .tilePhoto,
+  .tileActions,
+  .progressFill {
+    transition: none;
+  }
+}

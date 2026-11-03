@@ -1,7 +1,8 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 
 import { useSetBusinessHoursMutation } from '@/redux/api/provider/providerApi';
 import { BusinessHour } from '@/redux/api/provider/types';
+import { breakFits } from './hoursUtils';
 
 /** Fills in any missing days with sensible defaults (Mon–Sat open, Sun closed). */
 function normalize(hours: BusinessHour[]): BusinessHour[] {
@@ -18,58 +19,140 @@ function normalize(hours: BusinessHour[]): BusinessHour[] {
   });
 }
 
-/** A comparable fingerprint of everything Save would submit — used to tell
- * whether there's actually anything unsaved. */
-function snapshot(days: BusinessHour[], hasBreak: boolean, breakStart: string, breakEnd: string) {
-  return JSON.stringify({ days, break: hasBreak ? [breakStart, breakEnd] : null });
+/** Applies the one shared break to every open day it fits inside — a day whose
+ * own hours are too short to contain it simply gets no break. This is exactly
+ * what Save submits. */
+function applyBreak(
+  days: BusinessHour[],
+  hasBreak: boolean,
+  breakStart: string,
+  breakEnd: string,
+): BusinessHour[] {
+  return days.map((d) =>
+    hasBreak && breakFits(d, breakStart, breakEnd)
+      ? { ...d, breakStart, breakEnd }
+      : { ...d, breakStart: null, breakEnd: null },
+  );
+}
+
+/** A comparable fingerprint of a full week as it would be stored (ids and
+ * undefined-vs-null differences ignored). */
+function fingerprint(days: BusinessHour[]): string {
+  return JSON.stringify(
+    days.map((d) => ({
+      dayOfWeek: d.dayOfWeek,
+      isOpen: d.isOpen,
+      openTime: d.openTime,
+      closeTime: d.closeTime,
+      breakStart: d.breakStart || null,
+      breakEnd: d.breakEnd || null,
+    })),
+  );
+}
+
+interface FormState {
+  days: BusinessHour[];
+  hasBreak: boolean;
+  breakStart: string;
+  breakEnd: string;
+}
+
+/** Turns a stored week into editable form state. The one shared break window is
+ * pre-filled from whichever day already has one. */
+function toForm(hours: BusinessHour[]): FormState {
+  const days = normalize(hours);
+  const existingBreak = days.find((h) => h.breakStart && h.breakEnd);
+  return {
+    days,
+    hasBreak: !!existingBreak,
+    breakStart: existingBreak?.breakStart ?? '13:00',
+    breakEnd: existingBreak?.breakEnd ?? '14:00',
+  };
 }
 
 export function useBusinessHours(providerId: string, initial: BusinessHour[]) {
   const [setBusinessHours, { isLoading: saving }] = useSetBusinessHoursMutation();
-  const [days, setDays] = useState<BusinessHour[]>(() => normalize(initial));
+
+  // What was last loaded or saved — Discard returns here and `dirty` compares
+  // against it.
+  const [baseline, setBaseline] = useState<BusinessHour[]>(() => normalize(initial));
+  const [form, setForm] = useState<FormState>(() => toForm(initial));
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // One shared break window for every day, not set per day — pre-filled from
-  // whichever day already had one (from before this was a shared setting).
-  const existingBreak = initial.find((h) => h.breakStart && h.breakEnd);
-  const [hasBreak, setHasBreak] = useState(!!existingBreak);
-  const [breakStart, setBreakStart] = useState(existingBreak?.breakStart ?? '13:00');
-  const [breakEnd, setBreakEnd] = useState(existingBreak?.breakEnd ?? '14:00');
+  const { days, hasBreak, breakStart, breakEnd } = form;
 
-  // What was last saved (or loaded) — Save stays disabled until something
-  // actually differs from this.
-  const baseline = useRef(snapshot(days, hasBreak, breakStart, breakEnd));
-  const dirty = snapshot(days, hasBreak, breakStart, breakEnd) !== baseline.current;
-
-  const toggleDay = useCallback((dayOfWeek: number) => {
-    setSaved(false);
-    setDays((prev) =>
-      prev.map((d) => (d.dayOfWeek === dayOfWeek ? { ...d, isOpen: !d.isOpen } : d)),
-    );
-  }, []);
-
-  const setTime = useCallback(
-    (dayOfWeek: number, field: 'openTime' | 'closeTime', value: string) => {
-      setSaved(false);
-      setDays((prev) =>
-        prev.map((d) => (d.dayOfWeek === dayOfWeek ? { ...d, [field]: value } : d)),
-      );
-    },
-    [],
+  // Compare the actual payload Save would send (break applied per day) with
+  // what's stored, so a break-only change also counts as unsaved.
+  const payload = useMemo(
+    () => applyBreak(days, hasBreak, breakStart, breakEnd),
+    [days, hasBreak, breakStart, breakEnd],
+  );
+  const dirty = useMemo(
+    () => fingerprint(payload) !== fingerprint(baseline),
+    [payload, baseline],
   );
 
-  // Turns the shared break on (with a default lunch window) or off entirely.
-  const toggleBreak = useCallback(() => {
+  const edit = useCallback((fn: (prev: FormState) => FormState) => {
     setSaved(false);
-    setHasBreak((prev) => !prev);
+    setError(null);
+    setForm(fn);
   }, []);
 
-  const setBreakTime = useCallback((field: 'breakStart' | 'breakEnd', value: string) => {
+  const toggleDay = useCallback(
+    (dayOfWeek: number) =>
+      edit((prev) => ({
+        ...prev,
+        days: prev.days.map((d) => (d.dayOfWeek === dayOfWeek ? { ...d, isOpen: !d.isOpen } : d)),
+      })),
+    [edit],
+  );
+
+  const setTime = useCallback(
+    (dayOfWeek: number, field: 'openTime' | 'closeTime', value: string) =>
+      edit((prev) => ({
+        ...prev,
+        days: prev.days.map((d) => (d.dayOfWeek === dayOfWeek ? { ...d, [field]: value } : d)),
+      })),
+    [edit],
+  );
+
+  /** Copies Monday's open flag + times to every other day (form only). */
+  const copyMondayToAll = useCallback(
+    () =>
+      edit((prev) => {
+        const monday = prev.days.find((d) => d.dayOfWeek === 1);
+        if (!monday) return prev;
+        return {
+          ...prev,
+          days: prev.days.map((d) =>
+            d.dayOfWeek === 1
+              ? d
+              : { ...d, isOpen: monday.isOpen, openTime: monday.openTime, closeTime: monday.closeTime },
+          ),
+        };
+      }),
+    [edit],
+  );
+
+  // Turns the shared break on (keeping its last window) or off entirely.
+  const toggleBreak = useCallback(
+    () => edit((prev) => ({ ...prev, hasBreak: !prev.hasBreak })),
+    [edit],
+  );
+
+  const setBreakTime = useCallback(
+    (field: 'breakStart' | 'breakEnd', value: string) =>
+      edit((prev) => ({ ...prev, [field]: value })),
+    [edit],
+  );
+
+  /** Throws away every unsaved edit. */
+  const discard = useCallback(() => {
+    setError(null);
     setSaved(false);
-    if (field === 'breakStart') setBreakStart(value);
-    else setBreakEnd(value);
-  }, []);
+    setForm(toForm(baseline));
+  }, [baseline]);
 
   const save = useCallback(async () => {
     setError(null);
@@ -80,28 +163,19 @@ export function useBusinessHours(providerId: string, initial: BusinessHour[]) {
       return;
     }
     if (hasBreak && breakStart >= breakEnd) {
-      setError('Break start must be before break end.');
+      setError('Break end must be after break start.');
       return;
     }
 
-    // Apply the one shared break to every open day — except a day whose own
-    // hours are too short to contain it, which simply gets no break rather
-    // than failing the whole save.
-    const withBreak = days.map((d) =>
-      hasBreak && d.isOpen && breakStart >= d.openTime && breakEnd <= d.closeTime
-        ? { ...d, breakStart, breakEnd }
-        : { ...d, breakStart: null, breakEnd: null },
-    );
-
     try {
-      await setBusinessHours({ id: providerId, hours: withBreak }).unwrap();
-      setDays(withBreak);
-      baseline.current = snapshot(withBreak, hasBreak, breakStart, breakEnd);
+      await setBusinessHours({ id: providerId, hours: payload }).unwrap();
+      setBaseline(payload);
+      setForm((prev) => ({ ...prev, days: payload }));
       setSaved(true);
     } catch {
       setError('Could not save business hours. Please try again.');
     }
-  }, [days, providerId, setBusinessHours, hasBreak, breakStart, breakEnd]);
+  }, [days, providerId, setBusinessHours, hasBreak, breakStart, breakEnd, payload]);
 
   return {
     days,
@@ -114,8 +188,10 @@ export function useBusinessHours(providerId: string, initial: BusinessHour[]) {
     error,
     toggleDay,
     setTime,
+    copyMondayToAll,
     toggleBreak,
     setBreakTime,
+    discard,
     save,
   };
 }

@@ -130,6 +130,7 @@
   --m-pill-grey-bg: #f1f3f7;    --m-pill-grey-fg: #0f1e4a;
   --m-pill-red-bg: #fde2e2;     --m-pill-red-fg: #dc2626;
   --m-pill-yellow-bg: #fef3c7;  --m-pill-yellow-fg: #b45309;
+  --m-pill-teal-bg: #ccfbf1;    --m-pill-teal-fg: #0f766e;
 
   --m-tint-blue: linear-gradient(135deg, #eef4ff, #dde8fc);      --m-tint-blue-border: #d5e2fa;     --m-tint-blue-icon: #2563eb;
   --m-tint-lavender: linear-gradient(135deg, #f4f1ff, #e7e2fb);  --m-tint-lavender-border: #e0daf7; --m-tint-lavender-icon: #4f46e5;
@@ -211,6 +212,7 @@
     --m-pill-grey-bg: rgba(148, 163, 184, 0.16);   --m-pill-grey-fg: #e2e8f0;
     --m-pill-red-bg: rgba(248, 113, 113, 0.18);    --m-pill-red-fg: #fca5a5;
     --m-pill-yellow-bg: rgba(251, 191, 36, 0.18);  --m-pill-yellow-fg: #fcd34d;
+    --m-pill-teal-bg: rgba(45, 212, 191, 0.18);    --m-pill-teal-fg: #5eead4;
 
     --m-tint-blue: linear-gradient(135deg, #14305a, #102642);      --m-tint-blue-border: #23436d;     --m-tint-blue-icon: #93b4ff;
     --m-tint-lavender: linear-gradient(135deg, #251f52, #1a1840);  --m-tint-lavender-border: #362f6e; --m-tint-lavender-icon: #a5b4fc;
@@ -277,6 +279,7 @@
   --m-pill-grey-bg: rgba(148, 163, 184, 0.16);   --m-pill-grey-fg: #e2e8f0;
   --m-pill-red-bg: rgba(248, 113, 113, 0.18);    --m-pill-red-fg: #fca5a5;
   --m-pill-yellow-bg: rgba(251, 191, 36, 0.18);  --m-pill-yellow-fg: #fcd34d;
+  --m-pill-teal-bg: rgba(45, 212, 191, 0.18);    --m-pill-teal-fg: #5eead4;
 
   --m-tint-blue: linear-gradient(135deg, #14305a, #102642);      --m-tint-blue-border: #23436d;     --m-tint-blue-icon: #93b4ff;
   --m-tint-lavender: linear-gradient(135deg, #251f52, #1a1840);  --m-tint-lavender-border: #362f6e; --m-tint-lavender-icon: #a5b4fc;

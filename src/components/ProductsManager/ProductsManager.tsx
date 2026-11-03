@@ -1,27 +1,33 @@
-import { useEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  AlertTriangle,
+  Ban,
   Banknote,
+  Box,
   Boxes,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  CircleCheck,
   FileText,
   FolderTree,
   ImagePlus,
+  Package,
   Pencil,
   Percent,
   Plus,
   Ruler,
+  Search,
   Star,
   Tag,
   Trash2,
+  TriangleAlert,
 } from 'lucide-react';
 
-import { Button } from '@/components/Button';
-import { Card } from '@/components/Card';
 import { Combobox } from '@/components/Combobox';
 import { FormDialog } from '@/components/FormDialog';
 import { FormSection } from '@/components/FormSection';
 import { OptionSection } from '@/components/OptionSection';
+import { Pill, PillTone } from '@/components/Pill';
 import { Measure, Product } from '@/redux/api/provider/types';
 import { useGetProductTypesQuery } from '@/redux/api/productType/productTypeApi';
 import { PRODUCT_SUGGESTIONS } from '@/data/productSuggestions';
@@ -31,17 +37,82 @@ import {
   formatAmount,
   measureUnits,
   priceLabel,
-  stockLabel,
   stockLevel,
 } from '@/utils/units';
 import { ProductsManagerProps } from './types';
 import { useProductsManager } from './useProductsManager';
-// Reuse the ServicesManager styles for the generic form/list…
+// Reuse the ServicesManager styles for the generic form fields…
 import styles from '@/components/ServicesManager/ServicesManager.module.css';
-// …plus polished controls for the measure/price/stock rows.
+// …plus the mockup-matched list (tiles / toolbar / table) and form controls.
 import ui from './ProductsManager.module.css';
-// Shared "name + inline tag" row styling (same pattern coupons use).
-import tagStyles from '@/components/CouponsManager/CouponsManager.module.css';
+
+const PAGE_SIZE = 6;
+
+type StockState = 'in' | 'low' | 'out' | 'made';
+type StatusFilter = 'all' | 'active' | 'inactive';
+type StockFilter = 'all' | 'in' | 'low' | 'out';
+
+/** Where a product's inventory stands (made-to-order items never run low). */
+function stockState(p: Product): StockState {
+  if (p.unlimitedStock) return p.stockQty <= 0 ? 'out' : 'made';
+  const level = stockLevel(p.stockQty, p.stepQty);
+  return level === 'ok' ? 'in' : level;
+}
+
+/** Quantity text: plain number for pieces ("24"), with units otherwise ("500 g"). */
+function qtyText(base: number, measure: Measure): string {
+  return measure === 'count' ? `${base}` : formatAmount(base, measure);
+}
+
+/** "₹599" when priced per single piece, else the full "₹249 / 100 g". */
+function priceText(p: Product): string {
+  const full = priceLabel(p.priceMinor, p.priceQty, p.measure, p.currency);
+  return p.measure === 'count' && p.priceQty === 1 ? full.split(' / ')[0] : full;
+}
+
+const SECTION_TONES: PillTone[] = ['lavender', 'blue', 'green'];
+/** Same section name → same pill colour, every render. */
+function sectionTone(name: string): PillTone {
+  let h = 0;
+  for (let i = 0; i < name.length; i += 1) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+  return SECTION_TONES[h % SECTION_TONES.length];
+}
+
+function StockPill({ p }: { p: Product }) {
+  const state = stockState(p);
+  if (state === 'made') return <Pill tone="grey">Made to order</Pill>;
+  if (state === 'out') return <Pill tone="red">Out of Stock</Pill>;
+  const qty = qtyText(p.stockQty, p.measure);
+  return state === 'low' ? (
+    <Pill tone="orange">Low Stock ({qty})</Pill>
+  ) : (
+    <Pill tone="green">In Stock ({qty})</Pill>
+  );
+}
+
+function SummaryTile({
+  tone,
+  icon,
+  label,
+  value,
+}: {
+  tone: 'blue' | 'mint' | 'peach' | 'pink';
+  icon: ReactNode;
+  label: string;
+  value: number;
+}) {
+  return (
+    <div className={`${ui.tile} ${ui[`tile_${tone}`]}`}>
+      <span className={ui.tileIcon} aria-hidden="true">
+        {icon}
+      </span>
+      <div className={ui.tileText}>
+        <span className={ui.tileLabel}>{label}</span>
+        <span className={ui.tileValue}>{value}</span>
+      </div>
+    </div>
+  );
+}
 
 /** Add / edit / delete the products a STORE business sells. */
 export function ProductsManager({
@@ -50,6 +121,7 @@ export function ProductsManager({
   subcategorySlug,
   businessCodEnabled,
   businessPartialPayEnabled,
+  onManageStock,
 }: ProductsManagerProps) {
   const {
     editing,
@@ -101,145 +173,321 @@ export function ProductsManager({
   const codLocked = businessCodEnabled === false;
   const partialLocked = businessPartialPayEnabled === false;
 
-  return (
-    <Card
-      title="Products"
-      action={
-        editing === null ? (
-          <Button
-            variant="secondary"
-            onClick={startAdd}
-            iconLeft={<Plus size={16} aria-hidden="true" />}
-          >
-            Add product
-          </Button>
-        ) : undefined
+  // ── List filters, summary counts and client-side paging ────────────
+  const [query, setQuery] = useState('');
+  const [sectionFilter, setSectionFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [stockFilter, setStockFilter] = useState<StockFilter>('all');
+  const [page, setPage] = useState(1);
+
+  const sections = useMemo(
+    () =>
+      Array.from(
+        new Set(products.map((p) => p.section?.trim()).filter((s): s is string => !!s)),
+      ).sort((a, b) => a.localeCompare(b)),
+    [products],
+  );
+
+  const counts = useMemo(() => {
+    let active = 0;
+    let low = 0;
+    let out = 0;
+    for (const p of products) {
+      if (p.isActive !== false) active += 1;
+      const state = stockState(p);
+      if (state === 'out') out += 1;
+      else if (state === 'low') low += 1;
+    }
+    return { total: products.length, active, low, out };
+  }, [products]);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return products.filter((p) => {
+      if (
+        q &&
+        !p.name.toLowerCase().includes(q) &&
+        !(p.section ?? '').toLowerCase().includes(q)
+      )
+        return false;
+      if (sectionFilter && (p.section?.trim() ?? '') !== sectionFilter) return false;
+      if (statusFilter === 'active' && p.isActive === false) return false;
+      if (statusFilter === 'inactive' && p.isActive !== false) return false;
+      if (stockFilter !== 'all') {
+        const state = stockState(p);
+        // Made-to-order items are always available, so they count as in stock.
+        const bucket = state === 'made' ? 'in' : state;
+        if (bucket !== stockFilter) return false;
       }
-    >
-      {products.length === 0 && editing !== 'new' ? (
-        <p className={styles.muted}>
-          No products yet. Add the items you sell so customers can browse and order them.
-        </p>
-      ) : (
-        <div className={ui.tableWrap}>
-          <table className={ui.table}>
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Min. order</th>
-                <th>Rating</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((p: Product) => {
-                const level = p.unlimitedStock ? null : stockLevel(p.stockQty, p.stepQty);
-                const outOfStock = p.unlimitedStock ? p.stockQty <= 0 : level === 'out';
-                const lowStock = level === 'low';
-                return (
-                  <tr key={p.id} className={p.isActive === false ? ui.rowInactive : ''}>
-                    <td>
-                      <div className={ui.productCell}>
-                        {p.imageUrl ? (
-                          <img className={ui.thumb} src={p.imageUrl} alt="" />
-                        ) : (
-                          <span className={ui.thumbPlaceholder} aria-hidden="true">
-                            <ImagePlus size={16} />
-                          </span>
-                        )}
-                        <div className={ui.cellMain}>
-                          <span className={ui.cellTitle}>{p.name}</span>
-                          {p.description && <span className={ui.cellSub}>{p.description}</span>}
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div className={ui.categoryCell}>
-                        {p.productType && (
-                          <span className={tagStyles.scopeTag}>{p.productType.name}</span>
-                        )}
-                        {p.section ? (
-                          <span className={ui.cellSub}>{p.section}</span>
-                        ) : (
-                          !p.productType && <span className={ui.cellSub}>—</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className={ui.price}>
-                      {priceLabel(p.priceMinor, p.priceQty, p.measure, p.currency)}
-                    </td>
-                    <td>
-                      <div className={ui.stockCell}>
-                        <span>
-                          {p.unlimitedStock
-                            ? p.stockQty > 0
-                              ? 'In stock'
-                              : 'Out of stock'
-                            : stockLabel(p.stockQty, p.measure)}
-                        </span>
-                        {(outOfStock || lowStock) && (
-                          <span
-                            className={`${ui.stockBadge} ${outOfStock ? ui.stockOut : ui.stockLow}`}
-                          >
-                            <AlertTriangle size={11} aria-hidden="true" />
-                            {outOfStock ? 'Out of stock' : 'Low stock'}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className={ui.minOrder}>{formatAmount(p.stepQty, p.measure)}</td>
-                    <td>
-                      {(p.ratingCount ?? 0) > 0 ? (
-                        <span className={ui.ratingCell}>
-                          <Star size={13} aria-hidden="true" /> {(p.ratingAvg ?? 0).toFixed(1)} (
-                          {p.ratingCount})
-                        </span>
-                      ) : (
-                        <span className={ui.cellSub}>—</span>
-                      )}
-                    </td>
-                    <td>
-                      <button
-                        type="button"
-                        className={`${styles.statusChip} ${
-                          p.isActive === false ? styles.inactive : styles.active
-                        }`}
-                        onClick={() => toggleActive(p)}
-                        aria-pressed={p.isActive !== false}
-                      >
-                        <span className={styles.statusDot} aria-hidden="true" />
-                        {p.isActive === false ? 'Hidden' : 'Listed'}
-                      </button>
-                    </td>
-                    <td>
-                      <div className={ui.actionsCell}>
-                        <button
-                          type="button"
-                          className={styles.iconBtn}
-                          onClick={() => startEdit(p)}
-                          aria-label={`Edit ${p.name}`}
-                        >
-                          <Pencil size={16} aria-hidden="true" />
-                        </button>
-                        <button
-                          type="button"
-                          className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
-                          onClick={() => remove(p.id)}
-                          aria-label={`Delete ${p.name}`}
-                        >
-                          <Trash2 size={16} aria-hidden="true" />
-                        </button>
-                      </div>
-                    </td>
+      return true;
+    });
+  }, [products, query, sectionFilter, statusFilter, stockFilter]);
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pageStart = (currentPage - 1) * PAGE_SIZE;
+  const pageRows = filtered.slice(pageStart, pageStart + PAGE_SIZE);
+
+  // Any filter/search change starts over on page 1.
+  const withPageReset =
+    <T,>(set: (v: T) => void) =>
+    (v: T) => {
+      set(v);
+      setPage(1);
+    };
+  const onQuery = withPageReset(setQuery);
+  const onSection = withPageReset(setSectionFilter);
+  const onStatus = withPageReset(setStatusFilter);
+  const onStock = withPageReset(setStockFilter);
+
+  const hasProducts = products.length > 0 || editing === 'new';
+
+  return (
+    <div className={ui.root}>
+      {hasProducts ? (
+        <>
+          <div className={ui.tiles}>
+            <SummaryTile tone="blue" icon={<Box size={26} />} label="Total Products" value={counts.total} />
+            <SummaryTile tone="mint" icon={<CircleCheck size={26} />} label="Active" value={counts.active} />
+            <SummaryTile tone="peach" icon={<TriangleAlert size={26} />} label="Low Stock" value={counts.low} />
+            <SummaryTile tone="pink" icon={<Ban size={26} />} label="Out of Stock" value={counts.out} />
+          </div>
+
+          <div className={ui.toolbar}>
+            <label className={ui.search}>
+              <Search size={18} aria-hidden="true" />
+              <span className={ui.srOnly}>Search products</span>
+              <input
+                type="search"
+                placeholder="Search products by name or section..."
+                value={query}
+                onChange={(e) => onQuery(e.target.value)}
+              />
+            </label>
+            <label className={ui.filterWrap}>
+              <span className={ui.srOnly}>Filter by section</span>
+              <select
+                className={ui.filter}
+                value={sectionFilter}
+                onChange={(e) => onSection(e.target.value)}
+              >
+                <option value="">All Sections</option>
+                {sections.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={16} className={ui.filterChevron} aria-hidden="true" />
+            </label>
+            <label className={ui.filterWrap}>
+              <span className={ui.srOnly}>Filter by status</span>
+              <select
+                className={ui.filter}
+                value={statusFilter}
+                onChange={(e) => onStatus(e.target.value as StatusFilter)}
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+              <ChevronDown size={16} className={ui.filterChevron} aria-hidden="true" />
+            </label>
+            <label className={ui.filterWrap}>
+              <span className={ui.srOnly}>Filter by stock</span>
+              <select
+                className={ui.filter}
+                value={stockFilter}
+                onChange={(e) => onStock(e.target.value as StockFilter)}
+              >
+                <option value="all">All Stock</option>
+                <option value="in">In stock</option>
+                <option value="low">Low stock</option>
+                <option value="out">Out of stock</option>
+              </select>
+              <ChevronDown size={16} className={ui.filterChevron} aria-hidden="true" />
+            </label>
+            <div className={ui.toolbarActions}>
+              {onManageStock && (
+                <button type="button" className={ui.outlineBtn} onClick={onManageStock}>
+                  <Box size={18} aria-hidden="true" />
+                  Manage Stock
+                </button>
+              )}
+              <button type="button" className={ui.primaryBtn} onClick={startAdd}>
+                <Plus size={18} aria-hidden="true" />
+                Add Product
+              </button>
+            </div>
+          </div>
+
+          <div className={ui.tableCard}>
+            <div className={ui.tableScroll}>
+              <table className={ui.table}>
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Section</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th className={ui.center}>Min. Order</th>
+                    <th>Rating</th>
+                    <th className={ui.center}>Status</th>
+                    <th className={ui.center}>Actions</th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                </thead>
+                <tbody>
+                  {pageRows.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className={ui.noMatch}>
+                        No products match your filters.
+                      </td>
+                    </tr>
+                  ) : (
+                    pageRows.map((p) => {
+                      const active = p.isActive !== false;
+                      const sub = p.description?.trim() || p.productType?.name;
+                      return (
+                        <tr key={p.id} className={active ? '' : ui.rowInactive}>
+                          <td className={ui.fade}>
+                            <div className={ui.productCell}>
+                              {p.imageUrl ? (
+                                <img className={ui.thumb} src={p.imageUrl} alt="" />
+                              ) : (
+                                <span className={`${ui.thumb} ${ui.thumbPlaceholder}`} aria-hidden="true">
+                                  <Package size={22} />
+                                </span>
+                              )}
+                              <div className={ui.cellMain}>
+                                <span className={ui.cellTitle}>{p.name}</span>
+                                {sub && (
+                                  <span className={ui.cellSub} title={sub}>
+                                    {sub}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                          <td className={ui.fade}>
+                            {p.section?.trim() ? (
+                              <Pill tone={sectionTone(p.section.trim())}>{p.section.trim()}</Pill>
+                            ) : (
+                              <span className={ui.muted}>—</span>
+                            )}
+                          </td>
+                          <td className={`${ui.fade} ${ui.price}`}>{priceText(p)}</td>
+                          <td className={ui.fade}>
+                            <StockPill p={p} />
+                          </td>
+                          <td className={`${ui.fade} ${ui.center} ${ui.minOrder}`}>
+                            {qtyText(p.stepQty, p.measure)}
+                          </td>
+                          <td className={ui.fade}>
+                            {(p.ratingCount ?? 0) > 0 ? (
+                              <span className={ui.rating}>
+                                <Star size={16} className={ui.star} aria-hidden="true" />
+                                <strong>{(p.ratingAvg ?? 0).toFixed(1)}</strong>
+                                <span className={ui.muted}>({p.ratingCount})</span>
+                              </span>
+                            ) : (
+                              <span className={ui.muted}>—</span>
+                            )}
+                          </td>
+                          <td className={ui.center}>
+                            <button
+                              type="button"
+                              role="switch"
+                              aria-checked={active}
+                              aria-label={`${active ? 'Hide' : 'List'} ${p.name}`}
+                              title={active ? 'Listed — click to hide' : 'Hidden — click to list'}
+                              className={`${ui.switch} ${active ? ui.switchOn : ''}`}
+                              onClick={() => toggleActive(p)}
+                            >
+                              <span className={ui.switchKnob} aria-hidden="true" />
+                            </button>
+                          </td>
+                          <td>
+                            <div className={ui.actions}>
+                              <button
+                                type="button"
+                                className={ui.iconBtn}
+                                onClick={() => startEdit(p)}
+                                aria-label={`Edit ${p.name}`}
+                              >
+                                <Pencil size={18} aria-hidden="true" />
+                              </button>
+                              <button
+                                type="button"
+                                className={`${ui.iconBtn} ${ui.iconBtnDanger}`}
+                                onClick={() => remove(p.id)}
+                                aria-label={`Delete ${p.name}`}
+                              >
+                                <Trash2 size={18} aria-hidden="true" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {filtered.length > 0 && (
+              <div className={ui.pager}>
+                <span className={ui.pagerInfo}>
+                  Showing {pageStart + 1}–{pageStart + pageRows.length} of {filtered.length}{' '}
+                  {filtered.length === 1 ? 'product' : 'products'}
+                </span>
+                <nav className={ui.pagerNav} aria-label="Products pages">
+                  <button
+                    type="button"
+                    className={ui.pageArrow}
+                    onClick={() => setPage(currentPage - 1)}
+                    disabled={currentPage <= 1}
+                    aria-label="Previous page"
+                  >
+                    <ChevronLeft size={18} aria-hidden="true" />
+                  </button>
+                  {Array.from({ length: pageCount }, (_, i) => i + 1).map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      className={`${ui.pageNum} ${n === currentPage ? ui.pageNumActive : ''}`}
+                      onClick={() => setPage(n)}
+                      aria-current={n === currentPage ? 'page' : undefined}
+                      aria-label={`Page ${n}`}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    className={ui.pageArrow}
+                    onClick={() => setPage(currentPage + 1)}
+                    disabled={currentPage >= pageCount}
+                    aria-label="Next page"
+                  >
+                    <ChevronRight size={18} aria-hidden="true" />
+                  </button>
+                </nav>
+              </div>
+            )}
+          </div>
+        </>
+      ) : (
+        <div className={ui.emptyCard}>
+          <span className={ui.emptyIcon} aria-hidden="true">
+            <Package size={28} />
+          </span>
+          <p className={ui.emptyText}>
+            No products yet. Add the items you sell so customers can browse and order them.
+          </p>
+          <button type="button" className={ui.primaryBtn} onClick={startAdd}>
+            <Plus size={18} aria-hidden="true" />
+            Add Product
+          </button>
         </div>
       )}
 
@@ -599,6 +847,6 @@ export function ProductsManager({
           </FormSection>
         )}
       </FormDialog>
-    </Card>
+    </div>
   );
 }

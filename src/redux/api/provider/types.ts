@@ -83,6 +83,19 @@ export interface ProductInput {
 
 export type StockAdjustmentReason = 'SALE' | 'RESTOCK' | 'DAMAGED' | 'OTHER';
 
+/** One recorded stock change (manual adjustment or "mark out of stock"). */
+export interface StockAdjustment {
+  id: string;
+  /** Positive = added, negative = removed, in the product's base unit. */
+  delta: number;
+  /** Stock right after the change; null for rows recorded before it was tracked. */
+  stockAfter: number | null;
+  reason: StockAdjustmentReason | null;
+  note: string | null;
+  createdAt: string;
+  product: { id: string; name: string; measure: Measure; unit: string; imageUrl?: string | null };
+}
+
 export interface AdjustStockInput {
   // Positive = stock added, negative = stock removed, in the product's base unit.
   delta: number;
@@ -156,7 +169,7 @@ export interface Provider {
   businessHours: BusinessHour[];
 }
 
-export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
+export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
 export type PaymentStatus = 'PENDING' | 'PARTIAL' | 'PAID' | 'FAILED' | 'REFUNDED';
 export type PaymentMethod = 'ONLINE' | 'CASH' | 'PARTIAL';
 
@@ -171,7 +184,10 @@ export interface ProviderBooking {
   paymentMethod?: PaymentMethod;
   paymentStatus?: PaymentStatus;
   cancelReason?: string | null;
-  service: { name: string };
+  /** When the provider started the service (status IN_PROGRESS). */
+  startedAt?: string | null;
+  createdAt?: string;
+  service: { name: string; durationMin?: number };
   user: { fullName: string; phone?: string | null };
 }
 

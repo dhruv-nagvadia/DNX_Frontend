@@ -12,3 +12,6 @@ export interface StockAdjustForm {
   reason: StockAdjustmentReason | '';
   note: string;
 }
+
+/** Quick filter chips above the product list. */
+export type StockFilter = 'all' | 'low' | 'out';

@@ -1,47 +1,524 @@
-.grid {
-  display: grid;
-  /* auto-fit + a 1fr max (not a fixed 340px cap) lets the existing columns
-     stretch to fill the row exactly — a fixed max left leftover space once
-     3 columns fit but there wasn't room for a 4th at that width, pushing it
-     to its own near-empty row instead of evening out across the row. */
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--space-md);
+/* My Businesses — matches "DNX Marketplace Business Dashboard.png".
+   Uses the --m-* mockup tokens from theme.css (with dark-mode variants). */
+
+/* ── Top row: title + search / type filter / Add / bell / profile ──── */
+.topRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-lg);
+  flex-wrap: nowrap;
+  padding-top: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+.titleBlock {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.title {
+  margin: 0;
+  font-size: clamp(26px, 2.4vw, 34px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--m-ink);
+}
+.subtitle {
+  margin: 6px 0 0;
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+}
+.topActions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: nowrap;
+  /* Sits level with the title, to its right. */
+  padding-top: 4px;
 }
 
-/* Light, simple tile: photo + name, one info line, optional hint. */
+.search {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: 210px;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--m-divider);
+  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+}
+.search:focus-within {
+  border-color: var(--m-link);
+  box-shadow: 0 0 0 3px var(--m-pill-blue-bg);
+}
+.search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  color: var(--m-ink);
+}
+
+.selectWrap {
+  position: relative;
+  display: inline-flex;
+}
+.select {
+  appearance: none;
+  height: 40px;
+  padding: 0 36px 0 14px;
+  border: 1px solid var(--m-divider);
+  border-radius: 8px;
+  background: var(--color-surface);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  color: var(--m-ink);
+  cursor: pointer;
+}
+.select:focus-visible {
+  outline: none;
+  border-color: var(--m-link);
+  box-shadow: 0 0 0 3px var(--m-pill-blue-bg);
+}
+.selectChevron {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--m-ink);
+}
+
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 8px;
+  background: #1d4ed8;
+  color: #fff;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.25);
+}
+.addBtn:hover {
+  background: #1e40af;
+}
+.addBtn:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 2px;
+}
+
+/* NotificationBell restyled as a round white button (component untouched). */
+.bellWrap > div > button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border-color: var(--m-divider);
+  color: var(--m-ink);
+  box-shadow: var(--m-shadow-card);
+}
+
+.profileChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--m-ink);
+  text-decoration: none;
+}
+.avatar {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: var(--m-shadow-card);
+}
+.avatarInitials {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(140deg, var(--color-accent), var(--color-accent-2));
+  color: var(--color-ink);
+  font-size: 14px;
+  font-weight: 800;
+}
+.profileName {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+/* ── Summary tiles ─────────────────────────────────────────────────── */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+.tile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 18px var(--space-md);
+  border-radius: var(--m-radius-box);
+  border: 1px solid;
+}
+.tileIcon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+}
+.tileText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.tileLabel {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--m-ink);
+}
+.tileValue {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--m-ink);
+}
+.tile_blue {
+  background: var(--m-tint-blue);
+  border-color: var(--m-tint-blue-border);
+}
+.tile_blue .tileIcon {
+  color: var(--m-tint-blue-icon);
+}
+.tile_mint {
+  background: var(--m-tint-mint);
+  border-color: var(--m-tint-mint-border);
+}
+.tile_mint .tileIcon {
+  color: var(--m-tint-mint-icon);
+}
+.tile_peach {
+  background: var(--m-tint-peach);
+  border-color: var(--m-tint-peach-border);
+}
+.tile_peach .tileIcon {
+  color: var(--m-tint-peach-icon);
+}
+.tile_pink {
+  background: var(--m-tint-pink);
+  border-color: var(--m-tint-pink-border);
+}
+.tile_pink .tileIcon,
+.tile_pink .tileValue {
+  color: var(--m-tint-pink-icon);
+}
+
+/* ── Business grid ─────────────────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-lg);
+  align-items: stretch;
+}
+
 .card {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: var(--space-md);
+  min-width: 0;
+  overflow: hidden;
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  transition:
-    border-color var(--dur-fast) var(--ease-out),
-    box-shadow var(--dur-fast) var(--ease-out);
+  border: 1px solid var(--m-divider);
+  border-radius: var(--m-radius-card);
+  box-shadow: var(--m-shadow-card);
+  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
 }
 .card:hover {
-  border-color: var(--color-primary-ring);
-  box-shadow: var(--shadow-sm);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 
-/* Full-card hit area, below the Edit button. */
+/* Full-card click target, under the Edit / Manage buttons. */
 .openButton {
   position: absolute;
   inset: 0;
   z-index: 1;
-  padding: 0;
   border: none;
   background: transparent;
   cursor: pointer;
-  border-radius: var(--radius-lg);
 }
 .openButton:focus-visible {
-  outline: none;
-  box-shadow: inset 0 0 0 2px var(--color-primary);
+  outline: 2px solid var(--m-link);
+  outline-offset: -2px;
+  border-radius: var(--m-radius-card);
 }
+
+.cover {
+  position: relative;
+  height: 200px;
+  background: var(--m-table-head);
+}
+.coverImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.coverFallback {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  color: var(--m-link);
+}
+.typePill {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--m-radius-pill);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  backdrop-filter: blur(4px);
+}
+.typeService {
+  background: rgba(237, 233, 254, 0.94);
+  color: #5b21b6;
+}
+.typeStore {
+  background: rgba(219, 234, 254, 0.94);
+  color: #1d4ed8;
+}
+.editBtn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: #fff;
+  color: #0f1e4a;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.18);
+  cursor: pointer;
+}
+.editBtn:hover {
+  background: #eef2fa;
+}
+.editBtn:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 2px;
+}
+
+.body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 20px 14px;
+}
+.name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  min-width: 0;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: var(--m-ink);
+}
+.nameText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.verified {
+  flex: 0 0 auto;
+  color: #fff;
+  fill: #2563eb;
+}
+.place {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+.dot {
+  color: var(--color-text-placeholder);
+}
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 0;
+  font-size: var(--font-size-md);
+  color: var(--m-ink);
+}
+.meta strong {
+  font-size: var(--font-size-lg);
+}
+.star {
+  color: #f5b301;
+  fill: #f5b301;
+}
+.muted {
+  color: var(--color-text-secondary);
+}
+.sep {
+  width: 1px;
+  height: 18px;
+  margin: 0 8px;
+  background: var(--m-divider);
+}
+
+.progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+}
+.progressHead {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--font-size-sm);
+  color: var(--m-ink);
+}
+.progressTrack {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--m-divider);
+  overflow: hidden;
+}
+.progressFill {
+  height: 100%;
+  border-radius: 999px;
+  background: #1d4ed8;
+}
+
+.blockedNote {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 0 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--m-banner-error-bg);
+  border: 1px solid var(--m-banner-error-border);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--m-banner-error-fg);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin: 0 20px;
+  padding: 14px 0 16px;
+  border-top: 1px solid var(--m-divider);
+}
+.manage {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--m-link);
+  cursor: pointer;
+}
+.manage:hover {
+  text-decoration: underline;
+}
+.manage:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Dashed "+ Add a new business" card */
+.addCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 250px;
+  padding: var(--space-lg);
+  border: 2px dashed var(--m-divider);
+  border-radius: var(--m-radius-card);
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+}
+.addCard:hover {
+  border-color: var(--m-link);
+  background: var(--color-surface);
+}
+.addCard:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 2px;
+}
+.addCardIcon {
+  color: #1d4ed8;
+}
+.addCardTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--m-link);
+}
+.addCardSub {
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+}
+
+.noMatch {
+  margin: 0 0 var(--space-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
 .srOnly {
   position: absolute;
   width: 1px;
@@ -54,119 +531,40 @@
   border: 0;
 }
 
-.top {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.thumb {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 52px;
-  height: 52px;
-  border-radius: var(--radius-md);
-  background: var(--color-primary-soft);
-  overflow: hidden;
-}
-.coverImg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.coverIcon {
-  color: var(--color-primary-dark);
-}
-.titles {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-.name {
-  margin: 0;
-  font-size: var(--font-size-md);
-  font-weight: 700;
-  letter-spacing: -0.015em;
-  color: var(--color-text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.place {
-  margin: 2px 0 0;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Edit (icon button, above the card-wide button) */
-.edit {
-  position: relative;
-  z-index: 2;
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: var(--radius-md);
-  background: transparent;
-  color: var(--color-text-secondary);
-  transition:
-    background var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out);
-}
-.edit:hover {
-  background: var(--color-primary-soft);
-  color: var(--color-primary-dark);
-}
-.edit:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--color-primary-ring);
-}
-
-.info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-sm);
-  padding-top: 12px;
-  border-top: 1px solid var(--color-border);
-}
-.meta {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  font-variant-numeric: tabular-nums;
-}
-.dot {
-  margin: 0 2px;
-}
-/* Fixed gold, not the (now dark-orange) warning status token. */
-.star {
-  color: #f59e0b;
-  fill: currentColor;
-}
-
-.todo {
-  margin: -4px 0 0;
-  font-size: var(--font-size-xs);
-  color: var(--color-warning);
-}
-
-@media (max-width: 640px) {
+@media (max-width: 1280px) {
   .grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .card {
-    transition: none;
+/* Medium widths: drop the profile name so search / type / Add stay beside the title. */
+@media (max-width: 1440px) {
+  .profileName {
+    display: none;
+  }
+}
+@media (max-width: 1180px) {
+  .topRow {
+    flex-wrap: wrap;
+  }
+  .topActions {
+    flex-wrap: wrap;
+    padding-top: 0;
+  }
+}
+@media (max-width: 1100px) {
+  .tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 720px) {
+  .grid,
+  .tiles {
+    grid-template-columns: 1fr;
+  }
+  .search {
+    width: 100%;
+  }
+  .profileName {
+    display: none;
   }
 }

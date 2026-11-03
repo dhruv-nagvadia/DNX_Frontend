@@ -1,14 +1,142 @@
-/* ── Toolbar ──────────────────────────────────────────────────────── */
-.toolbar {
+/* Business Detail → Calendar tab ("DNX Marketplace Salon Calendar Dashboard.png"). */
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+/* ── Month tiles ───────────────────────────────────────────────────── */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+.tile {
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  margin-bottom: var(--space-md);
+  min-height: 84px;
+  padding: 14px var(--space-md);
+  border: 1px solid;
+  border-radius: var(--m-radius-box);
+  min-width: 0;
 }
-.nav {
+.tileIcon {
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+.tileText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.tileLabel {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: var(--m-ink);
+}
+.tileValue {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--m-ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tileValueSm {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: var(--m-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tileValueSmSoft {
+  font-weight: 500;
+}
+.tileSub {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tile_blue {
+  background: var(--m-tint-blue);
+  border-color: var(--m-tint-blue-border);
+}
+.tile_blue .tileIcon {
+  color: var(--m-tint-blue-icon);
+}
+.tile_lavender {
+  background: var(--m-tint-lavender);
+  border-color: var(--m-tint-lavender-border);
+}
+.tile_lavender .tileIcon {
+  color: var(--m-tint-lavender-icon);
+}
+.tile_pink {
+  background: var(--m-tint-pink);
+  border-color: var(--m-tint-pink-border);
+}
+.tile_pink .tileIcon {
+  color: var(--m-tint-pink-icon);
+}
+.tile_peach {
+  background: var(--m-tint-peach);
+  border-color: var(--m-tint-peach-border);
+}
+.tile_peach .tileIcon {
+  color: var(--m-tint-peach-icon);
+}
+
+/* ── Two columns ───────────────────────────────────────────────────── */
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 64fr) minmax(0, 36fr);
+  gap: 20px;
+  align-items: start;
+}
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+/* ── Calendar card ─────────────────────────────────────────────────── */
+.calCard {
+  min-width: 0;
+  padding: 18px var(--space-md) var(--space-md);
+  background: var(--color-surface);
+  border: 1px solid var(--m-divider);
+  border-radius: var(--m-radius-card);
+  box-shadow: var(--m-shadow-card);
+}
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
 }
 .navBtn {
   display: inline-flex;
@@ -16,215 +144,313 @@
   justify-content: center;
   width: 34px;
   height: 34px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  color: var(--color-text-primary);
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--m-ink);
   cursor: pointer;
   transition: background var(--dur-fast) var(--ease-out);
 }
 .navBtn:hover {
-  background: var(--color-surface-2);
-}
-.todayBtn {
-  height: 34px;
-  padding: 0 14px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--color-text-primary);
-  cursor: pointer;
-}
-.todayBtn:hover {
-  background: var(--color-surface-2);
+  background: var(--m-table-head);
 }
 .period {
   margin: 0;
-  font-size: var(--font-size-lg);
-  font-weight: 700;
+  min-width: 0;
+  font-size: 24px;
+  font-weight: 800;
   letter-spacing: -0.01em;
-  color: var(--color-text-primary);
+  color: var(--m-ink);
+  white-space: nowrap;
+}
+.toolbarRight {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.todayBtn {
+  height: 34px;
+  padding: 0 18px;
+  border: 1.5px solid var(--m-link);
+  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--m-link);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.todayBtn:hover {
+  background: var(--m-pill-blue-bg);
+}
+.segment {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--m-divider);
+  border-radius: 10px;
+  background: var(--color-surface);
+}
+.segBtn {
+  height: 30px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--m-ink);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.segBtnOn {
+  background: var(--m-action);
+  color: #fff;
+  font-weight: 600;
+}
+.navBtn:focus-visible,
+.todayBtn:focus-visible,
+.segBtn:focus-visible,
+.cell:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 2px;
 }
 
-/* ── Month grid ───────────────────────────────────────────────────── */
+/* ── Month grid ────────────────────────────────────────────────────── */
 .monthGrid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 6px;
 }
 .dow {
-  padding: 4px 0;
+  padding: 4px 0 8px;
   text-align: center;
-  font-size: var(--font-size-xs);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
   color: var(--color-text-secondary);
 }
+
 .cell {
+  position: relative;
   display: flex;
   flex-direction: column;
+  align-items: stretch;
   gap: 4px;
-  min-height: 92px;
-  padding: 6px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  min-width: 0;
+  min-height: 88px;
+  padding: 8px 8px 8px 10px;
+  border: 1px solid var(--m-divider);
+  border-radius: 10px;
   background: var(--color-surface);
+  color: var(--m-ink);
+  font: inherit;
   text-align: left;
   cursor: pointer;
-  overflow: hidden;
-  transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
 }
 .cell:hover {
-  border-color: var(--color-border-strong);
+  border-color: var(--m-link);
 }
 .cellMuted {
-  background: var(--color-surface-2);
+  background: var(--color-surface);
+  color: var(--color-text-placeholder);
 }
 .cellMuted .dayNum {
-  color: var(--color-text-secondary);
-  opacity: 0.6;
+  font-weight: 500;
+  color: var(--color-text-placeholder);
 }
 .cellClosed {
-  background: repeating-linear-gradient(
-    135deg,
-    var(--color-surface-2),
-    var(--color-surface-2) 6px,
-    var(--color-surface) 6px,
-    var(--color-surface) 12px
-  );
+  background: var(--m-table-head);
 }
-/* Selected date reads as a filled, tinted cell (not just an outline) — the
-   same "you're looking at this one" treatment Outlook/Teams-style calendars
-   use, distinct from the solid "today" dot. */
+.cellClosedOverride {
+  background: var(--m-tint-pink);
+  border-color: var(--m-tint-pink-border);
+}
+.cellClosedOverride .dayNum {
+  color: var(--m-pill-red-fg);
+}
+.cellCustom {
+  background: var(--m-tint-peach);
+  border-color: var(--m-tint-peach-border);
+}
+.cellToday {
+  border: 1.5px solid var(--m-link);
+}
+.cellToday .dayNum {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  margin: -3px 0 0 -4px;
+  padding: 0 4px;
+  border-radius: 50%;
+  background: var(--m-action);
+  color: #fff;
+}
 .cellSelected {
-  border-color: var(--color-primary);
-  background: var(--color-primary-soft);
-  box-shadow: 0 0 0 1px var(--color-primary);
-}
-.cellSelected.cellMuted {
-  background: var(--color-primary-soft);
+  border: 2px solid var(--m-link);
+  background: var(--m-pill-blue-bg);
 }
 
 .cellTop {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  gap: 4px;
 }
 .dayNum {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-md);
   font-weight: 700;
-  color: var(--color-text-primary);
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
 }
-.dayNumToday {
+.dots {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 22px;
-  height: 22px;
-  padding: 0 5px;
-  border-radius: var(--radius-pill);
-  background: var(--color-primary);
-  color: var(--color-white);
+  gap: 2px;
+  padding-top: 4px;
 }
-.overrideDot {
-  width: 7px;
-  height: 7px;
+.statusDot {
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: var(--color-accent-2);
+}
+.dot_pending {
+  background: var(--m-pill-orange-fg);
+}
+.dot_confirmed {
+  background: var(--m-pill-blue-fg);
+}
+.dot_completed {
+  background: var(--m-pill-green-fg);
 }
 
-.chips {
+.cellBody {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  align-items: center;
+  gap: 4px;
   min-width: 0;
 }
-.chip {
+.countPill {
+  max-width: 100%;
+  padding: 2px 8px;
+  border-radius: var(--m-radius-pill);
+  background: var(--m-pill-blue-bg);
+  color: var(--m-pill-blue-fg);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.countShort {
+  display: none;
+}
+.earn {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  padding: 2px 6px;
-  border-radius: var(--radius-sm);
-  background: var(--color-primary-soft);
-  color: var(--color-primary-dark);
-  font-size: var(--font-size-xs);
-  font-weight: 600;
 }
-.more {
-  font-size: var(--font-size-xs);
+.closedText {
+  margin-top: 6px;
+  font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
-  font-weight: 600;
 }
-.closedTag {
+.closedChip,
+.customChip {
+  max-width: 100%;
+  padding: 2px 8px;
+  border-radius: 6px;
   font-size: var(--font-size-xs);
   font-weight: 600;
-  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.closedChip {
+  background: var(--m-pill-red-bg);
+  color: var(--m-pill-red-fg);
+}
+.customChip {
+  background: var(--m-pill-orange-bg);
+  color: var(--m-pill-orange-fg);
 }
 
-/* ── Week timeline ────────────────────────────────────────────────── */
+/* ── Legend ────────────────────────────────────────────────────────── */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border: 1px solid var(--m-divider);
+  border-radius: var(--m-radius-pill);
+  font-size: var(--font-size-xs);
+  color: var(--m-ink);
+}
+.legendDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.legendCount {
+  background: var(--m-action);
+}
+.legendClosed {
+  background: var(--color-border-strong);
+}
+.legendCustom {
+  background: var(--m-pill-orange-bg);
+  border: 1px solid var(--m-tint-peach-icon);
+}
+.legendToday {
+  border: 2px solid var(--m-link);
+}
+
+/* ── Week view ─────────────────────────────────────────────────────── */
 .weekWrap {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-.weekHead {
-  display: grid;
-  grid-template-columns: 52px repeat(7, 1fr);
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-surface-2);
-}
-.axisSpacer {
-  border-right: 1px solid var(--color-border);
-}
-.weekHeadDay {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: 8px 4px;
-  border: none;
-  border-left: 1px solid var(--color-border);
-  background: transparent;
-  cursor: pointer;
+  gap: 8px;
+  overflow-x: auto;
 }
-.weekHeadDay:hover {
-  background: var(--color-surface);
+.weekHead,
+.weekBody {
+  display: grid;
+  grid-template-columns: 44px repeat(7, minmax(84px, 1fr));
+  gap: 6px;
+  min-width: 660px;
 }
-.weekHeadDaySel {
-  background: var(--color-primary-soft);
+.axisSpacer {
+  display: block;
+}
+.weekCard {
+  min-height: 118px;
 }
 .weekDow {
   font-size: var(--font-size-xs);
-  font-weight: 700;
+  font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--color-text-secondary);
 }
-.weekDate {
-  font-size: var(--font-size-sm);
-  font-weight: 700;
-  color: var(--color-text-primary);
-}
-.weekDateToday {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 22px;
-  height: 22px;
-  border-radius: var(--radius-pill);
-  background: var(--color-primary);
-  color: var(--color-white);
-}
-
 .weekBody {
-  display: grid;
-  grid-template-columns: 52px repeat(7, 1fr);
-  overflow-y: auto;
+  position: relative;
 }
 .axis {
-  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
 }
 .axisHour {
   position: relative;
@@ -232,25 +458,31 @@
 .axisLabel {
   position: absolute;
   top: -7px;
-  right: 6px;
-  font-size: 10px;
-  color: var(--color-text-secondary);
+  right: 4px;
+  font-size: 11px;
+  color: var(--color-text-muted);
 }
 .weekCol {
   position: relative;
-  border-left: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  overflow: hidden;
+}
+.weekColSel {
+  background: color-mix(in srgb, var(--m-pill-blue-bg) 55%, transparent);
 }
 .hourLine {
-  border-bottom: 1px solid var(--color-border);
+  border-top: 1px solid var(--m-divider);
 }
 .openBand {
   position: absolute;
-  left: 2px;
-  right: 2px;
-  /* Theme-aware soft tint — a fixed light-mode-tuned opacity went nearly
-     invisible against a dark background. */
-  background: var(--color-primary-soft);
-  border-radius: var(--radius-sm);
+  left: 0;
+  right: 0;
+  background: color-mix(in srgb, var(--m-pill-green-bg) 45%, transparent);
+  pointer-events: none;
+}
+.openBandCustom {
+  background: color-mix(in srgb, var(--m-pill-orange-bg) 55%, transparent);
 }
 .block {
   position: absolute;
@@ -258,250 +490,410 @@
   right: 3px;
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  padding: 3px 6px;
-  border-radius: var(--radius-sm);
-  background: var(--color-primary);
-  color: var(--color-white);
+  padding: 2px 6px;
+  border-left: 3px solid currentColor;
+  border-radius: 6px;
+  font-size: 11px;
+  line-height: 1.25;
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+}
+.block_orange {
+  background: var(--m-pill-orange-bg);
+  color: var(--m-pill-orange-fg);
+}
+.block_blue {
+  background: var(--m-pill-blue-bg);
+  color: var(--m-pill-blue-fg);
+}
+.block_green {
+  background: var(--m-pill-green-bg);
+  color: var(--m-pill-green-fg);
+}
+.block_grey {
+  background: var(--m-pill-grey-bg);
+  color: var(--color-text-secondary);
+}
+.block_red {
+  background: var(--m-pill-red-bg);
+  color: var(--m-pill-red-fg);
+}
+.block_lavender,
+.block_yellow {
+  background: var(--m-pill-lavender-bg);
+  color: var(--m-pill-lavender-fg);
 }
 .blockTime {
-  font-size: 10px;
   font-weight: 700;
-  opacity: 0.9;
-  font-variant-numeric: tabular-nums;
 }
 .blockName {
-  font-size: var(--font-size-xs);
-  font-weight: 600;
+  color: var(--m-ink);
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
-/* ── Legend ───────────────────────────────────────────────────────── */
-.legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-md);
-  margin-top: var(--space-md);
-}
-.legendItem {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
-}
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-}
-.dotOpen {
-  /* Theme-aware — the fixed light-mode opacity read too faint in dark mode. */
-  background: var(--color-primary-ring);
-}
-.dotClosed {
-  background: var(--color-border);
-}
-.dotOverride {
-  background: var(--color-accent-2);
-}
-
-/* ── Side-by-side layout: grid on the left, the selected date's panel on
-   the right — picking a date is the only step, no scrolling to find the
-   editor elsewhere. ──────────────────────────────────────────────────── */
-.layout {
-  display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: var(--space-lg);
-  align-items: start;
-}
-.gridCol {
-  min-width: 0;
-}
-
-.dayPanel {
+/* ── Day panel: hours box ──────────────────────────────────────────── */
+.hoursBox {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
-  padding: var(--space-lg);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface-2);
-  /* Stays level with the grid as the page scrolls past it. */
-  position: sticky;
-  top: var(--space-md);
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--m-divider);
+  border-radius: var(--m-radius-box);
 }
-.dayPanelHead {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding-bottom: var(--space-md);
-  border-bottom: 1px solid var(--color-border);
-}
-.dayPanelDate {
-  font-size: var(--font-size-md);
-  font-weight: 700;
-  line-height: 1.3;
-  color: var(--color-text-primary);
-}
-.dayPanelStatus {
+.hoursHead {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
 }
-.customTag {
-  padding: 2px 8px;
-  border-radius: var(--radius-pill);
-  background: var(--color-accent-soft, var(--color-primary-soft));
-  color: var(--color-accent, var(--color-primary));
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.dayPanelSection {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-}
-.dayPanelSectionTitle {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: var(--font-size-xs);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--color-text-secondary);
-}
-.dayPanelSectionTitle svg {
-  color: var(--color-primary-dark);
-}
-
-.dayBookings {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.dayBooking {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding: 10px 12px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-}
-.dbTime {
-  font-size: var(--font-size-xs);
-  font-weight: 700;
-  color: var(--color-primary-dark);
-  font-variant-numeric: tabular-nums;
-}
-.dbWho {
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--color-text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.dbService {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
-}
-.noBookings {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
-
-.openRow {
+.hoursTitle {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--color-text-primary);
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: var(--m-ink);
+}
+.statePill {
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+}
+.openRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.openLabel {
+  font-size: var(--font-size-md);
+  font-weight: 500;
+  color: var(--m-ink);
 }
 .switch {
   position: relative;
-  width: 48px;
-  height: 28px;
+  flex: 0 0 auto;
+  width: 46px;
+  height: 26px;
+  padding: 0;
   border: none;
-  /* A true capsule, not var(--radius-pill) (now a near-square 4px) — an
-     on/off switch reads as a switch only when fully rounded. */
-  border-radius: 999px;
-  background: var(--color-border);
+  border-radius: var(--m-radius-pill);
+  background: var(--color-border-strong);
   cursor: pointer;
   transition: background var(--dur-fast) var(--ease-out);
-  flex: 0 0 auto;
 }
 .switchOn {
-  background: var(--color-primary);
+  background: var(--m-action);
 }
-.knob {
+.switchKnob {
   position: absolute;
   top: 3px;
   left: 3px;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  background: var(--color-white);
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.25);
   transition: transform var(--dur-fast) var(--ease-out);
 }
-.switchOn .knob {
+.switchOn .switchKnob {
   transform: translateX(20px);
 }
+.switch:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 2px;
+}
+
 .times {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
-}
-/* Shares the panel's limited width evenly, but never below what "9:00 am"
-   actually needs to render without truncating. */
-.timeField {
-  flex: 1 1 0;
-  min-width: 108px;
+  gap: 12px;
 }
 .dash {
+  font-weight: 700;
+  color: var(--m-ink);
+}
+/* Restyles the shared TimeField (kept as the input mechanism) into the
+   mockup's rounded pill: clock icon + "10:00 AM", no chevron — same
+   approach as the Hours tab. */
+.timePill {
+  flex: 1 1 0;
+  width: auto;
+}
+.timePill > button {
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--m-divider);
+  border-radius: 10px;
+  background: var(--color-surface);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--m-ink);
+}
+.timePill > button:hover {
+  border-color: var(--m-link);
+}
+.timePill > button > span {
+  text-transform: uppercase;
+}
+.timePill > button > svg:first-child {
+  color: var(--m-ink);
+}
+.timePill > button > svg:last-child {
+  display: none;
+}
+
+.hoursActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+}
+.saveBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 0 1 240px;
+  height: 36px;
+  padding: 0 16px;
+  border: 1.5px solid var(--m-link);
+  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--m-link);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.saveBtn:hover:not(:disabled) {
+  background: var(--m-pill-blue-bg);
+}
+.saveBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.resetLink {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--m-link);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.resetLink:hover:not(:disabled) {
+  text-decoration: underline;
+}
+.resetLink:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.saveBtn:focus-visible,
+.resetLink:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 2px;
+}
+.note {
+  margin: 0;
+  font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
+}
+.error {
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--m-banner-error-border);
+  border-radius: 8px;
+  background: var(--m-banner-error-bg);
+  color: var(--m-banner-error-fg);
   font-size: var(--font-size-sm);
 }
-/* Stacked, full-width (via Button's own `fullWidth` prop) — two side-by-side
-   buttons in a 300px panel either wrap mid-label or shrink to an awkward
-   size; full width reads cleanly. */
-.editorActions {
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Day panel: bookings list ──────────────────────────────────────── */
+.list {
+  max-height: 300px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+}
+.row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+.row + .row {
+  border-top: 1px solid var(--m-divider);
+}
+.rowTime {
+  min-width: 92px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--m-table-head);
+  color: var(--m-ink);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.rowText {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  min-width: 0;
+}
+.rowName {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: var(--m-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rowSub {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rowPill {
+  min-width: 92px;
+  justify-content: center;
+  font-size: var(--font-size-xs);
+}
+.empty {
+  margin: 0;
+  padding: 18px 0;
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
 }
 
-@media (max-width: 860px) {
-  .layout {
-    grid-template-columns: 1fr;
+/* ── Day panel: earnings bar ───────────────────────────────────────── */
+.earnBar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--m-tint-mint-border);
+  border-radius: var(--m-radius-box);
+  background: var(--m-tint-mint);
+}
+.earnIcon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--m-tint-mint-icon) 14%, transparent);
+  color: var(--m-tint-mint-icon);
+}
+.earnText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.earnLabel {
+  font-size: var(--font-size-sm);
+  color: var(--m-ink);
+}
+.earnValue {
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--m-ink);
+  font-variant-numeric: tabular-nums;
+}
+.earnPending {
+  margin-left: auto;
+  padding-left: 16px;
+  border-left: 1px solid var(--m-tint-mint-border);
+  color: var(--m-pill-orange-fg);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  text-align: right;
+}
+
+/* ── Responsive ────────────────────────────────────────────────────── */
+@media (max-width: 1280px) {
+  .tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .dayPanel {
-    position: static;
+}
+@media (max-width: 1100px) {
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 760px) {
+  .cell:not(.weekCard) .earn {
+    display: none;
+  }
+  .cell:not(.weekCard) .countFull {
+    display: none;
+  }
+  .cell:not(.weekCard) .countShort {
+    display: inline;
+  }
+  .cell:not(.weekCard) {
+    min-height: 68px;
+    padding: 6px;
+  }
+  .monthGrid {
+    gap: 4px;
+  }
+  .period {
+    font-size: var(--font-size-lg);
+  }
+}
+@media (max-width: 560px) {
+  .tiles {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .toolbar,
+  .toolbarRight {
+    width: 100%;
+  }
+  .toolbarRight {
+    justify-content: space-between;
+  }
+  .closedChip,
+  .customChip {
+    padding: 1px 4px;
+    font-size: 10px;
+  }
+  .dots {
+    display: none;
+  }
+  .rowTime,
+  .rowPill {
+    min-width: 0;
   }
 }
 
-@media (max-width: 640px) {
-  .cell {
-    min-height: 72px;
-  }
-  .toolbar {
-    flex-wrap: wrap;
+@media (prefers-reduced-motion: reduce) {
+  .switch,
+  .switchKnob,
+  .spin {
+    transition: none;
+    animation: none;
   }
 }

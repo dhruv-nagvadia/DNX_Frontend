@@ -16,3 +16,4 @@
 .grey { background: var(--m-pill-grey-bg); color: var(--m-pill-grey-fg); }
 .red { background: var(--m-pill-red-bg); color: var(--m-pill-red-fg); }
 .yellow { background: var(--m-pill-yellow-bg); color: var(--m-pill-yellow-fg); }
+.teal { background: var(--m-pill-teal-bg); color: var(--m-pill-teal-fg); }

@@ -1,260 +1,626 @@
-/* The card chrome now comes from <Card>; this file styles only the contents. */
+/* Business Detail → Hours tab ("Salon Hours Management Dashboard.png"). */
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+/* ── Summary tiles ─────────────────────────────────────────────────── */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+.tile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  min-height: 84px;
+  padding: 14px var(--space-md);
+  border: 1px solid;
+  border-radius: var(--m-radius-box);
+  min-width: 0;
+}
+.tileIcon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+.tileText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.tileLabel {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--m-ink);
+}
+.tileValue {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--m-ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tileSub {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+.tile_mint {
+  background: var(--m-tint-mint);
+  border-color: var(--m-tint-mint-border);
+}
+.tile_mint .tileIcon {
+  color: var(--m-tint-mint-icon);
+}
+.tile_blue {
+  background: var(--m-tint-blue);
+  border-color: var(--m-tint-blue-border);
+}
+.tile_blue .tileIcon {
+  color: var(--m-tint-blue-icon);
+}
+.tile_lavender {
+  background: var(--m-tint-lavender);
+  border-color: var(--m-tint-lavender-border);
+}
+.tile_lavender .tileIcon {
+  color: var(--m-tint-lavender-icon);
+}
+.tile_peach {
+  background: var(--m-tint-peach);
+  border-color: var(--m-tint-peach-border);
+}
+.tile_peach .tileIcon {
+  color: var(--m-tint-peach-icon);
+}
+
+/* ── Two columns ───────────────────────────────────────────────────── */
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 64fr) minmax(0, 36fr);
+  gap: 20px;
+  align-items: start;
+}
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+.scheduleCard {
+  min-width: 0;
+}
+
+/* Outlined blue "Copy Monday to all days". */
+.copyBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1.5px solid var(--m-link);
+  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--m-link);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.copyBtn:hover {
+  background: var(--m-pill-blue-bg);
+}
+.copyBtn:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 2px;
+}
+
+/* ── Day rows ──────────────────────────────────────────────────────── */
 .list {
   display: flex;
   flex-direction: column;
+  border-top: 1px solid var(--m-divider);
+  border-bottom: 1px solid var(--m-divider);
 }
-
 .row {
   display: grid;
-  /* Each row is its own grid, so a fixed 3rd-column width (not minmax/auto)
-     is what keeps the toggle in the same spot on every row — otherwise an
-     open day's two time inputs need more room than a closed day's "Closed
-     all day" text, and that difference shifts column 2 left or right. */
-  grid-template-columns: 1fr auto 330px;
-  align-items: center;
-  gap: var(--space-md);
-  padding: var(--space-sm) 0;
-}
-
-.row + .row {
-  border-top: 1px solid var(--color-border);
-}
-
-.rowClosed .day {
-  color: var(--color-text-secondary);
-}
-
-.day {
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-/* ── Open/closed switch ───────────────────────────────────────────── */
-.toggle {
-  display: inline-flex;
-  flex: 0 0 auto;
+  grid-template-columns: 150px 112px minmax(0, 1fr);
   align-items: center;
   gap: var(--space-sm);
-  /* Fixed width (not content-hugging) so the pill stays the same size and
-     stays on one line whether it reads "Open" or "Closed". */
-  width: 108px;
-  padding: 5px 12px 5px 5px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
-  background: var(--color-surface-2);
-  font-size: var(--font-size-xs);
+  min-height: 64px;
+  padding: 10px 6px;
+  border-left: 3px solid transparent;
+}
+.row + .row {
+  border-top: 1px solid var(--m-divider);
+}
+.rowToday {
+  background: color-mix(in srgb, var(--m-pill-blue-bg) 65%, transparent);
+  border-left-color: var(--m-link);
+  border-radius: 0 6px 6px 0;
+}
+
+.dayCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.day {
+  font-size: var(--font-size-md);
   font-weight: 700;
+  color: var(--m-ink);
+}
+.todayPill {
+  padding: 2px 9px;
+  border-radius: 6px;
+  background: var(--m-pill-blue-bg);
+  color: var(--m-pill-blue-fg);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+}
+
+.toggleCell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.toggleText {
+  font-size: var(--font-size-sm);
+  color: var(--m-ink);
+}
+
+/* ── Switch ────────────────────────────────────────────────────────── */
+.switch {
+  position: relative;
+  flex: 0 0 auto;
+  width: 46px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: var(--m-radius-pill);
+  background: var(--color-border-strong);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.switchOn {
+  background: var(--m-link);
+}
+.switchKnob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.25);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.switchOn .switchKnob {
+  transform: translateX(20px);
+}
+.switch:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 2px;
+}
+
+/* ── Times ─────────────────────────────────────────────────────────── */
+.timesCell {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  min-width: 0;
+}
+.times {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dash {
+  font-weight: 700;
+  color: var(--m-ink);
+}
+
+/* Restyles the shared TimeField (kept as the input mechanism) into the
+   mockup's rounded pill: clock icon + "10:00 AM", no chevron. */
+.timePill {
+  width: 124px;
+}
+.timePill > button {
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--m-divider);
+  border-radius: 10px;
+  background: var(--color-surface);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--m-ink);
+}
+.timePill > button:hover {
+  border-color: var(--m-link);
+}
+.timePill > button > span {
+  text-transform: uppercase;
+}
+.timePill > button > svg:first-child {
+  color: var(--m-ink);
+}
+.timePill > button > svg:last-child {
+  display: none;
+}
+.timePillWide {
+  flex: 1 1 0;
+  width: auto;
+}
+
+.duration {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.breakChip {
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: var(--m-pill-orange-bg);
+  color: var(--m-pill-orange-fg);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.closedBar {
+  padding: 8px 18px;
+  border-radius: 8px;
+  background: var(--m-pill-grey-bg);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+/* ── Footer ────────────────────────────────────────────────────────── */
+.error {
+  margin: var(--space-md) 0 0;
+  padding: 10px 14px;
+  border: 1px solid var(--m-banner-error-border);
+  border-radius: 8px;
+  background: var(--m-banner-error-bg);
+  color: var(--m-banner-error-fg);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
+}
+.footerNote {
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+}
+.footerActions {
+  display: flex;
+  gap: 12px;
+}
+.outlineBtn,
+.primaryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  min-width: 118px;
+  padding: 0 22px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: var(--font-size-md);
+  font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
   transition:
     background var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out),
-    box-shadow var(--dur-fast) var(--ease-out),
-    transform var(--dur-fast) var(--ease-out);
+    filter var(--dur-fast) var(--ease-out);
+}
+.outlineBtn {
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--m-ink);
+}
+.outlineBtn:hover:not(:disabled) {
+  background: var(--m-table-head);
+}
+.primaryBtn {
+  border: none;
+  background: var(--m-link);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.25);
+}
+.primaryBtn:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+.outlineBtn:disabled,
+.primaryBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.outlineBtn:focus-visible,
+.primaryBtn:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 2px;
+}
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.toggle:hover {
-  border-color: var(--color-border-strong);
-  box-shadow: var(--shadow-sm);
-  transform: translateY(-1px);
-}
-.toggleOpen:hover {
-  border-color: var(--color-success);
-}
-
-.toggle:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--color-primary-ring);
-}
-
-.knob {
-  flex: 0 0 auto;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: currentColor;
-  transition: transform var(--dur-fast) var(--ease-out);
-}
-
-.toggleText {
-  text-align: left;
-  white-space: nowrap;
-}
-
-.toggleOpen {
-  background: var(--color-success-soft);
-  border-color: var(--color-success-border);
-  color: var(--color-success);
-}
-
-.toggleClosed {
-  color: var(--color-text-secondary);
-}
-
-/* ── Times ────────────────────────────────────────────────────────── */
-.times {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  justify-self: end;
-}
-
-/* A predictable width (TimeField's own size would otherwise hug its content),
-   wide enough for the full "9:00 am" label (not truncated), so two of them
-   reliably fit inside the row's fixed 3rd column. */
-.timeField {
-  width: 140px;
-}
-
-.dash {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
-
-.closedLabel {
-  justify-self: end;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
-
-/* ── Break time — one shared window for every open day, shown as its own
-   section under the day list instead of repeated per day. ──────────────── */
-.breakSection {
-  margin-top: var(--space-md);
-  padding-top: var(--space-md);
-  border-top: 1px solid var(--color-border);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
-.breakSectionHead {
+/* ── Daily break card ──────────────────────────────────────────────── */
+.breakHead {
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-md);
+  gap: 14px;
 }
-.breakSectionHeadText {
+.breakHeadText {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
-.breakSectionTitle {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
+.breakTitle {
   font-size: var(--font-size-md);
   font-weight: 700;
-  color: var(--color-text-primary);
+  color: var(--m-ink);
 }
-.breakSectionSub {
+.breakSub {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
 }
-.breakRow {
+.breakTimes {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  gap: 12px;
+  margin-top: 14px;
 }
-.addBreakBtn {
-  display: inline-flex;
-  align-self: flex-start;
+.infoBox {
+  display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 9px 16px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  color: var(--color-text-primary);
+  gap: 10px;
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: var(--m-pill-blue-bg);
+  color: var(--m-ink);
   font-size: var(--font-size-sm);
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  transition:
-    border-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out),
-    background var(--dur-fast) var(--ease-out);
 }
-.addBreakBtn:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary-dark);
-  background: var(--color-primary-soft);
+.infoBox > svg {
+  flex: 0 0 auto;
+  color: var(--m-link);
 }
-.addBreakBtn:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--color-primary-ring);
+
+/* ── Customer preview ──────────────────────────────────────────────── */
+.preview {
+  padding: 12px 14px;
+  border: 1px solid var(--m-divider);
+  border-radius: var(--m-radius-box);
 }
-.removeBreakBtn {
-  display: inline-flex;
+.previewHead {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--m-divider);
+}
+.previewThumb {
+  flex: 0 0 auto;
+  display: flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 auto;
-  width: 34px;
-  height: 34px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition:
-    border-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out),
-    background var(--dur-fast) var(--ease-out);
+  width: 96px;
+  height: 80px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--m-table-head);
+  color: var(--color-text-muted);
 }
-.removeBreakBtn:hover {
-  border-color: var(--color-error);
-  color: var(--color-error);
-  background: var(--color-error-soft);
+.previewImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
-.removeBreakBtn:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--color-primary-ring);
-}
-
-/* ── Footer ───────────────────────────────────────────────────────── */
-.footer {
+.previewInfo {
   display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  margin-top: var(--space-lg);
-  padding-top: var(--space-lg);
-  border-top: 1px solid var(--color-border);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
 }
-
-.saved {
+.previewName {
+  max-width: 100%;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--m-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.statusPill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 7px;
+  padding: 3px 11px;
+  border-radius: var(--m-radius-pill);
   font-size: var(--font-size-sm);
   font-weight: 600;
-  color: var(--color-success);
+}
+.statusDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.statusOpen {
+  background: var(--m-pill-green-bg);
+  color: var(--m-pill-green-fg);
+}
+.statusBreak {
+  background: var(--m-pill-orange-bg);
+  color: var(--m-pill-orange-fg);
+}
+.statusClosed {
+  background: var(--m-pill-grey-bg);
+  color: var(--color-text-secondary);
+}
+.previewToday {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--m-ink);
+}
+.weekList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.weekRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  font-size: var(--font-size-sm);
+}
+.weekRow + .weekRow {
+  border-top: 1px solid var(--m-divider);
+}
+.weekIcon {
+  flex: 0 0 auto;
+  color: var(--m-ink);
+}
+.weekLabel {
+  font-weight: 600;
+  color: var(--m-ink);
+}
+.weekValue {
+  margin-left: auto;
+  text-align: right;
+  color: var(--color-text-secondary);
 }
 
-@media (max-width: 640px) {
+/* ── Holiday tip ───────────────────────────────────────────────────── */
+.tip {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border: 1px solid var(--m-tint-lavender-border);
+  border-radius: var(--m-radius-box);
+  background: var(--m-tint-lavender);
+}
+.tipIcon {
+  flex: 0 0 auto;
+  color: var(--m-tint-lavender-icon);
+}
+.tipText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.tipTitle {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: var(--m-ink);
+}
+.tipBody {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+.tipBody strong {
+  color: var(--m-ink);
+}
+.tipLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-weight: 700;
+  color: var(--m-link);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.tipLink:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* ── Responsive ────────────────────────────────────────────────────── */
+@media (max-width: 1280px) {
+  .tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 1100px) {
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 760px) {
   .row {
-    grid-template-columns: 1fr auto;
-    row-gap: var(--space-sm);
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: 10px;
   }
-
-  .times,
-  .closedLabel {
+  .timesCell,
+  .closedBar {
     grid-column: 1 / -1;
-    justify-self: start;
   }
-
-  .breakRow {
-    flex-wrap: wrap;
+}
+@media (max-width: 560px) {
+  .tiles {
+    grid-template-columns: minmax(0, 1fr);
   }
-
-  .footer > button {
+  .times {
+    flex: 1 1 100%;
+  }
+  .times .timePill {
+    flex: 1 1 0;
+    width: auto;
+  }
+  .footer,
+  .footerActions {
+    width: 100%;
+  }
+  .footerActions > button {
     flex: 1 1 auto;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .toggle,
-  .knob {
+  .switch,
+  .switchKnob,
+  .spin {
     transition: none;
+    animation: none;
   }
 }

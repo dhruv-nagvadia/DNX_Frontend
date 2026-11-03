@@ -20,6 +20,9 @@ export type BusinessTab =
   | 'hours'
   | 'calendar';
 
+/** Most photos a business can have (the server enforces the same cap). */
+export const MAX_BUSINESS_IMAGES = 12;
+
 /** Loads one owned business and exposes image-upload + navigation actions. */
 export function useBusinessDetail() {
   const navigate = useNavigate();
@@ -44,15 +47,28 @@ export function useBusinessDetail() {
       const files = Array.from(fileList).filter(isRasterImage);
       if (files.length !== fileList.length) window.alert(IMAGE_REJECT_MSG);
       if (files.length === 0) return;
-      const fd = new FormData();
-      files.forEach((file) => fd.append('images', file));
+      // Same 12-photo cap the server enforces — say so before uploading anything.
+      const room = MAX_BUSINESS_IMAGES - (business?.images.length ?? 0);
+      if (files.length > room) {
+        window.alert(
+          room > 0
+            ? `You can add ${room} more photo${room === 1 ? '' : 's'} (up to ${MAX_BUSINESS_IMAGES} in total).`
+            : `This business already has the maximum of ${MAX_BUSINESS_IMAGES} photos. Remove one to add another.`,
+        );
+        return;
+      }
       try {
-        await uploadImages({ id, formData: fd }).unwrap();
+        // The server accepts at most 8 files per request — upload in batches.
+        for (let i = 0; i < files.length; i += 8) {
+          const fd = new FormData();
+          files.slice(i, i + 8).forEach((file) => fd.append('images', file));
+          await uploadImages({ id, formData: fd }).unwrap();
+        }
       } catch {
         // surfaced via mutation state; keep UI resilient
       }
     },
-    [id, uploadImages],
+    [id, uploadImages, business],
   );
 
   // Move a photo to the front so it becomes the cover.
@@ -60,6 +76,19 @@ export function useBusinessDetail() {
     async (url: string) => {
       if (!id || !business) return;
       const images = [url, ...business.images.filter((u) => u !== url)];
+      try {
+        await setImages({ id, images }).unwrap();
+      } catch {
+        // surfaced via mutation state
+      }
+    },
+    [id, business, setImages],
+  );
+
+  // Save a new photo order (first = cover) — drag-to-reorder in the gallery.
+  const reorderImages = useCallback(
+    async (images: string[]) => {
+      if (!id || !business) return;
       try {
         await setImages({ id, images }).unwrap();
       } catch {
@@ -107,6 +136,7 @@ export function useBusinessDetail() {
     addImages,
     setCover,
     removeImage,
+    reorderImages,
     remove,
     goToEdit: () => navigate(`/businesses/${id}/edit`),
     goToReviews: () => navigate(`/businesses/${id}/reviews`),

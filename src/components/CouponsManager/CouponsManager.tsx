@@ -1,10 +1,24 @@
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Ban,
+  Box,
   CalendarClock,
+  CalendarDays,
+  Check,
+  ChevronDown,
+  CircleCheck,
+  Clock,
+  Copy,
+  Layers,
   Package,
   Pencil,
   Percent,
   Plus,
+  Power,
+  Scissors,
+  Search,
+  ShoppingCart,
+  Store,
   Tag,
   Target,
   Ticket,
@@ -12,39 +26,149 @@ import {
   Users,
 } from 'lucide-react';
 
-import { Button } from '@/components/Button';
-import { Card } from '@/components/Card';
 import { FormDialog } from '@/components/FormDialog';
 import { FormSection } from '@/components/FormSection';
 import { OptionSection } from '@/components/OptionSection';
+import { Pill } from '@/components/Pill';
 import { Select } from '@/components/Select';
+import { Skeleton } from '@/components/Skeleton';
 import { BusinessType, Coupon, Product, Service } from '@/redux/api/provider/types';
 import { useCouponsManager } from './useCouponsManager';
 import styles from '@/components/ServicesManager/ServicesManager.module.css';
 import ui from './CouponsManager.module.css';
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+const EXPIRING_SOON_DAYS = 7;
+
 const money = (minor: number) => `₹${(minor / 100).toLocaleString('en-IN')}`;
 
-function discountLabel(c: Coupon): string {
-  if (c.discountType === 'PERCENT') {
-    return `${c.discountValue}% off${c.maxDiscountMinor ? ` (max ${money(c.maxDiscountMinor)})` : ''}`;
-  }
-  return `${money(c.discountValue)} off`;
-}
-
-/** What a coupon row shows for its eligibility rule. */
-function eligibilityLabel(c: Coupon): string {
-  if (c.scope === 'SERVICE') return `On ${c.service?.name ?? 'a specific service'}`;
-  if (c.scope === 'PRODUCT') return `On ${c.product?.name ?? 'a specific product'}`;
-  return c.minOrderMinor > 0 ? `Min order ${money(c.minOrderMinor)}` : 'Any order';
-}
-
-const dateFmt = new Intl.DateTimeFormat('en-IN', {
-  day: 'numeric',
+const dateFmt = new Intl.DateTimeFormat('en-US', {
   month: 'short',
+  day: 'numeric',
   year: 'numeric',
 });
-const isExpired = (iso?: string | null) => !!iso && new Date(iso).getTime() < Date.now();
+
+type CouponStatus = 'active' | 'off' | 'expired' | 'usedUp';
+type StatusFilter = 'all' | CouponStatus;
+type TypeFilter = 'all' | 'PERCENT' | 'FLAT';
+
+interface CouponView {
+  coupon: Coupon;
+  status: CouponStatus;
+  expiringSoon: boolean;
+}
+
+/** Derive a coupon's single display status (expired wins over used up). */
+function describe(c: Coupon, now: number): CouponView {
+  const expiresAt = c.expiresAt ? new Date(c.expiresAt).getTime() : null;
+  const expired = expiresAt !== null && expiresAt < now;
+  const usedUp = c.usageLimit != null && c.usedCount >= c.usageLimit;
+  const status: CouponStatus = expired
+    ? 'expired'
+    : usedUp
+      ? 'usedUp'
+      : c.isActive
+        ? 'active'
+        : 'off';
+  const expiringSoon =
+    status === 'active' && expiresAt !== null && expiresAt - now <= EXPIRING_SOON_DAYS * DAY_MS;
+  return { coupon: c, status, expiringSoon };
+}
+
+const STATUS_LABEL: Record<CouponStatus, string> = {
+  active: 'Active',
+  off: 'Off',
+  expired: 'Expired',
+  usedUp: 'Used up',
+};
+
+function StatusPill({ status }: { status: CouponStatus }) {
+  switch (status) {
+    case 'active':
+      return (
+        <Pill tone="green">
+          <Check size={15} aria-hidden="true" /> Active
+        </Pill>
+      );
+    case 'off':
+      return (
+        <Pill tone="grey">
+          <Power size={14} aria-hidden="true" /> Off
+        </Pill>
+      );
+    case 'expired':
+      return (
+        <Pill tone="red">
+          <Ban size={14} aria-hidden="true" /> Expired
+        </Pill>
+      );
+    default:
+      return (
+        <Pill tone="orange">
+          <Layers size={14} aria-hidden="true" /> Used up
+        </Pill>
+      );
+  }
+}
+
+function discountHeadline(c: Coupon): string {
+  return c.discountType === 'PERCENT' ? `${c.discountValue}% OFF` : `${money(c.discountValue)} OFF`;
+}
+
+/** Icon + text for what a coupon applies to. */
+function scopeRow(c: Coupon): { icon: ReactNode; text: string } {
+  if (c.scope === 'SERVICE') {
+    return {
+      icon: <Scissors size={16} />,
+      text: `On ${c.service?.name ?? 'a specific service'} (service)`,
+    };
+  }
+  if (c.scope === 'PRODUCT') {
+    return {
+      icon: <Box size={16} />,
+      text: `On ${c.product?.name ?? 'a specific product'} (product)`,
+    };
+  }
+  return {
+    icon: <ShoppingCart size={16} />,
+    text: c.minOrderMinor > 0 ? `On orders above ${money(c.minOrderMinor)}` : 'On any order',
+  };
+}
+
+function expiryText(c: Coupon, status: CouponStatus): string {
+  if (!c.expiresAt) return 'No expiry';
+  const date = dateFmt.format(new Date(c.expiresAt));
+  return status === 'expired' ? `Expired on ${date}` : `Expires ${date}`;
+}
+
+function SummaryTile({
+  tone,
+  icon,
+  label,
+  value,
+  note,
+}: {
+  tone: 'blue' | 'mint' | 'peach' | 'lavender';
+  icon: ReactNode;
+  label: string;
+  value: number;
+  note?: string;
+}) {
+  return (
+    <div className={`${ui.tile} ${ui[`tile_${tone}`]}`}>
+      <span className={ui.tileIcon} aria-hidden="true">
+        {icon}
+      </span>
+      <div className={ui.tileText}>
+        <span className={ui.tileLabel}>{label}</span>
+        <span className={ui.tileValueRow}>
+          <span className={ui.tileValue}>{value}</span>
+          {note && <span className={ui.tileNote}>{note}</span>}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 interface CouponsManagerProps {
   providerId: string;
@@ -62,6 +186,7 @@ export function CouponsManager({
 }: CouponsManagerProps) {
   const {
     coupons,
+    isLoading,
     editing,
     form,
     error,
@@ -94,112 +219,280 @@ export function CouponsManager({
     { id: 'limits', label: 'Limits & status' },
   ];
 
+  // ── List filters ────────────────────────────────────────────────────
+  const [query, setQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
+
+  const views = useMemo(() => {
+    const now = Date.now();
+    return coupons.map((c) => describe(c, now));
+  }, [coupons]);
+
+  const counts = useMemo(
+    () => ({
+      total: views.length,
+      active: views.filter((v) => v.status === 'active').length,
+      expiringSoon: views.filter((v) => v.expiringSoon).length,
+      used: views.reduce((sum, v) => sum + v.coupon.usedCount, 0),
+    }),
+    [views],
+  );
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return views.filter(({ coupon: c, status }) => {
+      if (statusFilter !== 'all' && status !== statusFilter) return false;
+      if (typeFilter !== 'all' && c.discountType !== typeFilter) return false;
+      if (!q) return true;
+      return (
+        c.code.toLowerCase().includes(q) || (c.description ?? '').toLowerCase().includes(q)
+      );
+    });
+  }, [views, query, statusFilter, typeFilter]);
+
+  // ── Copy-code feedback ──────────────────────────────────────────────
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const copyTimer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(copyTimer.current), []);
+  const copyCode = (c: Coupon) => {
+    navigator.clipboard
+      ?.writeText(c.code)
+      .then(() => {
+        setCopiedId(c.id);
+        window.clearTimeout(copyTimer.current);
+        copyTimer.current = window.setTimeout(() => setCopiedId(null), 1500);
+      })
+      .catch(() => undefined);
+  };
+
+  const hasCoupons = coupons.length > 0 || isNew;
+
   return (
-    <Card
-      title="Offers & coupons"
-      action={
-        editing === null ? (
-          <Button
-            variant="secondary"
-            onClick={startAdd}
-            iconLeft={<Plus size={16} aria-hidden="true" />}
-          >
-            Add coupon
-          </Button>
-        ) : undefined
-      }
-    >
-      {coupons.length === 0 && editing !== 'new' ? (
-        <p className={styles.muted}>
-          No coupons yet. Create a discount code to run an offer on your business.
-        </p>
-      ) : (
-        <div className={ui.tableWrap}>
-          <table className={ui.table}>
-            <thead>
-              <tr>
-                <th>Code</th>
-                <th>Discount</th>
-                <th>Applies to</th>
-                <th>Expires</th>
-                <th>Used</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {coupons.map((c) => (
-                <tr key={c.id} className={!c.isActive ? ui.rowInactive : ''}>
-                  <td>
-                    <div className={ui.rowNameRow}>
-                      <span className={ui.code}>{c.code}</span>
-                      {c.scope !== 'ORDER' && (
-                        <span className={ui.scopeTag}>
-                          <Ticket size={11} aria-hidden="true" />
-                          {c.scope === 'SERVICE' ? 'Service' : 'Product'}
+    <div className={ui.root}>
+      {isLoading ? (
+        <Skeleton height={220} radius="var(--m-radius-card)" />
+      ) : hasCoupons ? (
+        <>
+          <div className={ui.tiles}>
+            <SummaryTile tone="blue" icon={<Tag size={26} />} label="Total Offers" value={counts.total} />
+            <SummaryTile tone="mint" icon={<CircleCheck size={26} />} label="Active" value={counts.active} />
+            <SummaryTile
+              tone="peach"
+              icon={<Clock size={26} />}
+              label="Expiring Soon"
+              value={counts.expiringSoon}
+              note={`(within ${EXPIRING_SOON_DAYS} days)`}
+            />
+            <SummaryTile tone="lavender" icon={<Users size={26} />} label="Times Used" value={counts.used} />
+          </div>
+
+          <div className={ui.toolbar}>
+            <label className={ui.search}>
+              <Search size={18} aria-hidden="true" />
+              <span className={ui.srOnly}>Search offers</span>
+              <input
+                type="search"
+                placeholder="Search by code or description..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </label>
+            <label className={ui.filterWrap}>
+              <span className={ui.srOnly}>Filter by status</span>
+              <select
+                className={ui.filter}
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="off">Off</option>
+                <option value="expired">Expired</option>
+                <option value="usedUp">Used up</option>
+              </select>
+              <ChevronDown size={16} className={ui.filterChevron} aria-hidden="true" />
+            </label>
+            <label className={ui.filterWrap}>
+              <span className={ui.srOnly}>Filter by discount type</span>
+              <select
+                className={ui.filter}
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value as TypeFilter)}
+              >
+                <option value="all">All Types</option>
+                <option value="PERCENT">Percentage</option>
+                <option value="FLAT">Flat amount</option>
+              </select>
+              <ChevronDown size={16} className={ui.filterChevron} aria-hidden="true" />
+            </label>
+            <div className={ui.toolbarActions}>
+              <button type="button" className={ui.primaryBtn} onClick={startAdd}>
+                <Plus size={18} aria-hidden="true" />
+                Create Offer
+              </button>
+            </div>
+          </div>
+
+          {filtered.length === 0 ? (
+            <div className={ui.noMatch}>No offers match your filters.</div>
+          ) : (
+            <div className={ui.grid}>
+              {filtered.map(({ coupon: c, status, expiringSoon }) => {
+                const scope = scopeRow(c);
+                const limited = c.usageLimit != null && c.usageLimit > 0;
+                const pct = limited
+                  ? Math.min(100, (c.usedCount / (c.usageLimit as number)) * 100)
+                  : 0;
+                const faded = status === 'expired' || status === 'usedUp';
+                const copied = copiedId === c.id;
+                return (
+                  <article
+                    key={c.id}
+                    className={`${ui.ticket} ${faded ? ui.ticketFaded : ''}`}
+                  >
+                    <div className={ui.ticketBody}>
+                      <div className={ui.ticketTop}>
+                        <div className={ui.headline}>
+                          <span className={ui.amount}>{discountHeadline(c)}</span>
+                          {c.discountType === 'PERCENT' && c.maxDiscountMinor ? (
+                            <span className={ui.upTo}>up to {money(c.maxDiscountMinor)}</span>
+                          ) : null}
+                        </div>
+                        <div className={ui.pills}>
+                          <StatusPill status={status} />
+                          {expiringSoon && (
+                            <Pill tone="orange">
+                              <Clock size={14} aria-hidden="true" /> Expiring soon
+                            </Pill>
+                          )}
+                        </div>
+                      </div>
+
+                      {c.provider?.businessName && (
+                        <span className={ui.bizTag}>
+                          <Store size={12} aria-hidden="true" />
+                          {c.provider.businessName}
                         </span>
                       )}
+
+                      <div className={ui.codeChip}>
+                        <span className={ui.codeText}>{c.code}</span>
+                        <button
+                          type="button"
+                          className={`${ui.copyBtn} ${copied ? ui.copyBtnDone : ''}`}
+                          onClick={() => copyCode(c)}
+                          aria-label={copied ? `Copied ${c.code}` : `Copy ${c.code}`}
+                          title={copied ? 'Copied' : 'Copy code'}
+                        >
+                          {copied ? (
+                            <Check size={16} aria-hidden="true" />
+                          ) : (
+                            <Copy size={16} aria-hidden="true" />
+                          )}
+                        </button>
+                        {copied && (
+                          <span className={ui.copiedTip} role="status">
+                            Copied
+                          </span>
+                        )}
+                      </div>
+
+                      {c.description?.trim() && <p className={ui.desc}>{c.description}</p>}
+
+                      <ul className={ui.facts}>
+                        <li>
+                          <span className={ui.factIcon} aria-hidden="true">
+                            {scope.icon}
+                          </span>
+                          {scope.text}
+                        </li>
+                        <li>
+                          <span className={ui.factIcon} aria-hidden="true">
+                            <CalendarDays size={16} />
+                          </span>
+                          {expiryText(c, status)}
+                        </li>
+                        <li>
+                          <span className={ui.factIcon} aria-hidden="true">
+                            <Users size={16} />
+                          </span>
+                          {limited ? (
+                            `${c.usedCount} / ${c.usageLimit} used`
+                          ) : (
+                            <>
+                              {c.usedCount} used <span className={ui.dot}>•</span> Unlimited
+                            </>
+                          )}
+                        </li>
+                      </ul>
+
+                      {limited && (
+                        <div
+                          className={ui.progress}
+                          role="progressbar"
+                          aria-label={`${c.code} usage`}
+                          aria-valuemin={0}
+                          aria-valuemax={c.usageLimit ?? 0}
+                          aria-valuenow={c.usedCount}
+                        >
+                          <span className={ui.progressFill} style={{ width: `${pct}%` }} />
+                        </div>
+                      )}
                     </div>
-                    {c.description && <div className={ui.cellSub}>{c.description}</div>}
-                  </td>
-                  <td>
-                    <span className={ui.discount}>
-                      <Tag size={13} aria-hidden="true" /> {discountLabel(c)}
-                    </span>
-                  </td>
-                  <td className={ui.cellText}>{eligibilityLabel(c)}</td>
-                  <td>
-                    {c.expiresAt ? (
-                      <span
-                        className={`${ui.cellText} ${isExpired(c.expiresAt) ? ui.expired : ''}`}
-                      >
-                        {isExpired(c.expiresAt)
-                          ? 'Expired'
-                          : dateFmt.format(new Date(c.expiresAt))}
-                      </span>
-                    ) : (
-                      <span className={ui.cellText}>No expiry</span>
-                    )}
-                  </td>
-                  <td className={ui.used}>
-                    {c.usedCount}
-                    {c.usageLimit ? ` / ${c.usageLimit}` : ''}
-                  </td>
-                  <td>
-                    <button
-                      type="button"
-                      className={`${styles.statusChip} ${c.isActive ? styles.active : styles.inactive}`}
-                      onClick={() => toggleCouponActive(c)}
-                      aria-pressed={c.isActive}
-                    >
-                      <span className={styles.statusDot} aria-hidden="true" />
-                      {c.isActive ? 'Active' : 'Off'}
-                    </button>
-                  </td>
-                  <td>
-                    <div className={ui.actionsCell}>
-                      <button
-                        type="button"
-                        className={styles.iconBtn}
-                        onClick={() => startEdit(c)}
-                        aria-label={`Edit ${c.code}`}
-                      >
-                        <Pencil size={16} aria-hidden="true" />
-                      </button>
-                      <button
-                        type="button"
-                        className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
-                        onClick={() => remove(c.id)}
-                        aria-label={`Delete ${c.code}`}
-                      >
-                        <Trash2 size={16} aria-hidden="true" />
-                      </button>
+
+                    <div className={ui.ticketFooter}>
+                      <div className={ui.switchRow}>
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={c.isActive}
+                          aria-label={`${c.isActive ? 'Pause' : 'Activate'} ${c.code}`}
+                          title={c.isActive ? 'On — click to pause' : 'Off — click to activate'}
+                          className={`${ui.switch} ${c.isActive ? ui.switchOn : ''}`}
+                          onClick={() => toggleCouponActive(c)}
+                        >
+                          <span className={ui.switchKnob} aria-hidden="true" />
+                        </button>
+                        <span className={ui.switchLabel}>{STATUS_LABEL[status]}</span>
+                      </div>
+                      <div className={ui.actions}>
+                        <button
+                          type="button"
+                          className={ui.iconBtn}
+                          onClick={() => startEdit(c)}
+                          aria-label={`Edit ${c.code}`}
+                        >
+                          <Pencil size={17} aria-hidden="true" />
+                        </button>
+                        <button
+                          type="button"
+                          className={`${ui.iconBtn} ${ui.iconBtnDanger}`}
+                          onClick={() => remove(c.id)}
+                          aria-label={`Delete ${c.code}`}
+                        >
+                          <Trash2 size={17} aria-hidden="true" />
+                        </button>
+                      </div>
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </>
+      ) : (
+        <div className={ui.emptyCard}>
+          <span className={ui.emptyIcon} aria-hidden="true">
+            <Ticket size={28} />
+          </span>
+          <p className={ui.emptyText}>
+            No coupons yet. Create a discount code to run an offer on your business.
+          </p>
+          <button type="button" className={ui.primaryBtn} onClick={startAdd}>
+            <Plus size={18} aria-hidden="true" />
+            Create Offer
+          </button>
         </div>
       )}
 
@@ -445,6 +738,6 @@ export function CouponsManager({
           </>
         )}
       </FormDialog>
-    </Card>
+    </div>
   );
 }

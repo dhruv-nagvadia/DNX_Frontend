@@ -1,264 +1,662 @@
-.searchWrap {
-  max-width: 480px;
-}
-.searchLabel {
-  display: block;
-  margin-bottom: 6px;
-  font-size: var(--font-size-xs);
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  color: var(--color-text-secondary);
-}
-
-.hint {
-  margin: var(--space-md) 0 0;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
-
-/* The picked-product mini form, shown once a product is selected. */
-.panel {
-  margin-top: var(--space-md);
-  padding: var(--space-md);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface-2, #f8fafc);
+/* Manage Stock tab — matches "DNX Marketplace Stock Management Dashboard.png".
+   Tile / table patterns mirror ProductsManager for a consistent look. */
+.root {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-}
-
-.panelHead {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-sm);
-}
-.panelHeadText {
   min-width: 0;
 }
 
-.panelName {
-  font-size: var(--font-size-md);
-  font-weight: 700;
-  color: var(--color-text-primary);
-}
-
-.panelSub {
-  margin: 2px 0 0;
-  font-size: var(--font-size-sm);
+.muted {
   color: var(--color-text-secondary);
 }
+.strong {
+  font-weight: 600;
+}
+.nowrap {
+  white-space: nowrap;
+}
 
-/* ── Current-stock stat: the flow's first beat — see where things stand
-   before deciding what to do about it. ──────────────────────────────── */
-.statRow {
+/* ── Summary tiles ─────────────────────────────────────────────────── */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+.tile {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
-  padding: var(--space-sm) var(--space-md);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
+  gap: var(--space-md);
+  padding: 14px var(--space-md);
+  border: 1px solid;
+  border-radius: var(--m-radius-box);
+  min-width: 0;
 }
-/* Tinted red when the product is actually out of stock — a plain neutral
-   box made "Out of stock" easy to miss. */
-.statRowOut {
-  border-color: var(--color-error-border);
-  background: var(--color-error-soft);
-}
-.statIconOut {
+.tileIcon {
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 auto;
-  width: 26px;
-  height: 26px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
-  background: var(--color-surface);
-  color: var(--color-error);
+  background: color-mix(in srgb, currentColor 12%, transparent);
 }
-.statValue {
-  font-size: var(--font-size-lg);
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
-}
-.statValueOk {
-  color: var(--color-success);
-}
-.statValueOut {
-  color: var(--color-error);
-}
-.statLabel {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
-.quickOutBtn {
-  margin-left: auto;
-  padding: 0;
-  border: none;
-  background: none;
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-xs);
-  font-weight: 700;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  cursor: pointer;
-}
-.quickOutBtn:hover:not(:disabled) {
-  color: var(--color-error);
-}
-.quickOutBtn:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
-
-/* Groups a step's label with its own controls, tighter than the gap between
-   steps, so the flow reads top-to-bottom instead of one undifferentiated
-   block. */
-.section {
+.tileText {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  min-width: 0;
 }
-.sectionLabel {
-  margin-top: 2px;
-  font-size: var(--font-size-xs);
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  color: var(--color-text-secondary);
+.tileLabel {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--m-ink);
+}
+.tileValue {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--m-ink);
+  font-variant-numeric: tabular-nums;
+}
+.tile_blue {
+  background: var(--m-tint-blue);
+  border-color: var(--m-tint-blue-border);
+}
+.tile_blue .tileIcon {
+  color: var(--m-tint-blue-icon);
+}
+.tile_mint {
+  background: var(--m-tint-mint);
+  border-color: var(--m-tint-mint-border);
+}
+.tile_mint .tileIcon {
+  color: var(--m-tint-mint-icon);
+}
+.tile_peach {
+  background: var(--m-tint-peach);
+  border-color: var(--m-tint-peach-border);
+}
+.tile_peach .tileIcon {
+  color: var(--m-tint-peach-icon);
+}
+.tile_pink {
+  background: var(--m-tint-pink);
+  border-color: var(--m-tint-pink-border);
+}
+.tile_pink .tileIcon {
+  color: var(--m-tint-pink-icon);
 }
 
-.stockBadge {
-  display: inline-flex;
+/* ── Two columns: select (left) · adjust (right) ───────────────────── */
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.2fr);
+  gap: var(--space-md);
+  align-items: stretch;
+}
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  padding: 18px var(--space-lg) var(--space-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--m-divider);
+  border-radius: var(--m-radius-card);
+  box-shadow: var(--m-shadow-card);
+}
+.selectCard {
+  padding-bottom: var(--space-sm);
+}
+.cardTitle {
+  display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  border-radius: var(--radius-pill);
-  font-size: 11px;
+  gap: 10px;
+  margin: 0;
+  font-size: 19px;
   font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--m-ink);
+}
+.cardIcon {
+  flex: 0 0 auto;
+  color: var(--m-link);
+}
+
+/* Search + chips */
+.search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--m-divider);
+  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+}
+.search:focus-within {
+  border-color: var(--m-link);
+  box-shadow: 0 0 0 3px var(--m-pill-blue-bg);
+}
+.search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  color: var(--m-ink);
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: -4px;
+}
+.chip {
+  padding: 4px 14px;
+  border: 1px solid var(--m-divider);
+  border-radius: var(--m-radius-pill);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--m-ink);
+  cursor: pointer;
+}
+.chip:hover {
+  border-color: var(--m-link);
+}
+.chipActive,
+.chipActive:hover {
+  border-color: var(--m-action);
+  background: var(--m-action);
+  color: #fff;
+}
+.chip:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 2px;
+}
+
+/* The list fills whatever height the row gives it (set by the adjust card)
+   and scrolls inside, so both cards line up. */
+.listWrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 260px;
+  margin: 0 calc(-1 * var(--space-sm));
+}
+.list {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0 var(--space-sm);
+  list-style: none;
+}
+.listEmpty {
+  margin: 0;
+  padding: var(--space-md) var(--space-sm);
+  font-size: var(--font-size-sm);
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 6px 10px 6px 12px;
+  border: none;
+  border-left: 3px solid transparent;
+  border-bottom: 1px solid var(--m-divider);
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  color: var(--m-ink);
+  cursor: pointer;
+}
+.row:hover {
+  background: var(--m-table-head);
+}
+.rowActive,
+.rowActive:hover {
+  border-left-color: var(--m-action);
+  border-radius: 6px;
+  background: var(--m-pill-blue-bg);
+}
+.row:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: -2px;
+}
+.rowText {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.rowName {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
-.stockLow {
-  background: var(--color-warning-soft);
-  color: var(--color-warning);
+.rowSub {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.clearBtn {
-  border: none;
-  background: none;
-  padding: 4px;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  border-radius: var(--radius-sm);
+.thumb,
+.photo {
+  flex: 0 0 auto;
+  object-fit: cover;
+  background: var(--m-table-head);
+  border: 1px solid var(--m-divider);
 }
-.clearBtn:hover {
-  color: var(--color-text-primary);
+.thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+}
+.photo {
+  width: 88px;
+  height: 88px;
+  border-radius: var(--m-radius-box);
+}
+.thumbPlaceholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+}
+
+/* ── Adjust stock ──────────────────────────────────────────────────── */
+.productHead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+.productInfo {
+  flex: 1;
+  min-width: 0;
+  align-self: flex-start;
+  padding-top: 2px;
+}
+.productName {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--m-ink);
+  overflow-wrap: anywhere;
+}
+.productSub {
+  margin-top: 4px;
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+}
+.dot {
+  margin: 0 8px;
+}
+.currentPill {
+  flex: 0 0 auto;
+  padding: 7px 20px;
+  font-size: var(--font-size-md);
+  font-weight: 700;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.form p {
+  margin: 0;
+}
+
+/* Add / Remove segmented toggle */
+.segment {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 3px;
+  border: 1px solid var(--m-divider);
+  border-radius: var(--m-radius-pill);
+  background: var(--m-table-head);
+}
+.segBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 34px;
+  border: none;
+  border-radius: var(--m-radius-pill);
+  background: transparent;
+  font: inherit;
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--m-ink);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.segBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.segActive,
+.segActive:disabled {
+  background: var(--m-action);
+  color: #fff;
+  opacity: 1;
+}
+.segActiveDanger,
+.segActiveDanger:disabled {
+  background: var(--m-pill-red-bg);
+  color: var(--m-pill-red-fg);
+  opacity: 1;
+}
+.segBtn:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 2px;
 }
 
 .grid2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--m-ink);
+}
+.req {
+  color: var(--color-error);
+}
+.optional {
+  font-weight: 400;
+}
+
+.qtyRow {
+  display: flex;
   gap: var(--space-md);
 }
-
-/* Add / Remove direction toggle */
-.directionRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-sm);
-}
-.directionBtn {
+.stepper {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px;
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
-  font-weight: 700;
-  cursor: pointer;
-  transition:
-    border-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out),
-    background var(--dur-fast) var(--ease-out);
-}
-/* Clearly greyed out — e.g. "Remove stock" when there's nothing to remove —
-   so it reads as unavailable, not just unstyled. */
-.directionBtn:disabled {
-  opacity: 0.45;
-  background: var(--color-surface-2);
-  color: var(--color-text-secondary);
-  cursor: not-allowed;
-}
-.directionBtnActiveAdd {
-  border-color: var(--color-success);
-  color: var(--color-success);
-  background: var(--color-success-soft);
-}
-.directionBtnActiveRemove {
-  border-color: var(--color-error);
-  color: var(--color-error);
-  background: var(--color-error-soft);
-}
-
-/* Input with a suffix (unit) chip — same look as ProductsManager's .affix. */
-.affix {
-  display: flex;
-  align-items: stretch;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 38px;
+  border: 1px solid var(--m-divider);
+  border-radius: 8px;
   background: var(--color-surface);
   overflow: hidden;
-  transition:
-    border-color var(--dur-fast) var(--ease-out),
-    box-shadow var(--dur-fast) var(--ease-out);
 }
-.affix:focus-within {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(30, 64, 175, 0.15));
+.stepper:focus-within {
+  border-color: var(--m-link);
+  box-shadow: 0 0 0 3px var(--m-pill-blue-bg);
 }
-.affix input {
+.stepBtn {
+  flex: 0 0 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--m-ink);
+  cursor: pointer;
+}
+.stepBtn:first-child {
+  border-right: 1px solid var(--m-divider);
+}
+.stepBtn:last-child {
+  border-left: 1px solid var(--m-divider);
+}
+.stepBtn:hover:not(:disabled) {
+  background: var(--m-table-head);
+}
+.stepBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.stepper input {
   flex: 1;
   min-width: 0;
+  width: 100%;
   border: none;
   outline: none;
-  padding: 10px 12px;
-  font-size: var(--font-size-sm);
   background: transparent;
-  color: var(--color-text-primary);
+  text-align: center;
+  font: inherit;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--m-ink);
+  -moz-appearance: textfield;
 }
-.affix input::placeholder {
-  color: var(--color-text-secondary);
-  opacity: 0.55;
+.stepper input::-webkit-outer-spin-button,
+.stepper input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
-.unitSuffix {
+
+.selectWrap {
+  position: relative;
+  display: flex;
+}
+.select {
   appearance: none;
   -webkit-appearance: none;
+  width: 100%;
+  height: 38px;
+  padding: 0 40px 0 12px;
+  border: 1px solid var(--m-divider);
+  border-radius: 8px;
+  background: var(--color-surface);
+  font: inherit;
+  font-size: var(--font-size-md);
+  color: var(--m-ink);
+  cursor: pointer;
+}
+.unitSelect {
+  width: 88px;
+}
+.select:focus-visible {
+  outline: none;
+  border-color: var(--m-link);
+  box-shadow: 0 0 0 3px var(--m-pill-blue-bg);
+}
+.chevron {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--m-ink);
+}
+
+.helper {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+}
+.helperOk {
+  color: var(--m-pill-green-fg);
+}
+.helperError {
+  color: var(--m-pill-red-fg);
+}
+
+.textarea {
+  width: 100%;
+  min-height: 64px;
+  padding: 10px 12px;
+  border: 1px solid var(--m-divider);
+  border-radius: 8px;
+  background: var(--color-surface);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  color: var(--m-ink);
+  resize: vertical;
+}
+.textarea::placeholder {
+  color: var(--color-text-secondary);
+}
+.textarea:focus-visible {
+  outline: none;
+  border-color: var(--m-link);
+  box-shadow: 0 0 0 3px var(--m-pill-blue-bg);
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+.primaryBtn,
+.dangerBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    filter var(--dur-fast) var(--ease-out);
+}
+.primaryBtn {
   border: none;
-  border-left: 1px solid var(--color-border);
-  background-color: var(--color-surface-2, #f8fafc);
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 8px center;
-  padding: 0 26px 0 12px;
+  background: var(--m-action);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.25);
+}
+.primaryBtn:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+.dangerBtn {
+  border: 1.5px solid var(--m-pill-red-fg);
+  background: var(--color-surface);
+  color: var(--m-pill-red-fg);
+}
+.dangerBtn:hover:not(:disabled) {
+  background: var(--m-pill-red-bg);
+}
+.primaryBtn:disabled,
+.dangerBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.primaryBtn:focus-visible,
+.dangerBtn:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 2px;
+}
+
+/* ── Recent stock changes table ────────────────────────────────────── */
+.tableScroll {
+  overflow-x: auto;
+}
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--font-size-sm);
+  color: var(--m-ink);
+}
+.table th {
+  text-align: left;
   font-size: var(--font-size-sm);
   font-weight: 700;
+  color: var(--m-ink);
+  background: var(--m-table-head);
+  padding: 10px 16px;
+  white-space: nowrap;
+}
+.table th:first-child {
+  border-radius: var(--m-radius-box) 0 0 var(--m-radius-box);
+}
+.table th:last-child {
+  border-radius: 0 var(--m-radius-box) var(--m-radius-box) 0;
+}
+.table td {
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--m-divider);
+  vertical-align: middle;
+}
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+.noteCell {
+  min-width: 160px;
+  max-width: 280px;
+  overflow-wrap: anywhere;
+}
+.tableEmpty {
+  padding: var(--space-lg) 16px !important;
+  text-align: center;
   color: var(--color-text-secondary);
-  cursor: pointer;
+}
+
+/* ── No products yet ───────────────────────────────────────────────── */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: var(--space-lg) 0;
+  text-align: center;
+  color: var(--m-tint-blue-icon);
+}
+.empty p {
+  margin: 0;
+}
+.emptyTitle {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: var(--m-ink);
+}
+
+@media (max-width: 1100px) {
+  .tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .columns {
+    grid-template-columns: 1fr;
+  }
+  .listWrap {
+    min-height: 0;
+    height: 360px;
+  }
 }
 
 @media (max-width: 640px) {
+  .tiles,
   .grid2,
-  .directionRow {
+  .actions {
     grid-template-columns: 1fr;
+  }
+  .productHead {
+    flex-wrap: wrap;
+  }
+  .photo {
+    width: 72px;
+    height: 72px;
+  }
+  .currentPill {
+    width: 100%;
+    justify-content: center;
   }
 }

@@ -170,9 +170,13 @@ const TODAY_PREVIEW = 5;
 const ATTENTION_PREVIEW = 5;
 const ORDERS_PREVIEW = 4;
 const LOW_STOCK_PREVIEW = 6;
-// Purely decorative — a fixed ascending staircase, not real per-period
-// revenue data (matches the mockup's look and the mobile app's mini chart).
-const CHART_BARS = [22, 45, 70, 100];
+
+/** Bar height (%) for one month's collected amount — scaled to the busiest of
+ * the 4 months, with a small floor so an empty month still shows a stub. */
+function barHeight(value: number, all: number[]): number {
+  const max = Math.max(...all, 0);
+  return max > 0 ? Math.max(Math.round((value / max) * 100), 12) : 12;
+}
 
 /** Home dashboard — a command center across all of the provider's businesses. */
 export default function DashboardPage() {
@@ -180,6 +184,7 @@ export default function DashboardPage() {
     fullName,
     avatarUrl,
     isLoading,
+    monthlyCollected,
     businesses,
     hasBusinesses,
     hasService,
@@ -346,8 +351,12 @@ export default function DashboardPage() {
                 )}
               </div>
               <div className={styles.revenueChart} aria-hidden="true">
-                {CHART_BARS.map((v, i) => (
-                  <span key={i} className={styles.revenueBar} style={{ height: `${v}%` }} />
+                {monthlyCollected.map((v, i) => (
+                  <span
+                    key={i}
+                    className={styles.revenueBar}
+                    style={{ height: `${barHeight(v, monthlyCollected)}%` }}
+                  />
                 ))}
               </div>
             </div>

@@ -29,6 +29,7 @@ function money(minor: number, currency: string): string {
 const STATUS: Record<BookingStatus, { label: string; tone: BadgeTone }> = {
   PENDING: { label: 'Pending', tone: 'warning' },
   CONFIRMED: { label: 'Confirmed', tone: 'accent' },
+  IN_PROGRESS: { label: 'In progress', tone: 'brand' },
   COMPLETED: { label: 'Completed', tone: 'success' },
   CANCELLED: { label: 'Cancelled', tone: 'neutral' },
   NO_SHOW: { label: 'No-show', tone: 'neutral' },

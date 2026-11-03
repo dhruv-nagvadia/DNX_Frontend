@@ -1,12 +1,29 @@
-import { CalendarOff, ChevronLeft, ChevronRight, Clock, RotateCcw } from 'lucide-react';
+import {
+  CalendarCheck,
+  CalendarDays,
+  CalendarX,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Coins,
+  Flame,
+  Loader2,
+  Save,
+} from 'lucide-react';
 
-import { Button } from '@/components/Button';
-import { Card } from '@/components/Card';
-import { Tabs } from '@/components/Tabs';
+import { ModernCard, ModernCardLink } from '@/components/ModernCard';
+import { Pill, PillTone } from '@/components/Pill';
 import { TimeField } from '@/components/TimeField';
+import { formatMoney } from '@/utils/money';
 
 import { BusinessCalendarProps } from './types';
-import { CalendarDay, CalendarView, useBusinessCalendar, WEEKDAYS_SHORT } from './useBusinessCalendar';
+import {
+  CalendarDay,
+  CalendarView,
+  ItemStatus,
+  useBusinessCalendar,
+  WEEKDAYS_SHORT,
+} from './useBusinessCalendar';
 import styles from './BusinessCalendar.module.css';
 
 // Week-view vertical time axis.
@@ -14,18 +31,29 @@ const AXIS_START = 7; // 07:00
 const AXIS_END = 22; // 22:00
 const HOUR_PX = 44;
 
-const timeFmt = new Intl.DateTimeFormat('en-IN', { hour: 'numeric', minute: '2-digit' });
+const timeFmt = new Intl.DateTimeFormat('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
 
-const VIEW_TABS = [
-  { id: 'month', label: 'Month' },
-  { id: 'week', label: 'Week' },
-];
+const STATUS_PILL: Record<ItemStatus, { tone: PillTone; label: string }> = {
+  PENDING: { tone: 'orange', label: 'Pending' },
+  CONFIRMED: { tone: 'blue', label: 'Confirmed' },
+  IN_PROGRESS: { tone: 'teal', label: 'In progress' },
+  READY: { tone: 'green', label: 'Ready' },
+  COMPLETED: { tone: 'green', label: 'Completed' },
+  CANCELLED: { tone: 'grey', label: 'Cancelled' },
+  NO_SHOW: { tone: 'red', label: 'No-show' },
+};
 
 function firstName(name: string): string {
   return name.trim().split(/\s+/)[0] ?? name;
 }
+/** "10:00 AM" */
 function hhmm(iso: string): string {
-  return timeFmt.format(new Date(iso));
+  return timeFmt.format(new Date(iso)).toUpperCase();
+}
+/** "17:00" → "5:00" (compact 12-hour, for the small custom-hours chip). */
+function compact12(t: string): string {
+  const [h, m] = t.split(':').map(Number);
+  return `${h % 12 || 12}:${String(m).padStart(2, '0')}`;
 }
 /** Minutes since AXIS_START for a "HH:MM" string. */
 function minsFromClock(t: string): number {
@@ -37,73 +65,189 @@ function minsFromDate(iso: string): number {
   const d = new Date(iso);
   return (d.getHours() - AXIS_START) * 60 + d.getMinutes();
 }
-function fmtLongDate(key: string): string {
-  const [y, m, d] = key.split('-').map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString(undefined, {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+function fmtPanelDate(d: Date): string {
+  return d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+}
+function fmtShortDate(d: Date): string {
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+function plural(n: number, word: string): string {
+  return `${n} ${word}${n === 1 ? '' : 's'}`;
 }
 
-/** Month/week schedule with booked slots + per-date hour overrides. Picking a
- * date updates the side panel immediately — bookings and the hours editor
- * for that date sit together in one place, instead of a separate section
- * further down the page. */
-export function BusinessCalendar({ providerId, businessHours, businessType }: BusinessCalendarProps) {
+type Cal = ReturnType<typeof useBusinessCalendar>;
+
+/**
+ * Business Detail → Calendar tab ("DNX Marketplace Salon Calendar Dashboard.png"):
+ * month tiles, a month/week calendar, and a day panel with that date's hours
+ * editor, bookings (or orders) and earnings.
+ */
+export function BusinessCalendar({
+  providerId,
+  businessHours,
+  businessType,
+  onViewAll,
+}: BusinessCalendarProps) {
   const cal = useBusinessCalendar(providerId, businessHours, businessType);
+  const word = cal.itemLabel; // 'booking' | 'order'
+  const Word = word === 'order' ? 'Orders' : 'Bookings';
+  const { monthStats } = cal;
 
   return (
-    <Card
-      title="Calendar"
-      action={
-        <Tabs
-          tabs={VIEW_TABS}
-          active={cal.view}
-          onChange={(id) => cal.setView(id as CalendarView)}
-        />
-      }
-    >
-      <div className={styles.toolbar}>
-        <div className={styles.nav}>
-          <button type="button" className={styles.navBtn} onClick={cal.prev} aria-label="Previous">
-            <ChevronLeft size={18} aria-hidden="true" />
-          </button>
-          <button type="button" className={styles.navBtn} onClick={cal.next} aria-label="Next">
-            <ChevronRight size={18} aria-hidden="true" />
-          </button>
-          <button type="button" className={styles.todayBtn} onClick={cal.today}>
-            Today
-          </button>
+    <div className={styles.root}>
+      {/* ── Month tiles ──────────────────────────────────────────────── */}
+      <div className={styles.tiles}>
+        <div className={`${styles.tile} ${styles.tile_blue}`}>
+          <span className={styles.tileIcon}>
+            <CalendarCheck size={28} aria-hidden="true" />
+          </span>
+          <div className={styles.tileText}>
+            <span className={styles.tileLabel}>{Word} This Month</span>
+            <span className={styles.tileValue}>{monthStats.count}</span>
+          </div>
         </div>
-        <h3 className={styles.period}>{cal.label}</h3>
+        <div className={`${styles.tile} ${styles.tile_lavender}`}>
+          <span className={styles.tileIcon}>
+            <Flame size={28} aria-hidden="true" />
+          </span>
+          <div className={styles.tileText}>
+            <span className={styles.tileLabel}>Busiest Day</span>
+            {monthStats.busiest ? (
+              <span className={styles.tileValueSm}>
+                {fmtShortDate(monthStats.busiest.date)} •{' '}
+                <span className={styles.tileValueSmSoft}>{plural(monthStats.busiest.count, word)}</span>
+              </span>
+            ) : (
+              <span className={styles.tileValue}>—</span>
+            )}
+          </div>
+        </div>
+        <div className={`${styles.tile} ${styles.tile_pink}`}>
+          <span className={styles.tileIcon}>
+            <CalendarX size={28} aria-hidden="true" />
+          </span>
+          <div className={styles.tileText}>
+            <span className={styles.tileLabel}>Closed Days</span>
+            <span className={styles.tileValue}>{monthStats.closedDays}</span>
+            <span className={styles.tileSub}>Weekly closed days + closed dates</span>
+          </div>
+        </div>
+        <div className={`${styles.tile} ${styles.tile_peach}`}>
+          <span className={styles.tileIcon}>
+            <Clock size={28} aria-hidden="true" />
+          </span>
+          <div className={styles.tileText}>
+            <span className={styles.tileLabel}>Custom Hours</span>
+            <span className={styles.tileValue}>{monthStats.customDays}</span>
+            <span className={styles.tileSub}>Dates with overridden hours</span>
+          </div>
+        </div>
       </div>
 
-      <div className={styles.layout}>
-        <div className={styles.gridCol}>
+      <div className={styles.columns}>
+        {/* ── Calendar card ────────────────────────────────────────────── */}
+        <section className={styles.calCard}>
+          <div className={styles.toolbar}>
+            <div className={styles.nav}>
+              <button type="button" className={styles.navBtn} onClick={cal.prev} aria-label="Previous">
+                <ChevronLeft size={22} aria-hidden="true" />
+              </button>
+              <h3 className={styles.period}>{cal.label}</h3>
+              <button type="button" className={styles.navBtn} onClick={cal.next} aria-label="Next">
+                <ChevronRight size={22} aria-hidden="true" />
+              </button>
+            </div>
+            <div className={styles.toolbarRight}>
+              <button type="button" className={styles.todayBtn} onClick={cal.today}>
+                Today
+              </button>
+              <div className={styles.segment} role="tablist" aria-label="Calendar view">
+                {(['month', 'week'] as CalendarView[]).map((v) => (
+                  <button
+                    key={v}
+                    type="button"
+                    role="tab"
+                    aria-selected={cal.view === v}
+                    className={`${styles.segBtn} ${cal.view === v ? styles.segBtnOn : ''}`}
+                    onClick={() => cal.setView(v)}
+                  >
+                    {v === 'month' ? 'Month' : 'Week'}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
           {cal.view === 'month' ? <MonthView cal={cal} /> : <WeekView cal={cal} />}
 
           <div className={styles.legend}>
             <span className={styles.legendItem}>
-              <span className={`${styles.dot} ${styles.dotOpen}`} /> Open
+              <span className={`${styles.legendDot} ${styles.legendCount}`} /> {Word} (count)
             </span>
             <span className={styles.legendItem}>
-              <span className={`${styles.dot} ${styles.dotClosed}`} /> Closed
+              <span className={`${styles.legendDot} ${styles.legendClosed}`} /> Closed
             </span>
             <span className={styles.legendItem}>
-              <span className={`${styles.dot} ${styles.dotOverride}`} /> Custom hours
+              <span className={`${styles.legendDot} ${styles.legendCustom}`} /> Custom hours (overridden)
+            </span>
+            <span className={styles.legendItem}>
+              <span className={`${styles.legendDot} ${styles.legendToday}`} /> Today
             </span>
           </div>
-        </div>
+        </section>
 
-        <DayPanel cal={cal} />
+        <DayPanel cal={cal} onViewAll={onViewAll} />
       </div>
-    </Card>
+    </div>
   );
 }
 
-type Cal = ReturnType<typeof useBusinessCalendar>;
+/* ── Shared bits of a day (month cell + week header card) ──────────── */
+function Dots({ day }: { day: CalendarDay }) {
+  if (!day.dots.length) return null;
+  return (
+    <span className={styles.dots} aria-hidden="true">
+      {day.dots.map((t) => (
+        <span key={t} className={`${styles.statusDot} ${styles[`dot_${t}`]}`} />
+      ))}
+    </span>
+  );
+}
+
+function DayBody({ day, word }: { day: CalendarDay; word: string }) {
+  return (
+    <span className={styles.cellBody}>
+      {day.closedBy === 'weekly' && <span className={styles.closedText}>Closed</span>}
+      {day.closedBy === 'override' && <span className={styles.closedChip}>Closed</span>}
+      {day.customHours && (
+        <span className={styles.customChip}>
+          {compact12(day.hours.openTime)}–{compact12(day.hours.closeTime)}
+        </span>
+      )}
+      {day.count > 0 && (
+        <>
+          <span className={styles.countPill}>
+            <span className={styles.countFull}>{plural(day.count, word)}</span>
+            <span className={styles.countShort}>{day.count}</span>
+          </span>
+          {day.earningsMinor > 0 && (
+            <span className={styles.earn}>{formatMoney(day.earningsMinor)}</span>
+          )}
+        </>
+      )}
+    </span>
+  );
+}
+
+function dayStateClass(day: CalendarDay, selectedKey: string): string {
+  return [
+    day.closedBy === 'weekly' ? styles.cellClosed : '',
+    day.closedBy === 'override' ? styles.cellClosedOverride : '',
+    day.customHours ? styles.cellCustom : '',
+    day.isToday ? styles.cellToday : '',
+    day.key === selectedKey ? styles.cellSelected : '',
+  ].join(' ');
+}
 
 /* ── Month grid ───────────────────────────────────────────────────── */
 function MonthView({ cal }: { cal: Cal }) {
@@ -114,51 +258,40 @@ function MonthView({ cal }: { cal: Cal }) {
           {d}
         </div>
       ))}
-      {cal.monthWeeks.flat().map((day) => {
-        const selected = day.key === cal.selectedKey;
-        return (
+      {cal.monthWeeks.flat().map((day) =>
+        day.inMonth ? (
           <button
             key={day.key}
             type="button"
             onClick={() => cal.selectDay(day.key)}
-            className={[
-              styles.cell,
-              day.inMonth ? '' : styles.cellMuted,
-              !day.hours.isOpen ? styles.cellClosed : '',
-              selected ? styles.cellSelected : '',
-            ].join(' ')}
+            aria-pressed={day.key === cal.selectedKey}
+            className={`${styles.cell} ${dayStateClass(day, cal.selectedKey)}`}
           >
             <span className={styles.cellTop}>
-              <span className={`${styles.dayNum} ${day.isToday ? styles.dayNumToday : ''}`}>
-                {day.date.getDate()}
-              </span>
-              {day.hours.source === 'override' && (
-                <span className={styles.overrideDot} title="Custom hours" />
-              )}
+              <span className={styles.dayNum}>{day.date.getDate()}</span>
+              <Dots day={day} />
             </span>
-
-            {day.hours.isOpen ? (
-              <span className={styles.chips}>
-                {day.items.slice(0, 2).map((item) => (
-                  <span key={item.id} className={styles.chip}>
-                    {hhmm(item.time)} {firstName(item.title)}
-                  </span>
-                ))}
-                {day.items.length > 2 && (
-                  <span className={styles.more}>+{day.items.length - 2} more</span>
-                )}
-              </span>
-            ) : (
-              <span className={styles.closedTag}>Closed</span>
-            )}
+            <DayBody day={day} word={cal.itemLabel} />
           </button>
-        );
-      })}
+        ) : (
+          <button
+            key={day.key}
+            type="button"
+            onClick={() => cal.selectDay(day.key)}
+            className={`${styles.cell} ${styles.cellMuted}`}
+            aria-label={day.date.toDateString()}
+          >
+            <span className={styles.cellTop}>
+              <span className={styles.dayNum}>{day.date.getDate()}</span>
+            </span>
+          </button>
+        ),
+      )}
     </div>
   );
 }
 
-/* ── Week timeline ────────────────────────────────────────────────── */
+/* ── Week: day cards + timeline ───────────────────────────────────── */
 function WeekView({ cal }: { cal: Cal }) {
   const hours = Array.from({ length: AXIS_END - AXIS_START }, (_, i) => AXIS_START + i);
   const bodyHeight = (AXIS_END - AXIS_START) * HOUR_PX;
@@ -171,13 +304,16 @@ function WeekView({ cal }: { cal: Cal }) {
           <button
             key={day.key}
             type="button"
-            className={`${styles.weekHeadDay} ${day.key === cal.selectedKey ? styles.weekHeadDaySel : ''}`}
+            aria-pressed={day.key === cal.selectedKey}
+            className={`${styles.cell} ${styles.weekCard} ${dayStateClass(day, cal.selectedKey)}`}
             onClick={() => cal.selectDay(day.key)}
           >
             <span className={styles.weekDow}>{WEEKDAYS_SHORT[day.date.getDay()]}</span>
-            <span className={`${styles.weekDate} ${day.isToday ? styles.weekDateToday : ''}`}>
-              {day.date.getDate()}
+            <span className={styles.cellTop}>
+              <span className={styles.dayNum}>{day.date.getDate()}</span>
+              <Dots day={day} />
             </span>
+            <DayBody day={day} word={cal.itemLabel} />
           </button>
         ))}
       </div>
@@ -186,13 +322,19 @@ function WeekView({ cal }: { cal: Cal }) {
         <div className={styles.axis}>
           {hours.map((h) => (
             <div key={h} className={styles.axisHour} style={{ height: HOUR_PX }}>
-              <span className={styles.axisLabel}>{h % 12 === 0 ? 12 : h % 12}{h < 12 ? 'am' : 'pm'}</span>
+              <span className={styles.axisLabel}>
+                {h % 12 === 0 ? 12 : h % 12}
+                {h < 12 ? 'am' : 'pm'}
+              </span>
             </div>
           ))}
         </div>
 
         {cal.weekDays.map((day) => (
-          <div key={day.key} className={styles.weekCol}>
+          <div
+            key={day.key}
+            className={`${styles.weekCol} ${day.key === cal.selectedKey ? styles.weekColSel : ''}`}
+          >
             {hours.map((h) => (
               <div key={h} className={styles.hourLine} style={{ height: HOUR_PX }} />
             ))}
@@ -209,9 +351,9 @@ function WeekView({ cal }: { cal: Cal }) {
               return (
                 <div
                   key={item.id}
-                  className={styles.block}
+                  className={`${styles.block} ${styles[`block_${STATUS_PILL[item.status].tone}`]}`}
                   style={{ top, height }}
-                  title={`${hhmm(item.time)} · ${item.title} · ${item.subtitle}`}
+                  title={`${hhmm(item.time)} · ${item.title} · ${item.subtitle} · ${STATUS_PILL[item.status].label}`}
                 >
                   <span className={styles.blockTime}>{hhmm(item.time)}</span>
                   <span className={styles.blockName}>{firstName(item.title)}</span>
@@ -227,108 +369,168 @@ function WeekView({ cal }: { cal: Cal }) {
 
 function OpenBand({ day }: { day: CalendarDay }) {
   const top = (minsFromClock(day.hours.openTime) / 60) * HOUR_PX;
-  const height = ((minsFromClock(day.hours.closeTime) - minsFromClock(day.hours.openTime)) / 60) * HOUR_PX;
+  const height =
+    ((minsFromClock(day.hours.closeTime) - minsFromClock(day.hours.openTime)) / 60) * HOUR_PX;
   if (height <= 0) return null;
-  return <div className={styles.openBand} style={{ top, height: Math.max(0, height) }} />;
+  return (
+    <div
+      className={`${styles.openBand} ${day.customHours ? styles.openBandCustom : ''}`}
+      style={{ top, height }}
+    />
+  );
 }
 
-/* ── Day panel: bookings + the hours editor for the selected date, both in
-   one place next to the grid — picking a date is the only step needed. ──── */
-function DayPanel({ cal }: { cal: Cal }) {
-  const { selectedDay, form, setForm, saveOverride, resetOverride, saving, removing, hasOverride } =
+/* ── Day panel: hours editor + that date's bookings/orders + earnings ── */
+function DayPanel({ cal, onViewAll }: { cal: Cal; onViewAll?: () => void }) {
+  const { selectedDay, form, setForm, saveOverride, resetOverride, saving, removing, hasOverride, dirty } =
     cal;
+  const Word = cal.itemLabel === 'order' ? 'Orders' : 'Bookings';
+  const words = cal.itemLabel === 'order' ? 'orders' : 'bookings';
+
+  const statePill = !hasOverride ? (
+    <Pill tone="grey" className={styles.statePill}>
+      Weekly default
+    </Pill>
+  ) : selectedDay.hours.isOpen ? (
+    <Pill tone="orange" className={styles.statePill}>
+      Custom hours
+    </Pill>
+  ) : (
+    <Pill tone="red" className={styles.statePill}>
+      Closed (override)
+    </Pill>
+  );
 
   return (
-    <aside className={styles.dayPanel}>
-      <div className={styles.dayPanelHead}>
-        <span className={styles.dayPanelDate}>{fmtLongDate(cal.selectedKey)}</span>
-        <span className={styles.dayPanelStatus}>
-          {selectedDay.hours.isOpen
-            ? `Open ${selectedDay.hours.openTime}–${selectedDay.hours.closeTime}`
-            : 'Closed'}
-          {selectedDay.hours.source === 'override' && (
-            <span className={styles.customTag}>Custom</span>
-          )}
-        </span>
-      </div>
+    <aside className={styles.side}>
+      <ModernCard
+        icon={<CalendarDays size={22} aria-hidden="true" />}
+        iconTone="ink"
+        title={fmtPanelDate(selectedDay.date)}
+      >
+        <div className={styles.hoursBox}>
+          <div className={styles.hoursHead}>
+            <span className={styles.hoursTitle}>
+              <Clock size={20} aria-hidden="true" /> Hours for this date
+            </span>
+            {statePill}
+          </div>
 
-      <div className={styles.dayPanelSection}>
-        <div className={styles.dayPanelSectionTitle}>{cal.itemLabel === 'order' ? 'Orders' : 'Bookings'}</div>
+          <div className={styles.openRow}>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={form.isOpen}
+              aria-label={form.isOpen ? 'Open' : 'Closed'}
+              className={`${styles.switch} ${form.isOpen ? styles.switchOn : ''}`}
+              onClick={() => setForm({ ...form, isOpen: !form.isOpen })}
+            >
+              <span className={styles.switchKnob} aria-hidden="true" />
+            </button>
+            <span className={styles.openLabel}>{form.isOpen ? 'Open' : 'Closed'}</span>
+          </div>
+
+          {form.isOpen && (
+            <div className={styles.times}>
+              <TimeField
+                className={styles.timePill}
+                value={form.openTime}
+                onChange={(v) => setForm({ ...form, openTime: v })}
+                aria-label="Opening time"
+              />
+              <span className={styles.dash}>–</span>
+              <TimeField
+                className={styles.timePill}
+                value={form.closeTime}
+                onChange={(v) => setForm({ ...form, closeTime: v })}
+                aria-label="Closing time"
+              />
+            </div>
+          )}
+
+          <div className={styles.hoursActions}>
+            <button
+              type="button"
+              className={styles.saveBtn}
+              onClick={saveOverride}
+              disabled={saving || removing || !dirty}
+            >
+              {saving ? (
+                <Loader2 size={16} className={styles.spin} aria-hidden="true" />
+              ) : (
+                <Save size={16} aria-hidden="true" />
+              )}
+              {saving ? 'Saving…' : 'Save for this date'}
+            </button>
+            {hasOverride && (
+              <button
+                type="button"
+                className={styles.resetLink}
+                onClick={resetOverride}
+                disabled={saving || removing}
+              >
+                {removing ? 'Resetting…' : 'Reset to weekly default'}
+              </button>
+            )}
+          </div>
+          {cal.error && (
+            <p className={styles.error} role="alert">
+              {cal.error}
+            </p>
+          )}
+          <p className={styles.note}>Changes only this date. Weekly hours stay the same.</p>
+        </div>
+      </ModernCard>
+
+      <ModernCard
+        icon={<CalendarDays size={22} aria-hidden="true" />}
+        iconTone="ink"
+        title={`${Word} (${selectedDay.items.length})`}
+        action={
+          onViewAll ? (
+            <ModernCardLink onClick={onViewAll} iconRight={<ChevronRight size={16} aria-hidden="true" />}>
+              View all
+            </ModernCardLink>
+          ) : undefined
+        }
+      >
         {selectedDay.items.length > 0 ? (
-          <ul className={styles.dayBookings}>
-            {selectedDay.items.map((item) => (
-              <li key={item.id} className={styles.dayBooking}>
-                <span className={styles.dbTime}>
-                  {hhmm(item.time)}
-                  {item.endTime ? `–${hhmm(item.endTime)}` : ''}
-                </span>
-                <span className={styles.dbWho}>{item.title}</span>
-                <span className={styles.dbService}>{item.subtitle}</span>
-              </li>
-            ))}
+          <ul className={styles.list}>
+            {selectedDay.items.map((item) => {
+              const pill = STATUS_PILL[item.status];
+              return (
+                <li key={item.id} className={styles.row}>
+                  <span className={styles.rowTime}>{hhmm(item.time)}</span>
+                  <span className={styles.rowText}>
+                    <span className={styles.rowName}>{item.title}</span>
+                    <span className={styles.rowSub}>
+                      {item.subtitle} • {formatMoney(item.amountMinor)}
+                    </span>
+                  </span>
+                  <Pill tone={pill.tone} className={styles.rowPill}>
+                    {pill.label}
+                  </Pill>
+                </li>
+              );
+            })}
           </ul>
         ) : (
-          <p className={styles.noBookings}>
-            <CalendarOff size={15} aria-hidden="true" /> No {cal.itemLabel === 'order' ? 'orders' : 'bookings'} on
-            this date.
-          </p>
-        )}
-      </div>
-
-      <div className={styles.dayPanelSection}>
-        <div className={styles.dayPanelSectionTitle}>
-          <Clock size={14} aria-hidden="true" /> Hours for this date
-        </div>
-
-        <label className={styles.openRow}>
-          <button
-            type="button"
-            className={`${styles.switch} ${form.isOpen ? styles.switchOn : ''}`}
-            onClick={() => setForm({ ...form, isOpen: !form.isOpen })}
-            aria-pressed={form.isOpen}
-            aria-label={form.isOpen ? 'Open' : 'Closed'}
-          >
-            <span className={styles.knob} />
-          </button>
-          <span>{form.isOpen ? 'Open' : 'Closed'}</span>
-        </label>
-
-        {form.isOpen && (
-          <div className={styles.times}>
-            <TimeField
-              className={styles.timeField}
-              value={form.openTime}
-              onChange={(v) => setForm({ ...form, openTime: v })}
-              aria-label="Opening time"
-            />
-            <span className={styles.dash}>to</span>
-            <TimeField
-              className={styles.timeField}
-              value={form.closeTime}
-              onChange={(v) => setForm({ ...form, closeTime: v })}
-              aria-label="Closing time"
-            />
-          </div>
+          <p className={styles.empty}>No {words} on this date.</p>
         )}
 
-        <div className={styles.editorActions}>
-          <Button onClick={saveOverride} loading={saving} loadingText="Saving…" fullWidth>
-            Save for this date
-          </Button>
-          {hasOverride && (
-            <Button
-              variant="ghost"
-              onClick={resetOverride}
-              loading={removing}
-              loadingText="Removing…"
-              iconLeft={<RotateCcw size={15} aria-hidden="true" />}
-              fullWidth
-            >
-              Reset to weekly
-            </Button>
+        <div className={styles.earnBar}>
+          <span className={styles.earnIcon}>
+            <Coins size={26} aria-hidden="true" />
+          </span>
+          <span className={styles.earnText}>
+            <span className={styles.earnLabel}>Day earnings</span>
+            <span className={styles.earnValue}>{formatMoney(selectedDay.earningsMinor)}</span>
+          </span>
+          {selectedDay.pendingCount > 0 && (
+            <span className={styles.earnPending}>{selectedDay.pendingCount} pending to confirm</span>
           )}
         </div>
-      </div>
+      </ModernCard>
     </aside>
   );
 }

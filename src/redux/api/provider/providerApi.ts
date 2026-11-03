@@ -3,6 +3,7 @@ import { axiosBaseQuery } from '@/api/apiConfig';
 import { endpoints } from '@/api/endpoints';
 import {
   AdjustStockInput,
+  StockAdjustment,
   BusinessHour,
   BusinessReview,
   BookingStatus,
@@ -44,6 +45,7 @@ export const providerApi = createApi({
     'MyEarnings',
     'AllCoupons',
     'AllReviews',
+    'StockAdjustments',
   ],
   endpoints: (builder) => ({
     getProviders: builder.query<Paginated<Provider>, ListProvidersParams | void>({
@@ -289,6 +291,17 @@ export const providerApi = createApi({
 
     // Manual stock change (offline sale, restock, damaged/lost) — separate
     // from the full product edit form.
+    /** Stock change history for one business, newest first. */
+    getStockAdjustments: builder.query<StockAdjustment[], { providerId: string; limit?: number }>({
+      query: ({ providerId, limit }) => ({
+        endpoint: endpoints.providerStockAdjustments(providerId),
+        method: 'get',
+        params: limit ? { limit } : undefined,
+      }),
+      transformResponse: (res: ApiEnvelope<StockAdjustment[]>) => res.data,
+      providesTags: (_r, _e, { providerId }) => [{ type: 'StockAdjustments', id: providerId }],
+    }),
+
     adjustProductStock: builder.mutation<
       Product,
       { providerId: string; productId: string; data: AdjustStockInput }
@@ -299,7 +312,11 @@ export const providerApi = createApi({
         data,
       }),
       transformResponse: (res: ApiEnvelope<Product>) => res.data,
-      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }, 'MyBusinesses'],
+      invalidatesTags: (_r, _e, { providerId }) => [
+        { type: 'MyBusiness', id: providerId },
+        'MyBusinesses',
+        { type: 'StockAdjustments', id: providerId },
+      ],
     }),
 
     // Quick in/out-of-stock flip for a made-to-order (unlimitedStock) product.
@@ -313,7 +330,11 @@ export const providerApi = createApi({
         data: { inStock },
       }),
       transformResponse: (res: ApiEnvelope<Product>) => res.data,
-      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'MyBusiness', id: providerId }, 'MyBusinesses'],
+      invalidatesTags: (_r, _e, { providerId }) => [
+        { type: 'MyBusiness', id: providerId },
+        'MyBusinesses',
+        { type: 'StockAdjustments', id: providerId },
+      ],
     }),
 
     // ── Coupons ───────────────────────────────────────────────────────────────
@@ -445,6 +466,7 @@ export const {
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
+  useGetStockAdjustmentsQuery,
   useAdjustProductStockMutation,
   useSetProductStockStatusMutation,
   useGetCouponsQuery,

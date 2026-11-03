@@ -8,6 +8,8 @@ export interface ProductsManagerProps {
   /** The business's own COD/Partial Pay settings — new products default to these. */
   businessCodEnabled?: boolean;
   businessPartialPayEnabled?: boolean;
+  /** Opens the Manage Stock view; the toolbar button only shows when provided. */
+  onManageStock?: () => void;
 }
 
 export interface ProductForm {

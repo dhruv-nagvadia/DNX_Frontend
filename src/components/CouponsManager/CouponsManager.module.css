@@ -190,3 +190,568 @@
   font-size: 11px;
   font-weight: 700;
 }
+
+/* ══ Offers dashboard — matches "DNX Marketplace Offers Dashboard.png" ══
+   The table classes above stay: CouponsPage / PlatformCouponsManager reuse them.
+   Uses the --m-* mockup tokens from theme.css (with dark-mode variants). */
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  min-width: 0;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Summary tiles ─────────────────────────────────────────────────── */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+.tile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 18px var(--space-md);
+  border: 1px solid;
+  border-radius: var(--m-radius-box);
+  min-width: 0;
+}
+.tileIcon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+.tileText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.tileLabel {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--m-ink);
+}
+.tileValueRow {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.tileValue {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--m-ink);
+  font-variant-numeric: tabular-nums;
+}
+.tileNote {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+.tile_blue {
+  background: var(--m-tint-blue);
+  border-color: var(--m-tint-blue-border);
+}
+.tile_blue .tileIcon {
+  color: var(--m-tint-blue-icon);
+}
+.tile_mint {
+  background: var(--m-tint-mint);
+  border-color: var(--m-tint-mint-border);
+}
+.tile_mint .tileIcon {
+  color: var(--m-tint-mint-icon);
+}
+.tile_peach {
+  background: var(--m-tint-peach);
+  border-color: var(--m-tint-peach-border);
+}
+.tile_peach .tileIcon {
+  color: var(--m-tint-peach-icon);
+}
+.tile_lavender {
+  background: var(--m-tint-lavender);
+  border-color: var(--m-tint-lavender-border);
+}
+.tile_lavender .tileIcon {
+  color: var(--m-tint-lavender-icon);
+}
+
+/* ── Toolbar: search · status · type · Create Offer ────────────────── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+.search {
+  flex: 1 1 280px;
+  max-width: 520px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--m-divider);
+  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+}
+.search:focus-within {
+  border-color: var(--m-link);
+  box-shadow: 0 0 0 3px var(--m-pill-blue-bg);
+}
+.search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  color: var(--m-ink);
+}
+.filterWrap {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+.filter {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 44px;
+  min-width: 180px;
+  padding: 0 40px 0 14px;
+  border: 1px solid var(--m-divider);
+  border-radius: 8px;
+  background: var(--color-surface);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--m-ink);
+  cursor: pointer;
+}
+.filter:focus-visible {
+  outline: none;
+  border-color: var(--m-link);
+  box-shadow: 0 0 0 3px var(--m-pill-blue-bg);
+}
+.filterChevron {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--m-ink);
+}
+.toolbarActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-left: auto;
+}
+.primaryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 8px;
+  background: var(--m-action);
+  color: #fff;
+  font: inherit;
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.25);
+  transition: filter var(--dur-fast) var(--ease-out);
+}
+.primaryBtn:hover {
+  filter: brightness(1.1);
+}
+.primaryBtn:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 2px;
+}
+
+.noMatch {
+  padding: var(--space-xl) var(--space-md);
+  text-align: center;
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  border: 1px solid var(--m-divider);
+  border-radius: var(--m-radius-card);
+}
+
+/* ── Coupon "ticket" cards ─────────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+.ticket {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--m-divider);
+  border-radius: var(--m-radius-card);
+  box-shadow: var(--m-shadow-card);
+}
+.ticketBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 20px 18px;
+  min-width: 0;
+}
+/* Expired / used-up offers: content dimmed, footer controls stay crisp. */
+.ticketFaded .ticketBody {
+  opacity: 0.6;
+}
+.ticketTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.headline {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.amount {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--m-link);
+  white-space: nowrap;
+}
+.upTo {
+  margin-top: 2px;
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+}
+.pills {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+.bizTag {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  padding: 2px 10px;
+  border-radius: var(--m-radius-pill);
+  background: var(--m-pill-grey-bg);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.codeChip {
+  position: relative;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  padding: 4px 8px 4px 20px;
+  border: 1.5px dashed var(--m-link);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--m-link) 4%, var(--color-surface));
+}
+.codeText {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--m-ink);
+  overflow-wrap: anywhere;
+}
+.copyBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--m-link);
+  cursor: pointer;
+}
+.copyBtn:hover {
+  background: color-mix(in srgb, var(--m-link) 12%, transparent);
+}
+.copyBtn:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 1px;
+}
+.copyBtnDone {
+  color: var(--m-pill-green-fg);
+}
+.copiedTip {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translate(8px, -50%);
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--m-ink);
+  color: var(--color-surface);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.desc {
+  margin: 0;
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  overflow-wrap: anywhere;
+}
+.facts {
+  list-style: none;
+  margin: 0;
+  padding: 10px 0 0;
+  border-top: 1px solid var(--m-divider);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--m-ink);
+}
+.facts li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.factIcon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  color: var(--color-text-secondary);
+}
+.dot {
+  margin: 0 4px;
+  color: var(--color-text-secondary);
+}
+.progress {
+  height: 8px;
+  margin: 4px 0 0 36px;
+  border-radius: var(--m-radius-pill);
+  background: var(--m-divider);
+  overflow: hidden;
+}
+.progressFill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--m-link);
+}
+
+/* Dashed tear line with half-circle notches cut into both card edges. */
+.ticketFooter {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: 12px 20px 14px;
+  border-top: 1.5px dashed var(--m-divider);
+}
+.ticketFooter::before,
+.ticketFooter::after {
+  content: '';
+  position: absolute;
+  top: -11px;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--m-divider);
+  border-radius: 50%;
+  background: var(--color-background);
+}
+.ticketFooter::before {
+  left: -11px;
+  clip-path: inset(0 0 0 50%);
+}
+.ticketFooter::after {
+  right: -11px;
+  clip-path: inset(0 50% 0 0);
+}
+
+.switchRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+.switchLabel {
+  font-size: var(--font-size-md);
+  font-weight: 500;
+  color: var(--m-ink);
+}
+.ticketFaded .switchLabel {
+  color: var(--color-text-secondary);
+}
+.switch {
+  position: relative;
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 46px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: var(--m-radius-pill);
+  background: var(--color-border-strong, #cbd5e1);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.switchOn {
+  background: var(--m-action);
+}
+.switchKnob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(15, 30, 74, 0.25);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.switchOn .switchKnob {
+  transform: translateX(20px);
+}
+.switch:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 2px;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+}
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--m-divider);
+  border-radius: 10px;
+  background: var(--color-surface);
+  color: var(--m-link);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
+}
+.iconBtn:hover {
+  border-color: var(--m-link);
+}
+.iconBtnDanger {
+  border-color: var(--m-tint-pink-border);
+  background: var(--m-pill-red-bg);
+  color: var(--m-pill-red-fg);
+}
+.iconBtnDanger:hover {
+  border-color: var(--m-pill-red-fg);
+}
+.iconBtn:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 2px;
+}
+
+/* ── No coupons yet ────────────────────────────────────────────────── */
+.emptyCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-xl) var(--space-lg);
+  text-align: center;
+  background: var(--color-surface);
+  border: 1px solid var(--m-divider);
+  border-radius: var(--m-radius-card);
+  box-shadow: var(--m-shadow-card);
+}
+.emptyIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--m-tint-blue);
+  color: var(--m-tint-blue-icon);
+}
+.emptyText {
+  margin: 0;
+  max-width: 420px;
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 1280px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 1100px) {
+  .tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .toolbarActions {
+    margin-left: 0;
+  }
+}
+@media (max-width: 760px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 640px) {
+  .tiles {
+    grid-template-columns: 1fr;
+  }
+  .search {
+    max-width: none;
+  }
+  .filterWrap,
+  .filter {
+    flex: 1 1 140px;
+    min-width: 0;
+    width: 100%;
+  }
+}

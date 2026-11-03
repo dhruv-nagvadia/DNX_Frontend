@@ -6,4 +6,6 @@ export interface BusinessCalendarProps {
   businessHours: BusinessHour[];
   /** Store businesses show that date's orders; service businesses show bookings. */
   businessType?: BusinessType;
+  /** "View all ›" in the day panel — e.g. open the Bookings/Orders tab. Hidden when omitted. */
+  onViewAll?: () => void;
 }

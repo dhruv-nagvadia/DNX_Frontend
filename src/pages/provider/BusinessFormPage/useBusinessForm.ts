@@ -11,6 +11,7 @@ import {
 
 import { isRasterImage, IMAGE_REJECT_MSG } from '@/utils/imageValidation';
 import { lookupPincode, reverseGeocode } from '@/utils/geoLookup';
+import type { Provider } from '@/redux/api/provider/types';
 import { BusinessForm, BusinessFormErrors, BusinessStepId, PickedImage } from './types';
 import { STEP_FIELDS, validateBusiness } from './validation';
 
@@ -35,7 +36,11 @@ const EMPTY: BusinessForm = {
   partialPayEnabled: true,
 };
 
-const MAX_IMAGES = 8;
+// Matches the backend's per-business cap; one upload request takes at most 8
+// files, so a larger pick is sent in batches.
+const MAX_IMAGES = 12;
+const UPLOAD_BATCH = 8;
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
 /** A new step starts at the top of the page. */
 function scrollToTop() {
@@ -78,6 +83,15 @@ export function useBusinessForm() {
   const pincodeEditedByUser = useRef(false);
   // Set by the edit-mode "Save now" shortcut so it saves from any step.
   const saveNowRef = useRef(false);
+  // City/state as resolved from the typed PIN (null = no successful lookup).
+  const [pinLookup, setPinLookup] = useState<{ city: string; state: string } | null>(null);
+  const [pinLookupFailed, setPinLookupFailed] = useState(false);
+  // Which of city/state currently hold an auto-filled value (cleared once edited by hand).
+  const [autoFilled, setAutoFilled] = useState({ city: false, state: false });
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  // Create only: the business just created — switches the page to its "done" screen.
+  const [created, setCreated] = useState<Provider | null>(null);
+  const [photoUploadFailed, setPhotoUploadFailed] = useState(false);
 
   // Prefill when editing.
   useEffect(() => {
@@ -135,7 +149,12 @@ export function useBusinessForm() {
 
   const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    if (name === 'postalCode') pincodeEditedByUser.current = true;
+    if (name === 'postalCode') {
+      pincodeEditedByUser.current = true;
+      setPinLookup(null);
+      setPinLookupFailed(false);
+    }
+    if (name === 'city' || name === 'state') setAutoFilled((prev) => ({ ...prev, [name]: false }));
     setForm((prev) => ({ ...prev, [name]: value }));
     // A message about a field goes away as soon as it's edited, not only on the next submit.
     setErrors((prev) => (prev[name as keyof BusinessForm] ? { ...prev, [name]: undefined } : prev));
@@ -163,7 +182,13 @@ export function useBusinessForm() {
     const timer = setTimeout(async () => {
       const result = await lookupPincode(pincode);
       if (!cancelled) {
-        if (result) setForm((prev) => ({ ...prev, city: result.city, state: result.state }));
+        if (result) {
+          setForm((prev) => ({ ...prev, city: result.city, state: result.state }));
+          setPinLookup({ city: result.city, state: result.state });
+          setAutoFilled({ city: !!result.city, state: !!result.state });
+        } else {
+          setPinLookupFailed(true);
+        }
         setResolvingPincode(false);
       }
     }, 350);
@@ -173,16 +198,34 @@ export function useBusinessForm() {
     };
   }, [form.postalCode]);
 
-  const addImages = useCallback((fileList: FileList | null) => {
-    if (!fileList) return;
-    const files = Array.from(fileList).filter(isRasterImage);
-    if (files.length !== fileList.length) window.alert(IMAGE_REJECT_MSG);
-    const incoming = files.map((file) => ({
-      file,
-      preview: URL.createObjectURL(file),
-    }));
-    setImages((prev) => [...prev, ...incoming].slice(0, MAX_IMAGES));
-  }, []);
+  const addImages = useCallback(
+    (fileList: FileList | File[] | null) => {
+      if (!fileList) return;
+      const all = Array.from(fileList);
+      if (all.length === 0) return;
+      const raster = all.filter(isRasterImage);
+      const sized = raster.filter((f) => f.size <= MAX_IMAGE_BYTES);
+      const room = MAX_IMAGES - images.length;
+      const accepted = sized.slice(0, Math.max(room, 0));
+
+      const problems: string[] = [];
+      if (raster.length !== all.length) problems.push(IMAGE_REJECT_MSG);
+      if (sized.length !== raster.length) problems.push('Each photo must be 10 MB or smaller.');
+      if (sized.length > accepted.length) {
+        problems.push(
+          room > 0
+            ? `You can add up to ${MAX_IMAGES} photos — only the first ${room} were added.`
+            : `You can add up to ${MAX_IMAGES} photos. Remove one to add another.`,
+        );
+      }
+      setPhotoError(problems.length ? problems.join(' ') : null);
+      if (accepted.length === 0) return;
+
+      const incoming = accepted.map((file) => ({ file, preview: URL.createObjectURL(file) }));
+      setImages((prev) => [...prev, ...incoming].slice(0, MAX_IMAGES));
+    },
+    [images.length],
+  );
 
   // Uses the browser's built-in geolocation (no API key needed) for coordinates,
   // then reverse-geocodes them to fill in address/PIN/city/state too, so the
@@ -209,6 +252,7 @@ export function useBusinessForm() {
               state: state ?? prev.state,
               postalCode: postalCode ?? prev.postalCode,
             }));
+            setAutoFilled((prev) => ({ city: city ? true : prev.city, state: state ? true : prev.state }));
           })
           .finally(() => setLocating(false));
       },
@@ -230,6 +274,7 @@ export function useBusinessForm() {
       if (target) URL.revokeObjectURL(target.preview);
       return prev.filter((_, i) => i !== index);
     });
+    setPhotoError(null);
   }, []);
 
   /** Checks just one step's fields; returns whether they're all fine. */
@@ -247,13 +292,14 @@ export function useBusinessForm() {
   const goToStep = useCallback(
     (index: number) => {
       // Editing: every step already has data, so jump freely. Creating: only back to steps already reached.
+      if (created) return;
       if (index < 0 || index >= stepIds.length) return;
       if (!isEdit && index > furthest) return;
       setServerError(null);
       setStep(index);
       scrollToTop();
     },
-    [stepIds.length, isEdit, furthest],
+    [stepIds.length, isEdit, furthest, created],
   );
 
   const next = useCallback(() => {
@@ -317,13 +363,23 @@ export function useBusinessForm() {
           await updateBusiness({ id, data: payload }).unwrap();
           navigate(`/businesses/${id}`);
         } else {
-          const created = await createProvider(payload).unwrap();
-          if (images.length > 0) {
+          const business = await createProvider(payload).unwrap();
+          // The business exists now — a failed photo upload mustn't make the
+          // provider press "Create" again (that would create a duplicate), so
+          // it only shows a note on the done screen.
+          let uploadFailed = false;
+          for (let i = 0; i < images.length; i += UPLOAD_BATCH) {
             const fd = new FormData();
-            images.forEach((img) => fd.append('images', img.file));
-            await uploadImages({ id: created.id, formData: fd }).unwrap();
+            images.slice(i, i + UPLOAD_BATCH).forEach((img) => fd.append('images', img.file));
+            try {
+              await uploadImages({ id: business.id, formData: fd }).unwrap();
+            } catch {
+              uploadFailed = true;
+            }
           }
-          navigate(`/businesses/${created.id}`);
+          setPhotoUploadFailed(uploadFailed);
+          setCreated(business);
+          scrollToTop();
         }
       } catch {
         setServerError('Could not save. Please check your details and try again.');
@@ -334,6 +390,9 @@ export function useBusinessForm() {
 
   return {
     isEdit,
+    existing,
+    created,
+    photoUploadFailed,
     loadingExisting: isEdit && loadingExisting,
     categories,
     subcategories,
@@ -368,5 +427,9 @@ export function useBusinessForm() {
     locating,
     locationError,
     resolvingPincode,
+    pinLookup,
+    pinLookupFailed,
+    autoFilled,
+    photoError,
   };
 }

@@ -1,8 +1,8 @@
 import { ArrowDown, ArrowUp, BarChart3 } from 'lucide-react';
 
-import { TrendChart } from '@/components/TrendChart';
 import { ModernCard } from '@/components/ModernCard';
 import { Skeleton } from '@/components/Skeleton';
+import { SmoothTrendChart } from '@/components/SmoothTrendChart';
 import { BusinessType } from '@/redux/api/provider/types';
 
 import { EarningsPeriod } from './types';
@@ -42,20 +42,6 @@ function money(major: number, currency: string): string {
       style: 'currency',
       currency,
       maximumFractionDigits: 0,
-    }).format(major);
-  } catch {
-    return `${Math.round(major)}`;
-  }
-}
-
-/** Short axis label, e.g. ₹1.2K. */
-function compact(major: number, currency: string): string {
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency,
-      notation: 'compact',
-      maximumFractionDigits: 1,
     }).format(major);
   } catch {
     return `${Math.round(major)}`;
@@ -116,12 +102,14 @@ export function EarningsPanel({
               labels on it already say "no revenue in this period" on their
               own; a quiet period isn't the same as "never had any data". */}
           <div className={styles.chartWrap}>
-            <TrendChart
-              data={series.points}
-              height={190}
-              highlightLast
-              formatValue={(v) => money(v, series.currency)}
-              formatAxis={(v) => compact(v, series.currency)}
+            <SmoothTrendChart
+              points={series.points.map((p) => ({
+                label: p.label,
+                value: Math.round(p.value * 100),
+              }))}
+              seriesLabel="Earnings"
+              showSecondary={false}
+              height={200}
             />
           </div>
           {series.isEmpty && <p className={styles.emptyNote}>No earnings yet for this period.</p>}

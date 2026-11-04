@@ -12,6 +12,7 @@ export const endpoints = {
   resetPassword: '/provider/auth/reset-password',
   refresh: '/auth/refresh',
   me: '/auth/me',
+  changePassword: '/auth/change-password',
 
   // Auth — unlisted admin console (ADMIN; login-only, no self-registration)
   adminLogin: '/admin/auth/login',
@@ -70,6 +71,8 @@ export const endpoints = {
   myOrders: '/provider/orders',
   myAllCoupons: '/provider/coupons',
   myAllReviews: '/provider/reviews',
+  // Every product review across all of the owner's stores.
+  myAllProductReviews: '/provider/product-reviews',
   myOrder: (orderId: string) => `/provider/orders/${orderId}`,
   myOrderCollect: (orderId: string) => `/provider/orders/${orderId}/collect`,
   uploadImage: '/provider/uploads/image',

@@ -272,6 +272,23 @@ export interface CouponInput {
   isActive?: boolean;
 }
 
+/** A product review as seen by the owner across all stores (global Reviews page). */
+export interface OwnerProductReview {
+  id: string;
+  rating: number;
+  comment?: string | null;
+  providerReply?: string | null;
+  repliedAt?: string | null;
+  createdAt: string;
+  user: { fullName: string };
+  product: {
+    id: string;
+    name: string;
+    imageUrl?: string | null;
+    provider: { id: string; businessName: string };
+  };
+}
+
 export interface BusinessReview {
   id: string;
   rating: number;

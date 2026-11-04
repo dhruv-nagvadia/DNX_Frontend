@@ -349,7 +349,7 @@ export function ProductsManager({
                       const sub = p.description?.trim() || p.productType?.name;
                       return (
                         <tr key={p.id} className={active ? '' : ui.rowInactive}>
-                          <td className={ui.fade}>
+                          <td>
                             <div className={ui.productCell}>
                               {p.imageUrl ? (
                                 <img className={ui.thumb} src={p.imageUrl} alt="" />
@@ -368,21 +368,21 @@ export function ProductsManager({
                               </div>
                             </div>
                           </td>
-                          <td className={ui.fade}>
+                          <td>
                             {p.section?.trim() ? (
                               <Pill tone={sectionTone(p.section.trim())}>{p.section.trim()}</Pill>
                             ) : (
                               <span className={ui.muted}>—</span>
                             )}
                           </td>
-                          <td className={`${ui.fade} ${ui.price}`}>{priceText(p)}</td>
-                          <td className={ui.fade}>
+                          <td className={ui.price}>{priceText(p)}</td>
+                          <td>
                             <StockPill p={p} />
                           </td>
-                          <td className={`${ui.fade} ${ui.center} ${ui.minOrder}`}>
+                          <td className={`${ui.center} ${ui.minOrder}`}>
                             {qtyText(p.stepQty, p.measure)}
                           </td>
-                          <td className={ui.fade}>
+                          <td>
                             {(p.ratingCount ?? 0) > 0 ? (
                               <span className={ui.rating}>
                                 <Star size={16} className={ui.star} aria-hidden="true" />

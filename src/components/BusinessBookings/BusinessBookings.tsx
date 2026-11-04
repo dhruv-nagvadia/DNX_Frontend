@@ -17,10 +17,11 @@ import { Pill } from '@/components/Pill';
 import { Skeleton } from '@/components/Skeleton';
 import {
   useCollectBookingPaymentMutation,
+  useGetAllMyBookingsQuery,
   useGetBusinessBookingsQuery,
   useUpdateBookingStatusMutation,
 } from '@/redux/api/provider/providerApi';
-import { BookingStatus, ProviderBooking } from '@/redux/api/provider/types';
+import { BookingStatus, DashboardBooking, ProviderBooking } from '@/redux/api/provider/types';
 
 import { BookingDetails } from './BookingDetails';
 import { ServiceIconBox } from './ServiceIconBox';
@@ -100,11 +101,16 @@ const errorMessage = (err: unknown, fallback: string) =>
 export function BusinessBookings({ providerId }: BusinessBookingsProps) {
   // Bookings come from the customer app (a separate client), so refetch on
   // open / focus and poll while the tab is visible.
-  const { data, isLoading } = useGetBusinessBookingsQuery(providerId, {
-    refetchOnMountOrArgChange: true,
-    refetchOnFocus: true,
-    pollingInterval: 30_000,
-  });
+  const showBusiness = !providerId;
+  const live = { refetchOnMountOrArgChange: true, refetchOnFocus: true, pollingInterval: 30_000 } as const;
+  const one = useGetBusinessBookingsQuery(providerId ?? '', { ...live, skip: showBusiness });
+  const all = useGetAllMyBookingsQuery(undefined, { ...live, skip: !showBusiness });
+  const data: ProviderBooking[] | undefined = showBusiness ? all.data : one.data;
+  const isLoading = showBusiness ? all.isLoading : one.isLoading;
+  // Which business a booking belongs to — needed by every status/collect call.
+  const businessIdOf = (b: ProviderBooking) => providerId ?? (b as DashboardBooking).provider.id;
+  const businessNameOf = (b: ProviderBooking) =>
+    showBusiness ? (b as DashboardBooking).provider?.businessName : undefined;
   const [updateStatus, { isLoading: updating }] = useUpdateBookingStatusMutation();
   const [collectPayment, { isLoading: collecting }] = useCollectBookingPaymentMutation();
   const busy = updating || collecting;
@@ -169,11 +175,12 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
         shortId(b).toLowerCase().includes(qId) ||
         b.id.toLowerCase().includes(qId) ||
         b.user.fullName.toLowerCase().includes(q) ||
+        (showBusiness && ((b as DashboardBooking).provider?.businessName ?? '').toLowerCase().includes(q)) ||
         b.service.name.toLowerCase().includes(q) ||
         (qDigits.length > 0 && (b.user.phone ?? '').replace(/\D/g, '').includes(qDigits))
       );
     });
-  }, [inDate, tab, query]);
+  }, [inDate, tab, query, showBusiness]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount);
@@ -203,7 +210,7 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
   const setStatus = async (b: ProviderBooking, status: BookingStatus) => {
     setActionError(null);
     try {
-      await updateStatus({ id: providerId, bookingId: b.id, status }).unwrap();
+      await updateStatus({ id: businessIdOf(b), bookingId: b.id, status }).unwrap();
     } catch (err) {
       // e.g. the server rejects NO_SHOW before the start time.
       setActionError(errorMessage(err, 'Could not update this booking. Please try again.'));
@@ -218,7 +225,7 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
     setActionError(null);
     try {
       await updateStatus({
-        id: providerId,
+        id: businessIdOf(cancelling),
         bookingId: cancelling.id,
         status: 'CANCELLED',
         reason: reason.trim() || undefined,
@@ -234,7 +241,7 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
     if (!settling) return;
     setActionError(null);
     try {
-      await collectPayment({ id: providerId, bookingId: settling.id }).unwrap();
+      await collectPayment({ id: businessIdOf(settling), bookingId: settling.id }).unwrap();
       setSettling(null);
     } catch (err) {
       setSettling(null);
@@ -395,6 +402,11 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
                             <div className={styles.cellStack}>
                               <span className={styles.strong}>{b.user.fullName}</span>
                               {b.user.phone && <span className={styles.mutedSm}>{b.user.phone}</span>}
+                              {businessNameOf(b) && (
+                                <Pill tone="lavender" className={styles.businessPill}>
+                                  {businessNameOf(b)}
+                                </Pill>
+                              )}
                             </div>
                           </td>
                           <td>
@@ -491,6 +503,7 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
         {selected && (
           <BookingDetails
             booking={selected}
+            businessName={businessNameOf(selected)}
             busy={busy}
             error={actionError}
             onStatus={setStatus}

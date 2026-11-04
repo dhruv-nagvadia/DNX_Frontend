@@ -1,0 +1,17 @@
+/* Global Coupons / Offers page header — modern mockup look
+   (--m-* tokens from theme.css, with dark-mode variants). */
+.header {
+  padding-top: var(--space-lg);
+}
+.title {
+  margin: 0;
+  font-size: clamp(26px, 2.4vw, 34px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--m-ink);
+}
+.subtitle {
+  margin: 6px 0 0;
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+}

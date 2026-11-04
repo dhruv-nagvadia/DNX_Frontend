@@ -28,6 +28,8 @@ const STEPS: { status: BookingStatus; label: string }[] = [
 ];
 
 interface Props {
+  /** Shown on the global (all businesses) page so you know where the booking is. */
+  businessName?: string;
   booking: ProviderBooking;
   busy: boolean;
   error: string | null;
@@ -37,7 +39,7 @@ interface Props {
 }
 
 /** Right-hand "Booking Details" panel for the selected booking. */
-export function BookingDetails({ booking: b, busy, error, onStatus, onCollect, onCancel }: Props) {
+export function BookingDetails({ booking: b, businessName, busy, error, onStatus, onCollect, onCancel }: Props) {
   const st = STATUS[b.status];
   const cancelled = isCancelled(b);
   const current = STEPS.findIndex((s) => s.status === b.status);
@@ -71,6 +73,11 @@ export function BookingDetails({ booking: b, busy, error, onStatus, onCollect, o
           <Pill tone={st.tone}>{st.label}</Pill>
         </div>
         {b.createdAt && <span className={styles.muted}>{formatRequested(b.createdAt)}</span>}
+        {businessName && (
+          <Pill tone="lavender" className={styles.businessPill}>
+            {businessName}
+          </Pill>
+        )}
       </div>
 
       {cancelled ? (

@@ -7,6 +7,8 @@ export interface AuthUser {
   role: Role;
   phone?: string | null;
   avatarUrl?: string | null;
+  /** When the account was created ("Provider since …"). */
+  createdAt?: string;
 }
 
 export interface LoginRequest {

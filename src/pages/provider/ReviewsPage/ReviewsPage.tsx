@@ -1,38 +1,27 @@
-import { Navigate, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 
-import { AppShell } from '@/components/AppShell';
-import { BusinessReviews } from '@/components/BusinessReviews';
-import { PageHeader } from '@/components/PageHeader';
-import { Skeleton } from '@/components/Skeleton';
+import { ReviewsBoard } from '@/components/ReviewsBoard';
 import { useGetMyBusinessQuery } from '@/redux/api/provider/providerApi';
 
-import styles from './ReviewsPage.module.css';
-
-/** Full list of a business's reviews (opened from the Overview "View all"). */
+/**
+ * A single business's reviews (opened from the business Overview "View all").
+ * Same board as /reviews, scoped to this business; the top-bar picker
+ * navigates to another business's reviews, or to /reviews for "All businesses".
+ */
 export default function ReviewsPage() {
   const { id = '' } = useParams<{ id: string }>();
-  const { data: business, isLoading, error } = useGetMyBusinessQuery(id, { skip: !id });
+  const navigate = useNavigate();
+  // Only used to bounce unknown / foreign business ids back to the list.
+  const { error } = useGetMyBusinessQuery(id, { skip: !id });
 
   const notFound = !!error && (error as { status?: number }).status === 404;
-  if (notFound) return <Navigate to="/businesses" replace />;
+  if (!id || notFound) return <Navigate to="/businesses" replace />;
 
   return (
-    <AppShell>
-      {isLoading || !business ? (
-        <>
-          <Skeleton width="40%" height={30} />
-          <Skeleton height={320} radius="var(--radius-xl)" />
-        </>
-      ) : (
-        <div className={styles.page}>
-          <PageHeader
-            eyebrow="Reviews"
-            title={business.businessName}
-            subtitle="Everything customers have said about this business."
-          />
-          <BusinessReviews providerId={id} />
-        </div>
-      )}
-    </AppShell>
+    <ReviewsBoard
+      key={id}
+      lockedBusinessId={id}
+      onBusinessChange={(next) => navigate(next ? `/businesses/${next}/reviews` : '/reviews')}
+    />
   );
 }

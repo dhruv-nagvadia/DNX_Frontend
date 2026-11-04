@@ -1,0 +1,53 @@
+/* Global Bookings & Orders page header — mockup look (--m-* tokens). */
+.topRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+  padding-top: var(--space-lg);
+}
+.title {
+  margin: 0;
+  font-size: clamp(26px, 2.4vw, 34px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--m-ink);
+}
+.subtitle {
+  margin: 6px 0 0;
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+}
+
+.segment {
+  display: inline-flex;
+  padding: 4px;
+  border-radius: var(--m-radius-pill);
+  background: var(--color-surface);
+  border: 1px solid var(--m-divider);
+  box-shadow: var(--m-shadow-card);
+}
+.segmentBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border: none;
+  border-radius: var(--m-radius-pill);
+  background: transparent;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--m-ink);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+.segmentBtn:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 2px;
+}
+.segmentActive {
+  background: var(--m-action);
+  color: #fff;
+}

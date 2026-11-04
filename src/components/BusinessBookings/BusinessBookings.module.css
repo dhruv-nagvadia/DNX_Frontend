@@ -945,3 +945,11 @@
     flex-direction: column;
   }
 }
+
+/* Global page: the booking's business, under the customer. */
+.businessPill {
+  align-self: flex-start;
+  margin-top: 4px;
+  font-size: var(--font-size-xs);
+  padding: 2px 8px;
+}

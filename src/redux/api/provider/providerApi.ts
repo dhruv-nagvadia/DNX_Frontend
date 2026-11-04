@@ -6,6 +6,7 @@ import {
   StockAdjustment,
   BusinessHour,
   BusinessReview,
+  OwnerProductReview,
   BookingStatus,
   Coupon,
   CouponInput,
@@ -45,6 +46,7 @@ export const providerApi = createApi({
     'MyEarnings',
     'AllCoupons',
     'AllReviews',
+    'AllProductReviews',
     'StockAdjustments',
   ],
   endpoints: (builder) => ({
@@ -180,7 +182,28 @@ export const providerApi = createApi({
         data: { reply },
       }),
       transformResponse: (res: ApiEnvelope<BusinessReview>) => res.data,
-      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'BusinessReviews', id: providerId }],
+      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'BusinessReviews', id: providerId }, 'AllReviews'],
+    }),
+
+    // Every product review across all of this provider's stores (global page).
+    getAllProductReviews: builder.query<OwnerProductReview[], void>({
+      query: () => ({ endpoint: endpoints.myAllProductReviews, method: 'get' }),
+      transformResponse: (res: ApiEnvelope<OwnerProductReview[]>) => res.data,
+      providesTags: ['AllProductReviews'],
+    }),
+
+    // Reply to (or clear the reply on) a product review.
+    replyToProductReview: builder.mutation<
+      OwnerProductReview,
+      { providerId: string; productId: string; reviewId: string; reply: string | null }
+    >({
+      query: ({ providerId, productId, reviewId, reply }) => ({
+        endpoint: endpoints.myProviderProductReviewReply(providerId, productId, reviewId),
+        method: 'patch',
+        data: { reply },
+      }),
+      transformResponse: (res: ApiEnvelope<OwnerProductReview>) => res.data,
+      invalidatesTags: ['AllProductReviews'],
     }),
 
     // Update an owned business.
@@ -357,7 +380,7 @@ export const providerApi = createApi({
         data,
       }),
       transformResponse: (res: ApiEnvelope<Coupon>) => res.data,
-      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'Coupons', id: providerId }],
+      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'Coupons', id: providerId }, 'AllCoupons'],
     }),
     updateCoupon: builder.mutation<
       Coupon,
@@ -369,7 +392,7 @@ export const providerApi = createApi({
         data,
       }),
       transformResponse: (res: ApiEnvelope<Coupon>) => res.data,
-      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'Coupons', id: providerId }],
+      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'Coupons', id: providerId }, 'AllCoupons'],
     }),
     deleteCoupon: builder.mutation<
       { id: string },
@@ -380,7 +403,7 @@ export const providerApi = createApi({
         method: 'delete',
       }),
       transformResponse: (res: ApiEnvelope<{ id: string }>) => res.data,
-      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'Coupons', id: providerId }],
+      invalidatesTags: (_r, _e, { providerId }) => [{ type: 'Coupons', id: providerId }, 'AllCoupons'],
     }),
 
     // Replace the weekly business hours.
@@ -448,6 +471,8 @@ export const {
   useGetMyOrdersQuery,
   useGetAllCouponsQuery,
   useGetAllReviewsQuery,
+  useGetAllProductReviewsQuery,
+  useReplyToProductReviewMutation,
   useGetMyEarningsQuery,
   useUpdateOrderStatusMutation,
   useCollectOrderPaymentMutation,

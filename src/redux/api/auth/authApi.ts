@@ -40,6 +40,17 @@ export const authApi = createApi({
       invalidatesTags: ['Me'],
     }),
 
+    changePassword: builder.mutation<void, { currentPassword: string; newPassword: string }>({
+      query: (data) => ({ endpoint: endpoints.changePassword, method: 'post', data }),
+      transformResponse: () => undefined,
+    }),
+
+    /** Permanently deactivates the account (password required). */
+    deleteAccount: builder.mutation<void, { password: string }>({
+      query: (data) => ({ endpoint: endpoints.me, method: 'delete', data }),
+      transformResponse: () => undefined,
+    }),
+
     requestPasswordReset: builder.mutation<void, RequestPasswordResetRequest>({
       query: (data) => ({ endpoint: endpoints.forgotPassword, method: 'post', data }),
       transformResponse: () => undefined,
@@ -58,6 +69,8 @@ export const {
   useGetMeQuery,
   useLazyGetMeQuery,
   useUpdateMeMutation,
+  useChangePasswordMutation,
+  useDeleteAccountMutation,
   useRequestPasswordResetMutation,
   useResetPasswordMutation,
 } = authApi;

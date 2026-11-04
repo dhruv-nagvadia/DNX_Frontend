@@ -1,315 +1,733 @@
-import { Banknote, Coins, Hourglass, PiggyBank } from 'lucide-react';
+import { ReactNode, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import {
+  AlertCircle,
+  ArrowDown,
+  ArrowUp,
+  Banknote,
+  CalendarDays,
+  CheckCircle2,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  CreditCard,
+  FileText,
+  Info,
+  Percent,
+  ReceiptText,
+  RefreshCw,
+  Search,
+  Wallet,
+} from 'lucide-react';
 
 import { AppShell } from '@/components/AppShell';
-import { Badge } from '@/components/Badge';
-import { Card } from '@/components/Card';
-import { EmptyState } from '@/components/EmptyState';
-import { PageHeader } from '@/components/PageHeader';
-import { Select } from '@/components/Select';
+import { NotificationBell } from '@/components/NotificationBell';
+import { Pill, PillTone } from '@/components/Pill';
 import { Skeleton } from '@/components/Skeleton';
-import { StatTile } from '@/components/StatTile';
-import { Tabs } from '@/components/Tabs';
-import { EarningsTransaction } from '@/redux/api/provider/types';
-import { RANGE_PRESETS } from '@/utils/dateRange';
+import { Earnings, EarningsSettlement, EarningsTransaction } from '@/redux/api/provider/types';
 import { bpsToPercentText, formatMoney } from '@/utils/money';
-import { useEarningsPage } from './useEarningsPage';
-import styles from '@/components/FinanceTable/FinanceTable.module.css';
 
-const dateFmt = new Intl.DateTimeFormat('en-IN', {
-  day: 'numeric',
+import { EARNINGS_PRESETS, EarningsPreset } from './earningsRange';
+import { EarningsTrendChart, Granularity } from './EarningsTrendChart';
+import { HeaderDropdown } from './HeaderDropdown';
+import { PaymentDonut } from './PaymentDonut';
+import { useEarningsPage } from './useEarningsPage';
+import styles from './EarningsPage.module.css';
+
+const PAGE_SIZE = 5;
+const PAYOUT_PREVIEW = 2;
+
+const shortDate = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' });
+const shortDateYear = new Intl.DateTimeFormat('en-US', {
   month: 'short',
+  day: 'numeric',
   year: 'numeric',
 });
 
-function paidVia(t: EarningsTransaction): string {
-  if (t.onlineMinor > 0 && t.cashMinor > 0) return 'Online + cash';
-  if (t.onlineMinor > 0) return 'Online';
-  return 'Cash';
+/** "Oct 28", or "Oct 28, 2025" when it isn't this year. */
+function fmtDate(iso: string | null): string {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.getFullYear() === new Date().getFullYear()
+    ? shortDate.format(d)
+    : shortDateYear.format(d);
 }
+
+function initialsOf(name: string): string {
+  return (
+    name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((p) => p[0]?.toUpperCase() ?? '')
+      .join('') || 'DN'
+  );
+}
+
+const TAG_TONES: PillTone[] = ['lavender', 'blue', 'green', 'orange', 'teal'];
+/** Deterministic colour per business, so rows stay scannable. */
+function businessTone(id: string): PillTone {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+  return TAG_TONES[hash % TAG_TONES.length];
+}
+
+function PaymentPill({ t }: { t: EarningsTransaction }) {
+  if (t.onlineMinor > 0 && t.cashMinor > 0) {
+    return (
+      <Pill tone="blue" className={styles.payPill}>
+        <CreditCard size={14} aria-hidden="true" />
+        Partial
+      </Pill>
+    );
+  }
+  if (t.onlineMinor > 0) {
+    return (
+      <Pill tone="green" className={styles.payPill}>
+        <CreditCard size={14} aria-hidden="true" />
+        Online
+      </Pill>
+    );
+  }
+  return (
+    <Pill tone="grey" className={styles.payPill}>
+      <Banknote size={14} aria-hidden="true" />
+      Cash
+    </Pill>
+  );
+}
+
+function signedMoney(minor: number): string {
+  return `${minor < 0 ? '−' : '+'}${formatMoney(Math.abs(minor))}`;
+}
+
+/* ── Hero: payout balance + 4 tiles ────────────────────────────────────── */
+
+function BalanceCard({ data }: { data: Earnings }) {
+  const b = data.balance;
+  const owesYou = b.balanceMinor >= 0;
+  return (
+    <section className={styles.balanceCard} aria-label="Payout balance">
+      <div className={styles.balanceMain}>
+        <h2 className={styles.balanceTitle}>Payout balance</h2>
+        <span className={`${styles.balanceChip} ${owesYou ? '' : styles.balanceChipOwe}`}>
+          {b.balanceMinor === 0 ? 'All settled' : owesYou ? 'DNX owes you' : 'You owe DNX'}
+        </span>
+        <span className={styles.balanceValue}>{formatMoney(Math.abs(b.balanceMinor))}</span>
+        <span className={styles.balancePill}>
+          <CheckCircle2 size={16} aria-hidden="true" />
+          {owesYou ? 'Next payout: manual by DNX' : 'Settled manually with DNX'}
+        </span>
+      </div>
+      <dl className={styles.balanceBreak}>
+        <div className={styles.breakRow}>
+          <dt>Collected online for you</dt>
+          <dd>{formatMoney(b.earnedOnlineMinor)}</dd>
+        </div>
+        <div className={styles.breakRow}>
+          <dt>− DNX commission ({bpsToPercentText(data.defaultCommissionBps)}%)</dt>
+          <dd>{formatMoney(b.earnedCommissionMinor)}</dd>
+        </div>
+        <div className={styles.breakRow}>
+          <dt>− Already paid out to you</dt>
+          <dd>{formatMoney(b.paidOutMinor)}</dd>
+        </div>
+        <div className={styles.breakRow}>
+          <dt>+ You paid DNX</dt>
+          <dd>{formatMoney(b.receivedMinor)}</dd>
+        </div>
+        <div className={`${styles.breakRow} ${styles.breakTotal}`}>
+          <dt>= Balance</dt>
+          <dd>
+            {b.balanceMinor < 0 ? '−' : ''}
+            {formatMoney(Math.abs(b.balanceMinor))}
+          </dd>
+        </div>
+      </dl>
+    </section>
+  );
+}
+
+function Tile({
+  tone,
+  icon,
+  label,
+  value,
+  note,
+}: {
+  tone: 'blue' | 'peach' | 'mint' | 'lavender';
+  icon: ReactNode;
+  label: string;
+  value: string;
+  note: ReactNode;
+}) {
+  const toneClass = {
+    blue: styles.tileBlue,
+    peach: styles.tilePeach,
+    mint: styles.tileMint,
+    lavender: styles.tileLavender,
+  }[tone];
+  return (
+    <div className={`${styles.tile} ${toneClass}`}>
+      <span className={styles.tileIcon} aria-hidden="true">
+        {icon}
+      </span>
+      <span className={styles.tileText}>
+        <span className={styles.tileLabel}>{label}</span>
+        <span className={styles.tileValue}>{value}</span>
+        <span className={styles.tileNote}>{note}</span>
+      </span>
+    </div>
+  );
+}
+
+function ChangeNote({ cur, prev, label }: { cur: number; prev: number | null; label: string }) {
+  if (prev === null || prev <= 0) return null;
+  const pct = Math.round(((cur - prev) / prev) * 100);
+  const down = pct < 0;
+  return (
+    <span className={down ? styles.changeDown : styles.changeUp}>
+      {down ? (
+        <ArrowDown size={14} strokeWidth={2.4} aria-hidden="true" />
+      ) : (
+        <ArrowUp size={14} strokeWidth={2.4} aria-hidden="true" />
+      )}
+      {Math.abs(pct)}% <span className={styles.changeLabel}>{label}</span>
+    </span>
+  );
+}
+
+/* ── Payouts ───────────────────────────────────────────────────────────── */
+
+function PayoutRow({ p }: { p: EarningsSettlement }) {
+  const [open, setOpen] = useState(false);
+  const toYou = p.direction === 'TO_PROVIDER';
+  const meta = [
+    formatMoney(p.amountMinor),
+    p.method,
+    p.reference ? `Ref ${p.reference}` : null,
+    fmtDate(p.paidAt),
+  ].filter(Boolean);
+  return (
+    <li className={styles.payoutItem}>
+      <button
+        type="button"
+        className={styles.payoutRow}
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <span
+          className={`${styles.payoutIcon} ${toYou ? styles.payoutIconIn : styles.payoutIconOut}`}
+          aria-hidden="true"
+        >
+          {toYou ? <ArrowDown size={20} /> : <ArrowUp size={20} />}
+        </span>
+        <span className={styles.payoutText}>
+          <span className={styles.payoutTitle}>{toYou ? 'DNX paid you' : 'You paid DNX'}</span>
+          <span className={styles.payoutMeta}>{meta.join(' • ')}</span>
+        </span>
+        <ChevronRight
+          size={20}
+          aria-hidden="true"
+          className={`${styles.payoutChevron} ${open ? styles.payoutChevronOpen : ''}`}
+        />
+      </button>
+      {open && (
+        <p className={styles.payoutNote}>{p.note || 'No note was added to this settlement.'}</p>
+      )}
+    </li>
+  );
+}
+
+/* ── Page ──────────────────────────────────────────────────────────────── */
+
+type KindFilter = 'ALL' | 'BOOKING' | 'ORDER';
 
 /** What the provider takes home after the platform's commission, and what's owed either way. */
 export default function EarningsPage() {
   const e = useEarningsPage();
   const data = e.data;
 
-  const tabs = RANGE_PRESETS.map((p) => ({ id: p.id, label: p.label }));
-  const balance = data?.balance.balanceMinor ?? 0;
+  const [granularity, setGranularity] = useState<Granularity>('daily');
+  const [showAllPayouts, setShowAllPayouts] = useState(false);
+  const [query, setQuery] = useState('');
+  const [kind, setKind] = useState<KindFilter>('ALL');
+  const [page, setPage] = useState(1);
+
+  const photoById = useMemo(
+    () => new Map(e.businesses.map((b) => [b.id, b.images?.[0] ?? null])),
+    [e.businesses],
+  );
+
+  const sales = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return (data?.transactions ?? []).filter(
+      (t) =>
+        (kind === 'ALL' || t.kind === kind) &&
+        (!q || t.title.toLowerCase().includes(q) || t.businessName.toLowerCase().includes(q)),
+    );
+  }, [data, query, kind]);
+
+  const pageCount = Math.max(1, Math.ceil(sales.length / PAGE_SIZE));
+  const curPage = Math.min(page, pageCount);
+  const pageRows = sales.slice((curPage - 1) * PAGE_SIZE, curPage * PAGE_SIZE);
+  // A window of up to 5 page buttons around the current page.
+  const firstBtn = Math.max(1, Math.min(curPage - 2, pageCount - 4));
+  const pageBtns = Array.from({ length: Math.min(5, pageCount) }, (_, i) => firstBtn + i);
+
+  const presetLabel = EARNINGS_PRESETS.find((p) => p.id === e.preset)?.label ?? 'This month';
+  const bizLabel =
+    e.businesses.find((b) => b.id === e.businessId)?.businessName ?? 'All businesses';
+
+  const header = (
+    <div className={styles.topControls}>
+      <HeaderDropdown
+        icon={<CalendarDays size={18} aria-hidden="true" />}
+        label={presetLabel}
+        ariaLabel="Period"
+        value={e.preset}
+        options={EARNINGS_PRESETS.map((p) => ({ value: p.id, label: p.label }))}
+        onChange={(v) => {
+          e.onPreset(v as EarningsPreset);
+          setPage(1);
+        }}
+      />
+      <HeaderDropdown
+        label={bizLabel}
+        ariaLabel="Business"
+        value={e.businessId}
+        options={[
+          { value: '', label: 'All businesses' },
+          ...e.businesses.map((b) => ({ value: b.id, label: b.businessName })),
+        ]}
+        onChange={(v) => {
+          e.onBusiness(v);
+          setPage(1);
+        }}
+      />
+      <div className={styles.bellWrap}>
+        <NotificationBell />
+      </div>
+      <Link className={styles.profileChip} to="/profile">
+        {e.avatarUrl ? (
+          <img className={styles.profileAvatarImg} src={e.avatarUrl} alt="" aria-hidden="true" />
+        ) : (
+          <span className={styles.profileAvatar} aria-hidden="true">
+            {initialsOf(e.fullName || 'DNX')}
+          </span>
+        )}
+        <span className={styles.profileName}>{e.fullName || 'Your account'}</span>
+        <ChevronDown size={16} aria-hidden="true" />
+      </Link>
+    </div>
+  );
+
+  const titleBlock = (
+    <div className={styles.titleBlock}>
+      <h1 className={styles.title}>Earnings</h1>
+      <p className={styles.subtitle}>
+        What you take home after DNX&rsquo;s commission, and what&rsquo;s owed between you and DNX.
+      </p>
+    </div>
+  );
+
+  if (e.isError && !data) {
+    return (
+      <AppShell header={header}>
+        <div className={styles.page}>
+          {titleBlock}
+          <div className={styles.errorCard} role="alert">
+            <AlertCircle size={28} aria-hidden="true" />
+            <p className={styles.errorTitle}>We couldn&rsquo;t load your earnings.</p>
+            <p className={styles.errorText}>Check your connection and try again.</p>
+            <button type="button" className={styles.retryBtn} onClick={() => e.refetch()}>
+              <RefreshCw size={16} aria-hidden="true" />
+              Retry
+            </button>
+          </div>
+        </div>
+      </AppShell>
+    );
+  }
+
+  if (e.isLoading || !data) {
+    return (
+      <AppShell header={header}>
+        <div className={styles.page}>
+          {titleBlock}
+          <div className={styles.heroRow}>
+            <Skeleton height={190} radius="var(--m-radius-card)" />
+            <div className={styles.tiles}>
+              {[0, 1, 2, 3].map((i) => (
+                <Skeleton key={i} height={88} radius="var(--m-radius-card)" />
+              ))}
+            </div>
+          </div>
+          <div className={styles.rowTrend}>
+            <Skeleton height={320} radius="var(--m-radius-card)" />
+            <Skeleton height={320} radius="var(--m-radius-card)" />
+          </div>
+          <div className={styles.rowBiz}>
+            <Skeleton height={260} radius="var(--m-radius-card)" />
+            <Skeleton height={260} radius="var(--m-radius-card)" />
+          </div>
+          <Skeleton height={360} radius="var(--m-radius-card)" />
+        </div>
+      </AppShell>
+    );
+  }
+
+  const s = data.summary;
+  const commissionShare =
+    s.grossMinor > 0 ? Math.round((s.commissionMinor / s.grossMinor) * 1000) / 10 : null;
+  const bizRows = e.businessId
+    ? data.businesses.filter((b) => b.id === e.businessId)
+    : data.businesses;
+  const payouts = showAllPayouts ? data.payouts : data.payouts.slice(0, PAYOUT_PREVIEW);
 
   return (
-    <AppShell>
-      <PageHeader
-        title="Earnings"
-        subtitle="What you take home after DNX's commission, and what's owed between you and DNX."
-      />
+    <AppShell header={header}>
+      <div className={`${styles.page} ${e.isFetching ? styles.refreshing : ''}`}>
+        {titleBlock}
 
-      <div className={styles.controls}>
-        <Tabs tabs={tabs} active={e.preset} onChange={(id) => e.onPreset(id as typeof e.preset)} />
-        {e.businesses.length > 1 && (
-          <Select
-            style={{ width: 'auto', minWidth: 200 }}
-            aria-label="Filter by business"
-            value={e.businessId}
-            onChange={(ev) => e.onBusiness(ev.target.value)}
-          >
-            <option value="">All businesses</option>
-            {e.businesses.map((b) => (
-              <option key={b.id} value={b.id}>
-                {b.businessName}
-              </option>
-            ))}
-          </Select>
-        )}
-      </div>
-
-      {e.isLoading || !data ? (
-        <div className={styles.stats}>
-          {[0, 1, 2, 3].map((i) => (
-            <Skeleton key={i} height={96} radius="var(--radius-lg)" />
-          ))}
-        </div>
-      ) : (
-        <>
-          <div className={styles.stats}>
-            <StatTile
+        {/* ── Hero ── */}
+        <div className={styles.heroRow}>
+          <BalanceCard data={data} />
+          <div className={styles.tiles}>
+            <Tile
+              tone="blue"
+              icon={<ReceiptText size={26} strokeWidth={1.8} />}
               label="Sales"
-              value={formatMoney(data.summary.grossMinor)}
-              icon={<Banknote size={18} aria-hidden="true" />}
-              note={`${data.summary.count} completed`}
+              value={formatMoney(s.grossMinor)}
+              note={`${s.count} ${s.count === 1 ? 'sale' : 'sales'}`}
             />
-            <StatTile
+            <Tile
+              tone="peach"
+              icon={<Percent size={26} strokeWidth={2} />}
               label="DNX commission"
-              value={formatMoney(data.summary.commissionMinor)}
-              icon={<Coins size={18} aria-hidden="true" />}
-              note={`Currently ${bpsToPercentText(data.defaultCommissionBps)}% on new sales`}
+              value={formatMoney(s.commissionMinor)}
+              note={
+                commissionShare === null
+                  ? `${bpsToPercentText(data.defaultCommissionBps)}% rate`
+                  : `${commissionShare}% of sales`
+              }
             />
-            <StatTile
+            <Tile
+              tone="mint"
+              icon={<Wallet size={26} strokeWidth={1.8} />}
               label="You earn"
-              value={formatMoney(data.summary.netMinor)}
-              icon={<PiggyBank size={18} aria-hidden="true" />}
-              note={`${formatMoney(data.summary.onlineMinor)} online · ${formatMoney(data.summary.cashMinor)} cash`}
+              value={formatMoney(s.netMinor)}
+              note={<ChangeNote cur={s.netMinor} prev={e.prevNetMinor} label={e.compareLabel} />}
             />
-            <StatTile
+            <Tile
+              tone="lavender"
+              icon={<Clock size={26} strokeWidth={1.8} />}
               label="Coming up"
               value={formatMoney(data.upcoming.netMinor)}
-              icon={<Hourglass size={18} aria-hidden="true" />}
-              note={`${data.upcoming.count} open · after ${formatMoney(data.upcoming.commissionMinor)} commission`}
+              note={`${data.upcoming.count} open ${data.upcoming.count === 1 ? 'booking or order' : 'bookings & orders'}`}
             />
           </div>
+        </div>
 
-          <Card
-            title="Your payout from DNX"
-            subtitle="How the amount DNX pays you is worked out, across all your businesses and every completed sale."
-          >
-            <div className={styles.calc}>
-              <div className={styles.calcRow}>
-                <span>
-                  Online payments DNX collected for you
-                  <small>Customers who paid online (or the online part of a partial payment)</small>
-                </span>
-                <span className={styles.calcAmount}>
-                  + {formatMoney(data.balance.earnedOnlineMinor)}
-                </span>
+        {/* ── Trend + payment split ── */}
+        <div className={styles.rowTrend}>
+          <section className={styles.card}>
+            <header className={styles.cardHead}>
+              <h2 className={styles.cardTitle}>Earnings trend</h2>
+              <div className={styles.segmented} role="tablist" aria-label="Group by">
+                {(['daily', 'weekly', 'monthly'] as Granularity[]).map((g) => (
+                  <button
+                    key={g}
+                    type="button"
+                    role="tab"
+                    aria-selected={granularity === g}
+                    className={`${styles.segment} ${granularity === g ? styles.segmentActive : ''}`}
+                    onClick={() => setGranularity(g)}
+                  >
+                    {g[0].toUpperCase() + g.slice(1)}
+                  </button>
+                ))}
               </div>
-              <div className={styles.calcRow}>
-                <span>
-                  DNX commission
-                  <small>
-                    On all completed sales — including cash / COD, which you collected yourself, so
-                    its commission comes off here
-                  </small>
-                </span>
-                <span className={styles.calcAmount}>
-                  − {formatMoney(data.balance.earnedCommissionMinor)}
-                </span>
-              </div>
-              <div className={styles.calcRow}>
-                <span>
-                  Already paid to you
-                  <small>Transfers DNX has recorded</small>
-                </span>
-                <span className={styles.calcAmount}>
-                  − {formatMoney(data.balance.paidOutMinor)}
-                </span>
-              </div>
-              {data.balance.receivedMinor > 0 && (
-                <div className={styles.calcRow}>
-                  <span>
-                    Commission you've already paid DNX
-                    <small>Settled directly with DNX</small>
-                  </span>
-                  <span className={styles.calcAmount}>
-                    + {formatMoney(data.balance.receivedMinor)}
-                  </span>
-                </div>
-              )}
-              <div className={styles.calcTotal}>
-                <span>{balance < 0 ? 'You owe DNX' : 'DNX will pay you'}</span>
-                <span
-                  className={
-                    balance < 0 ? styles.negative : balance > 0 ? styles.positive : undefined
-                  }
-                >
-                  {formatMoney(Math.abs(balance))}
-                </span>
-              </div>
-            </div>
-            <p className={styles.hint}>
-              {balance > 0
-                ? "This is the amount you'll receive from DNX by UPI / bank transfer. It shows under Settlements once DNX records the transfer."
-                : balance < 0
-                  ? 'Most of your sales were paid in cash, so the commission on them is more than the online money DNX holds. DNX will settle this with you.'
-                  : "You're all settled up — nothing owed either way."}{' '}
-              Sales still open ({data.upcoming.count}) are counted once they&apos;re completed.
+            </header>
+            <EarningsTrendChart
+              transactions={data.transactions}
+              range={e.range}
+              granularity={granularity}
+            />
+          </section>
+
+          <section className={styles.card}>
+            <header className={styles.cardHead}>
+              <h2 className={styles.cardTitle}>How you were paid</h2>
+            </header>
+            <PaymentDonut onlineMinor={s.onlineMinor} cashMinor={s.cashMinor} />
+            <p className={styles.infoBox}>
+              <Info size={18} aria-hidden="true" />
+              <span>
+                Online money is held by DNX and paid out to you; cash you keep — DNX&rsquo;s
+                commission on it is taken from your balance.
+              </span>
             </p>
-          </Card>
+          </section>
+        </div>
 
-          {data.businesses.length > 1 && (
-            <Card title="By business">
+        {/* ── By business + payouts ── */}
+        <div className={styles.rowBiz}>
+          <section className={styles.card}>
+            <header className={styles.cardHead}>
+              <h2 className={styles.cardTitle}>By business</h2>
+            </header>
+            {bizRows.length === 0 ? (
+              <p className={styles.empty}>No businesses yet.</p>
+            ) : (
               <div className={styles.tableWrap}>
                 <table className={styles.table}>
                   <thead>
                     <tr>
                       <th>Business</th>
-                      <th className={styles.num}>Rate</th>
                       <th className={styles.num}>Sales</th>
                       <th className={styles.num}>Commission</th>
                       <th className={styles.num}>You earn</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {data.businesses.map((b) => (
-                      <tr key={b.id}>
-                        <td>{b.name}</td>
-                        <td className={styles.num}>
-                          {bpsToPercentText(b.commissionBps)}%{' '}
-                          {b.isCustomRate && <Badge tone="accent">Custom</Badge>}
-                        </td>
-                        <td className={styles.num}>{formatMoney(b.grossMinor)}</td>
-                        <td className={styles.num}>{formatMoney(b.commissionMinor)}</td>
-                        <td className={styles.num}>{formatMoney(b.netMinor)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </Card>
-          )}
-
-          <Card title="Completed sales">
-            {data.transactions.length === 0 ? (
-              <EmptyState
-                icon={<Banknote size={28} strokeWidth={1.6} aria-hidden="true" />}
-                title="No completed sales in this period"
-                description="Sales appear here once a booking or order is completed."
-              />
-            ) : (
-              <div className={styles.tableWrap}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Sale</th>
-                      <th className={styles.num}>Price</th>
-                      <th className={styles.num}>Commission</th>
-                      <th className={styles.num}>You earn</th>
-                      <th>Paid</th>
-                      <th className={styles.num}>From DNX</th>
+                    {bizRows.map((b) => {
+                      const photo = photoById.get(b.id);
+                      return (
+                        <tr key={b.id}>
+                          <td>
+                            <span className={styles.bizCell}>
+                              {photo ? (
+                                <img className={styles.bizThumb} src={photo} alt="" />
+                              ) : (
+                                <span className={styles.bizThumb} aria-hidden="true">
+                                  {initialsOf(b.name)}
+                                </span>
+                              )}
+                              <span className={styles.bizText}>
+                                <span className={styles.bizName}>{b.name}</span>
+                                {b.isCustomRate ? (
+                                  <Pill tone="lavender" className={styles.ratePill}>
+                                    Custom {bpsToPercentText(b.commissionBps)}%
+                                  </Pill>
+                                ) : (
+                                  <Pill tone="grey" className={styles.ratePill}>
+                                    {bpsToPercentText(b.commissionBps)}% rate
+                                  </Pill>
+                                )}
+                              </span>
+                            </span>
+                          </td>
+                          <td className={styles.num}>{formatMoney(b.grossMinor)}</td>
+                          <td className={styles.num}>{formatMoney(b.commissionMinor)}</td>
+                          <td className={`${styles.num} ${styles.earn}`}>
+                            {formatMoney(b.netMinor)}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    <tr className={styles.totalRow}>
+                      <td>Total</td>
+                      <td className={styles.num}>{formatMoney(s.grossMinor)}</td>
+                      <td className={styles.num}>{formatMoney(s.commissionMinor)}</td>
+                      <td className={`${styles.num} ${styles.earn}`}>{formatMoney(s.netMinor)}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {data.transactions.map((t) => (
-                      <tr key={`${t.kind}-${t.id}`}>
-                        <td className={styles.num}>
-                          {t.settledAt ? dateFmt.format(new Date(t.settledAt)) : '—'}
-                        </td>
-                        <td>
-                          <div className={styles.cellMain}>
-                            <span className={styles.cellTitle}>{t.title}</span>
-                            <span className={styles.muted}>
-                              {t.kind === 'BOOKING' ? 'Booking' : 'Order'} · {t.businessName}
-                              {t.status !== 'COMPLETED' &&
-                                ' · payment kept after no-show/late cancel'}
-                            </span>
-                          </div>
-                        </td>
-                        <td className={styles.num}>{formatMoney(t.grossMinor)}</td>
-                        <td className={styles.num}>
-                          −{formatMoney(t.commissionMinor)}{' '}
-                          <span className={styles.muted}>
-                            ({bpsToPercentText(t.commissionBps)}%)
-                          </span>
-                        </td>
-                        <td className={`${styles.num} ${styles.positive}`}>
-                          {formatMoney(t.earningMinor)}
-                        </td>
-                        <td>{paidVia(t)}</td>
-                        <td className={styles.num}>
-                          <div className={styles.cellMain}>
-                            <span
-                              className={
-                                t.payableMinor < 0
-                                  ? styles.negative
-                                  : t.payableMinor > 0
-                                    ? styles.positive
-                                    : styles.muted
-                              }
-                            >
-                              {t.payableMinor === 0
-                                ? '—'
-                                : `${t.payableMinor > 0 ? '+' : '−'}${formatMoney(Math.abs(t.payableMinor))}`}
-                            </span>
-                            {t.payableMinor < 0 && (
-                              <span className={styles.muted}>cash — commission taken off</span>
-                            )}
-                            {t.payableMinor > 0 && t.cashMinor > 0 && (
-                              <span className={styles.muted}>online part, after commission</span>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
                   </tbody>
                 </table>
               </div>
             )}
-          </Card>
+          </section>
 
-          {data.payouts.length > 0 && (
-            <Card title="Settlements">
+          <section className={styles.card}>
+            <header className={styles.cardHead}>
+              <h2 className={styles.cardTitle}>Payouts &amp; settlements</h2>
+            </header>
+            {data.payouts.length === 0 ? (
+              <p className={styles.empty}>No payouts yet — DNX settles your balance manually.</p>
+            ) : (
+              <ul className={styles.payoutList}>
+                {payouts.map((p) => (
+                  <PayoutRow key={p.id} p={p} />
+                ))}
+                {data.payouts.length > PAYOUT_PREVIEW && (
+                  <li className={styles.payoutItem}>
+                    <button
+                      type="button"
+                      className={styles.payoutRow}
+                      aria-expanded={showAllPayouts}
+                      onClick={() => setShowAllPayouts((v) => !v)}
+                    >
+                      <span
+                        className={`${styles.payoutIcon} ${styles.payoutIconDoc}`}
+                        aria-hidden="true"
+                      >
+                        <FileText size={20} />
+                      </span>
+                      <span className={styles.payoutText}>
+                        <span className={styles.payoutTitle}>
+                          {showAllPayouts ? 'Show less' : `View all (${data.payouts.length})`}
+                        </span>
+                      </span>
+                      <ChevronRight
+                        size={20}
+                        aria-hidden="true"
+                        className={`${styles.payoutChevron} ${showAllPayouts ? styles.payoutChevronOpen : ''}`}
+                      />
+                    </button>
+                  </li>
+                )}
+              </ul>
+            )}
+          </section>
+        </div>
+
+        {/* ── Completed sales ── */}
+        <section className={styles.card}>
+          <header className={`${styles.cardHead} ${styles.salesHead}`}>
+            <h2 className={styles.cardTitle}>Completed sales</h2>
+            <div className={styles.salesTools}>
+              <label className={styles.search}>
+                <Search size={18} aria-hidden="true" />
+                <input
+                  type="search"
+                  placeholder="Search sales..."
+                  aria-label="Search sales"
+                  value={query}
+                  onChange={(ev) => {
+                    setQuery(ev.target.value);
+                    setPage(1);
+                  }}
+                />
+              </label>
+              {(
+                [
+                  ['ALL', 'All'],
+                  ['BOOKING', 'Bookings'],
+                  ['ORDER', 'Orders'],
+                ] as [KindFilter, string][]
+              ).map(([k, label]) => (
+                <button
+                  key={k}
+                  type="button"
+                  aria-pressed={kind === k}
+                  className={`${styles.chip} ${kind === k ? styles.chipActive : ''}`}
+                  onClick={() => {
+                    setKind(k);
+                    setPage(1);
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </header>
+
+          {sales.length === 0 ? (
+            <p className={styles.empty}>
+              {data.transactions.length === 0
+                ? 'No completed sales in this period. Sales appear here once a booking or order is completed.'
+                : 'No sales match your search.'}
+            </p>
+          ) : (
+            <>
               <div className={styles.tableWrap}>
-                <table className={styles.table}>
+                <table className={`${styles.table} ${styles.salesTable}`}>
                   <thead>
                     <tr>
                       <th>Date</th>
-                      <th>Type</th>
-                      <th className={styles.num}>Amount</th>
-                      <th>Details</th>
+                      <th>Sale</th>
+                      <th>Business</th>
+                      <th>Payment</th>
+                      <th className={styles.num}>Sale amount</th>
+                      <th className={styles.num}>Commission</th>
+                      <th className={styles.num}>You earn</th>
+                      <th className={styles.num}>From DNX</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {data.payouts.map((p) => (
-                      <tr key={p.id}>
-                        <td className={styles.num}>{dateFmt.format(new Date(p.paidAt))}</td>
-                        <td>
-                          <Badge tone={p.direction === 'TO_PROVIDER' ? 'success' : 'neutral'}>
-                            {p.direction === 'TO_PROVIDER' ? 'Paid to you' : 'Paid to DNX'}
-                          </Badge>
-                        </td>
-                        <td className={styles.num}>{formatMoney(p.amountMinor)}</td>
-                        <td>
-                          <span className={styles.muted}>
-                            {[p.method, p.reference, p.note].filter(Boolean).join(' · ') || '—'}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                    {pageRows.map((t) => {
+                      const tone = businessTone(t.businessId);
+                      return (
+                        <tr key={`${t.kind}-${t.id}`}>
+                          <td>{fmtDate(t.settledAt)}</td>
+                          <td className={styles.saleCell} title={t.title}>
+                            {t.title}{' '}
+                            <span className={styles.muted}>
+                              ({t.kind === 'BOOKING' ? 'booking' : 'order'})
+                            </span>
+                          </td>
+                          <td>
+                            <span className={styles.bizTag}>
+                              <span
+                                className={styles.bizTagDot}
+                                style={{ background: `var(--m-pill-${tone}-fg)` }}
+                                aria-hidden="true"
+                              />
+                              {t.businessName}
+                            </span>
+                          </td>
+                          <td>
+                            <PaymentPill t={t} />
+                          </td>
+                          <td className={styles.num}>{formatMoney(t.grossMinor)}</td>
+                          <td className={styles.num}>−{formatMoney(t.commissionMinor)}</td>
+                          <td className={styles.num}>{formatMoney(t.earningMinor)}</td>
+                          <td
+                            className={`${styles.num} ${styles.strongNum} ${t.payableMinor < 0 ? styles.neg : styles.pos}`}
+                          >
+                            {signedMoney(t.payableMinor)}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
-            </Card>
+              <footer className={styles.pager}>
+                <span className={styles.muted}>
+                  Showing {(curPage - 1) * PAGE_SIZE + 1}–
+                  {Math.min(curPage * PAGE_SIZE, sales.length)} of {sales.length}{' '}
+                  {sales.length === 1 ? 'sale' : 'sales'}
+                </span>
+                {pageCount > 1 && (
+                  <nav className={styles.pageBtns} aria-label="Pages">
+                    <button
+                      type="button"
+                      className={styles.pageBtn}
+                      disabled={curPage === 1}
+                      onClick={() => setPage(curPage - 1)}
+                      aria-label="Previous page"
+                    >
+                      <ChevronLeft size={16} aria-hidden="true" />
+                    </button>
+                    {pageBtns.map((n) => (
+                      <button
+                        key={n}
+                        type="button"
+                        className={`${styles.pageBtn} ${n === curPage ? styles.pageBtnActive : ''}`}
+                        aria-current={n === curPage ? 'page' : undefined}
+                        onClick={() => setPage(n)}
+                      >
+                        {n}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      className={styles.pageBtn}
+                      disabled={curPage === pageCount}
+                      onClick={() => setPage(curPage + 1)}
+                      aria-label="Next page"
+                    >
+                      <ChevronRight size={16} aria-hidden="true" />
+                    </button>
+                  </nav>
+                )}
+              </footer>
+            </>
           )}
-        </>
-      )}
+        </section>
+      </div>
     </AppShell>
   );
 }

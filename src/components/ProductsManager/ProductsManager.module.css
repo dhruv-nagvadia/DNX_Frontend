@@ -439,10 +439,6 @@
 .table th.center {
   text-align: center;
 }
-/* Hidden products: content dimmed, controls (toggle / actions) stay crisp. */
-.rowInactive .fade {
-  opacity: 0.55;
-}
 .muted {
   color: var(--color-text-secondary);
 }

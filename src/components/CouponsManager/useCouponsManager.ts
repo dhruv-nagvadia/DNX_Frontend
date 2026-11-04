@@ -1,6 +1,9 @@
 import { useState, useCallback, useEffect } from 'react';
 
+import { skipToken } from '@reduxjs/toolkit/query/react';
+
 import {
+  useGetAllCouponsQuery,
   useGetCouponsQuery,
   useCreateCouponMutation,
   useUpdateCouponMutation,
@@ -9,6 +12,8 @@ import {
 import { BusinessType, Coupon, CouponInput, CouponScope, DiscountType } from '@/redux/api/provider/types';
 
 export interface CouponForm {
+  /** Owning business — only chosen in the form in all-businesses mode. */
+  businessId: string;
   code: string;
   description: string;
   discountType: DiscountType;
@@ -24,6 +29,7 @@ export interface CouponForm {
 }
 
 const EMPTY: CouponForm = {
+  businessId: '',
   code: '',
   description: '',
   discountType: 'PERCENT',
@@ -42,9 +48,16 @@ const toRupees = (minor?: number | null) => (minor ? String(minor / 100) : '');
 const toMinor = (rupees: string) => Math.round(Number(rupees) * 100);
 const toDateInput = (iso?: string | null) => (iso ? iso.slice(0, 10) : '');
 
-/** State + handlers for a business's discount coupons. */
-export function useCouponsManager(providerId: string, businessType: BusinessType) {
-  const { data: coupons = [], isLoading } = useGetCouponsQuery(providerId);
+/**
+ * State + handlers for discount coupons. With a `providerId` it manages that
+ * one business; without one it manages every coupon across all the owner's
+ * businesses, and each action targets the coupon's own business.
+ */
+export function useCouponsManager(providerId: string | undefined, businessType: BusinessType) {
+  const allMode = !providerId;
+  const one = useGetCouponsQuery(providerId ?? skipToken);
+  const all = useGetAllCouponsQuery(undefined, { skip: !allMode });
+  const { data: coupons = [], isLoading } = allMode ? all : one;
   const [createCoupon, { isLoading: creating }] = useCreateCouponMutation();
   const [updateCoupon, { isLoading: updating }] = useUpdateCouponMutation();
   const [deleteCoupon] = useDeleteCouponMutation();
@@ -57,14 +70,15 @@ export function useCouponsManager(providerId: string, businessType: BusinessType
     setError(null);
   }, [form]);
 
-  const startAdd = useCallback(() => {
-    setForm(EMPTY);
+  const startAdd = useCallback((businessId = '') => {
+    setForm({ ...EMPTY, businessId });
     setError(null);
     setEditing('new');
   }, []);
 
   const startEdit = useCallback((c: Coupon) => {
     setForm({
+      businessId: providerId ?? c.provider?.id ?? '',
       code: c.code,
       description: c.description ?? '',
       discountType: c.discountType,
@@ -80,7 +94,7 @@ export function useCouponsManager(providerId: string, businessType: BusinessType
     });
     setError(null);
     setEditing(c.id);
-  }, []);
+  }, [providerId]);
 
   const cancel = useCallback(() => {
     setEditing(null);
@@ -104,6 +118,18 @@ export function useCouponsManager(providerId: string, businessType: BusinessType
     setForm((prev) => ({ ...prev, scope, serviceId: '', productId: '', minOrder: '' }));
   }, []);
 
+  // A different business has different services/products (and maybe a
+  // different type), so its scope target can't carry over.
+  const setBusiness = useCallback((businessId: string, type: BusinessType = 'SERVICE') => {
+    setForm((prev) => ({
+      ...prev,
+      businessId,
+      scope: prev.scope === 'ORDER' ? 'ORDER' : type === 'STORE' ? 'PRODUCT' : 'SERVICE',
+      serviceId: '',
+      productId: '',
+    }));
+  }, []);
+
   const toggleActive = useCallback(
     () => setForm((prev) => ({ ...prev, isActive: !prev.isActive })),
     [],
@@ -114,6 +140,8 @@ export function useCouponsManager(providerId: string, businessType: BusinessType
       e.preventDefault();
       setError(null);
 
+      const targetId = providerId ?? form.businessId;
+      if (!targetId) return setError('Pick which business this offer is for');
       const code = form.code.trim();
       const value = Number(form.discountValue);
       if (code.length < 2) return setError('Enter a coupon code');
@@ -149,9 +177,9 @@ export function useCouponsManager(providerId: string, businessType: BusinessType
 
       try {
         if (editing === 'new') {
-          await createCoupon({ providerId, data }).unwrap();
+          await createCoupon({ providerId: targetId, data }).unwrap();
         } else if (editing) {
-          await updateCoupon({ providerId, couponId: editing, data }).unwrap();
+          await updateCoupon({ providerId: targetId, couponId: editing, data }).unwrap();
         }
         setEditing(null);
       } catch (err) {
@@ -163,9 +191,10 @@ export function useCouponsManager(providerId: string, businessType: BusinessType
   );
 
   const remove = useCallback(
-    async (couponId: string) => {
-      if (!window.confirm('Delete this coupon?')) return;
-      await deleteCoupon({ providerId, couponId })
+    async (c: Coupon) => {
+      const target = providerId ?? c.provider?.id;
+      if (!target || !window.confirm('Delete this coupon?')) return;
+      await deleteCoupon({ providerId: target, couponId: c.id })
         .unwrap()
         .catch(() => undefined);
     },
@@ -174,7 +203,9 @@ export function useCouponsManager(providerId: string, businessType: BusinessType
 
   const toggleCouponActive = useCallback(
     async (c: Coupon) => {
-      await updateCoupon({ providerId, couponId: c.id, data: { isActive: !c.isActive } })
+      const target = providerId ?? c.provider?.id;
+      if (!target) return;
+      await updateCoupon({ providerId: target, couponId: c.id, data: { isActive: !c.isActive } })
         .unwrap()
         .catch(() => undefined);
     },
@@ -182,6 +213,7 @@ export function useCouponsManager(providerId: string, businessType: BusinessType
   );
 
   return {
+    allMode,
     coupons,
     isLoading,
     editing,
@@ -195,6 +227,7 @@ export function useCouponsManager(providerId: string, businessType: BusinessType
     onChange,
     setType,
     setScope,
+    setBusiness,
     toggleActive,
     submit,
     remove,

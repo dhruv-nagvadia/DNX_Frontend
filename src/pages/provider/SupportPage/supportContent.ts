@@ -122,9 +122,9 @@ export const FAQS: Faq[] = [
     category: 'account',
     question: 'How do I change my password?',
     answer: [
-      'Sign out, then choose Forgot password on the sign-in page to set a new one. Your account details are on the ',
+      'Go to ',
       { to: '/profile', label: 'Account / Profile' },
-      ' page.',
+      ' → Security → Change password. Forgot your current one? Sign out and use Forgot password on the sign-in page.',
     ],
   },
 ];

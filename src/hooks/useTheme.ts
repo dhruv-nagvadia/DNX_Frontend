@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ThemeMode, applyTheme, themeStorage } from '@/utils/theme';
 
 /**
@@ -9,6 +9,18 @@ import { ThemeMode, applyTheme, themeStorage } from '@/utils/theme';
  */
 export function useTheme(): { theme: ThemeMode; toggleTheme: () => void } {
   const [theme, setTheme] = useState<ThemeMode>(() => themeStorage.resolve());
+
+  // Other places (e.g. the Profile page's Light/Dark/System switch) can change
+  // the mode too — follow the <html data-theme> attribute so this stays in sync.
+  useEffect(() => {
+    const root = document.documentElement;
+    const observer = new MutationObserver(() => {
+      const mode = root.dataset.theme;
+      if (mode === 'light' || mode === 'dark') setTheme(mode);
+    });
+    observer.observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => observer.disconnect();
+  }, []);
 
   const toggleTheme = useCallback(() => {
     setTheme((current) => {

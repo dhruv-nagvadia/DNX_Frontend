@@ -1,12 +1,78 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useUpdateMeMutation } from '@/redux/api/auth/authApi';
+import {
+  useChangePasswordMutation,
+  useDeleteAccountMutation,
+  useUpdateMeMutation,
+} from '@/redux/api/auth/authApi';
 import { useGetMyBusinessesQuery, useUploadImageMutation } from '@/redux/api/provider/providerApi';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import { setCurrentUser } from '@/redux/slices/userSlice';
+import { resetAllApiCaches } from '@/redux/resetApiCaches';
+import { clearCurrentUser, setCurrentUser } from '@/redux/slices/userSlice';
+import { StorageKeys } from '@/utils/constants';
+import { applyTheme, themeStorage } from '@/utils/theme';
+import { tokenStorage } from '@/utils/tokenStorage';
 
-/** Account details + aggregate stats across all the provider's businesses. */
+export type AccountField = 'fullName' | 'email' | 'phone';
+export type AppearanceMode = 'light' | 'dark' | 'system';
+
+/** The server's `{ success: false, message }` text, if the error carries one. */
+export function serverMessage(err: unknown): string | null {
+  const data = (err as { data?: unknown })?.data;
+  if (data && typeof data === 'object' && 'message' in data) {
+    const msg = (data as { message?: unknown }).message;
+    if (typeof msg === 'string' && msg.trim()) return msg;
+  }
+  return null;
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function validateField(field: AccountField, value: string): string | null {
+  const v = value.trim();
+  if (field === 'fullName') return v.length >= 2 ? null : 'Enter at least 2 characters.';
+  if (field === 'email') return EMAIL_RE.test(v) ? null : 'Enter a valid email address.';
+  if (!/^[+\d\s()-]+$/.test(v)) return 'Use digits, spaces, +, ( ) or - only.';
+  return v.replace(/\D/g, '').length >= 8 ? null : 'Enter at least 8 digits.';
+}
+
+function prefersDark(): boolean {
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
+}
+
+/** Light / Dark / System on top of the shared theme util (System = no saved choice). */
+function useAppearance() {
+  const [mode, setMode] = useState<AppearanceMode>(() => themeStorage.get() ?? 'system');
+
+  // While on System, follow the OS if it flips mid-session.
+  useEffect(() => {
+    if (mode !== 'system' || !window.matchMedia) return;
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const onChange = () => applyTheme(mq.matches ? 'dark' : 'light');
+    mq.addEventListener?.('change', onChange);
+    return () => mq.removeEventListener?.('change', onChange);
+  }, [mode]);
+
+  const choose = useCallback((next: AppearanceMode) => {
+    if (next === 'system') {
+      try {
+        localStorage.removeItem(StorageKeys.theme);
+      } catch {
+        // Best-effort, like themeStorage.set.
+      }
+      applyTheme(prefersDark() ? 'dark' : 'light');
+    } else {
+      applyTheme(next);
+      themeStorage.set(next);
+    }
+    setMode(next);
+  }, []);
+
+  return { appearance: mode, setAppearance: choose };
+}
+
+/** Account details, aggregate stats, security actions and preferences. */
 export function useProfilePage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -14,42 +80,64 @@ export function useProfilePage() {
   const { data: businesses = [], isLoading } = useGetMyBusinessesQuery();
   const [updateMe, { isLoading: saving }] = useUpdateMeMutation();
   const [uploadImage, { isLoading: uploadingPhoto }] = useUploadImageMutation();
+  const [changePasswordReq, { isLoading: changingPassword }] = useChangePasswordMutation();
+  const [deleteAccountReq, { isLoading: deleting }] = useDeleteAccountMutation();
 
-  const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({ fullName: '', email: '' });
-  const [error, setError] = useState<string | null>(null);
+  const appearance = useAppearance();
+  const [editingField, setEditingField] = useState<AccountField | null>(null);
+  const [draft, setDraft] = useState('');
+  const [fieldError, setFieldError] = useState<string | null>(null);
   const [photoError, setPhotoError] = useState<string | null>(null);
 
   const stats = useMemo(() => {
     const services = businesses.reduce((sum, b) => sum + b.services.length, 0);
     const products = businesses.reduce((sum, b) => sum + (b.products?.length ?? 0), 0);
-    const rated = businesses.filter((b) => b.ratingCount > 0);
-    const avgRating = rated.length
-      ? rated.reduce((sum, b) => sum + b.ratingAvg, 0) / rated.length
-      : 0;
+    // Weighted by review count, so a 5★ from one review doesn't dominate.
+    const totalCount = businesses.reduce((sum, b) => sum + (b.ratingCount > 0 ? b.ratingCount : 0), 0);
+    const avgRating = totalCount
+      ? businesses.reduce((sum, b) => sum + (b.ratingCount > 0 ? b.ratingAvg * b.ratingCount : 0), 0) /
+        totalCount
+      : null;
     return { businesses: businesses.length, services, products, avgRating };
   }, [businesses]);
 
-  const startEdit = () => {
-    setForm({ fullName: user?.fullName ?? '', email: user?.email ?? '' });
-    setError(null);
-    setEditing(true);
+  const startEdit = useCallback(
+    (field: AccountField) => {
+      setDraft((field === 'phone' ? user?.phone : user?.[field]) ?? '');
+      setFieldError(null);
+      setEditingField(field);
+    },
+    [user],
+  );
+  const cancelEdit = () => {
+    setEditingField(null);
+    setFieldError(null);
   };
-  const cancelEdit = () => setEditing(false);
-  const onField = (key: 'fullName' | 'email', value: string) =>
-    setForm((prev) => ({ ...prev, [key]: value }));
+  const onDraft = (value: string) => {
+    setDraft(value);
+    if (fieldError) setFieldError(null);
+  };
 
-  const saveProfile = async () => {
-    setError(null);
+  const saveField = async () => {
+    if (!editingField) return;
+    const invalid = validateField(editingField, draft);
+    if (invalid) {
+      setFieldError(invalid);
+      return;
+    }
+    setFieldError(null);
     try {
-      const updated = await updateMe({
-        fullName: form.fullName.trim(),
-        email: form.email.trim(),
-      }).unwrap();
+      const updated = await updateMe({ [editingField]: draft.trim() }).unwrap();
       dispatch(setCurrentUser(updated));
-      setEditing(false);
-    } catch {
-      setError('Could not save. That email may already be in use.');
+      setEditingField(null);
+    } catch (err) {
+      const status = (err as { status?: number })?.status;
+      setFieldError(
+        serverMessage(err) ??
+          (status === 409 && editingField === 'email'
+            ? 'That email is already in use.'
+            : 'Could not save. Please try again.'),
+      );
     }
   };
 
@@ -67,22 +155,44 @@ export function useProfilePage() {
     }
   };
 
+  /** Same teardown as the sidebar's logout. */
+  const logout = useCallback(() => {
+    tokenStorage.clear();
+    dispatch(clearCurrentUser());
+    resetAllApiCaches(dispatch);
+    navigate('/login', { replace: true });
+  }, [dispatch, navigate]);
+
+  const changePassword = (currentPassword: string, newPassword: string) =>
+    changePasswordReq({ currentPassword, newPassword }).unwrap();
+
+  const deleteAccount = async (password: string) => {
+    await deleteAccountReq({ password }).unwrap();
+    logout();
+  };
+
   return {
     user,
     businesses,
     isLoading,
     stats,
-    editing,
-    form,
-    error,
+    editingField,
+    draft,
+    fieldError,
     saving,
     startEdit,
     cancelEdit,
-    onField,
-    saveProfile,
+    onDraft,
+    saveField,
     photoError,
     uploadingPhoto,
     changePhoto,
-    openBusiness: (id: string) => navigate(`/businesses/${id}`),
+    logout,
+    changePassword,
+    changingPassword,
+    deleteAccount,
+    deleting,
+    ...appearance,
+    navigate,
   };
 }

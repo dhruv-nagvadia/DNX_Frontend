@@ -1,9 +1,9 @@
 import {
+  ChevronsLeft,
+  ChevronsRight,
   LayoutDashboard,
   LogOut,
   Moon,
-  PanelLeftClose,
-  PanelLeftOpen,
   Receipt,
   Store,
   Sun,
@@ -12,6 +12,7 @@ import {
   Wallet,
 } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
+import { LogoMark } from '@/components/AppShell/AppShell';
 
 // Reuses AppShell's sidebar/content layout classes so the admin console
 // looks like part of the same product — only the nav items and copy differ.
@@ -51,12 +52,12 @@ export function AdminShell({ children }: AdminShellProps) {
   return (
     <div className={`${styles.shell} ${collapsed ? styles.shellCollapsed : ''}`}>
       <aside className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ''}`}>
+        <span className={styles.sidebarBg} aria-hidden="true" />
         <Link className={styles.brand} to="/admin/dashboard">
-          <span className={styles.mark} aria-hidden="true">
-            D
-          </span>
-          <span className={styles.wordmark}>
-            DNX <span className={styles.wordmarkThin}>Admin</span>
+          <LogoMark className={styles.logo} />
+          <span className={styles.brandText}>
+            <span className={styles.wordmark}>DNX Marketplace</span>
+            <span className={styles.wordmarkSub}>Admin Console</span>
           </span>
         </Link>
 
@@ -69,6 +70,8 @@ export function AdminShell({ children }: AdminShellProps) {
                 `${styles.navItem} ${isActive ? styles.navItemActive : ''}`
               }
               title={collapsed ? label : undefined}
+              aria-label={collapsed ? label : undefined}
+              data-tooltip={label}
             >
               <Icon size={18} aria-hidden="true" />
               <span className={styles.navLabel}>{label}</span>
@@ -115,9 +118,9 @@ export function AdminShell({ children }: AdminShellProps) {
         aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {collapsed ? (
-          <PanelLeftOpen size={14} aria-hidden="true" />
+          <ChevronsRight size={20} strokeWidth={2.25} aria-hidden="true" />
         ) : (
-          <PanelLeftClose size={14} aria-hidden="true" />
+          <ChevronsLeft size={20} strokeWidth={2.25} aria-hidden="true" />
         )}
       </button>
 

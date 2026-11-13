@@ -1,14 +1,21 @@
-import { ArrowRight, KeyRound } from 'lucide-react';
+import { ArrowLeft, KeyRound, Lock, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { AlertBanner } from '@/components/AlertBanner';
-import { AuthLayout } from '@/components/AuthLayout';
-import { Button } from '@/components/Button';
-import { PasswordField } from '@/components/PasswordField';
-import { TextField } from '@/components/TextField';
 
-import shared from '../AuthForm.module.css';
+import { AuthField, AuthSplitLayout, AuthSubmit, authCard as card } from '../AuthSplitLayout';
 import { useForgotPasswordPage } from './useForgotPasswordPage';
+
+function BackToSignIn() {
+  return (
+    <p className={card.switch}>
+      <Link className={`${card.link} ${card.backLink}`} to="/login">
+        <ArrowLeft size={18} aria-hidden="true" />
+        Back to sign in
+      </Link>
+    </p>
+  );
+}
 
 /** JSX only — logic comes from useForgotPasswordPage. */
 export default function ForgotPasswordPage() {
@@ -29,27 +36,27 @@ export default function ForgotPasswordPage() {
   } = useForgotPasswordPage();
 
   return (
-    <AuthLayout>
+    <AuthSplitLayout
+      headline="Get back to your business"
+      subhead="Reset your password in a minute and pick up where you left off."
+    >
       {step === 'email' ? (
-        <form className={shared.form} onSubmit={sendCode} noValidate>
-          <header className={shared.head}>
-            <span className={shared.eyebrow}>
-              <KeyRound size={13} aria-hidden="true" />
-              Reset password
-            </span>
-            <h2 className={shared.title}>Forgot your password?</h2>
-            <p className={shared.subtitle}>
-              Enter the email on your account and we&apos;ll send you a 6-digit code.
+        <form className={card.card} onSubmit={sendCode} noValidate>
+          <header className={card.head}>
+            <h2 className={card.title}>Forgot your password?</h2>
+            <p className={card.subtitle}>
+              Enter your email and we&apos;ll send you a 6-digit code.
             </p>
           </header>
 
           {serverError && <AlertBanner tone="error">{serverError}</AlertBanner>}
 
-          <div className={shared.fields}>
-            <TextField
-              dense
-              label="Email"
+          <div className={card.fields}>
+            <AuthField
+              id="email"
               name="email"
+              label="Email"
+              icon={Mail}
               type="email"
               inputMode="email"
               autoComplete="email"
@@ -62,43 +69,28 @@ export default function ForgotPasswordPage() {
             />
           </div>
 
-          <Button
-            type="submit"
-            fullWidth
-            loading={isLoading}
-            loadingText="Sending…"
-            iconRight={<ArrowRight size={18} aria-hidden="true" />}
-          >
+          <AuthSubmit loading={isLoading} loadingText="Sending…">
             Send code
-          </Button>
+          </AuthSubmit>
 
-          <p className={`${shared.switch} ${shared.footer}`}>
-            <Link className={shared.switchLink} to="/login">
-              Back to sign in
-            </Link>
-          </p>
+          <BackToSignIn />
         </form>
       ) : (
-        <form className={shared.form} onSubmit={submitReset} noValidate>
-          <header className={shared.head}>
-            <span className={shared.eyebrow}>
-              <KeyRound size={13} aria-hidden="true" />
-              Reset password
-            </span>
-            <h2 className={shared.title}>Enter your code</h2>
-            <p className={shared.subtitle}>
-              We sent a 6-digit code to {emailForm.email}. Enter it below with your new password.
-            </p>
+        <form className={card.card} onSubmit={submitReset} noValidate>
+          <header className={card.head}>
+            <h2 className={card.title}>Enter your code</h2>
+            <p className={card.subtitle}>We sent a code to {emailForm.email}</p>
           </header>
 
           {notice && <AlertBanner tone="success">{notice}</AlertBanner>}
           {serverError && <AlertBanner tone="error">{serverError}</AlertBanner>}
 
-          <div className={shared.fields}>
-            <TextField
-              dense
-              label="6-digit code"
+          <div className={card.fields}>
+            <AuthField
+              id="otp"
               name="otp"
+              label="6-digit code"
+              icon={KeyRound}
               inputMode="numeric"
               autoComplete="one-time-code"
               autoFocus
@@ -110,10 +102,12 @@ export default function ForgotPasswordPage() {
               disabled={isLoading}
             />
 
-            <PasswordField
-              dense
-              label="New password"
+            <AuthField
+              id="newPassword"
               name="newPassword"
+              label="New password"
+              icon={Lock}
+              passwordToggle
               autoComplete="new-password"
               placeholder="At least 8 characters"
               value={resetForm.newPassword}
@@ -122,10 +116,12 @@ export default function ForgotPasswordPage() {
               disabled={isLoading}
             />
 
-            <PasswordField
-              dense
-              label="Confirm new password"
+            <AuthField
+              id="confirmPassword"
               name="confirmPassword"
+              label="Confirm new password"
+              icon={Lock}
+              passwordToggle
               autoComplete="new-password"
               placeholder="Re-enter your new password"
               value={resetForm.confirmPassword}
@@ -135,28 +131,24 @@ export default function ForgotPasswordPage() {
             />
           </div>
 
-          <Button
-            type="submit"
-            fullWidth
-            loading={isLoading}
-            loadingText="Resetting…"
-            iconRight={<ArrowRight size={18} aria-hidden="true" />}
-          >
+          <AuthSubmit loading={isLoading} loadingText="Resetting…">
             Reset password
-          </Button>
+          </AuthSubmit>
 
-          <p className={`${shared.switch} ${shared.footer}`}>
+          <p className={card.switch}>
+            Wrong email?{' '}
             <button
               type="button"
-              className={shared.switchLink}
+              className={`${card.link} ${card.linkButton}`}
               onClick={backToEmail}
-              style={{ background: 'none', border: 'none', padding: 0, font: 'inherit' }}
             >
               Use a different email
             </button>
           </p>
+
+          <BackToSignIn />
         </form>
       )}
-    </AuthLayout>
+    </AuthSplitLayout>
   );
 }

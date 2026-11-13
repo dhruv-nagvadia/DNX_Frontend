@@ -1,15 +1,34 @@
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { Lock, Mail, Phone, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { AlertBanner } from '@/components/AlertBanner';
-import { AuthLayout } from '@/components/AuthLayout';
-import { Button } from '@/components/Button';
 import { Checkbox } from '@/components/Checkbox';
-import { PasswordField } from '@/components/PasswordField';
-import { TextField } from '@/components/TextField';
+import { getPasswordStrength } from '@/components/PasswordField/strength';
 
-import shared from '../AuthForm.module.css';
+import { AuthField, AuthSplitLayout, AuthSubmit, authCard as card } from '../AuthSplitLayout';
 import { useRegisterPage } from './useRegisterPage';
+
+/** Three-segment strength bar under the password field. */
+function StrengthMeter({ value }: { value: string }) {
+  const strength = getPasswordStrength(value);
+  return (
+    <div className={card.strength}>
+      <div className={card.strengthTrack} aria-hidden="true">
+        {[1, 2, 3].map((segment) => (
+          <span
+            key={segment}
+            className={`${card.strengthSegment} ${
+              strength.score >= segment ? card[`level${strength.score}`] : ''
+            }`}
+          />
+        ))}
+      </div>
+      <span className={card.strengthLabel} aria-live="polite">
+        {strength.label}
+      </span>
+    </div>
+  );
+}
 
 /** JSX only — logic comes from useRegisterPage. */
 export default function RegisterPage() {
@@ -17,17 +36,14 @@ export default function RegisterPage() {
     useRegisterPage();
 
   return (
-    <AuthLayout>
-      <form className={shared.form} onSubmit={onSubmit} noValidate>
-        <header className={shared.head}>
-          <span className={shared.eyebrow}>
-            <Sparkles size={13} aria-hidden="true" />
-            Free to start
-          </span>
-          <h2 className={shared.title}>Create your account</h2>
-          <p className={shared.subtitle}>
-            List your business, take bookings and get paid — set up in a few minutes.
-          </p>
+    <AuthSplitLayout
+      headline="Grow your business with DNX"
+      subhead="List your services and products, take bookings and orders, and get paid."
+    >
+      <form className={card.card} onSubmit={onSubmit} noValidate>
+        <header className={card.head}>
+          <h2 className={card.title}>Create your account</h2>
+          <p className={card.subtitle}>Start managing your business on DNX</p>
         </header>
 
         {serverError && (
@@ -37,7 +53,7 @@ export default function RegisterPage() {
             {accountExists && (
               <>
                 {' '}
-                <Link className={shared.bannerLink} to="/login">
+                <Link className={card.link} to="/login">
                   Sign in instead
                 </Link>
               </>
@@ -45,11 +61,12 @@ export default function RegisterPage() {
           </AlertBanner>
         )}
 
-        <div className={shared.fields}>
-          <TextField
-            dense
-            label="Full name"
+        <div className={card.fields}>
+          <AuthField
+            id="fullName"
             name="fullName"
+            label="Full name"
+            icon={User}
             autoComplete="name"
             autoFocus
             placeholder="Your name"
@@ -60,66 +77,72 @@ export default function RegisterPage() {
             disabled={isLoading}
           />
 
-          <div className={shared.row}>
-            <TextField
-              dense
-              label="Email"
-              name="email"
-              type="email"
-              inputMode="email"
-              autoComplete="email"
-              placeholder="you@work.com"
-              value={form.email}
-              onChange={onChange}
-              onBlur={onBlur}
-              error={errors.email}
-              disabled={isLoading}
-            />
-            <TextField
-              dense
-              label="Phone"
-              name="phone"
-              type="tel"
-              inputMode="numeric"
-              autoComplete="tel-national"
-              maxLength={10}
-              prefix="+91"
-              placeholder="9876543210"
-              value={form.phone}
-              onChange={onChange}
-              onBlur={onBlur}
-              error={errors.phone}
-              disabled={isLoading}
-            />
-          </div>
+          <AuthField
+            id="email"
+            name="email"
+            label="Email"
+            icon={Mail}
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            placeholder="you@business.com"
+            value={form.email}
+            onChange={onChange}
+            onBlur={onBlur}
+            error={errors.email}
+            disabled={isLoading}
+          />
 
-          <div className={shared.row}>
-            <PasswordField
-              dense
-              showStrength
-              label="Password"
-              name="password"
-              autoComplete="new-password"
-              placeholder="8+ characters"
-              value={form.password}
-              onChange={onChange}
-              onBlur={onBlur}
-              error={errors.password}
-              disabled={isLoading}
-            />
-            <PasswordField
-              dense
-              label="Confirm password"
-              name="confirmPassword"
-              autoComplete="new-password"
-              placeholder="Repeat it"
-              value={form.confirmPassword}
-              onChange={onChange}
-              onBlur={onBlur}
-              error={errors.confirmPassword}
-              disabled={isLoading}
-            />
-          </div>
+          <AuthField
+            id="phone"
+            name="phone"
+            label="Phone"
+            icon={Phone}
+            type="tel"
+            inputMode="numeric"
+            autoComplete="tel-national"
+            maxLength={10}
+            prefix="+91"
+            placeholder="9876543210"
+            value={form.phone}
+            onChange={onChange}
+            onBlur={onBlur}
+            error={errors.phone}
+            disabled={isLoading}
+          />
+
+          {/* Stacked: two columns leave too little room for icon + toggle + placeholder. */}
+          <AuthField
+            id="password"
+            name="password"
+            label="Password"
+            icon={Lock}
+            passwordToggle
+            autoComplete="new-password"
+            placeholder="At least 8 characters"
+            value={form.password}
+            onChange={onChange}
+            onBlur={onBlur}
+            error={errors.password}
+            disabled={isLoading}
+          >
+            <StrengthMeter value={form.password} />
+          </AuthField>
+
+          <AuthField
+            id="confirmPassword"
+            name="confirmPassword"
+            label="Confirm password"
+            icon={Lock}
+            passwordToggle
+            autoComplete="new-password"
+            placeholder="Re-enter your password"
+            value={form.confirmPassword}
+            onChange={onChange}
+            onBlur={onBlur}
+            error={errors.confirmPassword}
+            disabled={isLoading}
+          />
         </div>
 
         {/* Legal links open in a new tab so reading them never discards the form. */}
@@ -130,7 +153,7 @@ export default function RegisterPage() {
           error={errors.acceptTerms}
           disabled={isLoading}
           label={
-            <>
+            <span className={card.terms}>
               I agree to the{' '}
               <a href="/terms" target="_blank" rel="noreferrer">
                 Terms of Service
@@ -143,27 +166,21 @@ export default function RegisterPage() {
               <a href="/refund-policy" target="_blank" rel="noreferrer">
                 Refund &amp; Cancellation Policy
               </a>
-            </>
+            </span>
           }
         />
 
-        <Button
-          type="submit"
-          fullWidth
-          loading={isLoading}
-          loadingText="Creating your account…"
-          iconRight={<ArrowRight size={18} aria-hidden="true" />}
-        >
+        <AuthSubmit loading={isLoading} loadingText="Creating your account…">
           Create account
-        </Button>
+        </AuthSubmit>
 
-        <p className={`${shared.switch} ${shared.footer}`}>
+        <p className={card.switch}>
           Already have an account?{' '}
-          <Link className={shared.switchLink} to="/login">
+          <Link className={card.link} to="/login">
             Sign in
           </Link>
         </p>
       </form>
-    </AuthLayout>
+    </AuthSplitLayout>
   );
 }

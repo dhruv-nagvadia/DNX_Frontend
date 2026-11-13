@@ -1,0 +1,218 @@
+/** Shared card typography, links and submit button for the auth pages. */
+.card {
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 48px 40px 40px 48px;
+  border-radius: 20px;
+  background: var(--color-surface);
+  border: 1px solid var(--m-divider);
+  box-shadow:
+    0 20px 48px rgba(30, 41, 59, 0.08),
+    var(--m-shadow-card);
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 4px;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(34px, 3vw, 46px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--m-ink);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: clamp(18px, 1.6vw, 22px);
+  color: var(--color-text-secondary);
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 18px;
+}
+
+.link {
+  color: var(--m-link);
+  font-weight: 500;
+  font-size: inherit;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  border-radius: 4px;
+  transition: text-decoration-color var(--dur-fast, 0.15s) ease;
+}
+
+.link:hover {
+  text-decoration-color: currentColor;
+}
+
+.link:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+}
+
+.metaRow .link {
+  font-size: 18px;
+}
+
+.submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 52px;
+  border: 0;
+  border-radius: 10px;
+  background: #1d4ed8;
+  color: #ffffff;
+  font: inherit;
+  font-size: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(29, 78, 216, 0.22);
+  transition:
+    background var(--dur-fast, 0.15s) ease,
+    box-shadow var(--dur-fast, 0.15s) ease;
+}
+
+.submit:hover:not(:disabled) {
+  background: #1e40af;
+}
+
+.submit:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.35);
+}
+
+.submit:disabled {
+  cursor: progress;
+  opacity: 0.85;
+}
+
+.spinner {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.switch {
+  margin: 0;
+  text-align: center;
+  font-size: 18px;
+  color: var(--color-text-secondary);
+}
+
+/* Text-style button (e.g. "Use a different email") that looks like .link. */
+.linkButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 960px) {
+  .card {
+    padding: 32px 20px;
+    gap: 22px;
+  }
+
+  .submit {
+    height: 52px;
+  }
+
+  .metaRow,
+  .metaRow .link,
+  .switch {
+    font-size: 16px;
+  }
+}
+
+/* Password strength meter (register). */
+.strength {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.strengthTrack {
+  display: flex;
+  flex: 1;
+  gap: 6px;
+}
+
+.strengthSegment {
+  height: 4px;
+  flex: 1 1 0;
+  border-radius: 999px;
+  background: var(--m-divider);
+  transition: background var(--dur-mid, 0.2s) ease;
+}
+
+.level1 {
+  background: var(--color-error);
+}
+
+.level2 {
+  background: var(--color-warning);
+}
+
+.level3 {
+  background: var(--color-success);
+}
+
+.strengthLabel {
+  flex: 0 0 52px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-align: right;
+}
+
+.terms {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+.terms a {
+  color: var(--m-link);
+  font-weight: 500;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .strengthSegment {
+    transition: none;
+  }
+}

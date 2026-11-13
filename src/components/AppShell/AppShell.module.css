@@ -1,66 +1,117 @@
 .shell {
+  /* Sidebar widths — shared by the grid columns and the fixed collapse
+     handle so the two always line up. */
+  --sidebar-w: 288px;
+  --sidebar-w-collapsed: 96px;
   position: relative;
   display: grid;
-  grid-template-columns: 244px 1fr;
+  grid-template-columns: var(--sidebar-w) 1fr;
   min-height: 100vh;
   min-height: 100dvh;
   background: var(--color-background);
   transition: grid-template-columns var(--dur-mid) var(--ease-out);
 }
 .shellCollapsed {
-  grid-template-columns: 80px 1fr;
+  grid-template-columns: var(--sidebar-w-collapsed) 1fr;
 }
 
-/* ── Sidebar — a fixed dark "ink" panel, same in both light and dark mode
-   (like the auth hero's panel). Only the main content area follows the
-   light/dark toggle. ──────────────────────────────────────────────── */
+/* ── Sidebar ──────────────────────────────────────────────────────────
+   Light mode: deep navy → royal blue gradient with soft curved waves.
+   Dark mode: near-black navy → deep navy, same layout. Colours are fixed
+   literals (not theme tokens) because the panel is always a dark surface
+   carrying white text. ────────────────────────────────────────────── */
 .sidebar {
+  --sb-from: #0b1a4a;
+  --sb-mid: #0a2fa8;
+  --sb-to: #1d4ed8;
+  --sb-wave: rgba(96, 140, 255, 0.16);
+  --sb-wave-2: rgba(255, 255, 255, 0.05);
+  --sb-text: #ffffff;
+  --sb-sub: #93b4ff;
+  --sb-muted: rgba(255, 255, 255, 0.72);
+  --sb-hover: rgba(255, 255, 255, 0.1);
+  --sb-card: rgba(255, 255, 255, 0.09);
+  --sb-card-border: rgba(255, 255, 255, 0.1);
+  --sb-divider: rgba(255, 255, 255, 0.18);
+  --sb-active-from: #2563eb;
+  --sb-active-to: #1a5cff;
+  --sb-logo: #1e5bff;
+  --sb-tooltip: #0b1a4a;
+
   position: sticky;
   top: 0;
   height: 100vh;
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
-  padding: var(--space-lg) var(--space-md);
-  background: var(--color-nav);
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
-  overflow: hidden;
+  gap: 24px;
+  padding: 32px 14px 20px;
+  background: linear-gradient(160deg, var(--sb-from) 0%, var(--sb-mid) 55%, var(--sb-to) 100%);
+  color: var(--sb-text);
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
   z-index: 20;
 }
+.sidebar::-webkit-scrollbar {
+  display: none;
+}
 
-/* Aurora glows — cyan top-left, indigo top-right (mirrors AuthHero). */
-.sidebar::before,
-.sidebar::after {
-  content: '';
+:global(:root[data-theme='dark']) .sidebar {
+  --sb-from: #070f2b;
+  --sb-mid: #08123a;
+  --sb-to: #0b1a4a;
+  --sb-wave: rgba(59, 99, 220, 0.1);
+  --sb-wave-2: rgba(255, 255, 255, 0.03);
+  --sb-card: rgba(255, 255, 255, 0.07);
+  --sb-hover: rgba(255, 255, 255, 0.08);
+  --sb-tooltip: #111d4a;
+}
+@media (prefers-color-scheme: dark) {
+  :global(:root:not([data-theme='light'])) .sidebar {
+    --sb-from: #070f2b;
+    --sb-mid: #08123a;
+    --sb-to: #0b1a4a;
+    --sb-wave: rgba(59, 99, 220, 0.1);
+    --sb-wave-2: rgba(255, 255, 255, 0.03);
+    --sb-card: rgba(255, 255, 255, 0.07);
+    --sb-hover: rgba(255, 255, 255, 0.08);
+    --sb-tooltip: #111d4a;
+  }
+}
+
+/* Decorative wave layer — two large, softly-lit curved shapes. Clipped in
+   its own box so the sidebar itself can let tooltips overflow. */
+.sidebarBg {
   position: absolute;
-  border-radius: 50%;
-  filter: blur(64px);
+  inset: 0;
+  overflow: hidden;
   pointer-events: none;
   z-index: 0;
 }
-.sidebar::before {
-  width: 320px;
-  height: 320px;
-  top: -150px;
-  left: -130px;
-  /* Fixed bright cyan — not var(--color-accent), which is now theme-aware
-     for the AI-highlight role on light content; this glow decorates the
-     always-dark ink panel, so it stays the same regardless of theme (same
-     literal AuthLayout's aurora uses). */
-  background: #38bdf8;
-  opacity: 0.32;
+.sidebarBg::before,
+.sidebarBg::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
 }
-.sidebar::after {
-  width: 260px;
-  height: 260px;
-  top: -70px;
-  right: -120px;
-  background: #818cf8;
-  opacity: 0.3;
+.sidebarBg::before {
+  width: 520px;
+  height: 520px;
+  top: 18%;
+  left: -180px;
+  background: radial-gradient(closest-side, transparent 72%, var(--sb-wave) 86%, transparent 100%);
+  transform: rotate(-18deg);
+}
+.sidebarBg::after {
+  width: 640px;
+  height: 460px;
+  bottom: -220px;
+  right: -300px;
+  background: radial-gradient(closest-side, var(--sb-wave) 0%, var(--sb-wave-2) 60%, transparent 100%);
 }
 
-/* Content sits above the glows. */
+/* Content sits above the waves. */
 .brand,
 .nav,
 .account {
@@ -68,153 +119,180 @@
   z-index: 1;
 }
 
+/* Brand: logo mark stacked above the two-line wordmark. */
 .brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 4px 6px;
-  margin-bottom: 4px;
-  color: var(--color-on-dark);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 4px 12px;
+  color: var(--sb-text);
   text-decoration: none;
-  border-radius: var(--radius-md);
+  border-radius: 12px;
 }
 .brand:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px var(--glass-border-strong);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.35);
 }
+.logo {
+  display: block;
+  width: 54px;
+  height: 47px;
+  flex: 0 0 auto;
+  color: var(--sb-logo);
+  filter: drop-shadow(0 4px 12px rgba(30, 91, 255, 0.35));
+}
+/* Text-letter mark (admin console). */
 .mark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-md);
-  /* Fixed bright cyan, not the theme-aware accent token — see the aurora
-     glow comment above. */
-  background: #38bdf8;
-  color: var(--color-ink);
-  font-size: var(--font-size-md);
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--sb-logo);
+  color: #fff;
+  font-size: 22px;
   font-weight: 800;
   flex: 0 0 auto;
+  box-shadow: 0 6px 18px rgba(30, 91, 255, 0.4);
 }
 .brandText {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  line-height: 1.25;
+  max-width: 100%;
+  line-height: 1.3;
 }
 .wordmark {
-  font-size: var(--font-size-md);
+  font-size: 20px;
   font-weight: 800;
   letter-spacing: -0.01em;
-  color: var(--color-on-dark);
+  color: var(--sb-text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  max-width: 100%;
 }
 .wordmarkSub {
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 500;
-  color: var(--color-on-dark-muted);
+  color: var(--sb-sub);
 }
 
-/* Nav */
+/* ── Nav ── */
 .nav {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   flex: 1 1 auto;
 }
 .navItem {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  border-radius: var(--radius-md);
-  color: var(--color-on-dark-muted);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
+  gap: 16px;
+  min-height: 52px;
+  padding: 0 16px;
+  border-radius: 12px;
+  color: var(--sb-text);
+  font-size: 16px;
+  font-weight: 500;
   text-decoration: none;
+  white-space: nowrap;
   transition:
     background var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out);
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+.navItem svg {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  stroke-width: 1.75;
+}
+.navLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .navItem:hover {
-  background: var(--glass-bg);
-  color: var(--color-on-dark);
+  background: var(--sb-hover);
 }
-.navItemActive {
-  /* A solid, clearly-colored pill (not just a translucent overlay) — the
-     active item should read at a glance, not just slightly lighter. */
-  background: rgba(56, 189, 248, 0.22);
-  color: var(--color-on-dark);
+.navItemActive,
+.navItemActive:hover {
+  background: linear-gradient(135deg, var(--sb-active-from), var(--sb-active-to));
   font-weight: 700;
-}
-.navItemActive::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 20px;
-  border-radius: 0 3px 3px 0;
-  background: #38bdf8;
+  box-shadow:
+    0 8px 24px rgba(37, 99, 235, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 .navItem:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--glass-border-strong);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55);
+}
+.navDivider {
+  flex: 0 0 auto;
+  width: calc(100% - 24px);
+  height: 1px;
+  margin: 14px 12px;
+  border: none;
+  background: var(--sb-divider);
+}
+.navSpacer {
+  flex: 0 0 auto;
+  height: 22px;
 }
 
-/* Account */
+/* ── Account footer card ── */
 .account {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   padding: 10px;
-  border-radius: var(--radius-lg);
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  background: var(--sb-card);
+  border: 1px solid var(--sb-card-border);
+  backdrop-filter: blur(6px);
 }
 .avatar {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 34px;
-  width: 34px;
-  height: 34px;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: linear-gradient(140deg, #38bdf8, #818cf8);
-  color: var(--color-ink);
-  font-size: 12px;
+  background: linear-gradient(140deg, #60a5fa, #2563eb);
+  color: #fff;
+  font-size: 14px;
   font-weight: 800;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.18);
 }
 .avatarImg {
-  flex: 0 0 34px;
-  width: 34px;
-  height: 34px;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   object-fit: cover;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.18);
 }
 .accountText {
   display: flex;
   flex-direction: column;
   min-width: 0;
   flex: 1 1 auto;
-  line-height: 1.25;
+  line-height: 1.3;
 }
 .accountName {
-  font-size: var(--font-size-sm);
+  font-size: 14px;
   font-weight: 700;
-  color: var(--color-on-dark);
+  color: var(--sb-text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .accountEmail {
-  font-size: 11px;
-  color: var(--color-on-dark-faint);
+  font-size: 12px;
+  color: var(--sb-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -225,113 +303,113 @@
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: 50%;
   background: transparent;
-  color: var(--color-on-dark-muted);
+  color: var(--sb-text);
   cursor: pointer;
   transition:
     background var(--dur-fast) var(--ease-out),
     color var(--dur-fast) var(--ease-out);
 }
+.themeToggle {
+  background: rgba(255, 255, 255, 0.1);
+}
 .themeToggle:hover {
-  background: var(--glass-bg-strong);
-  color: #38bdf8;
+  background: rgba(255, 255, 255, 0.2);
 }
 .logout:hover {
-  /* Fixed, not theme-tracked error tokens — the sidebar stays dark
-     regardless of the content theme, so a light-mode-tuned faint red would
-     be nearly invisible here. */
-  background: rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.22);
   color: #fecaca;
 }
 .themeToggle:focus-visible,
 .logout:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--glass-border-strong);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55);
 }
 
-/* Shrinks the sidebar to an icon-only rail — nav, logo and account controls
-   stay one click away, but their labels/text go away so the content area
-   gets the width back. The toggle itself is a small round handle straddling
-   the sidebar/content border — attached to the sidebar's top-right corner,
-   not buried inside its padded content. */
-/* A gradient handle (same fixed cyan→indigo as the logo mark/avatar, not the
-   theme-tracked accent token — it straddles the sidebar/content border and
-   needs to read the same in both themes). */
+/* ── Collapse handle — a round button straddling the sidebar's right edge,
+   level with the logo. Fixed (not absolute) because the sidebar is sticky:
+   an absolute handle would scroll away with the page. ── */
 .collapseToggle {
-  /* Fixed to the viewport, not absolute to .shell — the sidebar is itself
-     pinned with `position: sticky`, so an absolutely-positioned handle
-     (anchored to .shell's top, which scrolls away with the page) would
-     drift out of sync with it the moment the page scrolls. Fixed keeps it
-     locked to the sidebar's edge at all scroll positions. */
   position: fixed;
-  /* Lined up with the second nav item (Businesses), not the logo row. */
-  top: 130px;
-  left: 244px;
+  top: 40px;
+  left: var(--sidebar-w);
   transform: translateX(-50%) scale(1);
   z-index: 25;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  border: 2px solid var(--color-background);
+  width: 44px;
+  height: 44px;
+  border: none;
   border-radius: 50%;
-  background: linear-gradient(135deg, #38bdf8, #818cf8);
-  color: var(--color-ink);
+  background: #ffffff;
+  color: #0b1a4a;
   cursor: pointer;
-  box-shadow:
-    0 4px 14px rgba(56, 189, 248, 0.45),
-    var(--shadow-sm);
+  box-shadow: 0 6px 18px rgba(11, 26, 74, 0.28);
   transition:
     left var(--dur-mid) var(--ease-out),
-    transform var(--dur-mid) var(--ease-out),
-    box-shadow var(--dur-mid) var(--ease-out);
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+:global(:root[data-theme='dark']) .collapseToggle {
+  background: #16224f;
+  color: #ffffff;
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+@media (prefers-color-scheme: dark) {
+  :global(:root:not([data-theme='light'])) .collapseToggle {
+    background: #16224f;
+    color: #ffffff;
+    box-shadow:
+      0 6px 18px rgba(0, 0, 0, 0.45),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  }
 }
 .collapseToggleCollapsed {
-  left: 80px;
+  left: var(--sidebar-w-collapsed);
 }
 .collapseToggle:hover {
-  transform: translateX(-50%) scale(1.14);
-  box-shadow:
-    0 6px 22px rgba(129, 140, 248, 0.6),
-    var(--shadow-md);
+  transform: translateX(-50%) scale(1.08);
 }
 .collapseToggle:active {
-  transform: translateX(-50%) scale(0.94);
+  transform: translateX(-50%) scale(0.95);
 }
 .collapseToggle:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px var(--color-primary-ring);
 }
-.collapseToggle svg {
-  transition: transform var(--dur-mid) var(--ease-out);
-}
-.collapseToggle:hover svg {
-  transform: rotate(180deg);
-}
 @media (prefers-reduced-motion: reduce) {
-  .collapseToggle,
-  .collapseToggle svg {
+  .collapseToggle {
     transition: none;
   }
 }
 
+/* ── Collapsed rail: logo mark only, centred icons, labels in tooltips ── */
 .sidebarCollapsed {
   align-items: center;
   padding-left: 10px;
   padding-right: 10px;
+  /* Let hover tooltips escape to the right (the wave layer clips itself). */
+  overflow: visible;
 }
 .sidebarCollapsed .brand {
+  align-items: center;
   padding: 4px 0;
 }
+.sidebarCollapsed .logo {
+  width: 48px;
+  height: 42px;
+}
 .sidebarCollapsed .brandText,
+.sidebarCollapsed .wordmark,
 .sidebarCollapsed .navLabel,
-.sidebarCollapsed .accountText,
-.sidebarCollapsed .accountEmail {
+.sidebarCollapsed .accountText {
   display: none;
 }
 .sidebarCollapsed .nav {
@@ -340,17 +418,99 @@
 }
 .sidebarCollapsed .navItem {
   justify-content: center;
-  width: 44px;
-  padding: 10px;
+  width: 60px;
+  min-height: 52px;
+  padding: 0;
+  border-radius: 14px;
 }
-.sidebarCollapsed .navItemActive::before {
-  left: -10px;
+.sidebarCollapsed .navItemActive {
+  min-height: 60px;
 }
-.sidebarCollapsed .account {
-  flex-direction: column;
+.sidebarCollapsed .navDivider {
   width: 100%;
-  padding: 10px 4px;
-  gap: 10px;
+  margin: 12px 0;
+}
+.sidebarCollapsed .navSpacer {
+  height: 4px;
+}
+/* Tooltip — dark navy pill (with a small arrow) to the right of the icon. */
+.sidebarCollapsed .navItem::before,
+.sidebarCollapsed .navItem::after {
+  position: absolute;
+  top: 50%;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+.sidebarCollapsed .navItem::after {
+  content: attr(data-tooltip);
+  left: calc(100% + 14px);
+  transform: translate(-4px, -50%);
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: var(--sb-tooltip);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(7, 15, 43, 0.35);
+  z-index: 30;
+}
+.sidebarCollapsed .navItem::before {
+  content: '';
+  left: calc(100% + 8px);
+  transform: translate(-4px, -50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background: var(--sb-tooltip);
+  z-index: 30;
+}
+.sidebarCollapsed .navItem:hover::before,
+.sidebarCollapsed .navItem:hover::after,
+.sidebarCollapsed .navItem:focus-visible::before,
+.sidebarCollapsed .navItem:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+}
+.sidebarCollapsed .navItem:hover::after,
+.sidebarCollapsed .navItem:focus-visible::after {
+  transform: translate(0, -50%);
+}
+.sidebarCollapsed .navItem:hover::before,
+.sidebarCollapsed .navItem:focus-visible::before {
+  transform: translate(0, -50%) rotate(45deg);
+}
+/* Account: avatar on its own row, theme + logout side by side below. */
+.sidebarCollapsed .account {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  justify-content: center;
+  justify-items: center;
+  width: 100%;
+  padding: 0;
+  gap: 12px 6px;
+  background: transparent;
+  border: none;
+  backdrop-filter: none;
+}
+.sidebarCollapsed .avatar,
+.sidebarCollapsed .avatarImg {
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  grid-column: 1 / -1;
+}
+.sidebarCollapsed .themeToggle,
+.sidebarCollapsed .logout {
+  width: 34px;
+  height: 34px;
+}
+.sidebarCollapsed .logout {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 /* ── Sticky per-page top bar (back + notifications + profile) ───────── */
@@ -468,10 +628,12 @@
 }
 /* ── Responsive: sidebar → top bar ────────────────────────────────── */
 @media (max-width: 900px) {
-  .shell {
+  .shell,
+  .shellCollapsed {
     grid-template-columns: 1fr;
   }
-  .sidebar {
+  .sidebar,
+  .sidebarCollapsed {
     position: sticky;
     top: 0;
     height: auto;
@@ -479,35 +641,98 @@
     align-items: center;
     gap: var(--space-md);
     padding: var(--space-sm) var(--space-md);
+    overflow: hidden;
+    background: linear-gradient(100deg, var(--sb-from) 0%, var(--sb-mid) 60%, var(--sb-to) 100%);
   }
   /* The sidebar is already a compact horizontal bar here — "collapse to an
      icon rail" doesn't apply. */
   .collapseToggle {
     display: none;
   }
-  .nav {
+  .brand,
+  .sidebarCollapsed .brand {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding: 4px;
+  }
+  .logo,
+  .sidebarCollapsed .logo {
+    width: 36px;
+    height: 32px;
+  }
+  .mark {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+    border-radius: 10px;
+  }
+  .wordmark {
+    font-size: 16px;
+  }
+  .wordmarkSub {
+    font-size: 12px;
+  }
+  .sidebarCollapsed .brandText,
+  .sidebarCollapsed .wordmark {
+    display: flex;
+  }
+  .nav,
+  .sidebarCollapsed .nav {
     flex-direction: row;
     flex: 1 1 auto;
+    align-items: center;
     justify-content: center;
     gap: 4px;
+    width: auto;
     overflow-x: auto;
   }
-  .navItemActive::before {
-    left: 50%;
-    top: auto;
-    bottom: 0;
-    transform: translateX(-50%);
-    width: 20px;
-    height: 3px;
-    border-radius: 3px 3px 0 0;
+  .navItem,
+  .sidebarCollapsed .navItem,
+  .sidebarCollapsed .navItemActive {
+    width: auto;
+    min-height: 44px;
+    padding: 0 12px;
+    gap: 8px;
+    font-size: 14px;
+    border-radius: 10px;
   }
-  .account {
+  .navItem svg {
+    width: 20px;
+    height: 20px;
+  }
+  .sidebarCollapsed .navLabel {
+    display: inline;
+  }
+  .sidebarCollapsed .navItem::before,
+  .sidebarCollapsed .navItem::after {
+    display: none;
+  }
+  .navDivider,
+  .navSpacer {
+    display: none;
+  }
+  .account,
+  .sidebarCollapsed .account {
+    display: flex;
+    flex-wrap: nowrap;
+    width: auto;
     padding: 6px;
+    gap: 6px;
     background: transparent;
     border: none;
+    backdrop-filter: none;
   }
   .accountText {
     display: none;
+  }
+  .avatar,
+  .avatarImg,
+  .sidebarCollapsed .avatar,
+  .sidebarCollapsed .avatarImg {
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
   }
   .withRail {
     grid-template-columns: 1fr;
@@ -531,11 +756,16 @@
   }
 }
 
+
 @media (max-width: 560px) {
-  .brandText {
+  .brandText,
+  .wordmark,
+  .sidebarCollapsed .brandText,
+  .sidebarCollapsed .wordmark {
     display: none;
   }
-  .navLabel {
+  .navLabel,
+  .sidebarCollapsed .navLabel {
     display: none;
   }
 }

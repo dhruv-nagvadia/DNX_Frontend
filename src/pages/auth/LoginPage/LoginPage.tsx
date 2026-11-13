@@ -1,14 +1,10 @@
-import { ArrowRight, ShieldCheck } from 'lucide-react';
+import { Lock, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { AlertBanner } from '@/components/AlertBanner';
-import { AuthLayout } from '@/components/AuthLayout';
-import { Button } from '@/components/Button';
 import { Checkbox } from '@/components/Checkbox';
-import { PasswordField } from '@/components/PasswordField';
-import { TextField } from '@/components/TextField';
 
-import shared from '../AuthForm.module.css';
+import { AuthField, AuthSplitLayout, AuthSubmit, authCard as card } from '../AuthSplitLayout';
 import { useLoginPage } from './useLoginPage';
 
 /** JSX only — logic comes from useLoginPage. */
@@ -26,26 +22,30 @@ export default function LoginPage() {
   } = useLoginPage();
 
   return (
-    <AuthLayout>
-      <form className={shared.form} onSubmit={onSubmit} noValidate>
-        <header className={shared.head}>
-          <span className={shared.eyebrow}>
-            <ShieldCheck size={13} aria-hidden="true" />
-            Provider sign in
-          </span>
-          <h2 className={shared.title}>Welcome back</h2>
-          <p className={shared.subtitle}>
-            Pick up where you left off — today&apos;s bookings are waiting.
-          </p>
+    <AuthSplitLayout
+      headline={
+        <>
+          Run your business,
+          <br />
+          all in one place
+        </>
+      }
+      subhead="Manage bookings, orders, offers and earnings for every business you own."
+    >
+      <form className={card.card} onSubmit={onSubmit} noValidate>
+        <header className={card.head}>
+          <h2 className={card.title}>Welcome back</h2>
+          <p className={card.subtitle}>Sign in to your provider account</p>
         </header>
 
         {serverError && <AlertBanner tone="error">{serverError}</AlertBanner>}
 
-        <div className={shared.fields}>
-          <TextField
-            dense
-            label="Email"
+        <div className={card.fields}>
+          <AuthField
+            id="email"
             name="email"
+            label="Email"
+            icon={Mail}
             type="email"
             inputMode="email"
             autoComplete="email"
@@ -54,25 +54,27 @@ export default function LoginPage() {
             value={form.email}
             onChange={onChange}
             onBlur={onBlur}
-            error={errors.email}
             disabled={isLoading}
+            error={errors.email}
           />
 
-          <PasswordField
-            dense
-            label="Password"
+          <AuthField
+            id="password"
             name="password"
+            label="Password"
+            icon={Lock}
+            passwordToggle
             autoComplete="current-password"
             placeholder="Enter your password"
             value={form.password}
             onChange={onChange}
             onBlur={onBlur}
-            error={errors.password}
             disabled={isLoading}
+            error={errors.password}
           />
         </div>
 
-        <div className={shared.metaRow}>
+        <div className={card.metaRow}>
           <Checkbox
             name="remember"
             label="Keep me signed in"
@@ -80,28 +82,22 @@ export default function LoginPage() {
             onChange={onRememberChange}
             disabled={isLoading}
           />
-          <Link className={shared.switchLink} to="/forgot-password">
+          <Link className={card.link} to="/forgot-password">
             Forgot password?
           </Link>
         </div>
 
-        <Button
-          type="submit"
-          fullWidth
-          loading={isLoading}
-          loadingText="Signing in…"
-          iconRight={<ArrowRight size={18} aria-hidden="true" />}
-        >
+        <AuthSubmit loading={isLoading} loadingText="Signing in…">
           Sign in
-        </Button>
+        </AuthSubmit>
 
-        <p className={`${shared.switch} ${shared.footer}`}>
-          New to DNX?{' '}
-          <Link className={shared.switchLink} to="/register">
-            Create a free account
+        <p className={card.switch}>
+          New provider?{' '}
+          <Link className={card.link} to="/register">
+            Create an account
           </Link>
         </p>
       </form>
-    </AuthLayout>
+    </AuthSplitLayout>
   );
 }

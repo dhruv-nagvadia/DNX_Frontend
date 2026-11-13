@@ -1,16 +1,16 @@
 import {
   CalendarDays,
-  LayoutDashboard,
-  LifeBuoy,
+  ChevronsLeft,
+  ChevronsRight,
+  CircleHelp,
+  Home,
   LogOut,
   Moon,
-  PanelLeftClose,
-  PanelLeftOpen,
   Star,
   Store,
   Sun,
-  Ticket,
-  UserRound,
+  Tag,
+  User,
   Wallet,
 } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
@@ -33,19 +33,39 @@ function initialsOf(name: string): string {
   );
 }
 
-const NAV = [
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+type NavEntry = { to: string; label: string; icon: typeof Home };
+
+/** Primary workspace links (above the divider). */
+const NAV_MAIN: NavEntry[] = [
+  { to: '/dashboard', label: 'Dashboard', icon: Home },
   { to: '/businesses', label: 'My Businesses', icon: Store },
   { to: '/bookings-orders', label: 'Bookings & Orders', icon: CalendarDays },
-  { to: '/coupons', label: 'Coupons / Offers', icon: Ticket },
+  { to: '/coupons', label: 'Coupons / Offers', icon: Tag },
   { to: '/reviews', label: 'Reviews', icon: Star },
   { to: '/earnings', label: 'Earnings', icon: Wallet },
-  { to: '/profile', label: 'Profile', icon: UserRound },
-  { to: '/support', label: 'Support', icon: LifeBuoy },
 ];
 
+/** Account link, below the divider. */
+const NAV_ACCOUNT: NavEntry = { to: '/profile', label: 'Account / Profile', icon: User };
+
+/** Help link, set apart with extra space above it. */
+const NAV_HELP: NavEntry = { to: '/support', label: 'Help & Support', icon: CircleHelp };
+
+/** DNX brand mark — a person (round head + X body) in bright blue. */
+export function LogoMark({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 60 53" aria-hidden="true" focusable="false">
+      <g stroke="currentColor" strokeWidth="12.5" strokeLinecap="round">
+        <line x1="9" y1="12" x2="51" y2="44" />
+        <line x1="51" y1="12" x2="9" y2="44" />
+      </g>
+      <circle cx="31" cy="9.5" r="9" fill="currentColor" />
+    </svg>
+  );
+}
+
 /**
- * Frame shared by every signed-in provider screen: a fixed navy sidebar for
+ * Frame shared by every signed-in provider screen: a fixed blue-gradient sidebar for
  * app navigation and account controls (collapsible to an icon-only rail), a
  * sticky per-page top bar (back + notifications + profile), an optional
  * section rail, and the light content area. On narrow screens the sidebar
@@ -56,6 +76,20 @@ export function AppShell({ children, rail, header }: AppShellProps) {
   const { theme, toggleTheme } = useTheme();
   const { collapsed, toggleCollapsed } = useSidebarCollapsed();
   const name = user?.fullName ?? 'DNX';
+
+  const renderNavLink = ({ to, label, icon: Icon }: NavEntry) => (
+    <NavLink
+      key={to}
+      to={to}
+      className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
+      title={collapsed ? label : undefined}
+      aria-label={collapsed ? label : undefined}
+      data-tooltip={label}
+    >
+      <Icon size={24} strokeWidth={1.75} aria-hidden="true" />
+      <span className={styles.navLabel}>{label}</span>
+    </NavLink>
+  );
 
   // General screens (dashboard, support, etc.) have no top bar at all — it
   // only appears on pages that supply their own `header` (e.g. a specific
@@ -69,10 +103,9 @@ export function AppShell({ children, rail, header }: AppShellProps) {
   return (
     <div className={`${styles.shell} ${collapsed ? styles.shellCollapsed : ''}`}>
       <aside className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ''}`}>
+        <span className={styles.sidebarBg} aria-hidden="true" />
         <Link className={styles.brand} to="/dashboard">
-          <span className={styles.mark} aria-hidden="true">
-            D
-          </span>
+          <LogoMark className={styles.logo} />
           <span className={styles.brandText}>
             <span className={styles.wordmark}>DNX Marketplace</span>
             <span className={styles.wordmarkSub}>Provider Portal</span>
@@ -80,19 +113,11 @@ export function AppShell({ children, rail, header }: AppShellProps) {
         </Link>
 
         <nav className={styles.nav} aria-label="Main">
-          {NAV.map(({ to, label, icon: Icon }) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) =>
-                `${styles.navItem} ${isActive ? styles.navItemActive : ''}`
-              }
-              title={collapsed ? label : undefined}
-            >
-              <Icon size={18} aria-hidden="true" />
-              <span className={styles.navLabel}>{label}</span>
-            </NavLink>
-          ))}
+          {NAV_MAIN.map(renderNavLink)}
+          <hr className={styles.navDivider} aria-hidden="true" />
+          {renderNavLink(NAV_ACCOUNT)}
+          <span className={styles.navSpacer} aria-hidden="true" />
+          {renderNavLink(NAV_HELP)}
         </nav>
 
         <div className={styles.account}>
@@ -118,15 +143,22 @@ export function AppShell({ children, rail, header }: AppShellProps) {
             onClick={toggleTheme}
             type="button"
             aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {theme === 'dark' ? (
-              <Sun size={16} aria-hidden="true" />
+              <Sun size={20} strokeWidth={1.75} aria-hidden="true" />
             ) : (
-              <Moon size={16} aria-hidden="true" />
+              <Moon size={20} strokeWidth={1.75} aria-hidden="true" />
             )}
           </button>
-          <button className={styles.logout} onClick={logout} type="button" aria-label="Log out">
-            <LogOut size={16} aria-hidden="true" />
+          <button
+            className={styles.logout}
+            onClick={logout}
+            type="button"
+            aria-label="Log out"
+            title="Log out"
+          >
+            <LogOut size={20} strokeWidth={1.75} aria-hidden="true" />
           </button>
         </div>
       </aside>
@@ -136,11 +168,12 @@ export function AppShell({ children, rail, header }: AppShellProps) {
         className={`${styles.collapseToggle} ${collapsed ? styles.collapseToggleCollapsed : ''}`}
         onClick={toggleCollapsed}
         aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {collapsed ? (
-          <PanelLeftOpen size={16} aria-hidden="true" />
+          <ChevronsRight size={20} strokeWidth={2.25} aria-hidden="true" />
         ) : (
-          <PanelLeftClose size={16} aria-hidden="true" />
+          <ChevronsLeft size={20} strokeWidth={2.25} aria-hidden="true" />
         )}
       </button>
 

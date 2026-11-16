@@ -327,7 +327,7 @@ export default function DashboardPage() {
           <div className={styles.heroRow}>
             <div className={styles.revenueCard}>
               <div className={styles.revenueIcon} aria-hidden="true">
-                <Coins size={30} strokeWidth={1.8} />
+                <Coins size={24} strokeWidth={1.8} />
               </div>
               <div className={styles.revenueBody}>
                 <span className={styles.revenueLabel}>Money Collected This Month</span>
@@ -363,7 +363,7 @@ export default function DashboardPage() {
 
             <div className={`${styles.tile} ${styles.tileBlue}`}>
               <span className={styles.tileIcon} aria-hidden="true">
-                <CalendarDays size={34} strokeWidth={1.8} />
+                <CalendarDays size={24} strokeWidth={1.8} />
               </span>
               <span className={styles.tileLabel}>
                 Today&rsquo;s
@@ -374,7 +374,7 @@ export default function DashboardPage() {
             </div>
             <div className={`${styles.tile} ${styles.tileLavender}`}>
               <span className={styles.tileIcon} aria-hidden="true">
-                <CalendarClock size={34} strokeWidth={1.8} />
+                <CalendarClock size={24} strokeWidth={1.8} />
               </span>
               <span className={styles.tileLabel}>
                 Upcoming
@@ -385,7 +385,7 @@ export default function DashboardPage() {
             </div>
             <div className={`${styles.tile} ${styles.tilePeach}`}>
               <span className={styles.tileIcon} aria-hidden="true">
-                <Package size={34} strokeWidth={1.8} />
+                <Package size={24} strokeWidth={1.8} />
               </span>
               <span className={styles.tileLabel}>
                 Open
@@ -396,7 +396,7 @@ export default function DashboardPage() {
             </div>
             <div className={`${styles.tile} ${styles.tilePink}`}>
               <span className={styles.tileIcon} aria-hidden="true">
-                <AlertCircle size={34} strokeWidth={1.8} />
+                <AlertCircle size={24} strokeWidth={1.8} />
               </span>
               <span className={styles.tileLabel}>
                 Needs
@@ -419,7 +419,7 @@ export default function DashboardPage() {
           <div className={styles.grid}>
             {hasService && (
               <DashCard
-                icon={<CalendarDays size={24} strokeWidth={2} />}
+                icon={<CalendarDays size={20} strokeWidth={2} />}
                 tone="blue"
                 title="Today’s Schedule"
                 count={todays.length}
@@ -468,7 +468,7 @@ export default function DashboardPage() {
 
             {hasService && (
               <DashCard
-                icon={<AlertCircle size={24} strokeWidth={2} />}
+                icon={<AlertCircle size={20} strokeWidth={2} />}
                 tone="red"
                 title="Needs Your Attention"
                 count={attention.length}
@@ -504,7 +504,7 @@ export default function DashboardPage() {
 
             {hasStore && (
               <DashCard
-                icon={<Package size={24} strokeWidth={2} />}
+                icon={<Package size={20} strokeWidth={2} />}
                 tone="orange"
                 title="Orders to Fulfil"
                 count={openOrders.length}
@@ -542,7 +542,7 @@ export default function DashboardPage() {
 
             {hasStore && (
               <DashCard
-                icon={<TriangleAlert size={24} strokeWidth={2} />}
+                icon={<TriangleAlert size={20} strokeWidth={2} />}
                 tone="red"
                 title="Low Stock"
                 count={lowStock.length}

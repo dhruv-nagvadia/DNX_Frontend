@@ -86,7 +86,7 @@ export function AppShell({ children, rail, header }: AppShellProps) {
       aria-label={collapsed ? label : undefined}
       data-tooltip={label}
     >
-      <Icon size={24} strokeWidth={1.75} aria-hidden="true" />
+      <Icon size={18} strokeWidth={1.75} aria-hidden="true" />
       <span className={styles.navLabel}>{label}</span>
     </NavLink>
   );
@@ -146,9 +146,9 @@ export function AppShell({ children, rail, header }: AppShellProps) {
             title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {theme === 'dark' ? (
-              <Sun size={20} strokeWidth={1.75} aria-hidden="true" />
+              <Sun size={16} strokeWidth={1.75} aria-hidden="true" />
             ) : (
-              <Moon size={20} strokeWidth={1.75} aria-hidden="true" />
+              <Moon size={16} strokeWidth={1.75} aria-hidden="true" />
             )}
           </button>
           <button
@@ -158,7 +158,7 @@ export function AppShell({ children, rail, header }: AppShellProps) {
             aria-label="Log out"
             title="Log out"
           >
-            <LogOut size={20} strokeWidth={1.75} aria-hidden="true" />
+            <LogOut size={16} strokeWidth={1.75} aria-hidden="true" />
           </button>
         </div>
       </aside>
@@ -171,9 +171,9 @@ export function AppShell({ children, rail, header }: AppShellProps) {
         title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {collapsed ? (
-          <ChevronsRight size={20} strokeWidth={2.25} aria-hidden="true" />
+          <ChevronsRight size={16} strokeWidth={2.25} aria-hidden="true" />
         ) : (
-          <ChevronsLeft size={20} strokeWidth={2.25} aria-hidden="true" />
+          <ChevronsLeft size={16} strokeWidth={2.25} aria-hidden="true" />
         )}
       </button>
 

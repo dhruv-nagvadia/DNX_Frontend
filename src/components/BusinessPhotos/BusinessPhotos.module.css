@@ -39,8 +39,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
+  width: var(--m-icon-box);
+  height: var(--m-icon-box);
   border-radius: 50%;
   background: color-mix(in srgb, currentColor 12%, transparent);
 }
@@ -52,12 +52,12 @@
   min-width: 0;
 }
 .tileLabel {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-sm);
   font-weight: 600;
   color: var(--m-ink);
 }
 .tileValue {
-  font-size: 28px;
+  font-size: var(--m-fs-stat);
   font-weight: 800;
   line-height: 1.15;
   color: var(--m-ink);
@@ -67,7 +67,7 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-size: 20px;
+  font-size: var(--m-fs-card);
   font-weight: 700;
   color: var(--m-ink);
 }
@@ -291,7 +291,7 @@
   color: var(--m-link);
 }
 .zoneTitle {
-  font-size: var(--font-size-lg);
+  font-size: var(--m-fs-lg);
   font-weight: 700;
   color: var(--m-ink);
 }
@@ -507,7 +507,7 @@
   background: color-mix(in srgb, var(--m-pill-blue-bg) 35%, transparent);
   color: var(--m-link);
   font: inherit;
-  font-size: var(--font-size-lg);
+  font-size: var(--m-fs-body);
   font-weight: 700;
   cursor: pointer;
   transition: background var(--dur-fast) var(--ease-out);

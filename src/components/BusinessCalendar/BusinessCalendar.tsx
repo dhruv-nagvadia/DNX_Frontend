@@ -99,7 +99,7 @@ export function BusinessCalendar({
       <div className={styles.tiles}>
         <div className={`${styles.tile} ${styles.tile_blue}`}>
           <span className={styles.tileIcon}>
-            <CalendarCheck size={28} aria-hidden="true" />
+            <CalendarCheck size={20} aria-hidden="true" />
           </span>
           <div className={styles.tileText}>
             <span className={styles.tileLabel}>{Word} This Month</span>
@@ -108,7 +108,7 @@ export function BusinessCalendar({
         </div>
         <div className={`${styles.tile} ${styles.tile_lavender}`}>
           <span className={styles.tileIcon}>
-            <Flame size={28} aria-hidden="true" />
+            <Flame size={20} aria-hidden="true" />
           </span>
           <div className={styles.tileText}>
             <span className={styles.tileLabel}>Busiest Day</span>
@@ -124,7 +124,7 @@ export function BusinessCalendar({
         </div>
         <div className={`${styles.tile} ${styles.tile_pink}`}>
           <span className={styles.tileIcon}>
-            <CalendarX size={28} aria-hidden="true" />
+            <CalendarX size={20} aria-hidden="true" />
           </span>
           <div className={styles.tileText}>
             <span className={styles.tileLabel}>Closed Days</span>
@@ -134,7 +134,7 @@ export function BusinessCalendar({
         </div>
         <div className={`${styles.tile} ${styles.tile_peach}`}>
           <span className={styles.tileIcon}>
-            <Clock size={28} aria-hidden="true" />
+            <Clock size={20} aria-hidden="true" />
           </span>
           <div className={styles.tileText}>
             <span className={styles.tileLabel}>Custom Hours</span>
@@ -150,11 +150,11 @@ export function BusinessCalendar({
           <div className={styles.toolbar}>
             <div className={styles.nav}>
               <button type="button" className={styles.navBtn} onClick={cal.prev} aria-label="Previous">
-                <ChevronLeft size={22} aria-hidden="true" />
+                <ChevronLeft size={18} aria-hidden="true" />
               </button>
               <h3 className={styles.period}>{cal.label}</h3>
               <button type="button" className={styles.navBtn} onClick={cal.next} aria-label="Next">
-                <ChevronRight size={22} aria-hidden="true" />
+                <ChevronRight size={18} aria-hidden="true" />
               </button>
             </div>
             <div className={styles.toolbarRight}>
@@ -404,7 +404,7 @@ function DayPanel({ cal, onViewAll }: { cal: Cal; onViewAll?: () => void }) {
   return (
     <aside className={styles.side}>
       <ModernCard
-        icon={<CalendarDays size={22} aria-hidden="true" />}
+        icon={<CalendarDays size={18} aria-hidden="true" />}
         iconTone="ink"
         title={fmtPanelDate(selectedDay.date)}
       >
@@ -483,7 +483,7 @@ function DayPanel({ cal, onViewAll }: { cal: Cal; onViewAll?: () => void }) {
       </ModernCard>
 
       <ModernCard
-        icon={<CalendarDays size={22} aria-hidden="true" />}
+        icon={<CalendarDays size={18} aria-hidden="true" />}
         iconTone="ink"
         title={`${Word} (${selectedDay.items.length})`}
         action={
@@ -520,7 +520,7 @@ function DayPanel({ cal, onViewAll }: { cal: Cal; onViewAll?: () => void }) {
 
         <div className={styles.earnBar}>
           <span className={styles.earnIcon}>
-            <Coins size={26} aria-hidden="true" />
+            <Coins size={20} aria-hidden="true" />
           </span>
           <span className={styles.earnText}>
             <span className={styles.earnLabel}>Day earnings</span>

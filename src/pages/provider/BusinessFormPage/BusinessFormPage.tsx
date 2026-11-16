@@ -283,13 +283,13 @@ export default function BusinessFormPage() {
                         [
                           {
                             id: 'SERVICE',
-                            icon: <Command size={30} strokeWidth={1.8} aria-hidden="true" />,
+                            icon: <Command size={24} strokeWidth={1.8} aria-hidden="true" />,
                             title: 'Service business',
                             desc: 'Customers book appointments',
                           },
                           {
                             id: 'STORE',
-                            icon: <ShoppingBag size={30} strokeWidth={1.8} aria-hidden="true" />,
+                            icon: <ShoppingBag size={24} strokeWidth={1.8} aria-hidden="true" />,
                             title: 'Store',
                             desc: 'Customers order products for pickup',
                           },
@@ -343,7 +343,7 @@ export default function BusinessFormPage() {
                                   </span>
                                 )}
                                 <span className={styles.categoryIcon}>
-                                  <CategoryIcon slug={c.slug} size={28} strokeWidth={1.7} />
+                                  <CategoryIcon slug={c.slug} size={24} strokeWidth={1.7} />
                                 </span>
                                 <span className={styles.categoryName}>{c.name}</span>
                               </button>
@@ -464,7 +464,7 @@ export default function BusinessFormPage() {
                   <>
                     <div className={styles.option}>
                       <span className={styles.optionIcon}>
-                        <CreditCard size={26} aria-hidden="true" />
+                        <CreditCard size={20} aria-hidden="true" />
                       </span>
                       <div className={styles.optionText}>
                         <span className={styles.optionTitle}>Online payment</span>
@@ -480,7 +480,7 @@ export default function BusinessFormPage() {
 
                     <div className={styles.option}>
                       <span className={styles.optionIcon}>
-                        <Layers size={26} aria-hidden="true" />
+                        <Layers size={20} aria-hidden="true" />
                       </span>
                       <div className={styles.optionText}>
                         <span className={styles.optionTitle}>Accept partial payment</span>
@@ -525,7 +525,7 @@ export default function BusinessFormPage() {
                     {isStore && (
                       <div className={styles.option}>
                         <span className={styles.optionIcon}>
-                          <Banknote size={26} aria-hidden="true" />
+                          <Banknote size={20} aria-hidden="true" />
                         </span>
                         <div className={styles.optionText}>
                           <span className={styles.optionTitle}>Accept Cash on Delivery / pay at venue</span>
@@ -584,7 +584,7 @@ export default function BusinessFormPage() {
                       }}
                       onDrop={onDrop}
                     >
-                      <CloudUpload size={44} strokeWidth={1.6} className={styles.dropIcon} aria-hidden="true" />
+                      <CloudUpload size={32} strokeWidth={1.6} className={styles.dropIcon} aria-hidden="true" />
                       <span className={styles.dropTitle}>Drag &amp; drop photos here</span>
                       <span className={styles.dropOr}>or</span>
                       <button
@@ -714,7 +714,7 @@ export default function BusinessFormPage() {
 
                     <div className={styles.pinCard}>
                       <div className={styles.pinHead}>
-                        <MapPin size={26} className={styles.pinIcon} aria-hidden="true" />
+                        <MapPin size={20} className={styles.pinIcon} aria-hidden="true" />
                         <div className={styles.optionText}>
                           <span className={styles.optionTitle}>Pin your location</span>
                           <span className={styles.optionDesc}>

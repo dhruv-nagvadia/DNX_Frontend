@@ -33,9 +33,9 @@ import { BusinessBookings } from '@/components/BusinessBookings';
 import { BusinessCalendar } from '@/components/BusinessCalendar';
 import { BusinessPhotos } from '@/components/BusinessPhotos';
 import { BusinessHours } from '@/components/BusinessHours';
-import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { CategoryIcon } from '@/components/CategoryIcon';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { EarningsPanel } from '@/components/EarningsPanel';
 import { TopSellersPanel, useTopSellers } from '@/components/TopSellersPanel';
 import { ModernCard, ModernCardLink } from '@/components/ModernCard';
@@ -131,9 +131,9 @@ export default function BusinessDetailPage() {
     .join(', ');
 
   const contact = [
-    { icon: <Phone size={20} aria-hidden="true" />, label: 'Phone', value: business.phone },
-    { icon: <Mail size={20} aria-hidden="true" />, label: 'Email', value: business.email },
-    { icon: <MapPin size={20} aria-hidden="true" />, label: 'Address', value: address },
+    { icon: <Phone size={18} aria-hidden="true" />, label: 'Phone', value: business.phone },
+    { icon: <Mail size={18} aria-hidden="true" />, label: 'Email', value: business.email },
+    { icon: <MapPin size={18} aria-hidden="true" />, label: 'Address', value: address },
   ];
 
   const isStore = business.type === 'STORE';
@@ -146,13 +146,23 @@ export default function BusinessDetailPage() {
       ? { id: 'products', label: 'Products', icon: <Box size={18} aria-hidden="true" /> }
       : { id: 'services', label: 'Services', icon: <Scissors size={18} aria-hidden="true" /> },
     ...(isStore
-      ? [{ id: 'stock' as const, label: 'Manage Stock', icon: <Layers size={18} aria-hidden="true" /> }]
+      ? [
+          {
+            id: 'stock' as const,
+            label: 'Manage Stock',
+            icon: <Layers size={18} aria-hidden="true" />,
+          },
+        ]
       : []),
     { id: 'coupons', label: 'Offers', icon: <Tag size={18} aria-hidden="true" /> },
     {
       id: 'bookings',
       label: isStore ? 'Orders' : 'Bookings',
-      icon: isStore ? <Package size={18} aria-hidden="true" /> : <CalendarDays size={18} aria-hidden="true" />,
+      icon: isStore ? (
+        <Package size={18} aria-hidden="true" />
+      ) : (
+        <CalendarDays size={18} aria-hidden="true" />
+      ),
     },
     { id: 'photos', label: 'Photos', icon: <ImageIcon size={18} aria-hidden="true" /> },
     // Weekly hours + break time is its own tab; per-date overrides (mark a day
@@ -170,7 +180,7 @@ export default function BusinessDetailPage() {
 
   const contactCard = (
     <ModernCard
-      icon={<MapPin size={22} aria-hidden="true" />}
+      icon={<MapPin size={18} aria-hidden="true" />}
       iconTone="ink"
       title="Contact & Location"
       action={editLink}
@@ -240,7 +250,7 @@ export default function BusinessDetailPage() {
             <img className={styles.bizHeroImg} src={business.images[0]} alt="" />
           ) : (
             <span className={styles.bizHeroFallback}>
-              <CategoryIcon slug={business.category.slug} size={36} strokeWidth={1.6} />
+              <CategoryIcon slug={business.category.slug} size={32} strokeWidth={1.6} />
             </span>
           )}
         </div>
@@ -248,12 +258,12 @@ export default function BusinessDetailPage() {
           <span className={styles.bizHeroNameRow}>
             <h1 className={styles.bizHeroName}>{business.businessName}</h1>
             {business.isVerified && (
-              <BadgeCheck className={styles.verifiedIcon} size={30} aria-label="Verified" />
+              <BadgeCheck className={styles.verifiedIcon} size={20} aria-label="Verified" />
             )}
           </span>
           <span className={styles.bizHeroMetaRow}>
             <span className={styles.rating}>
-              <Star size={20} className={styles.ratingStar} aria-hidden="true" />
+              <Star size={16} className={styles.ratingStar} aria-hidden="true" />
               <strong>{business.ratingAvg.toFixed(1)}</strong>
               <span className={styles.ratingCount}>({business.ratingCount} reviews)</span>
             </span>
@@ -269,7 +279,11 @@ export default function BusinessDetailPage() {
         </div>
       </div>
       <div className={styles.bizHeroActions}>
-        <button type="button" className={`${styles.heroBtn} ${styles.heroBtnEdit}`} onClick={goToEdit}>
+        <button
+          type="button"
+          className={`${styles.heroBtn} ${styles.heroBtnEdit}`}
+          onClick={goToEdit}
+        >
           <Pencil size={18} aria-hidden="true" />
           Edit Business
         </button>
@@ -292,11 +306,12 @@ export default function BusinessDetailPage() {
       {/* Restrictions DNX has put on this business — the owner should always see why. */}
       {business.isBlocked && !blockedBannerDismissed && (
         <div className={`${styles.banner} ${styles.bannerError}`} role="alert">
-          <Ban size={22} className={styles.bannerIcon} aria-hidden="true" />
+          <Ban size={18} className={styles.bannerIcon} aria-hidden="true" />
           <p className={styles.bannerText}>
             <strong>This business is blocked by the platform.</strong>
-            {business.blockedReason ? ` Reason${reasonSentence(business.blockedReason)}` : ''} Customers
-            can't see it or place new bookings and orders. You can still finish anything already open.
+            {business.blockedReason ? ` Reason${reasonSentence(business.blockedReason)}` : ''}{' '}
+            Customers can't see it or place new bookings and orders. You can still finish anything
+            already open.
           </p>
           <button
             type="button"
@@ -310,10 +325,12 @@ export default function BusinessDetailPage() {
       )}
       {business.codDisabledByAdmin && !codBannerDismissed && (
         <div className={`${styles.banner} ${styles.bannerWarning}`} role="alert">
-          <AlertTriangle size={22} className={styles.bannerIcon} aria-hidden="true" />
+          <AlertTriangle size={18} className={styles.bannerIcon} aria-hidden="true" />
           <p className={styles.bannerText}>
             <strong>Cash on Delivery is disabled for this business.</strong>
-            {business.codDisabledReason ? ` Reason${reasonSentence(business.codDisabledReason)}` : ''}{' '}
+            {business.codDisabledReason
+              ? ` Reason${reasonSentence(business.codDisabledReason)}`
+              : ''}{' '}
             Customers can only pay online or with a partial deposit.
           </p>
           <button
@@ -352,29 +369,29 @@ export default function BusinessDetailPage() {
             <EarningsPanel providerId={business.id} businessType={isStore ? 'STORE' : 'SERVICE'} />
             <div className={styles.aboutCell}>
               <div className={styles.aboutStack}>
-              <ModernCard
-                icon={<FileText size={22} aria-hidden="true" />}
-                iconTone="ink"
-                title="About"
-                action={editLink}
-                className={styles.aboutCard}
-              >
-                {aboutContent}
-              </ModernCard>
-              {sellers.busiestDay && (
-                <div className={styles.busiestCard}>
-                  <Calendar size={26} aria-hidden="true" className={styles.busiestIcon} />
-                  <div className={styles.busiestMain}>
-                    <span className={styles.busiestLabel}>Busiest Day</span>
-                    <span className={styles.busiestDay}>{sellers.busiestDay}</span>
+                <ModernCard
+                  icon={<FileText size={18} aria-hidden="true" />}
+                  iconTone="ink"
+                  title="About"
+                  action={editLink}
+                  className={styles.aboutCard}
+                >
+                  {aboutContent}
+                </ModernCard>
+                {sellers.busiestDay && (
+                  <div className={styles.busiestCard}>
+                    <Calendar size={20} aria-hidden="true" className={styles.busiestIcon} />
+                    <div className={styles.busiestMain}>
+                      <span className={styles.busiestLabel}>Busiest Day</span>
+                      <span className={styles.busiestDay}>{sellers.busiestDay}</span>
+                    </div>
+                    {sellers.busiestAvg !== null && (
+                      <span className={styles.busiestAvg}>
+                        ({sellers.busiestAvg} {isStore ? 'orders' : 'bookings'} on avg.)
+                      </span>
+                    )}
                   </div>
-                  {sellers.busiestAvg !== null && (
-                    <span className={styles.busiestAvg}>
-                      ({sellers.busiestAvg} {isStore ? 'orders' : 'bookings'} on avg.)
-                    </span>
-                  )}
-                </div>
-              )}
+                )}
               </div>
             </div>
             {contactCard}
@@ -477,29 +494,18 @@ export default function BusinessDetailPage() {
         />
       )}
 
-      {confirmingDelete && (
-        <div className={styles.deleteOverlay} role="dialog" aria-modal="true">
-          <div className={styles.deleteModal}>
-            <h3 className={styles.deleteTitle}>Delete “{business.businessName}”?</h3>
-            <p className={styles.deleteText}>
-              This permanently removes the business along with all its bookings, reviews, services
-              and hours. This can’t be undone.
-            </p>
-            <div className={styles.deleteActions}>
-              <Button
-                variant="ghost"
-                onClick={() => setConfirmingDelete(false)}
-                disabled={deleting}
-              >
-                Keep business
-              </Button>
-              <Button onClick={remove} loading={deleting} loadingText="Deleting…">
-                Delete business
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        open={confirmingDelete}
+        tone="danger"
+        title={`Delete “${business.businessName}”?`}
+        message="This permanently removes the business along with all its bookings, reviews, services and hours. This can’t be undone."
+        cancelText="Keep business"
+        confirmText="Delete business"
+        loading={deleting}
+        loadingText="Deleting…"
+        onCancel={() => setConfirmingDelete(false)}
+        onConfirm={() => void remove()}
+      />
     </AppShell>
   );
 }

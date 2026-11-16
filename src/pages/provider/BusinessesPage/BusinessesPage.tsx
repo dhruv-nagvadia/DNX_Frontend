@@ -116,7 +116,7 @@ function BusinessCard({
           onClick={onEdit}
           aria-label={`Edit ${biz.businessName}`}
         >
-          <Pencil size={17} aria-hidden="true" />
+          <Pencil size={16} aria-hidden="true" />
         </button>
       </div>
 
@@ -124,7 +124,7 @@ function BusinessCard({
         <h3 className={styles.name}>
           <span className={styles.nameText}>{biz.businessName}</span>
           {biz.isVerified && (
-            <BadgeCheck className={styles.verified} size={26} aria-label="Verified" />
+            <BadgeCheck className={styles.verified} size={18} aria-label="Verified" />
           )}
         </h3>
         <p className={styles.place}>
@@ -190,7 +190,7 @@ function BusinessCard({
         )}
         <button type="button" className={styles.manage} onClick={onOpen}>
           Manage
-          <ArrowRight size={17} aria-hidden="true" />
+          <ArrowRight size={16} aria-hidden="true" />
         </button>
       </footer>
     </article>
@@ -291,17 +291,17 @@ export default function BusinessesPage() {
       ) : (
         <>
           <div className={styles.tiles}>
-            <SummaryTile tone="blue" icon={<Store size={26} />} label="Total Businesses" value={counts.total} />
-            <SummaryTile tone="mint" icon={<CheckCircle2 size={28} />} label="Verified" value={counts.verified} />
+            <SummaryTile tone="blue" icon={<Store size={20} />} label="Total Businesses" value={counts.total} />
+            <SummaryTile tone="mint" icon={<CheckCircle2 size={20} />} label="Verified" value={counts.verified} />
             <SummaryTile
               tone="peach"
-              icon={<Clock size={28} />}
+              icon={<Clock size={20} />}
               label="Pending Verification"
               value={counts.pending}
             />
             <SummaryTile
               tone="pink"
-              icon={<AlertTriangle size={28} />}
+              icon={<AlertTriangle size={20} />}
               label="Needs Attention"
               value={counts.attention}
             />
@@ -321,9 +321,9 @@ export default function BusinessesPage() {
               />
             ))}
             <button type="button" className={styles.addCard} onClick={addBusiness}>
-              <Store size={44} strokeWidth={1.6} aria-hidden="true" className={styles.addCardIcon} />
+              <Store size={32} strokeWidth={1.6} aria-hidden="true" className={styles.addCardIcon} />
               <span className={styles.addCardTitle}>
-                <Plus size={22} aria-hidden="true" />
+                <Plus size={18} aria-hidden="true" />
                 Add a new business
               </span>
               <span className={styles.addCardSub}>Set up in a couple of minutes</span>

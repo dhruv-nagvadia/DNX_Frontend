@@ -7,6 +7,7 @@ import {
 } from '@/redux/api/provider/providerApi';
 import { Service } from '@/redux/api/provider/types';
 import { ServiceForm } from './types';
+import { useConfirm } from '@/components/ConfirmDialog';
 
 const EMPTY: ServiceForm = {
   name: '',
@@ -22,6 +23,7 @@ const EMPTY: ServiceForm = {
 
 /** All state + handlers for adding, editing, and deleting a business's services. */
 export function useServicesManager(providerId: string, businessPartialPayEnabled = true) {
+  const confirm = useConfirm();
   const [createService, { isLoading: creating }] = useCreateServiceMutation();
   const [updateService, { isLoading: updating }] = useUpdateServiceMutation();
   const [deleteService] = useDeleteServiceMutation();
@@ -158,12 +160,15 @@ export function useServicesManager(providerId: string, businessPartialPayEnabled
 
   const remove = useCallback(
     async (serviceId: string) => {
-      if (!window.confirm('Delete this service?')) return;
+      if (
+        !(await confirm({ title: 'Delete this service?', confirmText: 'Delete', tone: 'danger' }))
+      )
+        return;
       await deleteService({ providerId, serviceId })
         .unwrap()
         .catch(() => undefined);
     },
-    [providerId, deleteService],
+    [providerId, deleteService, confirm],
   );
 
   const toggleActive = useCallback(

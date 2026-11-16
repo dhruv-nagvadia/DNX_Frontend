@@ -86,21 +86,23 @@ export function TimeField({ id, value, onChange, disabled, className, ...rest }:
       setOpen(false);
     };
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === 'Escape') {
+        // Handled here, so a dialog around the field stays open.
+        e.preventDefault();
+        setOpen(false);
+      }
     };
     document.addEventListener('mousedown', onDocMouseDown);
-    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('keydown', onKeyDown, true);
     return () => {
       document.removeEventListener('mousedown', onDocMouseDown);
-      document.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('keydown', onKeyDown, true);
     };
   }, [open]);
 
   useEffect(() => {
     if (!open) return;
-    hourColRef.current
-      ?.querySelector('[data-active="true"]')
-      ?.scrollIntoView({ block: 'center' });
+    hourColRef.current?.querySelector('[data-active="true"]')?.scrollIntoView({ block: 'center' });
     minuteColRef.current
       ?.querySelector('[data-active="true"]')
       ?.scrollIntoView({ block: 'center' });

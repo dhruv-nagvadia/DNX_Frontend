@@ -10,17 +10,18 @@
 }
 
 .select {
+  min-height: var(--m-control-h);
   width: 100%;
   min-width: 0;
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  padding: 10px 34px 10px 12px;
+  padding: 9px 34px 9px 12px;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--field-radius, var(--radius-md));
   background: var(--color-surface);
   font: inherit;
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   color: var(--color-text-primary);
   cursor: pointer;
   transition:

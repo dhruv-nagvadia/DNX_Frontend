@@ -4,6 +4,7 @@ import { AlertBanner } from '@/components/AlertBanner';
 import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
+import { FormDialog } from '@/components/FormDialog';
 import { Skeleton } from '@/components/Skeleton';
 import { AdminUserDetailProps } from './types';
 import { useAdminUserDetail } from './useAdminUserDetail';
@@ -11,7 +12,11 @@ import { useAdminUserDetail } from './useAdminUserDetail';
 import styles from '@/components/ServicesManager/ServicesManager.module.css';
 import local from './AdminUserDetail.module.css';
 
-const dateFmt = new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+const dateFmt = new Intl.DateTimeFormat('en-IN', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+});
 const money = (minor: number) => `₹${(minor / 100).toLocaleString('en-IN')}`;
 
 export function AdminUserDetail({ userId }: AdminUserDetailProps) {
@@ -62,7 +67,8 @@ export function AdminUserDetail({ userId }: AdminUserDetailProps) {
           <div>
             <div className={local.name}>{user.fullName}</div>
             <div className={local.meta}>
-              {user.email} · {user.phone ?? 'No phone'} · Joined {dateFmt.format(new Date(user.createdAt))}
+              {user.email} · {user.phone ?? 'No phone'} · Joined{' '}
+              {dateFmt.format(new Date(user.createdAt))}
             </div>
             <div className={local.meta}>
               {totalNoShows} no-show{totalNoShows === 1 ? '' : 's'} on record
@@ -94,11 +100,7 @@ export function AdminUserDetail({ userId }: AdminUserDetailProps) {
                 Re-enable COD
               </Button>
             ) : (
-              <Button
-                variant="secondary"
-                loading={togglingCod}
-                onClick={() => toggleCod(true)}
-              >
+              <Button variant="secondary" loading={togglingCod} onClick={() => toggleCod(true)}>
                 Disable COD
               </Button>
             )}
@@ -125,10 +127,13 @@ export function AdminUserDetail({ userId }: AdminUserDetailProps) {
                 <div className={local.rowMain}>
                   <span className={local.rowTitle}>{b.service.name}</span>
                   <span className={local.rowSub}>
-                    {b.provider.businessName} · {dateFmt.format(new Date(b.startTime))} · {b.paymentMethod}
+                    {b.provider.businessName} · {dateFmt.format(new Date(b.startTime))} ·{' '}
+                    {b.paymentMethod}
                   </span>
                 </div>
-                {b.amountPaidMinor > 0 && <Badge tone="error">{money(b.amountPaidMinor)} forfeited</Badge>}
+                {b.amountPaidMinor > 0 && (
+                  <Badge tone="error">{money(b.amountPaidMinor)} forfeited</Badge>
+                )}
               </div>
             ))}
             {noShowOrders.map((o) => (
@@ -139,7 +144,9 @@ export function AdminUserDetail({ userId }: AdminUserDetailProps) {
                     {dateFmt.format(new Date(o.createdAt))} · {o.paymentMethod}
                   </span>
                 </div>
-                {o.amountPaidMinor > 0 && <Badge tone="error">{money(o.amountPaidMinor)} forfeited</Badge>}
+                {o.amountPaidMinor > 0 && (
+                  <Badge tone="error">{money(o.amountPaidMinor)} forfeited</Badge>
+                )}
               </div>
             ))}
           </div>
@@ -180,90 +187,88 @@ export function AdminUserDetail({ userId }: AdminUserDetailProps) {
         )}
       </Card>
 
-      {blockOpen && (
-        <div className={local.overlay} role="dialog" aria-modal="true">
-          <div className={local.modal}>
-            <h3 className={local.modalTitle}>Block {user.fullName}?</h3>
-            <p className={styles.muted}>They won't be able to log in until unblocked.</p>
-            <label className={styles.label} htmlFor="blockReason">
-              Reason <span className={styles.optional}>(optional)</span>
-            </label>
-            <textarea
-              id="blockReason"
-              className={styles.textarea}
-              placeholder="e.g. Repeated no-shows on paid bookings."
-              value={blockReason}
-              onChange={(e) => setBlockReason(e.target.value)}
-              maxLength={300}
-            />
-            <div className={styles.formActions}>
-              <Button variant="secondary" onClick={closeBlock} disabled={blocking}>
-                Cancel
-              </Button>
-              <Button loading={blocking} loadingText="Blocking…" onClick={confirmBlock}>
-                Block account
-              </Button>
-            </div>
-          </div>
+      <FormDialog
+        open={blockOpen}
+        size="sm"
+        tone="danger"
+        title={`Block ${user.fullName}?`}
+        subtitle="They won't be able to log in until unblocked."
+        onClose={closeBlock}
+        onSubmit={(e) => {
+          e.preventDefault();
+          void confirmBlock();
+        }}
+        submitLabel="Block account"
+        submitting={blocking}
+        submittingLabel="Blocking…"
+        initialFocus="firstField"
+      >
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="blockReason">
+            Reason <span className={styles.optional}>(optional)</span>
+          </label>
+          <textarea
+            id="blockReason"
+            className={styles.textarea}
+            placeholder="e.g. Repeated no-shows on paid bookings."
+            value={blockReason}
+            onChange={(e) => setBlockReason(e.target.value)}
+            maxLength={300}
+          />
         </div>
-      )}
+      </FormDialog>
 
-      {chargeOpen && (
-        <div className={local.overlay} role="dialog" aria-modal="true">
-          <div className={local.modal}>
-            <form onSubmit={submitCharge} className={styles.form}>
-              <p className={styles.formTitle}>Add a charge for {user.fullName}</p>
-              <div className={styles.field}>
-                <label className={styles.label} htmlFor="chargeAmount">
-                  Amount (₹)
-                </label>
-                <input
-                  id="chargeAmount"
-                  className={styles.input}
-                  type="number"
-                  min="0"
-                  step="any"
-                  inputMode="decimal"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                />
-              </div>
-              <div className={styles.field}>
-                <label className={styles.label} htmlFor="chargeReason">
-                  Reason
-                </label>
-                <input
-                  id="chargeReason"
-                  className={styles.input}
-                  placeholder="e.g. Repeated no-shows"
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                />
-              </div>
-              <div className={styles.field}>
-                <label className={styles.label} htmlFor="chargeNote">
-                  Note <span className={styles.optional}>(optional)</span>
-                </label>
-                <input
-                  id="chargeNote"
-                  className={styles.input}
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                />
-              </div>
-              {error && <AlertBanner tone="error">{error}</AlertBanner>}
-              <div className={styles.formActions}>
-                <Button type="button" variant="secondary" onClick={closeCharge} disabled={creatingPenalty}>
-                  Cancel
-                </Button>
-                <Button type="submit" loading={creatingPenalty} loadingText="Adding…">
-                  Add charge
-                </Button>
-              </div>
-            </form>
-          </div>
+      <FormDialog
+        open={chargeOpen}
+        size="sm"
+        title={`Add a charge for ${user.fullName}`}
+        onClose={closeCharge}
+        onSubmit={submitCharge}
+        error={error}
+        submitLabel="Add charge"
+        submitting={creatingPenalty}
+        submittingLabel="Adding…"
+        initialFocus="firstField"
+      >
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="chargeAmount">
+            Amount (₹)
+          </label>
+          <input
+            id="chargeAmount"
+            className={styles.input}
+            type="number"
+            min="0"
+            step="any"
+            inputMode="decimal"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+          />
         </div>
-      )}
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="chargeReason">
+            Reason
+          </label>
+          <input
+            id="chargeReason"
+            className={styles.input}
+            placeholder="e.g. Repeated no-shows"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+          />
+        </div>
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="chargeNote">
+            Note <span className={styles.optional}>(optional)</span>
+          </label>
+          <input
+            id="chargeNote"
+            className={styles.input}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
+        </div>
+      </FormDialog>
     </>
   );
 }

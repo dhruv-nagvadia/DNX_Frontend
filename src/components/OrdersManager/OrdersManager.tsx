@@ -1,7 +1,17 @@
 import { KeyboardEvent, ReactNode, useMemo, useState } from 'react';
-import { Bell, ChevronDown, ChevronLeft, ChevronRight, Package, Search, ShoppingBag, Store, Wallet } from 'lucide-react';
+import {
+  Bell,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Package,
+  Search,
+  ShoppingBag,
+  Store,
+  Wallet,
+} from 'lucide-react';
 
-import { Button } from '@/components/Button';
+import { FormDialog } from '@/components/FormDialog';
 import { Pill } from '@/components/Pill';
 import { Skeleton } from '@/components/Skeleton';
 import {
@@ -27,12 +37,23 @@ import {
   shortId,
 } from './orderUtils';
 import styles from './OrdersManager.module.css';
+import { useConfirm } from '@/components/ConfirmDialog';
 
 const PAGE_SIZE = 5;
 
 type TileTone = 'lavender' | 'blue' | 'mint' | 'peach';
 
-function SummaryTile({ tone, icon, label, value }: { tone: TileTone; icon: ReactNode; label: string; value: ReactNode }) {
+function SummaryTile({
+  tone,
+  icon,
+  label,
+  value,
+}: {
+  tone: TileTone;
+  icon: ReactNode;
+  label: string;
+  value: ReactNode;
+}) {
   return (
     <div className={`${styles.tile} ${styles[`tile_${tone}`]}`}>
       <span className={styles.tileIcon} aria-hidden="true">
@@ -64,6 +85,7 @@ function pageList(page: number, count: number): (number | 'gap')[] {
  * Bookings & Orders page) — business names are shown on rows and in details. */
 export function OrdersManager({ providerId }: { providerId?: string }) {
   const showBusiness = !providerId;
+  const confirm = useConfirm();
   // Refetch whenever this tab is opened, the browser tab regains focus, or
   // every 30s while it's open — new orders come from the customer app, a
   // separate client, so nothing in this app's own cache would otherwise know
@@ -151,12 +173,16 @@ export function OrdersManager({ providerId }: { providerId?: string }) {
   const setStatus = (o: ProviderOrder, status: OrderStatus) => {
     updateStatus({ orderId: o.id, providerId: o.provider.id, status });
   };
-  const collectPayment = (o: ProviderOrder) => {
+  const collectPayment = async (o: ProviderOrder) => {
     // Same safeguard as the mobile app — recording cash is easy to tap by mistake.
     const due = money(outstandingOf(o), o.currency);
-    if (!window.confirm(`Mark ${shortId(o)} as paid? This records ${due} collected from ${o.user.fullName}.`)) {
-      return;
-    }
+    const ok = await confirm({
+      title: `Mark ${shortId(o)} as paid?`,
+      message: `This records ${due} collected from ${o.user.fullName}.`,
+      confirmText: 'Mark paid',
+      tone: 'info',
+    });
+    if (!ok) return;
     collect({ orderId: o.id, providerId: o.provider.id });
   };
   const openCancel = (o: ProviderOrder) => {
@@ -203,7 +229,7 @@ export function OrdersManager({ providerId }: { providerId?: string }) {
     return (
       <div className={styles.emptyCard}>
         <span className={styles.emptyIcon} aria-hidden="true">
-          <ShoppingBag size={28} />
+          <ShoppingBag size={24} />
         </span>
         <h3 className={styles.emptyTitle}>No orders yet</h3>
         <p className={styles.emptyText}>
@@ -218,10 +244,30 @@ export function OrdersManager({ providerId }: { providerId?: string }) {
   return (
     <div className={styles.root}>
       <div className={styles.tiles}>
-        <SummaryTile tone="lavender" icon={<Bell size={26} />} label="New Orders" value={tabCounts.PENDING} />
-        <SummaryTile tone="blue" icon={<Package size={26} />} label="Preparing" value={tabCounts.CONFIRMED} />
-        <SummaryTile tone="mint" icon={<ShoppingBag size={26} />} label="Ready for Pickup" value={tabCounts.READY} />
-        <SummaryTile tone="peach" icon={<Wallet size={26} />} label="Cash to Collect" value={money(cashToCollect, currency)} />
+        <SummaryTile
+          tone="lavender"
+          icon={<Bell size={20} />}
+          label="New Orders"
+          value={tabCounts.PENDING}
+        />
+        <SummaryTile
+          tone="blue"
+          icon={<Package size={20} />}
+          label="Preparing"
+          value={tabCounts.CONFIRMED}
+        />
+        <SummaryTile
+          tone="mint"
+          icon={<ShoppingBag size={20} />}
+          label="Ready for Pickup"
+          value={tabCounts.READY}
+        />
+        <SummaryTile
+          tone="peach"
+          icon={<Wallet size={20} />}
+          label="Cash to Collect"
+          value={money(cashToCollect, currency)}
+        />
       </div>
 
       <div className={styles.toolbar}>
@@ -315,7 +361,9 @@ export function OrdersManager({ providerId }: { providerId?: string }) {
                           <td>
                             <div className={styles.cellStack}>
                               <span className={styles.strong}>{o.user.fullName}</span>
-                              {o.user.phone && <span className={styles.mutedSm}>{o.user.phone}</span>}
+                              {o.user.phone && (
+                                <span className={styles.mutedSm}>{o.user.phone}</span>
+                              )}
                               {showBusiness && (
                                 <span className={styles.bizTag}>
                                   <Store size={12} aria-hidden="true" />
@@ -328,7 +376,12 @@ export function OrdersManager({ providerId }: { providerId?: string }) {
                             <div className={styles.itemsCell}>
                               <span className={styles.thumbStack}>
                                 {o.items.slice(0, 3).map((it) => (
-                                  <ItemThumb key={it.id} src={it.product?.imageUrl} size={34} className={styles.stackThumb} />
+                                  <ItemThumb
+                                    key={it.id}
+                                    src={it.product?.imageUrl}
+                                    size={34}
+                                    className={styles.stackThumb}
+                                  />
                                 ))}
                               </span>
                               <span className={styles.mutedSm}>
@@ -414,39 +467,43 @@ export function OrdersManager({ providerId }: { providerId?: string }) {
         )}
       </div>
 
-      {cancelling && (
-        <div className={styles.overlay} role="dialog" aria-modal="true" aria-labelledby="orderCancelTitle">
-          <div className={styles.modal}>
-            <h3 className={styles.modalTitle} id="orderCancelTitle">
-              Cancel this order?
-            </h3>
-            <p className={styles.modalSub}>
-              {shortId(cancelling)} · {cancelling.user.fullName} ·{' '}
-              {money(cancelling.amountMinor, cancelling.currency)}
-              {cancelling.paymentStatus === 'PAID' && ' · will be refunded'}
-            </p>
-            <label className={styles.modalLabel} htmlFor="orderCancelReason">
-              Message for the customer <span className={styles.optional}>(optional)</span>
-            </label>
-            <textarea
-              id="orderCancelReason"
-              className={styles.textarea}
-              placeholder="e.g. Sorry, that item just went out of stock."
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              maxLength={500}
-            />
-            <div className={styles.modalActions}>
-              <Button variant="ghost" onClick={() => setCancelling(null)} disabled={busy}>
-                Keep order
-              </Button>
-              <Button onClick={confirmCancel} loading={updating} loadingText="Cancelling…">
-                Cancel order
-              </Button>
-            </div>
-          </div>
+      <FormDialog
+        open={!!cancelling}
+        size="sm"
+        tone="danger"
+        title="Cancel this order?"
+        subtitle={
+          cancelling
+            ? `${shortId(cancelling)} · ${cancelling.user.fullName} · ${money(cancelling.amountMinor, cancelling.currency)}${
+                cancelling.paymentStatus === 'PAID' ? ' · will be refunded' : ''
+              }`
+            : undefined
+        }
+        onClose={() => setCancelling(null)}
+        onSubmit={(e) => {
+          e.preventDefault();
+          void confirmCancel();
+        }}
+        cancelLabel="Keep order"
+        submitLabel="Cancel order"
+        submitting={updating}
+        submittingLabel="Cancelling…"
+        initialFocus="firstField"
+      >
+        <div className={styles.modalField}>
+          <label className={styles.modalLabel} htmlFor="orderCancelReason">
+            Message for the customer <span className={styles.optional}>(optional)</span>
+          </label>
+          <textarea
+            id="orderCancelReason"
+            className={styles.textarea}
+            placeholder="e.g. Sorry, that item just went out of stock."
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            maxLength={500}
+          />
         </div>
-      )}
+      </FormDialog>
     </div>
   );
 }

@@ -39,7 +39,7 @@ export function AuthField({
         {label}
       </label>
       <div className={`${styles.control} ${error ? styles.controlError : ''}`}>
-        <Icon size={22} className={styles.leadIcon} aria-hidden="true" />
+        <Icon size={18} className={styles.leadIcon} aria-hidden="true" />
         {prefix && (
           <span className={styles.prefix} aria-hidden="true">
             {prefix}
@@ -62,9 +62,9 @@ export function AuthField({
             aria-pressed={visible}
           >
             {visible ? (
-              <Eye size={22} aria-hidden="true" />
+              <Eye size={18} aria-hidden="true" />
             ) : (
-              <EyeOff size={22} aria-hidden="true" />
+              <EyeOff size={18} aria-hidden="true" />
             )}
           </button>
         )}

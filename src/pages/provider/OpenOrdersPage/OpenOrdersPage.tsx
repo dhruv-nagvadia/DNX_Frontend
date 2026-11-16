@@ -1,48 +1,21 @@
-import { KeyboardEvent } from 'react';
-import { Package } from 'lucide-react';
+import { Package, ShoppingBag, Store, User } from 'lucide-react';
 
-import { AppShell } from '@/components/AppShell';
-import { Badge } from '@/components/Badge';
-import { Card } from '@/components/Card';
-import { EmptyState } from '@/components/EmptyState';
-import { PageHeader } from '@/components/PageHeader';
-import { Skeleton } from '@/components/Skeleton';
+import { Pill, PillTone } from '@/components/Pill';
 import { OrderStatus, ProviderOrder } from '@/redux/api/provider/types';
 
+import { LeadChip, ViewAllPage, ViewAllRow } from '../TodaysSchedulePage/ViewAllLayout';
+import { money } from '../TodaysSchedulePage/money';
+import styles from '../TodaysSchedulePage/ViewAll.module.css';
 import { useOpenOrdersPage } from './useOpenOrdersPage';
-import styles from '../DashboardPage/DashboardPage.module.css';
 
-type Tone = 'warning' | 'accent' | 'success' | 'neutral' | 'brand';
-
-const ORDER_TONE: Record<OrderStatus, Tone> = {
-  PENDING: 'warning',
-  CONFIRMED: 'accent',
-  READY: 'brand',
-  COMPLETED: 'success',
-  CANCELLED: 'neutral',
-  NO_SHOW: 'neutral',
+const ORDER_STATUS: Record<OrderStatus, { tone: PillTone; label: string }> = {
+  PENDING: { tone: 'orange', label: 'New' },
+  CONFIRMED: { tone: 'blue', label: 'Confirmed' },
+  READY: { tone: 'lavender', label: 'Ready' },
+  COMPLETED: { tone: 'green', label: 'Completed' },
+  CANCELLED: { tone: 'red', label: 'Cancelled' },
+  NO_SHOW: { tone: 'grey', label: 'No-show' },
 };
-
-const ORDER_LABEL: Record<OrderStatus, string> = {
-  PENDING: 'new',
-  CONFIRMED: 'confirmed',
-  READY: 'ready',
-  COMPLETED: 'completed',
-  CANCELLED: 'cancelled',
-  NO_SHOW: 'no-show',
-};
-
-function money(minor: number, currency: string): string {
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 0,
-    }).format(minor / 100);
-  } catch {
-    return `${Math.round(minor / 100)}`;
-  }
-}
 
 function shortOrderId(id: string): string {
   return `#${id.slice(-6).toUpperCase()}`;
@@ -50,104 +23,72 @@ function shortOrderId(id: string): string {
 
 const orderOutstanding = (o: ProviderOrder) => o.amountMinor - (o.amountPaidMinor ?? 0);
 
-/** The payment line shown on every order row, even when fully settled. */
-function paymentLine(order: ProviderOrder, currency: string): string {
+/** The payment pill shown on every order row, even when fully settled. */
+function paymentPill(order: ProviderOrder, currency: string): { tone: PillTone; label: string } {
   if (order.paymentMethod === 'ONLINE') {
-    return order.paymentStatus === 'PAID' ? 'Paid' : 'Online';
+    return order.paymentStatus === 'PAID' ? { tone: 'green', label: 'Paid' } : { tone: 'teal', label: 'Online' };
   }
   const label = order.paymentMethod === 'CASH' ? 'COD' : 'Partial';
-  return `${label}: ${money(orderOutstanding(order), currency)}`;
-}
-
-/** Spreads onto a clickable <tr> so it's reachable and activatable by keyboard too. */
-function rowActivation(onOpen: () => void) {
-  return {
-    role: 'button' as const,
-    tabIndex: 0,
-    onClick: onOpen,
-    onKeyDown: (e: KeyboardEvent) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        onOpen();
-      }
-    },
-  };
-}
-
-/** One order row: order id, who/where, item count, status and payment. */
-function OrderRow({
-  order,
-  currency,
-  onOpen,
-}: {
-  order: ProviderOrder;
-  currency: string;
-  onOpen: () => void;
-}) {
-  const itemCount = order.items.length;
-  return (
-    <tr className={styles.tr} {...rowActivation(onOpen)}>
-      <td className={styles.idCell}>{shortOrderId(order.id)}</td>
-      <td>{order.user.fullName}</td>
-      <td>
-        <span className={styles.businessName}>{order.provider.businessName}</span>
-      </td>
-      <td>
-        {itemCount} item{itemCount === 1 ? '' : 's'}
-      </td>
-      <td>
-        <Badge tone={ORDER_TONE[order.status]}>{ORDER_LABEL[order.status]}</Badge>
-      </td>
-      <td className={styles.paymentCell}>{paymentLine(order, currency)}</td>
-    </tr>
-  );
+  return { tone: 'yellow', label: `${label}: ${money(orderOutstanding(order), currency)}` };
 }
 
 /** Full, unsliced "Orders to Fulfil" — every order still working through fulfilment,
  * across every business. */
 export default function OpenOrdersPage() {
   const { isLoading, openOrders, currency, goToBusinessOrders } = useOpenOrdersPage();
+  const count = openOrders.length;
 
   return (
-    <AppShell>
-      <PageHeader title="Orders to Fulfil" subtitle="Every open order across all your businesses." />
-
-      {isLoading ? (
-        <Skeleton height={240} radius="var(--radius-xl)" />
-      ) : (
-        <Card flush>
-          {openOrders.length === 0 ? (
-            <EmptyState
-              icon={<Package size={28} strokeWidth={1.6} aria-hidden="true" />}
-              title="No open orders"
-              description="You're all caught up."
-            />
-          ) : (
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Order ID</th>
-                  <th>Customer</th>
-                  <th>Business</th>
-                  <th>Items</th>
-                  <th>Status</th>
-                  <th>Payment</th>
-                </tr>
-              </thead>
-              <tbody>
-                {openOrders.map((o) => (
-                  <OrderRow
-                    key={o.id}
-                    order={o}
-                    currency={currency}
-                    onOpen={() => goToBusinessOrders(o.provider.id)}
-                  />
-                ))}
-              </tbody>
-            </table>
-          )}
-        </Card>
-      )}
-    </AppShell>
+    <ViewAllPage
+      title="Orders to Fulfil"
+      subtitle={`${count} open order${count === 1 ? '' : 's'}`}
+      isLoading={isLoading}
+      isEmpty={count === 0}
+      empty={{
+        icon: <Package size={28} strokeWidth={1.6} />,
+        title: 'No open orders',
+        description: "You're all caught up.",
+      }}
+    >
+      {openOrders.map((o) => {
+        const itemCount = o.items.length;
+        const status = ORDER_STATUS[o.status];
+        const pay = paymentPill(o, currency);
+        return (
+          <ViewAllRow
+            key={o.id}
+            onOpen={() => goToBusinessOrders(o.provider.id)}
+            lead={
+              <LeadChip tone="blue">
+                <ShoppingBag size={18} aria-hidden="true" />
+              </LeadChip>
+            }
+            title={shortOrderId(o.id)}
+            lines={
+              <>
+                <span className={styles.subItem}>
+                  <User size={14} aria-hidden="true" />
+                  {o.user.fullName}
+                </span>
+                <span className={styles.subItem}>
+                  <Store size={14} aria-hidden="true" />
+                  {o.provider.businessName}
+                </span>
+                <span className={styles.subItem}>
+                  <Package size={14} aria-hidden="true" />
+                  {itemCount} item{itemCount === 1 ? '' : 's'}
+                </span>
+              </>
+            }
+            meta={
+              <>
+                <Pill tone={status.tone}>{status.label}</Pill>
+                <Pill tone={pay.tone}>{pay.label}</Pill>
+              </>
+            }
+          />
+        );
+      })}
+    </ViewAllPage>
   );
 }

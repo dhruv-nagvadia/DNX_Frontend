@@ -300,7 +300,7 @@ export function ReviewsBoard({ lockedBusinessId, onBusinessChange }: ReviewsBoar
             <div className={styles.summaryTop}>
               <span className={styles.avgNum}>{summary.count ? summary.avg.toFixed(1) : '—'}</span>
               <div className={styles.avgMeta}>
-                <Stars rating={summary.avg} size={26} />
+                <Stars rating={summary.avg} size={20} />
                 <span className={styles.basedOn}>
                   Based on {summary.count.toLocaleString()} review{summary.count === 1 ? '' : 's'}
                 </span>
@@ -328,7 +328,7 @@ export function ReviewsBoard({ lockedBusinessId, onBusinessChange }: ReviewsBoar
             <div className={styles.tiles}>
               <div className={`${styles.tile} ${styles.tileBlue}`}>
                 <span className={styles.tileIcon}>
-                  <MessageSquare size={30} aria-hidden="true" />
+                  <MessageSquare size={20} aria-hidden="true" />
                 </span>
                 <div className={styles.tileText}>
                   <span className={styles.tileLabel}>Total reviews</span>
@@ -337,7 +337,7 @@ export function ReviewsBoard({ lockedBusinessId, onBusinessChange }: ReviewsBoar
               </div>
               <div className={`${styles.tile} ${styles.tilePeach}`}>
                 <span className={styles.tileIcon}>
-                  <Reply size={30} aria-hidden="true" />
+                  <Reply size={20} aria-hidden="true" />
                 </span>
                 <div className={styles.tileText}>
                   <span className={styles.tileLabel}>Needs reply</span>
@@ -346,7 +346,7 @@ export function ReviewsBoard({ lockedBusinessId, onBusinessChange }: ReviewsBoar
               </div>
               <div className={`${styles.tile} ${styles.tileMint}`}>
                 <span className={styles.tileIcon}>
-                  <CheckCircle2 size={30} aria-hidden="true" />
+                  <CheckCircle2 size={20} aria-hidden="true" />
                 </span>
                 <div className={styles.tileText}>
                   <span className={styles.tileLabel}>Replied</span>
@@ -355,7 +355,7 @@ export function ReviewsBoard({ lockedBusinessId, onBusinessChange }: ReviewsBoar
               </div>
               <div className={`${styles.tile} ${styles.tileLavender}`}>
                 <span className={styles.tileIcon}>
-                  <CalendarDays size={30} aria-hidden="true" />
+                  <CalendarDays size={20} aria-hidden="true" />
                 </span>
                 <div className={styles.tileText}>
                   <span className={styles.tileLabel}>This month</span>
@@ -514,7 +514,7 @@ export function ReviewsBoard({ lockedBusinessId, onBusinessChange }: ReviewsBoar
           <div className={styles.empty}>
             {scoped.length === 0 || (!anyFilter && preStatus.length === 0) ? (
               <>
-                <MessageSquareDashed size={36} aria-hidden="true" />
+                <MessageSquareDashed size={28} aria-hidden="true" />
                 <h2 className={styles.emptyTitle}>No reviews yet</h2>
                 <p className={styles.emptyText}>
                   {effectiveKind === 'products' && scoped.length > 0
@@ -524,7 +524,7 @@ export function ReviewsBoard({ lockedBusinessId, onBusinessChange }: ReviewsBoar
               </>
             ) : (
               <>
-                <SearchX size={36} aria-hidden="true" />
+                <SearchX size={28} aria-hidden="true" />
                 <h2 className={styles.emptyTitle}>No reviews match</h2>
                 <p className={styles.emptyText}>Try a different rating, status or search.</p>
                 <button type="button" className={styles.outlineBtn} onClick={clearFilters}>

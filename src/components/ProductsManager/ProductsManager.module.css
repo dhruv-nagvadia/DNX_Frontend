@@ -45,12 +45,13 @@
   position: relative;
 }
 .select {
+  min-height: var(--m-control-h);
   width: 100%;
   appearance: none;
   -webkit-appearance: none;
-  padding: 10px 34px 10px 12px;
+  padding: 9px 34px 9px 12px;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--field-radius, var(--radius-md));
   background: var(--color-surface);
   font-size: var(--font-size-sm);
   font-weight: 500;
@@ -98,7 +99,7 @@
   min-width: 0;
   border: none;
   outline: none;
-  padding: 10px 12px;
+  padding: 9px 12px;
   font-size: var(--font-size-sm);
   background: transparent;
   color: var(--color-text-primary);
@@ -223,8 +224,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
+  width: var(--m-icon-box);
+  height: var(--m-icon-box);
   border-radius: 50%;
   /* A soft circle tinted from the tile's own icon colour. */
   background: color-mix(in srgb, currentColor 12%, transparent);
@@ -235,12 +236,12 @@
   min-width: 0;
 }
 .tileLabel {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-sm);
   font-weight: 600;
   color: var(--m-ink);
 }
 .tileValue {
-  font-size: 32px;
+  font-size: var(--m-fs-stat);
   font-weight: 800;
   line-height: 1.15;
   color: var(--m-ink);
@@ -288,7 +289,7 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  height: 44px;
+  height: var(--m-control-h);
   padding: 0 14px;
   border: 1px solid var(--m-divider);
   border-radius: 8px;
@@ -317,7 +318,7 @@
 .filter {
   appearance: none;
   -webkit-appearance: none;
-  height: 44px;
+  height: var(--m-control-h);
   min-width: 132px;
   max-width: 200px;
   padding: 0 40px 0 14px;
@@ -356,7 +357,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 44px;
+  height: var(--m-control-h);
   padding: 0 18px;
   border-radius: 8px;
   font: inherit;
@@ -412,7 +413,7 @@
 }
 .table th {
   text-align: left;
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-sm);
   font-weight: 700;
   color: var(--m-ink);
   background: var(--m-table-head);
@@ -451,8 +452,8 @@
 }
 .thumb {
   flex: 0 0 auto;
-  width: 56px;
-  height: 56px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--m-radius-box);
   object-fit: cover;
   background: var(--m-table-head);
@@ -485,13 +486,13 @@
   color: var(--color-text-secondary);
 }
 .price {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   font-weight: 700;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
 .minOrder {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
@@ -500,7 +501,7 @@
   align-items: center;
   gap: 6px;
   white-space: nowrap;
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
 }
 .rating strong {
   font-weight: 700;
@@ -557,8 +558,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
+  width: var(--m-control-h-sm);
+  height: var(--m-control-h-sm);
   border: 1px solid var(--m-divider);
   border-radius: 10px;
   background: var(--color-surface);
@@ -615,8 +616,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: var(--m-control-h-sm);
+  height: var(--m-control-h-sm);
   padding: 0;
   font: inherit;
   font-size: var(--font-size-sm);
@@ -669,8 +670,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: var(--m-tint-blue);
   color: var(--m-tint-blue-icon);

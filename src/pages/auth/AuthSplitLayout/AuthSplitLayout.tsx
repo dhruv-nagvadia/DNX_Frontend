@@ -26,13 +26,13 @@ function BrandMark({ className }: { className?: string }) {
   );
 }
 
-/** Decorative stat cards in the bottom of the brand panel (not real data). */
+/** Decorative stat cards under the feature rows in the brand panel (not real data). */
 function PreviewCards() {
   return (
     <div className={styles.cards} aria-hidden="true">
       <div className={`${styles.statCard} ${styles.cardLeft}`}>
         <div className={styles.cardHead}>
-          <CalendarDays size={20} className={styles.cardHeadIcon} />
+          <CalendarDays size={16} className={styles.cardHeadIcon} />
           <span>Today&apos;s bookings</span>
         </div>
         <div className={styles.cardBody}>
@@ -65,17 +65,17 @@ function PreviewCards() {
 
       <div className={`${styles.statCard} ${styles.cardMid}`}>
         <div className={styles.ratingRow}>
-          <Star size={34} className={styles.starBig} />
+          <Star size={24} className={styles.starBig} />
           <span className={styles.ratingNum}>4.7</span>
         </div>
         <div className={styles.stars}>
           {[0, 1, 2, 3].map((i) => (
-            <Star key={i} size={24} className={styles.starFull} />
+            <Star key={i} size={16} className={styles.starFull} />
           ))}
           <span className={styles.starHalfWrap}>
-            <Star size={24} className={styles.starEmpty} />
+            <Star size={16} className={styles.starEmpty} />
             <span className={styles.starHalf}>
-              <Star size={24} className={styles.starFull} />
+              <Star size={16} className={styles.starFull} />
             </span>
           </span>
         </div>
@@ -85,7 +85,7 @@ function PreviewCards() {
       <div className={`${styles.statCard} ${styles.cardRight}`}>
         <div className={styles.moneyRow}>
           <span className={styles.rupeeDot}>
-            <IndianRupee size={18} strokeWidth={2.5} />
+            <IndianRupee size={14} strokeWidth={2.5} />
           </span>
           <span className={styles.moneyNum}>₹24,580</span>
         </div>
@@ -151,7 +151,7 @@ export function AuthSplitLayout({ headline, subhead, children }: AuthSplitLayout
               {FEATURES.map(({ icon: Icon, text }) => (
                 <li key={text} className={styles.feature}>
                   <span className={styles.featureIcon} aria-hidden="true">
-                    <Icon size={22} strokeWidth={2} />
+                    <Icon size={18} strokeWidth={2} />
                   </span>
                   {text}
                 </li>

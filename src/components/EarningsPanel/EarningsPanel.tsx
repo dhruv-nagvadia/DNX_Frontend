@@ -62,7 +62,7 @@ export function EarningsPanel({
 
   return (
     <ModernCard
-      icon={<BarChart3 size={22} aria-hidden="true" />}
+      icon={<BarChart3 size={18} aria-hidden="true" />}
       title="Earnings"
       action={
         <div className={styles.segment} role="tablist" aria-label="Earnings period">

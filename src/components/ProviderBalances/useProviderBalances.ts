@@ -7,12 +7,14 @@ import {
 } from '@/redux/api/admin/adminApi';
 import { FinanceBalance, PayoutDirection } from '@/redux/api/admin/types';
 import { minorToRupeesText, rupeesTextToMinor } from '@/utils/money';
+import { useConfirm } from '@/components/ConfirmDialog';
 
 const serverMessage = (err: unknown, fallback: string) =>
   (err as { data?: { message?: string } })?.data?.message ?? fallback;
 
 /** What each provider is owed (or owes), and recording the transfers that settle it. */
 export function useProviderBalances() {
+  const confirm = useConfirm();
   const { data: balances, isLoading } = useGetFinanceBalancesQuery(undefined, {
     refetchOnMountOrArgChange: true,
   });
@@ -64,7 +66,13 @@ export function useProviderBalances() {
   };
 
   const remove = async (id: string) => {
-    if (!window.confirm('Remove this settlement? The provider’s balance will change back.')) return;
+    const ok = await confirm({
+      title: 'Remove this settlement?',
+      message: 'The provider’s balance will change back.',
+      confirmText: 'Remove',
+      tone: 'danger',
+    });
+    if (!ok) return;
     await deletePayout(id)
       .unwrap()
       .catch(() => undefined);

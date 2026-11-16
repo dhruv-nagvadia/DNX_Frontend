@@ -5,6 +5,7 @@ import { AlertBanner } from '@/components/AlertBanner';
 import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
+import { FormDialog } from '@/components/FormDialog';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/Skeleton';
 import { AdminProviderBusiness } from '@/redux/api/admin/types';
@@ -12,7 +13,7 @@ import { formatMoney } from '@/utils/money';
 import { ReasonAction, useAdminProviderDetail } from './useAdminProviderDetail';
 // Generic field/label/form styling shared across provider/admin forms.
 import styles from '@/components/ServicesManager/ServicesManager.module.css';
-// Header, overlay and modal styles shared with the customer detail screen.
+// Header styles shared with the customer detail screen.
 import shared from '@/components/AdminUserDetail/AdminUserDetail.module.css';
 import local from './AdminProviderDetail.module.css';
 
@@ -247,34 +248,37 @@ export function AdminProviderDetail({ userId }: { userId: string }) {
         )}
       </Card>
 
-      {p.action && dialog && (
-        <div className={shared.overlay} role="dialog" aria-modal="true">
-          <div className={shared.modal}>
-            <h3 className={shared.modalTitle}>{dialog.title}</h3>
-            <p className={local.warn}>{dialog.body}</p>
-            <label className={styles.label} htmlFor="providerReason">
-              Reason <span className={styles.optional}>(optional — the provider can see it)</span>
-            </label>
-            <textarea
-              id="providerReason"
-              className={styles.textarea}
-              placeholder={dialog.placeholder}
-              value={p.reason}
-              onChange={(e) => p.setReason(e.target.value)}
-              maxLength={300}
-            />
-            {p.error && <AlertBanner tone="error">{p.error}</AlertBanner>}
-            <div className={styles.formActions}>
-              <Button variant="secondary" onClick={p.close} disabled={p.busy === 'modal'}>
-                Cancel
-              </Button>
-              <Button loading={p.busy === 'modal'} loadingText="Applying…" onClick={p.confirm}>
-                {dialog.confirm}
-              </Button>
-            </div>
-          </div>
+      <FormDialog
+        open={!!(p.action && dialog)}
+        size="sm"
+        tone="danger"
+        title={dialog?.title ?? ''}
+        onClose={p.close}
+        onSubmit={(e) => {
+          e.preventDefault();
+          void p.confirm();
+        }}
+        error={p.error}
+        submitLabel={dialog?.confirm ?? ''}
+        submitting={p.busy === 'modal'}
+        submittingLabel="Applying…"
+        initialFocus="firstField"
+      >
+        {dialog && <p className={local.warn}>{dialog.body}</p>}
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="providerReason">
+            Reason <span className={styles.optional}>(optional — the provider can see it)</span>
+          </label>
+          <textarea
+            id="providerReason"
+            className={styles.textarea}
+            placeholder={dialog?.placeholder}
+            value={p.reason}
+            onChange={(e) => p.setReason(e.target.value)}
+            maxLength={300}
+          />
         </div>
-      )}
+      </FormDialog>
     </>
   );
 }

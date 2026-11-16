@@ -25,6 +25,7 @@ import { formatAmount, measureUnits, priceLabel } from '@/utils/units';
 import { StockFilter, StockManagerProps } from './types';
 import { isLow, isOut, RECENT_LIMIT, useStockManager } from './useStockManager';
 import ui from './StockManager.module.css';
+import { useConfirm } from '@/components/ConfirmDialog';
 
 const REASONS: { value: StockAdjustmentReason; label: string; tone: PillTone }[] = [
   { value: 'SALE', label: 'Offline sale', tone: 'lavender' },
@@ -109,7 +110,13 @@ function HistoryRow({ row }: { row: StockAdjustment }) {
           {amount}
         </Pill>
       </td>
-      <td>{reason ? <Pill tone={reason.tone}>{reason.label}</Pill> : <span className={ui.muted}>—</span>}</td>
+      <td>
+        {reason ? (
+          <Pill tone={reason.tone}>{reason.label}</Pill>
+        ) : (
+          <span className={ui.muted}>—</span>
+        )}
+      </td>
       <td className={ui.noteCell}>{row.note?.trim() || <span className={ui.muted}>—</span>}</td>
       <td className={ui.nowrap}>
         {row.stockAfter == null ? (
@@ -128,6 +135,7 @@ function HistoryRow({ row }: { row: StockAdjustment }) {
  * Every value shown comes from the `products` prop or the stock-adjustments API.
  */
 export function StockManager({ providerId, products }: StockManagerProps) {
+  const confirm = useConfirm();
   const {
     counts,
     query,
@@ -154,19 +162,27 @@ export function StockManager({ providerId, products }: StockManagerProps) {
 
   if (products.length === 0) {
     return (
-      <ModernCard icon={<Layers size={22} />} title="Manage Stock">
+      <ModernCard icon={<Layers size={20} />} title="Manage Stock">
         <div className={ui.empty}>
-          <Box size={32} aria-hidden="true" />
+          <Box size={24} aria-hidden="true" />
           <p className={ui.emptyTitle}>Add products first</p>
-          <p className={ui.muted}>Once this business has products, you can manage their stock here.</p>
+          <p className={ui.muted}>
+            Once this business has products, you can manage their stock here.
+          </p>
         </div>
       </ModernCard>
     );
   }
 
-  const markOutOfStock = () => {
+  const markOutOfStock = async () => {
     if (!sel) return;
-    if (window.confirm(`Mark ${sel.name} as out of stock? This sets its stock to 0.`)) {
+    const ok = await confirm({
+      title: `Mark ${sel.name} as out of stock?`,
+      message: 'This sets its stock to 0.',
+      confirmText: 'Mark out of stock',
+      tone: 'warning',
+    });
+    if (ok) {
       setAvailability(false);
     }
   };
@@ -177,17 +193,32 @@ export function StockManager({ providerId, products }: StockManagerProps) {
   return (
     <div className={ui.root}>
       <div className={ui.tiles}>
-        <SummaryTile tone="blue" icon={<Box size={26} />} label="Total Products" value={counts.total} />
-        <SummaryTile tone="mint" icon={<CircleCheck size={26} />} label="In Stock" value={counts.in} />
-        <SummaryTile tone="peach" icon={<TriangleAlert size={26} />} label="Low Stock" value={counts.low} />
-        <SummaryTile tone="pink" icon={<Ban size={26} />} label="Out of Stock" value={counts.out} />
+        <SummaryTile
+          tone="blue"
+          icon={<Box size={20} />}
+          label="Total Products"
+          value={counts.total}
+        />
+        <SummaryTile
+          tone="mint"
+          icon={<CircleCheck size={20} />}
+          label="In Stock"
+          value={counts.in}
+        />
+        <SummaryTile
+          tone="peach"
+          icon={<TriangleAlert size={20} />}
+          label="Low Stock"
+          value={counts.low}
+        />
+        <SummaryTile tone="pink" icon={<Ban size={20} />} label="Out of Stock" value={counts.out} />
       </div>
 
       <div className={ui.columns}>
         {/* ── Select product ─────────────────────────────────────────── */}
         <section className={`${ui.card} ${ui.selectCard}`}>
           <h2 className={ui.cardTitle}>
-            <Box size={22} className={ui.cardIcon} aria-hidden="true" /> Select Product
+            <Box size={18} className={ui.cardIcon} aria-hidden="true" /> Select Product
           </h2>
           <label className={ui.search}>
             <Search size={18} aria-hidden="true" />
@@ -248,7 +279,7 @@ export function StockManager({ providerId, products }: StockManagerProps) {
         {/* ── Adjust stock ───────────────────────────────────────────── */}
         <section className={ui.card}>
           <h2 className={ui.cardTitle}>
-            <Layers size={22} className={ui.cardIcon} aria-hidden="true" /> Adjust Stock
+            <Layers size={18} className={ui.cardIcon} aria-hidden="true" /> Adjust Stock
           </h2>
 
           {sel && current && (
@@ -389,8 +420,8 @@ export function StockManager({ providerId, products }: StockManagerProps) {
                       {amountBase > 0 &&
                         (removingTooMuch ? (
                           <p className={`${ui.helper} ${ui.helperError}`}>
-                            Only {formatAmount(sel.stockQty, sel.measure)} in stock, you can't remove more
-                            than that.
+                            Only {formatAmount(sel.stockQty, sel.measure)} in stock, you can't
+                            remove more than that.
                           </p>
                         ) : (
                           <p className={`${ui.helper} ${ui.helperOk}`}>
@@ -468,7 +499,7 @@ export function StockManager({ providerId, products }: StockManagerProps) {
 
       {/* ── Recent stock changes ─────────────────────────────────────── */}
       <ModernCard
-        icon={<History size={22} />}
+        icon={<History size={20} />}
         iconTone="ink"
         title="Recent Stock Changes"
         flush

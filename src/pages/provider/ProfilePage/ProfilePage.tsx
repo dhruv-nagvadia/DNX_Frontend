@@ -139,7 +139,6 @@ export default function ProfilePage() {
 
   const photoInputRef = useRef<HTMLInputElement>(null);
   const accountRef = useRef<HTMLElement>(null);
-  const bellRef = useRef<HTMLDivElement>(null);
   const [pwOpen, setPwOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [pwSuccess, setPwSuccess] = useState(false);
@@ -155,11 +154,6 @@ export default function ProfilePage() {
     accountRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
-  /** There's no standalone notifications page — open the top-bar bell's panel. */
-  const openNotifications = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    bellRef.current?.querySelector('button')?.click();
-  };
 
   const header = (
     <div className={styles.topBar}>
@@ -168,7 +162,7 @@ export default function ProfilePage() {
         <p className={styles.subtitle}>Manage your profile, account, businesses and preferences.</p>
       </div>
       <div className={styles.topControls}>
-        <div className={styles.bellWrap} ref={bellRef}>
+        <div className={styles.bellWrap}>
           <NotificationBell />
         </div>
         <Link className={styles.profileChip} to="/profile">
@@ -187,9 +181,9 @@ export default function ProfilePage() {
   );
 
   const tiles = [
-    { label: 'Businesses', value: stats.businesses, icon: <Store size={26} />, tone: styles.tileBlue },
-    { label: 'Services', value: stats.services, icon: <Command size={26} />, tone: styles.tileLavender },
-    { label: 'Products', value: stats.products, icon: <Box size={26} />, tone: styles.tilePeach },
+    { label: 'Businesses', value: stats.businesses, icon: <Store size={20} />, tone: styles.tileBlue },
+    { label: 'Services', value: stats.services, icon: <Command size={20} />, tone: styles.tileLavender },
+    { label: 'Products', value: stats.products, icon: <Box size={20} />, tone: styles.tilePeach },
     {
       label: 'Avg rating',
       value:
@@ -197,11 +191,11 @@ export default function ProfilePage() {
           '—'
         ) : (
           <>
-            <Star size={22} className={styles.goldStar} aria-hidden="true" />
+            <Star size={18} className={styles.goldStar} aria-hidden="true" />
             {stats.avgRating.toFixed(1)}
           </>
         ),
-      icon: <Star size={26} />,
+      icon: <Star size={20} />,
       tone: styles.tileMint,
     },
   ];
@@ -471,8 +465,8 @@ export default function ProfilePage() {
                 <NavRow
                   icon={<Bell size={20} />}
                   title="Notifications"
-                  hint="Manage email, push and in-app notifications"
-                  onClick={openNotifications}
+                  hint="Your booking, order and account updates"
+                  to="/notifications"
                 />
               </div>
             </section>

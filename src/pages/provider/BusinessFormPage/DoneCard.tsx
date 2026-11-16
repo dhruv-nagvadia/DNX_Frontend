@@ -21,28 +21,28 @@ export function DoneCard({ business, photoUploadFailed }: DoneCardProps) {
   const nextSteps = [
     isStore
       ? {
-          icon: <Package size={26} aria-hidden="true" />,
+          icon: <Package size={20} aria-hidden="true" />,
           title: 'Add your products',
           sub: 'List the products customers can order.',
           link: 'Add products',
           tab: 'products' as const,
         }
       : {
-          icon: <Command size={26} aria-hidden="true" />,
+          icon: <Command size={20} aria-hidden="true" />,
           title: 'Add your services',
           sub: 'List the services customers can book.',
           link: 'Add your services',
           tab: 'services' as const,
         },
     {
-      icon: <Clock size={26} aria-hidden="true" />,
+      icon: <Clock size={20} aria-hidden="true" />,
       title: 'Set your business hours',
       sub: 'Add your weekly timings and breaks.',
       link: 'Set business hours',
       tab: 'hours' as const,
     },
     {
-      icon: <ImageIcon size={26} aria-hidden="true" />,
+      icon: <ImageIcon size={20} aria-hidden="true" />,
       title: 'Upload more photos',
       sub: 'Showcase your space, team and setup.',
       link: 'Upload photos',
@@ -57,7 +57,7 @@ export function DoneCard({ business, photoUploadFailed }: DoneCardProps) {
           <span key={i} className={`${styles.confetti} ${styles[`confetti${i}`]}`} />
         ))}
         <span className={styles.doneCheck}>
-          <svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+          <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
             <path d="M5 12.5l4.5 4.5L19 7.5" />
           </svg>
         </span>

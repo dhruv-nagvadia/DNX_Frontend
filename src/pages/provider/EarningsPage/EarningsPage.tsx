@@ -338,7 +338,7 @@ export default function EarningsPage() {
         <div className={styles.page}>
           {titleBlock}
           <div className={styles.errorCard} role="alert">
-            <AlertCircle size={28} aria-hidden="true" />
+            <AlertCircle size={24} aria-hidden="true" />
             <p className={styles.errorTitle}>We couldn&rsquo;t load your earnings.</p>
             <p className={styles.errorText}>Check your connection and try again.</p>
             <button type="button" className={styles.retryBtn} onClick={() => e.refetch()}>
@@ -397,14 +397,14 @@ export default function EarningsPage() {
           <div className={styles.tiles}>
             <Tile
               tone="blue"
-              icon={<ReceiptText size={26} strokeWidth={1.8} />}
+              icon={<ReceiptText size={20} strokeWidth={1.8} />}
               label="Sales"
               value={formatMoney(s.grossMinor)}
               note={`${s.count} ${s.count === 1 ? 'sale' : 'sales'}`}
             />
             <Tile
               tone="peach"
-              icon={<Percent size={26} strokeWidth={2} />}
+              icon={<Percent size={20} strokeWidth={2} />}
               label="DNX commission"
               value={formatMoney(s.commissionMinor)}
               note={
@@ -415,14 +415,14 @@ export default function EarningsPage() {
             />
             <Tile
               tone="mint"
-              icon={<Wallet size={26} strokeWidth={1.8} />}
+              icon={<Wallet size={20} strokeWidth={1.8} />}
               label="You earn"
               value={formatMoney(s.netMinor)}
               note={<ChangeNote cur={s.netMinor} prev={e.prevNetMinor} label={e.compareLabel} />}
             />
             <Tile
               tone="lavender"
-              icon={<Clock size={26} strokeWidth={1.8} />}
+              icon={<Clock size={20} strokeWidth={1.8} />}
               label="Coming up"
               value={formatMoney(data.upcoming.netMinor)}
               note={`${data.upcoming.count} open ${data.upcoming.count === 1 ? 'booking or order' : 'bookings & orders'}`}

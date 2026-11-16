@@ -1,11 +1,12 @@
 import { Wallet } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-import { AlertBanner } from '@/components/AlertBanner';
 import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
+import { FormDialog } from '@/components/FormDialog';
 import { EmptyState } from '@/components/EmptyState';
+import { Select } from '@/components/Select';
 import { Skeleton } from '@/components/Skeleton';
 import { formatMoney } from '@/utils/money';
 import { useProviderBalances } from './useProviderBalances';
@@ -152,110 +153,102 @@ export function ProviderBalances() {
         )}
       </Card>
 
-      {b.target && (
-        <div className={styles.overlay} role="dialog" aria-modal="true">
-          <div className={styles.modal}>
-            <form className={styles.stack} onSubmit={b.submit}>
-              <p className={form.formTitle}>Record a settlement with {b.target.name}</p>
-              <p className={form.muted}>
-                Current balance:{' '}
-                {b.target.balanceMinor === 0
-                  ? 'settled'
-                  : b.target.balanceMinor > 0
-                    ? `you owe them ${formatMoney(b.target.balanceMinor)}`
-                    : `they owe you ${formatMoney(-b.target.balanceMinor)}`}
-                . Recording a transfer here only updates the books — it doesn't move money.
-              </p>
+      <FormDialog
+        open={!!b.target}
+        size="md"
+        title={b.target ? `Record a settlement with ${b.target.name}` : ''}
+        subtitle={
+          b.target ? (
+            <>
+              Current balance:{' '}
+              {b.target.balanceMinor === 0
+                ? 'settled'
+                : b.target.balanceMinor > 0
+                  ? `you owe them ${formatMoney(b.target.balanceMinor)}`
+                  : `they owe you ${formatMoney(-b.target.balanceMinor)}`}
+              . Recording a transfer here only updates the books — it doesn't move money.
+            </>
+          ) : undefined
+        }
+        onClose={b.close}
+        onSubmit={b.submit}
+        error={b.error}
+        submitLabel="Record"
+        submitting={b.saving}
+        submittingLabel="Saving…"
+      >
+        <div className={form.field}>
+          <label className={form.label} htmlFor="settleDirection">
+            What happened
+          </label>
+          <Select
+            id="settleDirection"
+            value={b.direction}
+            onChange={(e) => b.setDirection(e.target.value as typeof b.direction)}
+          >
+            <option value="TO_PROVIDER">I paid the provider their earnings</option>
+            <option value="FROM_PROVIDER">The provider paid me the commission they owed</option>
+          </Select>
+        </div>
 
-              <div className={form.field}>
-                <label className={form.label} htmlFor="settleDirection">
-                  What happened
-                </label>
-                <select
-                  id="settleDirection"
-                  className={form.select}
-                  value={b.direction}
-                  onChange={(e) => b.setDirection(e.target.value as typeof b.direction)}
-                >
-                  <option value="TO_PROVIDER">I paid the provider their earnings</option>
-                  <option value="FROM_PROVIDER">
-                    The provider paid me the commission they owed
-                  </option>
-                </select>
-              </div>
+        <div className={form.field}>
+          <label className={form.label} htmlFor="settleAmount">
+            Amount (₹)
+          </label>
+          <input
+            id="settleAmount"
+            className={form.input}
+            type="number"
+            min="0"
+            step="any"
+            inputMode="decimal"
+            value={b.amount}
+            onChange={(e) => b.setAmount(e.target.value)}
+          />
+        </div>
 
-              <div className={form.field}>
-                <label className={form.label} htmlFor="settleAmount">
-                  Amount (₹)
-                </label>
-                <input
-                  id="settleAmount"
-                  className={form.input}
-                  type="number"
-                  min="0"
-                  step="any"
-                  inputMode="decimal"
-                  value={b.amount}
-                  onChange={(e) => b.setAmount(e.target.value)}
-                />
-              </div>
-
-              <div className={form.row2}>
-                <div className={form.field}>
-                  <label className={form.label} htmlFor="settleMethod">
-                    Method <span className={form.optional}>(optional)</span>
-                  </label>
-                  <input
-                    id="settleMethod"
-                    className={form.input}
-                    placeholder="UPI, bank transfer…"
-                    value={b.method}
-                    onChange={(e) => b.setMethod(e.target.value)}
-                    maxLength={40}
-                  />
-                </div>
-                <div className={form.field}>
-                  <label className={form.label} htmlFor="settleRef">
-                    Reference <span className={form.optional}>(optional)</span>
-                  </label>
-                  <input
-                    id="settleRef"
-                    className={form.input}
-                    placeholder="Transaction ID"
-                    value={b.reference}
-                    onChange={(e) => b.setReference(e.target.value)}
-                    maxLength={120}
-                  />
-                </div>
-              </div>
-
-              <div className={form.field}>
-                <label className={form.label} htmlFor="settleNote">
-                  Note <span className={form.optional}>(optional)</span>
-                </label>
-                <input
-                  id="settleNote"
-                  className={form.input}
-                  value={b.note}
-                  onChange={(e) => b.setNote(e.target.value)}
-                  maxLength={500}
-                />
-              </div>
-
-              {b.error && <AlertBanner tone="error">{b.error}</AlertBanner>}
-
-              <div className={form.formActions}>
-                <Button type="button" variant="secondary" onClick={b.close} disabled={b.saving}>
-                  Cancel
-                </Button>
-                <Button type="submit" loading={b.saving} loadingText="Saving…">
-                  Record
-                </Button>
-              </div>
-            </form>
+        <div className={form.row2}>
+          <div className={form.field}>
+            <label className={form.label} htmlFor="settleMethod">
+              Method <span className={form.optional}>(optional)</span>
+            </label>
+            <input
+              id="settleMethod"
+              className={form.input}
+              placeholder="UPI, bank transfer…"
+              value={b.method}
+              onChange={(e) => b.setMethod(e.target.value)}
+              maxLength={40}
+            />
+          </div>
+          <div className={form.field}>
+            <label className={form.label} htmlFor="settleRef">
+              Reference <span className={form.optional}>(optional)</span>
+            </label>
+            <input
+              id="settleRef"
+              className={form.input}
+              placeholder="Transaction ID"
+              value={b.reference}
+              onChange={(e) => b.setReference(e.target.value)}
+              maxLength={120}
+            />
           </div>
         </div>
-      )}
+
+        <div className={form.field}>
+          <label className={form.label} htmlFor="settleNote">
+            Note <span className={form.optional}>(optional)</span>
+          </label>
+          <input
+            id="settleNote"
+            className={form.input}
+            value={b.note}
+            onChange={(e) => b.setNote(e.target.value)}
+            maxLength={500}
+          />
+        </div>
+      </FormDialog>
     </>
   );
 }

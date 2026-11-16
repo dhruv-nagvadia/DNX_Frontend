@@ -56,7 +56,7 @@ export function UpcomingAppointments({ providerId, onViewAll }: UpcomingAppointm
 
   return (
     <ModernCard
-      icon={<CalendarDays size={22} aria-hidden="true" />}
+      icon={<CalendarDays size={18} aria-hidden="true" />}
       title="Upcoming Appointments"
       suffix={`(Next ${LIMIT})`}
       flush

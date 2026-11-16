@@ -247,10 +247,10 @@ export function ProductsManager({
       {hasProducts ? (
         <>
           <div className={ui.tiles}>
-            <SummaryTile tone="blue" icon={<Box size={26} />} label="Total Products" value={counts.total} />
-            <SummaryTile tone="mint" icon={<CircleCheck size={26} />} label="Active" value={counts.active} />
-            <SummaryTile tone="peach" icon={<TriangleAlert size={26} />} label="Low Stock" value={counts.low} />
-            <SummaryTile tone="pink" icon={<Ban size={26} />} label="Out of Stock" value={counts.out} />
+            <SummaryTile tone="blue" icon={<Box size={20} />} label="Total Products" value={counts.total} />
+            <SummaryTile tone="mint" icon={<CircleCheck size={20} />} label="Active" value={counts.active} />
+            <SummaryTile tone="peach" icon={<TriangleAlert size={20} />} label="Low Stock" value={counts.low} />
+            <SummaryTile tone="pink" icon={<Ban size={20} />} label="Out of Stock" value={counts.out} />
           </div>
 
           <div className={ui.toolbar}>
@@ -479,7 +479,7 @@ export function ProductsManager({
       ) : (
         <div className={ui.emptyCard}>
           <span className={ui.emptyIcon} aria-hidden="true">
-            <Package size={28} />
+            <Package size={24} />
           </span>
           <p className={ui.emptyText}>
             No products yet. Add the items you sell so customers can browse and order them.

@@ -115,7 +115,7 @@ export default function SupportPage() {
               Something wrong on a job, a payment issue, or anything else — reach us directly.
             </p>
             <label className={styles.search}>
-              <Search size={22} aria-hidden="true" className={styles.searchIcon} />
+              <Search size={18} aria-hidden="true" className={styles.searchIcon} />
               <input
                 type="search"
                 className={styles.searchInput}
@@ -132,7 +132,7 @@ export default function SupportPage() {
         <div className={styles.contactRow}>
           <div className={styles.contactCard}>
             <span className={`${styles.contactIcon} ${styles.iconCall}`} aria-hidden="true">
-              <Phone size={26} />
+              <Phone size={20} />
             </span>
             <div className={styles.contactText}>
               <h3 className={styles.contactTitle}>Call us</h3>
@@ -146,7 +146,7 @@ export default function SupportPage() {
 
           <div className={styles.contactCard}>
             <span className={`${styles.contactIcon} ${styles.iconWhatsapp}`} aria-hidden="true">
-              <MessageCircle size={26} />
+              <MessageCircle size={20} />
             </span>
             <div className={styles.contactText}>
               <h3 className={styles.contactTitle}>WhatsApp us</h3>
@@ -164,7 +164,7 @@ export default function SupportPage() {
 
           <div className={styles.contactCard}>
             <span className={`${styles.contactIcon} ${styles.iconEmail}`} aria-hidden="true">
-              <Mail size={26} />
+              <Mail size={20} />
             </span>
             <div className={styles.contactText}>
               <h3 className={styles.contactTitle}>Email us</h3>
@@ -225,7 +225,7 @@ export default function SupportPage() {
                           aria-controls={panelId}
                           onClick={() => setOpenId(open ? null : f.id)}
                         >
-                          <HelpCircle size={22} aria-hidden="true" className={styles.faqIcon} />
+                          <HelpCircle size={18} aria-hidden="true" className={styles.faqIcon} />
                           <span className={styles.faqQ}>{f.question}</span>
                           {open ? (
                             <ChevronUp size={20} aria-hidden="true" className={styles.faqChevron} />
@@ -281,7 +281,7 @@ export default function SupportPage() {
             </section>
 
             <aside className={styles.tip}>
-              <Lightbulb size={30} aria-hidden="true" className={styles.tipIcon} />
+              <Lightbulb size={22} aria-hidden="true" className={styles.tipIcon} />
               <p className={styles.tipText}>
                 <strong className={styles.tipTitle}>Before contacting us:</strong>
                 keep your booking/order ID handy (e.g. #B7K2Q9) so we can help faster.

@@ -7,6 +7,7 @@ import {
   useSetBusinessImagesMutation,
   useUploadBusinessImagesMutation,
 } from '@/redux/api/provider/providerApi';
+import { useConfirm } from '@/components/ConfirmDialog';
 import { isRasterImage, IMAGE_REJECT_MSG } from '@/utils/imageValidation';
 
 export type BusinessTab =
@@ -26,6 +27,7 @@ export const MAX_BUSINESS_IMAGES = 12;
 /** Loads one owned business and exposes image-upload + navigation actions. */
 export function useBusinessDetail() {
   const navigate = useNavigate();
+  const confirm = useConfirm();
   const location = useLocation();
   const { id = '' } = useParams<{ id: string }>();
 
@@ -45,16 +47,29 @@ export function useBusinessDetail() {
     async (fileList: FileList | null) => {
       if (!fileList || fileList.length === 0 || !id) return;
       const files = Array.from(fileList).filter(isRasterImage);
-      if (files.length !== fileList.length) window.alert(IMAGE_REJECT_MSG);
+      if (files.length !== fileList.length) {
+        await confirm({
+          title: 'Unsupported image',
+          message: IMAGE_REJECT_MSG,
+          confirmText: 'OK',
+          tone: 'warning',
+          hideCancel: true,
+        });
+      }
       if (files.length === 0) return;
       // Same 12-photo cap the server enforces — say so before uploading anything.
       const room = MAX_BUSINESS_IMAGES - (business?.images.length ?? 0);
       if (files.length > room) {
-        window.alert(
-          room > 0
-            ? `You can add ${room} more photo${room === 1 ? '' : 's'} (up to ${MAX_BUSINESS_IMAGES} in total).`
-            : `This business already has the maximum of ${MAX_BUSINESS_IMAGES} photos. Remove one to add another.`,
-        );
+        await confirm({
+          title: 'Too many photos',
+          message:
+            room > 0
+              ? `You can add ${room} more photo${room === 1 ? '' : 's'} (up to ${MAX_BUSINESS_IMAGES} in total).`
+              : `This business already has the maximum of ${MAX_BUSINESS_IMAGES} photos. Remove one to add another.`,
+          confirmText: 'OK',
+          tone: 'warning',
+          hideCancel: true,
+        });
         return;
       }
       try {
@@ -68,7 +83,7 @@ export function useBusinessDetail() {
         // surfaced via mutation state; keep UI resilient
       }
     },
-    [id, uploadImages, business],
+    [id, uploadImages, business, confirm],
   );
 
   // Move a photo to the front so it becomes the cover.

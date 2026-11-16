@@ -1,82 +1,64 @@
-import { KeyboardEvent } from 'react';
-import { PackageX } from 'lucide-react';
+import { FlaskConical, PackageX, Store } from 'lucide-react';
 
-import { AppShell } from '@/components/AppShell';
-import { Badge } from '@/components/Badge';
-import { Card } from '@/components/Card';
-import { EmptyState } from '@/components/EmptyState';
-import { PageHeader } from '@/components/PageHeader';
-import { Skeleton } from '@/components/Skeleton';
+import { Pill } from '@/components/Pill';
 import { stockLabel } from '@/utils/units';
 
+import { LeadChip, ViewAllPage, ViewAllRow } from '../TodaysSchedulePage/ViewAllLayout';
+import styles from '../TodaysSchedulePage/ViewAll.module.css';
 import { useLowStockPage } from './useLowStockPage';
-import styles from '../DashboardPage/DashboardPage.module.css';
-
-/** Spreads onto a clickable <tr> so it's reachable and activatable by keyboard too. */
-function rowActivation(onOpen: () => void) {
-  return {
-    role: 'button' as const,
-    tabIndex: 0,
-    onClick: onOpen,
-    onKeyDown: (e: KeyboardEvent) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        onOpen();
-      }
-    },
-  };
-}
 
 /** Full, unsliced "Low Stock" — every low/out-of-stock product, across every business. */
 export default function LowStockPage() {
   const { isLoading, lowStock, goToBusinessProducts } = useLowStockPage();
+  const count = lowStock.length;
 
   return (
-    <AppShell>
-      <PageHeader title="Low Stock" subtitle="Every product running low or out, across all your stores." />
-
-      {isLoading ? (
-        <Skeleton height={240} radius="var(--radius-xl)" />
-      ) : (
-        <Card flush>
-          {lowStock.length === 0 ? (
-            <EmptyState
-              icon={<PackageX size={28} strokeWidth={1.6} aria-hidden="true" />}
-              title="Stock looks healthy"
-              description="Nothing is running low right now."
-            />
-          ) : (
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>Business</th>
-                  <th>Stock</th>
-                </tr>
-              </thead>
-              <tbody>
-                {lowStock.map(({ product, businessId, businessName, level }) => (
-                  <tr
-                    key={product.id}
-                    className={styles.tr}
-                    {...rowActivation(() => goToBusinessProducts(businessId))}
-                  >
-                    <td>{product.name}</td>
-                    <td>
-                      <span className={styles.businessName}>{businessName}</span>
-                    </td>
-                    <td>
-                      <Badge tone={level === 'out' ? 'error' : 'warning'}>
-                        {level === 'out' ? 'Out of Stock' : `Only ${stockLabel(product.stockQty, product.measure)} left`}
-                      </Badge>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </Card>
-      )}
-    </AppShell>
+    <ViewAllPage
+      title="Low Stock"
+      subtitle={`${count} product${count === 1 ? '' : 's'} running low or out`}
+      isLoading={isLoading}
+      isEmpty={count === 0}
+      empty={{
+        icon: <PackageX size={28} strokeWidth={1.6} />,
+        title: 'Stock looks healthy',
+        description: 'Nothing is running low right now.',
+      }}
+    >
+      {lowStock.map(({ product, businessId, businessName, level }) => {
+        const out = level === 'out';
+        return (
+          <ViewAllRow
+            key={product.id}
+            onOpen={() => goToBusinessProducts(businessId)}
+            lead={
+              product.imageUrl ? (
+                <img className={styles.thumb} src={product.imageUrl} alt="" aria-hidden="true" loading="lazy" />
+              ) : (
+                <LeadChip tone={out ? 'pink' : 'peach'}>
+                  <FlaskConical size={18} aria-hidden="true" />
+                </LeadChip>
+              )
+            }
+            title={product.name}
+            lines={
+              <>
+                <span className={styles.subItem}>
+                  <Store size={14} aria-hidden="true" />
+                  {businessName}
+                </span>
+                <span className={styles.subItem}>
+                  {product.unlimitedStock ? 'Made to order' : `${stockLabel(product.stockQty, product.measure)} left`}
+                </span>
+              </>
+            }
+            meta={
+              <Pill tone={out ? 'red' : 'orange'}>
+                {out ? 'Out of stock' : `Only ${stockLabel(product.stockQty, product.measure)} left`}
+              </Pill>
+            }
+          />
+        );
+      })}
+    </ViewAllPage>
   );
 }

@@ -1,0 +1,185 @@
+/* Themed confirm prompt — shares its look with FormDialog (radius 16 card,
+   blurred dim backdrop, 40px right-aligned buttons). */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--m-gap);
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: fade var(--dur-fast) var(--ease-out);
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+  padding: 24px;
+  border: 1px solid var(--m-divider);
+  border-radius: var(--m-radius-card);
+  background: var(--color-surface-elevated);
+  box-shadow: var(--m-shadow-card), var(--shadow-xl);
+  outline: none;
+  animation: pop var(--dur-mid) var(--ease-out);
+}
+
+.top {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--m-gap);
+}
+
+.icon {
+  display: inline-flex;
+  flex: 0 0 48px;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+.danger {
+  background: var(--m-pill-red-bg);
+  color: var(--m-pill-red-fg);
+}
+.warning {
+  background: var(--m-pill-yellow-bg);
+  color: var(--m-pill-yellow-fg);
+}
+.info {
+  background: var(--m-pill-blue-bg);
+  color: var(--m-pill-blue-fg);
+}
+
+.text {
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--m-fs-card);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--m-ink);
+  overflow-wrap: anywhere;
+}
+
+.message {
+  margin-top: 6px;
+  font-size: var(--m-fs-body);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.error {
+  margin: var(--m-gap) 0 0;
+  padding: 10px 12px;
+  border: 1px solid var(--m-banner-error-border);
+  border-radius: var(--m-control-radius);
+  background: var(--m-banner-error-bg);
+  font-size: var(--m-fs-sm);
+  color: var(--m-banner-error-fg);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: var(--m-control-h);
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: var(--m-control-radius);
+  font: inherit;
+  font-size: var(--m-fs-body);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    filter var(--dur-fast) var(--ease-out);
+}
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+.btn:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 2px;
+}
+
+.btnSecondary {
+  border-color: var(--m-divider);
+  background: var(--color-surface-elevated);
+  color: var(--m-ink);
+}
+.btnSecondary:hover:not(:disabled) {
+  background: var(--m-pill-grey-bg);
+}
+
+.btnPrimary {
+  background: #1d4ed8;
+  color: #fff;
+}
+.btnPrimary:hover:not(:disabled) {
+  background: #1e40af;
+}
+
+.btnDanger {
+  background: #dc2626;
+  color: #fff;
+}
+.btnDanger:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 20px;
+  }
+  .actions > * {
+    flex: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .card {
+    animation: none;
+  }
+}

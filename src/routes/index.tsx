@@ -32,6 +32,7 @@ import LowStockPage from '@/pages/provider/LowStockPage';
 import BookingsOrdersPage from '@/pages/provider/BookingsOrdersPage';
 import CouponsPage from '@/pages/provider/CouponsPage';
 import AllReviewsPage from '@/pages/provider/AllReviewsPage';
+import NotificationsPage from '@/pages/provider/NotificationsPage';
 import AdminUserDetailPage from '@/pages/admin/AdminUserDetailPage';
 
 /** Requires an authenticated user; otherwise sends to /login. */
@@ -217,6 +218,14 @@ export const router = createBrowserRouter([
     element: (
       <Protected>
         <ProfilePage />
+      </Protected>
+    ),
+  },
+  {
+    path: '/notifications',
+    element: (
+      <Protected>
+        <NotificationsPage />
       </Protected>
     ),
   },

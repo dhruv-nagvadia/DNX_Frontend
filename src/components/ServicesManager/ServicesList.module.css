@@ -39,8 +39,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
+  width: var(--m-icon-box);
+  height: var(--m-icon-box);
   border-radius: 50%;
   /* A soft circle tinted from the tile's own icon colour. */
   background: color-mix(in srgb, currentColor 12%, transparent);
@@ -51,12 +51,12 @@
   min-width: 0;
 }
 .tileLabel {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-sm);
   font-weight: 600;
   color: var(--m-ink);
 }
 .tileValue {
-  font-size: 32px;
+  font-size: var(--m-fs-stat);
   font-weight: 800;
   line-height: 1.15;
   color: var(--m-ink);
@@ -97,7 +97,7 @@
   gap: 8px;
   min-width: 0;
   margin-top: 4px;
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-sm);
   font-weight: 500;
   color: var(--m-ink);
   white-space: nowrap;
@@ -126,7 +126,7 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  height: 44px;
+  height: var(--m-control-h);
   padding: 0 14px;
   border: 1px solid var(--m-divider);
   border-radius: 8px;
@@ -155,7 +155,7 @@
 .filter {
   appearance: none;
   -webkit-appearance: none;
-  height: 44px;
+  height: var(--m-control-h);
   min-width: 132px;
   max-width: 200px;
   padding: 0 40px 0 14px;
@@ -192,7 +192,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 44px;
+  height: var(--m-control-h);
   padding: 0 18px;
   border-radius: 8px;
   font: inherit;
@@ -240,7 +240,7 @@
 }
 .table th {
   text-align: left;
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-sm);
   font-weight: 700;
   color: var(--m-ink);
   background: var(--m-table-head);
@@ -288,7 +288,7 @@
   color: var(--color-text-secondary);
 }
 .strong {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   font-weight: 700;
   color: var(--m-ink);
   white-space: nowrap;
@@ -307,8 +307,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: var(--m-icon-box);
+  height: var(--m-icon-box);
   border-radius: var(--m-radius-box);
   background: var(--m-tint-lavender);
   border: 1px solid var(--m-tint-lavender-border);
@@ -323,7 +323,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   white-space: nowrap;
   color: var(--m-ink);
 }
@@ -362,7 +362,7 @@
   color: var(--m-pill-grey-fg);
 }
 .dash {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   color: var(--m-ink);
 }
 
@@ -412,8 +412,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
+  width: var(--m-control-h-sm);
+  height: var(--m-control-h-sm);
   border: 1px solid var(--m-link);
   border-radius: 10px;
   background: var(--color-surface);
@@ -470,8 +470,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: var(--m-control-h-sm);
+  height: var(--m-control-h-sm);
   padding: 0;
   font: inherit;
   font-size: var(--font-size-sm);
@@ -524,8 +524,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: var(--m-tint-blue);
   color: var(--m-tint-blue-icon);

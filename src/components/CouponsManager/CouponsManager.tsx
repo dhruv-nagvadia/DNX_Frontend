@@ -373,7 +373,7 @@ export function CouponsManager({
       ) : noBusinesses && !hasCoupons ? (
         <div className={ui.emptyCard}>
           <span className={ui.emptyIcon} aria-hidden="true">
-            <Store size={28} />
+            <Store size={24} />
           </span>
           <p className={ui.emptyText}>
             You don’t have a business yet. Add one in{' '}
@@ -386,16 +386,16 @@ export function CouponsManager({
       ) : hasCoupons ? (
         <>
           <div className={ui.tiles}>
-            <SummaryTile tone="blue" icon={<Tag size={26} />} label="Total Offers" value={counts.total} />
-            <SummaryTile tone="mint" icon={<CircleCheck size={26} />} label="Active" value={counts.active} />
+            <SummaryTile tone="blue" icon={<Tag size={20} />} label="Total Offers" value={counts.total} />
+            <SummaryTile tone="mint" icon={<CircleCheck size={20} />} label="Active" value={counts.active} />
             <SummaryTile
               tone="peach"
-              icon={<Clock size={26} />}
+              icon={<Clock size={20} />}
               label="Expiring Soon"
               value={counts.expiringSoon}
               note={`(within ${EXPIRING_SOON_DAYS} days)`}
             />
-            <SummaryTile tone="lavender" icon={<Users size={26} />} label="Times Used" value={counts.used} />
+            <SummaryTile tone="lavender" icon={<Users size={20} />} label="Times Used" value={counts.used} />
           </div>
 
           <div className={ui.toolbar}>
@@ -613,7 +613,7 @@ export function CouponsManager({
       ) : (
         <div className={ui.emptyCard}>
           <span className={ui.emptyIcon} aria-hidden="true">
-            <Ticket size={28} />
+            <Ticket size={24} />
           </span>
           <p className={ui.emptyText}>
             {allMode

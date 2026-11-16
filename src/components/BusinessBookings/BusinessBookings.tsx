@@ -12,7 +12,7 @@ import {
   Wallet,
 } from 'lucide-react';
 
-import { Button } from '@/components/Button';
+import { FormDialog } from '@/components/FormDialog';
 import { Pill } from '@/components/Pill';
 import { Skeleton } from '@/components/Skeleton';
 import {
@@ -102,7 +102,11 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
   // Bookings come from the customer app (a separate client), so refetch on
   // open / focus and poll while the tab is visible.
   const showBusiness = !providerId;
-  const live = { refetchOnMountOrArgChange: true, refetchOnFocus: true, pollingInterval: 30_000 } as const;
+  const live = {
+    refetchOnMountOrArgChange: true,
+    refetchOnFocus: true,
+    pollingInterval: 30_000,
+  } as const;
   const one = useGetBusinessBookingsQuery(providerId ?? '', { ...live, skip: showBusiness });
   const all = useGetAllMyBookingsQuery(undefined, { ...live, skip: !showBusiness });
   const data: ProviderBooking[] | undefined = showBusiness ? all.data : one.data;
@@ -119,7 +123,9 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
     // Most recently booked first (falls back to appointment time when createdAt is missing).
     () =>
       [...(data ?? [])].sort(
-        (a, b) => new Date(b.createdAt ?? b.startTime).getTime() - new Date(a.createdAt ?? a.startTime).getTime(),
+        (a, b) =>
+          new Date(b.createdAt ?? b.startTime).getTime() -
+          new Date(a.createdAt ?? a.startTime).getTime(),
       ),
     [data],
   );
@@ -154,13 +160,15 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
   const currency = bookings[0]?.currency ?? 'INR';
 
   // Tab counts follow the date filter so they match what each tab shows.
-  const inDate = useMemo(() => bookings.filter((b) => matchesDate(b, dateFilter)), [bookings, dateFilter]);
+  const inDate = useMemo(
+    () => bookings.filter((b) => matchesDate(b, dateFilter)),
+    [bookings, dateFilter],
+  );
   const tabCounts = useMemo(
     () =>
-      Object.fromEntries(TABS.map((t) => [t.key, inDate.filter((b) => matchesTab(b, t.key)).length])) as Record<
-        StatusTab,
-        number
-      >,
+      Object.fromEntries(
+        TABS.map((t) => [t.key, inDate.filter((b) => matchesTab(b, t.key)).length]),
+      ) as Record<StatusTab, number>,
     [inDate],
   );
 
@@ -175,7 +183,8 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
         shortId(b).toLowerCase().includes(qId) ||
         b.id.toLowerCase().includes(qId) ||
         b.user.fullName.toLowerCase().includes(q) ||
-        (showBusiness && ((b as DashboardBooking).provider?.businessName ?? '').toLowerCase().includes(q)) ||
+        (showBusiness &&
+          ((b as DashboardBooking).provider?.businessName ?? '').toLowerCase().includes(q)) ||
         b.service.name.toLowerCase().includes(q) ||
         (qDigits.length > 0 && (b.user.phone ?? '').replace(/\D/g, '').includes(qDigits))
       );
@@ -273,7 +282,7 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
     return (
       <div className={styles.emptyCard}>
         <span className={styles.emptyIcon} aria-hidden="true">
-          <CalendarX2 size={28} />
+          <CalendarX2 size={24} />
         </span>
         <h3 className={styles.emptyTitle}>No bookings yet</h3>
         <p className={styles.emptyText}>
@@ -288,14 +297,29 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
       <div className={styles.tiles}>
         <SummaryTile
           tone="lavender"
-          icon={<Bell size={26} />}
+          icon={<Bell size={20} />}
           label="New Requests"
           value={tiles.pending}
           sub="Waiting to be accepted"
         />
-        <SummaryTile tone="blue" icon={<CalendarClock size={26} />} label="Today's Appointments" value={tiles.today} />
-        <SummaryTile tone="teal" icon={<Command size={26} />} label="In Progress" value={tiles.inProgress} />
-        <SummaryTile tone="peach" icon={<Wallet size={26} />} label="Cash to Collect" value={money(tiles.cash, currency)} />
+        <SummaryTile
+          tone="blue"
+          icon={<CalendarClock size={20} />}
+          label="Today's Appointments"
+          value={tiles.today}
+        />
+        <SummaryTile
+          tone="teal"
+          icon={<Command size={20} />}
+          label="In Progress"
+          value={tiles.inProgress}
+        />
+        <SummaryTile
+          tone="peach"
+          icon={<Wallet size={20} />}
+          label="Cash to Collect"
+          value={money(tiles.cash, currency)}
+        />
       </div>
 
       <div className={styles.toolbar}>
@@ -394,14 +418,18 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
                             <div className={styles.cellStack}>
                               <span className={styles.strong}>{shortId(b)}</span>
                               {b.createdAt && (
-                                <span className={styles.mutedSm}>Booked {bookedAgo(b.createdAt)}</span>
+                                <span className={styles.mutedSm}>
+                                  Booked {bookedAgo(b.createdAt)}
+                                </span>
                               )}
                             </div>
                           </td>
                           <td>
                             <div className={styles.cellStack}>
                               <span className={styles.strong}>{b.user.fullName}</span>
-                              {b.user.phone && <span className={styles.mutedSm}>{b.user.phone}</span>}
+                              {b.user.phone && (
+                                <span className={styles.mutedSm}>{b.user.phone}</span>
+                              )}
                               {businessNameOf(b) && (
                                 <Pill tone="lavender" className={styles.businessPill}>
                                   {businessNameOf(b)}
@@ -421,7 +449,9 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
                           <td>
                             <div className={styles.cellStack}>
                               <span className={styles.strong}>{dayLabel(b.startTime)}</span>
-                              <span className={styles.mutedSm}>{timeRange(b.startTime, b.endTime)}</span>
+                              <span className={styles.mutedSm}>
+                                {timeRange(b.startTime, b.endTime)}
+                              </span>
                             </div>
                           </td>
                           <td className={styles.amount}>{money(b.amountMinor, b.currency)}</td>
@@ -433,7 +463,9 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
                           <td>
                             <div className={styles.statusCell}>
                               <Pill tone={st.tone} className={styles.smallPill}>
-                                {b.status === 'IN_PROGRESS' && <span className={styles.liveDot} aria-hidden="true" />}
+                                {b.status === 'IN_PROGRESS' && (
+                                  <span className={styles.liveDot} aria-hidden="true" />
+                                )}
                                 {st.label}
                               </Pill>
                               {b.status === 'IN_PROGRESS' && b.startedAt && (
@@ -513,62 +545,69 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
         )}
       </div>
 
-      {cancelling && (
-        <div className={styles.overlay} role="dialog" aria-modal="true" aria-labelledby="bookingCancelTitle">
-          <div className={styles.modal}>
-            <h3 className={styles.modalTitle} id="bookingCancelTitle">
-              {cancelling.status === 'PENDING' ? 'Decline this booking?' : 'Cancel this booking?'}
-            </h3>
-            <p className={styles.modalSub}>
-              {shortId(cancelling)} · {cancelling.user.fullName} · {cancelling.service.name}
-            </p>
-            <label className={styles.modalLabel} htmlFor="bookingCancelReason">
-              Reason for the customer <span className={styles.optional}>(optional)</span>
-            </label>
-            <textarea
-              id="bookingCancelReason"
-              className={styles.textarea}
-              placeholder="e.g. Sorry, we're fully booked at that time."
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              maxLength={500}
-            />
-            <div className={styles.modalActions}>
-              <Button variant="ghost" onClick={() => setCancelling(null)} disabled={busy}>
-                Keep booking
-              </Button>
-              <Button onClick={confirmCancel} loading={updating} loadingText="Cancelling…">
-                {cancelling.status === 'PENDING' ? 'Decline booking' : 'Cancel booking'}
-              </Button>
-            </div>
-          </div>
+      <FormDialog
+        open={!!cancelling}
+        size="sm"
+        tone="danger"
+        title={cancelling?.status === 'PENDING' ? 'Decline this booking?' : 'Cancel this booking?'}
+        subtitle={
+          cancelling
+            ? `${shortId(cancelling)} · ${cancelling.user.fullName} · ${cancelling.service.name}`
+            : undefined
+        }
+        onClose={() => setCancelling(null)}
+        onSubmit={(e) => {
+          e.preventDefault();
+          void confirmCancel();
+        }}
+        cancelLabel="Keep booking"
+        submitLabel={cancelling?.status === 'PENDING' ? 'Decline booking' : 'Cancel booking'}
+        submitting={updating}
+        submittingLabel="Cancelling…"
+        initialFocus="firstField"
+      >
+        <div className={styles.modalField}>
+          <label className={styles.modalLabel} htmlFor="bookingCancelReason">
+            Reason for the customer <span className={styles.optional}>(optional)</span>
+          </label>
+          <textarea
+            id="bookingCancelReason"
+            className={styles.textarea}
+            placeholder="e.g. Sorry, we're fully booked at that time."
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            maxLength={500}
+          />
         </div>
-      )}
+      </FormDialog>
 
-      {settling && (
-        <div className={styles.overlay} role="dialog" aria-modal="true" aria-labelledby="bookingCollectTitle">
-          <div className={styles.modal}>
-            <h3 className={styles.modalTitle} id="bookingCollectTitle">
-              Collect {money(outstandingOf(settling), settling.currency)} in cash?
-            </h3>
-            <p className={styles.modalSub}>
-              {shortId(settling)} · {settling.user.fullName} · {settling.service.name}
-              {settling.paymentMethod === 'PARTIAL' && ' · balance after the online deposit'}
-            </p>
-            <p className={styles.modalSub}>
-              This marks the booking fully paid. Only confirm once you’ve received the cash.
-            </p>
-            <div className={styles.modalActions}>
-              <Button variant="ghost" onClick={() => setSettling(null)} disabled={collecting}>
-                Not yet
-              </Button>
-              <Button onClick={confirmCollect} loading={collecting} loadingText="Saving…">
-                Mark paid
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <FormDialog
+        open={!!settling}
+        size="sm"
+        title={
+          settling ? `Collect ${money(outstandingOf(settling), settling.currency)} in cash?` : ''
+        }
+        subtitle={
+          settling
+            ? `${shortId(settling)} · ${settling.user.fullName} · ${settling.service.name}${
+                settling.paymentMethod === 'PARTIAL' ? ' · balance after the online deposit' : ''
+              }`
+            : undefined
+        }
+        onClose={() => setSettling(null)}
+        onSubmit={(e) => {
+          e.preventDefault();
+          void confirmCollect();
+        }}
+        cancelLabel="Not yet"
+        submitLabel="Mark paid"
+        submitting={collecting}
+        submittingLabel="Saving…"
+      >
+        <p className={styles.modalText}>
+          This marks the booking fully paid. Only confirm once you’ve received the cash.
+        </p>
+      </FormDialog>
     </div>
   );
 }

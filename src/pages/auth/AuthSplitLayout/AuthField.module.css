@@ -2,11 +2,11 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .label {
-  font-size: 18px;
+  font-size: var(--m-fs-body);
   font-weight: 700;
   color: var(--m-ink);
 }
@@ -14,12 +14,12 @@
 .control {
   display: flex;
   align-items: center;
-  height: 52px;
-  padding: 0 10px 0 18px;
-  gap: 18px;
+  height: 44px;
+  padding: 0 6px 0 14px;
+  gap: 10px;
   box-sizing: border-box;
   border: 1px solid var(--m-divider);
-  border-radius: 10px;
+  border-radius: var(--m-control-radius);
   background: var(--color-surface);
   transition:
     border-color var(--dur-fast, 0.15s) ease,
@@ -59,7 +59,7 @@
   outline: none;
   background: transparent;
   font: inherit;
-  font-size: 18px;
+  font-size: var(--m-fs-body);
   color: var(--color-text-primary);
 }
 
@@ -76,8 +76,8 @@
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border: 0;
   border-radius: 8px;
   background: transparent;
@@ -95,7 +95,7 @@
 }
 
 .error {
-  font-size: 14px;
+  font-size: var(--m-fs-xs);
   font-weight: 500;
   color: var(--color-error);
 }
@@ -103,21 +103,21 @@
 .prefix {
   flex-shrink: 0;
   margin-right: -8px;
-  font-size: 18px;
+  font-size: var(--m-fs-body);
   font-weight: 500;
   color: var(--color-text-secondary);
 }
 
 @media (max-width: 960px) {
   .control {
-    height: 52px;
-    padding-left: 16px;
-    gap: 12px;
+    height: 44px;
+    padding-left: 12px;
+    gap: 8px;
   }
 
   .label,
   .input,
   .prefix {
-    font-size: 16px;
+    font-size: var(--m-fs-body);
   }
 }

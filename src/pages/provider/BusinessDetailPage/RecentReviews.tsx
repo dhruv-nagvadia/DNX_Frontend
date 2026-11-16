@@ -60,7 +60,7 @@ export function RecentReviews({
 
   return (
     <ModernCard
-      icon={<Star size={22} aria-hidden="true" />}
+      icon={<Star size={18} aria-hidden="true" />}
       iconTone="ink"
       title="Reviews"
       suffix="(Recent)"

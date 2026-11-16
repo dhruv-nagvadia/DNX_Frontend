@@ -13,7 +13,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-md);
-  padding: 18px var(--space-lg) 12px;
+  padding: 18px var(--m-card-pad) 12px;
 }
 
 .title {
@@ -22,7 +22,7 @@
   gap: 10px;
   margin: 0;
   min-width: 0;
-  font-size: 19px;
+  font-size: var(--m-fs-card);
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--m-ink);
@@ -59,7 +59,7 @@
 }
 
 .body {
-  padding: 0 var(--space-lg) var(--space-lg);
+  padding: 0 var(--m-card-pad) var(--m-card-pad);
   min-width: 0;
 }
 .bodyFlush {

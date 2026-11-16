@@ -72,8 +72,8 @@
 }
 .bizHeroMedia {
   flex: 0 0 auto;
-  width: 112px;
-  height: 100px;
+  width: 88px;
+  height: 80px;
   border-radius: var(--m-radius-box);
   overflow: hidden;
   background: var(--m-table-head);
@@ -106,7 +106,7 @@
 }
 .bizHeroName {
   margin: 0;
-  font-size: 34px;
+  font-size: var(--m-fs-page);
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.1;
@@ -135,11 +135,11 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   color: var(--m-ink);
 }
 .rating strong {
-  font-size: var(--font-size-lg);
+  font-size: var(--m-fs-lg);
 }
 .ratingStar {
   color: #f5b301;
@@ -178,12 +178,12 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 11px 20px;
+  padding: 9px 16px;
   border-radius: 8px;
   border: 1.5px solid;
   background: var(--color-surface);
   font: inherit;
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   font-weight: 600;
   cursor: pointer;
   transition: background var(--dur-fast) var(--ease-out);
@@ -275,13 +275,13 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 14px 20px;
+  padding: 10px 16px;
   margin-bottom: -1px;
   border: none;
   border-bottom: 3px solid transparent;
   background: none;
   font: inherit;
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   font-weight: 500;
   color: var(--m-ink);
   white-space: nowrap;
@@ -375,7 +375,7 @@
   color: var(--m-ink);
 }
 .busiestDay {
-  font-size: 22px;
+  font-size: var(--m-fs-card);
   font-weight: 800;
   color: var(--m-ink);
   line-height: 1.2;
@@ -407,7 +407,7 @@
     overflow-y: visible;
   }
   .bizHeroName {
-    font-size: var(--font-size-xl);
+    font-size: 20px;
     white-space: normal;
   }
 }
@@ -415,7 +415,7 @@
 /* ── Text blocks ──────────────────────────────────────────────────── */
 .about {
   margin: 0;
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   line-height: 1.6;
   color: var(--m-ink);
   white-space: pre-line;
@@ -453,14 +453,14 @@
   padding-top: 1px;
 }
 .infoLabel {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   font-weight: 600;
   color: var(--m-ink);
 }
 .infoValue {
   margin: 0;
   min-width: 0;
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   line-height: 1.45;
   color: var(--m-ink);
   overflow-wrap: anywhere;
@@ -499,10 +499,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: var(--m-avatar);
+  height: var(--m-avatar);
   border-radius: 50%;
-  font-size: var(--font-size-lg);
+  font-size: var(--m-fs-sm);
   font-weight: 700;
 }
 .reviewAvatarBlue {
@@ -520,7 +520,7 @@
   min-width: 0;
 }
 .reviewName {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-lg);
   font-weight: 700;
   color: var(--m-ink);
 }
@@ -662,44 +662,6 @@
 .galleryBtnDanger:hover:not(:disabled) {
   background: var(--color-error);
   filter: brightness(0.94);
-}
-
-
-/* ── Delete confirmation modal ────────────────────────────────────── */
-.deleteOverlay {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-lg);
-  background: rgba(6, 11, 24, 0.5);
-  backdrop-filter: blur(2px);
-}
-.deleteModal {
-  width: 100%;
-  max-width: 440px;
-  background: var(--color-surface);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-xl);
-  padding: var(--space-lg);
-}
-.deleteTitle {
-  margin: 0 0 6px;
-  font-size: var(--font-size-lg);
-  font-weight: 700;
-  color: var(--color-text-primary);
-}
-.deleteText {
-  margin: 0 0 var(--space-md);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
-.deleteActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--space-sm);
 }
 
 .hiddenInput {

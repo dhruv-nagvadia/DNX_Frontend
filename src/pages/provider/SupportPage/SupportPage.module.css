@@ -21,7 +21,7 @@
 }
 .title {
   margin: 0;
-  font-size: clamp(24px, 2.2vw, 30px);
+  font-size: var(--m-fs-page);
   font-weight: 800;
   letter-spacing: -0.015em;
   line-height: 1.2;
@@ -39,8 +39,8 @@
   margin-left: auto;
 }
 .bellWrap > div > button {
-  width: 42px;
-  height: 42px;
+  width: var(--m-control-h);
+  height: var(--m-control-h);
   border-radius: 50%;
   border-color: var(--m-divider);
   color: var(--m-ink);
@@ -61,8 +61,8 @@
 .profileAvatar,
 .profileAvatarImg {
   flex: 0 0 auto;
-  width: 40px;
-  height: 40px;
+  width: var(--m-avatar);
+  height: var(--m-avatar);
   border-radius: 50%;
   box-shadow: var(--m-shadow-card);
 }
@@ -92,7 +92,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-xl);
-  padding: var(--space-lg) var(--space-xl);
+  padding: var(--m-card-pad) 28px;
   border-radius: var(--m-radius-card);
   background:
     radial-gradient(120% 140% at 100% 100%, rgba(59, 130, 246, 0.35), transparent 55%),
@@ -102,7 +102,7 @@
 }
 .heroArt {
   flex: 0 0 auto;
-  width: 170px;
+  width: 128px;
   height: auto;
 }
 .heroDivider {
@@ -120,7 +120,7 @@
 }
 .heroTitle {
   margin: 0;
-  font-size: clamp(26px, 2.8vw, 38px);
+  font-size: clamp(22px, 2vw, 26px);
   font-weight: 800;
   letter-spacing: -0.015em;
   line-height: 1.15;
@@ -128,14 +128,14 @@
 }
 .heroText {
   margin: 0 0 var(--space-sm);
-  font-size: clamp(15px, 1.3vw, 19px);
+  font-size: var(--m-fs-body);
   color: rgba(255, 255, 255, 0.88);
 }
 .search {
   display: flex;
   align-items: center;
   gap: 12px;
-  height: 54px;
+  height: 44px;
   padding: 0 var(--space-md);
   border-radius: 12px;
   background: #ffffff;
@@ -157,7 +157,7 @@
   background: transparent;
   color: #0f1e4a;
   font: inherit;
-  font-size: 17px;
+  font-size: var(--m-fs-body);
   outline: none;
 }
 .searchInput::placeholder {
@@ -186,8 +186,8 @@
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  width: 64px;
-  height: 64px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
 }
 .iconCall {
@@ -211,12 +211,12 @@
 }
 .contactTitle {
   margin: 0;
-  font-size: 19px;
+  font-size: var(--m-fs-lg);
   font-weight: 700;
   color: var(--m-ink);
 }
 .contactValue {
-  font-size: var(--font-size-md, 16px);
+  font-size: var(--m-fs-body);
   font-weight: 500;
   color: var(--m-ink);
 }
@@ -235,7 +235,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 38px;
+  height: var(--m-control-h);
   padding: 0 18px;
   border-radius: 8px;
   font-size: 15px;
@@ -286,7 +286,7 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding: var(--space-md) var(--space-lg) var(--space-lg);
+  padding: var(--m-card-pad);
   background: var(--color-surface);
   border: 1px solid var(--m-divider);
   border-radius: var(--m-radius-card);
@@ -294,7 +294,7 @@
 }
 .cardTitle {
   margin: 0 0 var(--space-md);
-  font-size: 26px;
+  font-size: var(--m-fs-card);
   font-weight: 800;
   letter-spacing: -0.015em;
   color: var(--m-ink);
@@ -308,7 +308,7 @@
   margin-bottom: var(--space-md);
 }
 .chip {
-  height: 34px;
+  height: 32px;
   padding: 0 16px;
   border: 1px solid var(--m-divider);
   border-radius: var(--m-radius-pill);
@@ -359,7 +359,7 @@
   align-items: center;
   gap: 14px;
   width: 100%;
-  padding: 10px 20px 10px 22px;
+  padding: 10px 18px;
   border: 0;
   background: transparent;
   color: var(--m-ink);
@@ -386,7 +386,7 @@
 .faqQ {
   flex: 1 1 auto;
   min-width: 0;
-  font-size: 17px;
+  font-size: var(--m-fs-body);
   font-weight: 700;
 }
 .faqChevron {
@@ -394,7 +394,7 @@
   color: var(--m-ink);
 }
 .faqPanel {
-  padding: 12px 24px 14px 64px;
+  padding: 10px 20px 12px 50px;
   border-top: 1px solid var(--m-divider);
   background: var(--m-table-head);
 }
@@ -450,8 +450,8 @@
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  width: 46px;
-  height: 46px;
+  width: var(--m-icon-box);
+  height: var(--m-icon-box);
   border-radius: 50%;
 }
 .qlGreen {
@@ -475,8 +475,8 @@
   flex: 1 1 auto;
   align-items: center;
   min-width: 0;
-  min-height: 57px;
-  font-size: 18px;
+  min-height: 44px;
+  font-size: var(--m-fs-body);
   font-weight: 700;
 }
 .qlChevron {
@@ -503,13 +503,13 @@
 }
 .tipText {
   margin: 0;
-  font-size: 17px;
+  font-size: var(--m-fs-body);
   line-height: 1.45;
   color: var(--m-ink);
 }
 .tipTitle {
   display: block;
-  font-size: 19px;
+  font-size: var(--m-fs-lg);
   font-weight: 800;
 }
 
@@ -530,7 +530,7 @@
   }
   .heroArt {
     align-self: center;
-    width: 120px;
+    width: 96px;
   }
   .heroDivider {
     display: none;

@@ -27,8 +27,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 56px;
+  width: var(--m-icon-box);
+  height: var(--m-icon-box);
   border-radius: 50%;
   background: color-mix(in srgb, currentColor 12%, transparent);
 }
@@ -40,12 +40,12 @@
   min-width: 0;
 }
 .tileLabel {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-sm);
   font-weight: 700;
   color: var(--m-ink);
 }
 .tileValue {
-  font-size: 28px;
+  font-size: var(--m-fs-stat);
   font-weight: 800;
   line-height: 1.15;
   color: var(--m-ink);
@@ -55,7 +55,7 @@
   text-overflow: ellipsis;
 }
 .tileValueSm {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   font-weight: 700;
   color: var(--m-ink);
   white-space: nowrap;
@@ -158,7 +158,7 @@
 .period {
   margin: 0;
   min-width: 0;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 800;
   letter-spacing: -0.01em;
   color: var(--m-ink);
@@ -170,7 +170,7 @@
   gap: 18px;
 }
 .todayBtn {
-  height: 34px;
+  height: var(--m-control-h-sm);
   padding: 0 18px;
   border: 1.5px solid var(--m-link);
   border-radius: 8px;
@@ -193,7 +193,7 @@
   background: var(--color-surface);
 }
 .segBtn {
-  height: 30px;
+  height: 28px;
   padding: 0 18px;
   border: none;
   border-radius: 8px;
@@ -304,7 +304,7 @@
   gap: 4px;
 }
 .dayNum {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   font-weight: 700;
   line-height: 1.2;
   font-variant-numeric: tabular-nums;
@@ -551,7 +551,7 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-lg);
   font-weight: 700;
   color: var(--m-ink);
 }
@@ -565,7 +565,7 @@
   gap: 10px;
 }
 .openLabel {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   font-weight: 500;
   color: var(--m-ink);
 }
@@ -620,7 +620,7 @@
   width: auto;
 }
 .timePill > button {
-  height: 38px;
+  height: var(--m-control-h);
   padding: 0 12px;
   border: 1px solid var(--m-divider);
   border-radius: 10px;
@@ -655,7 +655,7 @@
   justify-content: center;
   gap: 8px;
   flex: 0 1 240px;
-  height: 36px;
+  height: var(--m-control-h);
   padding: 0 16px;
   border: 1.5px solid var(--m-link);
   border-radius: 8px;
@@ -757,7 +757,7 @@
   min-width: 0;
 }
 .rowName {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   font-weight: 700;
   color: var(--m-ink);
   white-space: nowrap;
@@ -800,8 +800,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 46px;
-  height: 46px;
+  width: var(--m-icon-box);
+  height: var(--m-icon-box);
   border-radius: 50%;
   background: color-mix(in srgb, var(--m-tint-mint-icon) 14%, transparent);
   color: var(--m-tint-mint-icon);
@@ -816,7 +816,7 @@
   color: var(--m-ink);
 }
 .earnValue {
-  font-size: var(--font-size-xl);
+  font-size: var(--m-fs-stat);
   font-weight: 800;
   line-height: 1.15;
   color: var(--m-ink);

@@ -4,11 +4,11 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-sm);
-  min-height: 44px;
-  padding: 11px var(--space-lg);
+  min-height: var(--m-control-h);
+  padding: 8px 18px;
   border: 1px solid transparent;
   border-radius: var(--radius-md);
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   font-weight: 600;
   line-height: 1.2;
   transition:

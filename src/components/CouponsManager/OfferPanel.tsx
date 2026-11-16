@@ -1,12 +1,10 @@
-import { FormEvent, ReactNode, useEffect, useRef } from 'react';
+import { FormEvent, ReactNode, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Loader2, X } from 'lucide-react';
 
 import { AlertBanner } from '@/components/AlertBanner';
+import { useDialogFocus } from '@/hooks/useDialogFocus';
 import ui from './CouponsManager.module.css';
-
-const FOCUSABLE =
-  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 interface OfferPanelProps {
   open: boolean;
@@ -38,49 +36,7 @@ export function OfferPanel({
   children,
 }: OfferPanelProps) {
   const panelRef = useRef<HTMLFormElement>(null);
-  const onCloseRef = useRef(onClose);
-  useEffect(() => {
-    onCloseRef.current = onClose;
-  });
-
-  useEffect(() => {
-    if (!open) return;
-    const previouslyFocused = document.activeElement as HTMLElement | null;
-    const scrollLock = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    panelRef.current?.focus();
-
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onCloseRef.current();
-        return;
-      }
-      if (e.key !== 'Tab' || !panelRef.current) return;
-      const nodes = Array.from(panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
-        (n) => n.offsetParent !== null || n === document.activeElement,
-      );
-      if (nodes.length === 0) {
-        e.preventDefault();
-        return;
-      }
-      const first = nodes[0];
-      const last = nodes[nodes.length - 1];
-      const active = document.activeElement;
-      if (e.shiftKey && (active === first || active === panelRef.current)) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && (active === last || !panelRef.current.contains(active))) {
-        e.preventDefault();
-        first.focus();
-      }
-    };
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = scrollLock;
-      previouslyFocused?.focus?.();
-    };
-  }, [open]);
+  useDialogFocus(panelRef, open, onClose);
 
   if (!open) return null;
 
@@ -107,7 +63,7 @@ export function OfferPanel({
             </p>
           </div>
           <button type="button" className={ui.panelClose} onClick={onClose} aria-label="Close">
-            <X size={22} aria-hidden="true" />
+            <X size={18} aria-hidden="true" />
           </button>
         </header>
 
@@ -124,7 +80,7 @@ export function OfferPanel({
               Cancel
             </button>
             <button type="submit" className={ui.submitBtn} disabled={saving} aria-busy={saving}>
-              {saving && <Loader2 size={18} className={ui.spin} aria-hidden="true" />}
+              {saving && <Loader2 size={16} className={ui.spin} aria-hidden="true" />}
               {saving ? 'Saving…' : submitLabel}
             </button>
           </div>

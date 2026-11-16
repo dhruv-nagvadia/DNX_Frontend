@@ -207,13 +207,13 @@ export function ServicesManager({
       {hasServices ? (
         <>
           <div className={ui.tiles}>
-            <SummaryTile tone="blue" icon={<Command size={26} />} label="Total Services">
+            <SummaryTile tone="blue" icon={<Command size={20} />} label="Total Services">
               <span className={ui.tileValue}>{summary.total}</span>
             </SummaryTile>
-            <SummaryTile tone="mint" icon={<Check size={28} />} label="Active">
+            <SummaryTile tone="mint" icon={<Check size={20} />} label="Active">
               <span className={ui.tileValue}>{summary.active}</span>
             </SummaryTile>
-            <SummaryTile tone="lavender" icon={<Flame size={26} />} label="Most Booked">
+            <SummaryTile tone="lavender" icon={<Flame size={20} />} label="Most Booked">
               {summary.top ? (
                 <span className={ui.tileSub} title={summary.top.name}>
                   <span className={ui.tileSubName}>{summary.top.name}</span>
@@ -224,7 +224,7 @@ export function ServicesManager({
                 <span className={ui.tileValue}>—</span>
               )}
             </SummaryTile>
-            <SummaryTile tone="peach" icon={<Tag size={26} />} label="Avg. Price">
+            <SummaryTile tone="peach" icon={<Tag size={20} />} label="Avg. Price">
               <span className={ui.tileValue}>{summary.avg ?? '—'}</span>
             </SummaryTile>
           </div>
@@ -446,7 +446,7 @@ export function ServicesManager({
       ) : (
         <div className={ui.emptyCard}>
           <span className={ui.emptyIcon} aria-hidden="true">
-            <Command size={28} />
+            <Command size={24} />
           </span>
           <p className={ui.emptyText}>
             No services yet. Add the services you offer so customers know what they can book.

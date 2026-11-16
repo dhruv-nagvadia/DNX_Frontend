@@ -16,6 +16,7 @@ import {
 import { ModernCard } from '@/components/ModernCard';
 
 import styles from './BusinessPhotos.module.css';
+import { useConfirm } from '@/components/ConfirmDialog';
 
 export interface BusinessPhotosProps {
   /** Ordered photo URLs; images[0] is the cover. */
@@ -56,6 +57,7 @@ export function BusinessPhotos({
   onRemove,
   onReorder,
 }: BusinessPhotosProps) {
+  const confirm = useConfirm();
   const count = images.length;
   const slotsLeft = Math.max(0, maxImages - count);
   const full = slotsLeft === 0;
@@ -152,9 +154,10 @@ export function BusinessPhotos({
     setAnnounce(`Photo moved to position ${to + 1} of ${count}.`);
   };
 
-  const handleRemove = (url: string) => {
+  const handleRemove = async (url: string) => {
     if (saving) return;
-    if (window.confirm('Remove this photo?')) onRemove(url);
+    if (await confirm({ title: 'Remove this photo?', confirmText: 'Remove', tone: 'danger' }))
+      onRemove(url);
   };
 
   const handleChangeCover = () => {
@@ -189,7 +192,7 @@ export function BusinessPhotos({
       <div className={styles.tiles}>
         <div className={`${styles.tile} ${styles.tile_blue}`}>
           <span className={styles.tileIcon}>
-            <ImageIcon size={30} aria-hidden="true" />
+            <ImageIcon size={20} aria-hidden="true" />
           </span>
           <div className={styles.tileText}>
             <span className={styles.tileLabel}>Photos</span>
@@ -211,7 +214,7 @@ export function BusinessPhotos({
 
         <div className={`${styles.tile} ${styles.tile_mint}`}>
           <span className={styles.tileIcon}>
-            <SquarePlus size={30} aria-hidden="true" />
+            <SquarePlus size={20} aria-hidden="true" />
           </span>
           <div className={styles.tileText}>
             <span className={styles.tileLabel}>Slots Left</span>
@@ -221,13 +224,13 @@ export function BusinessPhotos({
 
         <div className={`${styles.tile} ${styles.tile_lavender}`}>
           <span className={styles.tileIcon}>
-            <Star size={30} aria-hidden="true" />
+            <Star size={20} aria-hidden="true" />
           </span>
           <div className={styles.tileText}>
             {cover ? (
               <span className={styles.tileStatus}>
                 Cover Photo Set
-                <CircleCheck size={24} className={styles.tileCheck} aria-label="Set" />
+                <CircleCheck size={18} className={styles.tileCheck} aria-label="Set" />
               </span>
             ) : (
               <>
@@ -245,7 +248,11 @@ export function BusinessPhotos({
       <div className={styles.columns}>
         {/* ── Left: cover + upload ────────────────────────────────────── */}
         <div className={styles.side}>
-          <ModernCard icon={<ImageIcon size={22} aria-hidden="true" />} iconTone="ink" title="Cover Photo">
+          <ModernCard
+            icon={<ImageIcon size={18} aria-hidden="true" />}
+            iconTone="ink"
+            title="Cover Photo"
+          >
             {cover ? (
               <div className={styles.coverFrame}>
                 <img className={styles.coverImg} src={cover} alt="Cover photo" />
@@ -256,11 +263,13 @@ export function BusinessPhotos({
               </div>
             ) : (
               <div className={styles.coverEmpty}>
-                <ImageIcon size={32} aria-hidden="true" />
+                <ImageIcon size={28} aria-hidden="true" />
                 <span>No cover yet</span>
               </div>
             )}
-            <p className={styles.helper}>This is the first photo customers see in search and on your profile.</p>
+            <p className={styles.helper}>
+              This is the first photo customers see in search and on your profile.
+            </p>
             {cover && (
               <>
                 <button
@@ -283,7 +292,11 @@ export function BusinessPhotos({
             )}
           </ModernCard>
 
-          <ModernCard icon={<CloudUpload size={22} aria-hidden="true" />} iconTone="ink" title="Upload Photos">
+          <ModernCard
+            icon={<CloudUpload size={18} aria-hidden="true" />}
+            iconTone="ink"
+            title="Upload Photos"
+          >
             <div
               className={`${styles.dropZone} ${dropActive ? styles.dropZoneActive : ''} ${
                 full ? styles.dropZoneDisabled : ''
@@ -295,21 +308,30 @@ export function BusinessPhotos({
             >
               {uploading ? (
                 <>
-                  <Loader2 size={34} className={`${styles.zoneIcon} ${styles.spin}`} aria-hidden="true" />
+                  <Loader2
+                    size={28}
+                    className={`${styles.zoneIcon} ${styles.spin}`}
+                    aria-hidden="true"
+                  />
                   <strong className={styles.zoneTitle} role="status">
                     Uploading…
                   </strong>
                 </>
               ) : (
                 <>
-                  <CloudUpload size={34} className={styles.zoneIcon} aria-hidden="true" />
+                  <CloudUpload size={28} className={styles.zoneIcon} aria-hidden="true" />
                   <strong className={styles.zoneTitle}>
                     {full ? `Maximum of ${maxImages} photos reached` : 'Drag & drop photos here'}
                   </strong>
                   {!full && <span className={styles.zoneOr}>or</span>}
                 </>
               )}
-              <button type="button" className={styles.primaryBtn} onClick={openPicker} disabled={uploadDisabled}>
+              <button
+                type="button"
+                className={styles.primaryBtn}
+                onClick={openPicker}
+                disabled={uploadDisabled}
+              >
                 <FolderOpen size={18} aria-hidden="true" />
                 Browse files
               </button>
@@ -329,9 +351,14 @@ export function BusinessPhotos({
         </div>
 
         {/* ── Right: gallery ──────────────────────────────────────────── */}
-        <div ref={galleryRef} id="business-photos-gallery" tabIndex={-1} className={styles.galleryAnchor}>
+        <div
+          ref={galleryRef}
+          id="business-photos-gallery"
+          tabIndex={-1}
+          className={styles.galleryAnchor}
+        >
           <ModernCard
-            icon={<ImageIcon size={22} aria-hidden="true" />}
+            icon={<ImageIcon size={18} aria-hidden="true" />}
             iconTone="ink"
             title={`Gallery (${count})`}
             action={
@@ -343,7 +370,9 @@ export function BusinessPhotos({
             }
           >
             {count === 0 && (
-              <p className={styles.emptyMsg}>No photos yet. Businesses with photos get noticeably more bookings.</p>
+              <p className={styles.emptyMsg}>
+                No photos yet. Businesses with photos get noticeably more bookings.
+              </p>
             )}
             <div
               className={`${styles.grid} ${saving ? styles.gridSaving : ''}`}
@@ -365,7 +394,12 @@ export function BusinessPhotos({
                     onDragLeave={() => setOverIndex((cur) => (cur === i ? null : cur))}
                     onDrop={(e) => onTileDrop(e, i)}
                   >
-                    <img className={styles.photoImg} src={url} alt={`Photo ${i + 1}`} draggable={false} />
+                    <img
+                      className={styles.photoImg}
+                      src={url}
+                      alt={`Photo ${i + 1}`}
+                      draggable={false}
+                    />
 
                     <button
                       type="button"
@@ -426,9 +460,9 @@ export function BusinessPhotos({
                   disabled={uploadDisabled || saving}
                 >
                   {uploading ? (
-                    <Loader2 size={26} className={styles.spin} aria-hidden="true" />
+                    <Loader2 size={22} className={styles.spin} aria-hidden="true" />
                   ) : (
-                    <Plus size={28} aria-hidden="true" />
+                    <Plus size={22} aria-hidden="true" />
                   )}
                   <span>{uploading ? 'Uploading…' : 'Add photo'}</span>
                 </button>

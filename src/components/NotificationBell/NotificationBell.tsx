@@ -1,40 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
-import { Bell, CalendarClock, CheckCheck, Package, XCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowRight, Bell, BellOff } from 'lucide-react';
 
 import {
   useGetNotificationsQuery,
   useGetUnreadCountQuery,
   useMarkAllNotificationsReadMutation,
-  useMarkNotificationReadMutation,
 } from '@/redux/api/notification/notificationApi';
-import { AppNotification, NotificationType } from '@/redux/api/notification/types';
+import { AppNotification } from '@/redux/api/notification/types';
+import { Skeleton } from '@/components/Skeleton';
+
+import { NotificationRow } from './NotificationRow';
+import { useOpenNotification } from './useOpenNotification';
 import styles from './NotificationBell.module.css';
+
+/** How many of the latest notifications the dropdown shows. */
+const PANEL_LIMIT = 6;
 
 // How often the unread badge refreshes while the app is open.
 const POLL_MS = 30_000;
-
-function iconFor(type: NotificationType) {
-  if (type === 'ORDER_CANCELLED' || type === 'BOOKING_CANCELLED') {
-    return <XCircle size={16} aria-hidden="true" />;
-  }
-  if (type === 'BOOKING_PLACED' || type === 'BOOKING_STATUS') {
-    return <CalendarClock size={16} aria-hidden="true" />;
-  }
-  return <Package size={16} aria-hidden="true" />;
-}
-
-/** Short relative time ("Just now", "5m ago", "3h ago", "2d ago"). */
-function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const min = Math.floor(diff / 60_000);
-  if (min < 1) return 'Just now';
-  if (min < 60) return `${min}m ago`;
-  const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr}h ago`;
-  const day = Math.floor(hr / 24);
-  if (day < 7) return `${day}d ago`;
-  return new Date(iso).toLocaleDateString();
-}
 
 /**
  * Top-bar notification bell with an unread badge and a dropdown of recent
@@ -49,9 +33,11 @@ export function NotificationBell() {
   const btnRef = useRef<HTMLButtonElement>(null);
 
   const { data: unread = 0 } = useGetUnreadCountQuery(undefined, { pollingInterval: POLL_MS });
-  const { data: items = [], isFetching } = useGetNotificationsQuery(undefined, { skip: !open });
-  const [markRead] = useMarkNotificationReadMutation();
+  const { data: all = [], isLoading } = useGetNotificationsQuery(undefined, { skip: !open });
   const [markAll] = useMarkAllNotificationsReadMutation();
+  const openNotification = useOpenNotification();
+  const navigate = useNavigate();
+  const items = all.slice(0, PANEL_LIMIT);
 
   // Close on outside click / Escape.
   useEffect(() => {
@@ -80,7 +66,13 @@ export function NotificationBell() {
   };
 
   const onItemClick = (n: AppNotification) => {
-    if (!n.isRead) markRead(n.id);
+    setOpen(false);
+    openNotification(n);
+  };
+
+  const viewAll = () => {
+    setOpen(false);
+    navigate('/notifications');
   };
 
   return (
@@ -94,7 +86,7 @@ export function NotificationBell() {
         aria-haspopup="dialog"
         aria-expanded={open}
       >
-        <Bell size={16} aria-hidden="true" />
+        <Bell size={18} aria-hidden="true" />
         {unread > 0 && <span className={styles.badge}>{unread > 99 ? '99+' : unread}</span>}
       </button>
 
@@ -107,44 +99,54 @@ export function NotificationBell() {
         >
           <header className={styles.panelHead}>
             <span className={styles.panelTitle}>Notifications</span>
-            {unread > 0 && (
-              <button type="button" className={styles.markAll} onClick={() => markAll()}>
-                <CheckCheck size={13} aria-hidden="true" />
-                Mark all read
-              </button>
-            )}
+            <button
+              type="button"
+              className={styles.markAll}
+              onClick={() => markAll()}
+              disabled={unread === 0}
+            >
+              Mark all read
+            </button>
           </header>
 
           <div className={styles.list}>
-            {isFetching && items.length === 0 ? (
-              <p className={styles.empty}>Loading…</p>
+            {isLoading ? (
+              <div aria-busy="true" aria-label="Loading">
+                {Array.from({ length: 3 }, (_, i) => (
+                  <div key={i} className={styles.skeletonRow}>
+                    <Skeleton width={36} height={36} radius="50%" />
+                    <div className={styles.skeletonText}>
+                      <Skeleton width="55%" height={13} />
+                      <Skeleton width="85%" height={12} />
+                    </div>
+                  </div>
+                ))}
+              </div>
             ) : items.length === 0 ? (
-              <p className={styles.empty}>You&rsquo;re all caught up.</p>
+              <div className={styles.empty}>
+                <span className={styles.emptyIcon} aria-hidden="true">
+                  <BellOff size={20} />
+                </span>
+                <p className={styles.emptyTitle}>No notifications yet</p>
+                <p className={styles.emptyText}>New bookings and orders will show up here.</p>
+              </div>
             ) : (
-              items.map((n) => (
-                <button
-                  key={n.id}
-                  type="button"
-                  className={`${styles.item} ${n.isRead ? '' : styles.unread}`}
-                  onClick={() => onItemClick(n)}
-                >
-                  <span
-                    className={`${styles.itemIcon} ${
-                      n.type.endsWith('CANCELLED') ? styles.itemIconDanger : ''
-                    }`}
-                  >
-                    {iconFor(n.type)}
-                  </span>
-                  <span className={styles.itemBody}>
-                    <span className={styles.itemTitle}>{n.title}</span>
-                    <span className={styles.itemText}>{n.body}</span>
-                    <span className={styles.itemTime}>{timeAgo(n.createdAt)}</span>
-                  </span>
-                  {!n.isRead && <span className={styles.dot} aria-hidden="true" />}
-                </button>
-              ))
+              <ul className={styles.items}>
+                {items.map((n) => (
+                  <li key={n.id}>
+                    <NotificationRow notification={n} onOpen={onItemClick} compact />
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
+
+          <footer className={styles.panelFoot}>
+            <button type="button" className={styles.viewAll} onClick={viewAll}>
+              View all notifications
+              <ArrowRight size={14} aria-hidden="true" />
+            </button>
+          </footer>
         </div>
       )}
     </div>

@@ -17,14 +17,15 @@
 }
 
 .input {
+  min-height: var(--m-control-h);
   width: 100%;
   min-width: 0;
-  padding: 11px 12px;
+  padding: 9px 12px;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--field-radius, var(--radius-md));
   background: var(--color-surface);
   font-family: inherit;
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   color: var(--color-text-primary);
   transition:
     border-color var(--dur-fast) var(--ease-out),
@@ -46,39 +47,50 @@
    (e.g. the shared Card) — only its own size/appearance live here. */
 .dropdown {
   position: fixed;
-  z-index: 1000;
-  max-height: 260px;
+  z-index: 1050;
+  max-height: 264px;
   overflow-y: auto;
   padding: 6px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--m-divider);
+  border-radius: var(--m-radius-box);
+  background: var(--color-surface-elevated);
+  box-shadow: var(--m-shadow-card), var(--shadow-lg);
+  animation: popIn var(--dur-fast) var(--ease-out);
+  transform-origin: top center;
 }
 
 .option {
-  display: block;
+  display: flex;
+  align-items: center;
   width: 100%;
-  padding: 9px 10px;
+  min-height: 38px;
+  padding: 0 12px;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: 8px;
   background: transparent;
   text-align: left;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
-  transition: background var(--dur-fast) var(--ease-out);
+  font-size: var(--m-fs-body);
+  color: var(--m-ink);
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
 
 .option:hover,
 .optionActive {
-  background: var(--color-primary-soft);
-  color: var(--color-primary-dark);
+  background: var(--m-pill-blue-bg);
+  color: var(--m-pill-blue-fg);
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
 }
 
 .empty {
   margin: 0;
-  padding: 10px;
-  font-size: var(--font-size-xs);
+  padding: 10px 12px;
+  font-size: var(--m-fs-sm);
   color: var(--color-text-secondary);
 }
 
@@ -86,5 +98,8 @@
   .input,
   .option {
     transition: none;
+  }
+  .dropdown {
+    animation: none;
   }
 }

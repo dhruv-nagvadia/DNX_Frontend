@@ -1,0 +1,347 @@
+/* Shared by the four Dashboard "View all" pages (Today's Schedule,
+   Needs Your Attention, Orders to Fulfil, Low Stock). */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--m-gap);
+  padding: var(--m-gap) 0 var(--space-xl);
+}
+
+/* ── Top bar (AppShell header) ──────────────────────────────────────── */
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--m-gap);
+  width: 100%;
+}
+.titleBlock {
+  min-width: 0;
+}
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+  font-size: var(--m-fs-sm);
+  font-weight: 600;
+  color: var(--m-link);
+  text-decoration: none;
+}
+.backLink:hover {
+  text-decoration: underline;
+}
+.title {
+  margin: 0;
+  font-size: var(--m-fs-page);
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  color: var(--m-ink);
+}
+.subtitle {
+  margin: 2px 0 0;
+  font-size: var(--m-fs-body);
+  color: var(--color-text-secondary);
+}
+.topControls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+.bellWrap > div > button {
+  width: var(--m-control-h);
+  height: var(--m-control-h);
+  border-radius: 50%;
+  border-color: var(--m-divider);
+  color: var(--m-ink);
+  box-shadow: var(--m-shadow-card);
+}
+.profileChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 4px 2px 2px;
+  border-radius: var(--m-radius-pill);
+  color: var(--m-ink);
+  text-decoration: none;
+}
+.profileChip:hover .profileName {
+  color: var(--m-link);
+}
+.profileAvatar,
+.profileAvatarImg {
+  flex: 0 0 auto;
+  width: var(--m-avatar);
+  height: var(--m-avatar);
+  border-radius: 50%;
+  box-shadow: var(--m-shadow-card);
+}
+.profileAvatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(140deg, var(--color-accent), var(--color-accent-2));
+  color: var(--color-ink);
+  font-size: var(--m-fs-xs);
+  font-weight: 800;
+}
+.profileAvatarImg {
+  object-fit: cover;
+}
+.profileName {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--m-fs-body);
+  font-weight: 600;
+}
+
+/* ── List ───────────────────────────────────────────────────────────── */
+.list {
+  margin: 0;
+  padding: 6px 0;
+  list-style: none;
+}
+.item + .item {
+  border-top: 1px solid var(--m-divider);
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: var(--m-row-h);
+  padding: 12px var(--m-card-pad);
+  cursor: pointer;
+  outline: none;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.row:hover {
+  background: var(--m-table-head);
+}
+.row:focus-visible {
+  background: var(--m-table-head);
+  box-shadow: inset 0 0 0 2px var(--m-link);
+}
+.lead {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+.main {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.rowTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--m-fs-lg);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--m-ink);
+}
+.rowSub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  font-size: var(--m-fs-sm);
+  color: var(--color-text-secondary);
+}
+.subItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+.meta {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.meta > span {
+  font-size: var(--m-fs-xs);
+}
+.chevron {
+  flex: 0 0 auto;
+  color: var(--color-text-secondary);
+  transition: transform var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+.row:hover .chevron {
+  color: var(--m-link);
+  transform: translateX(2px);
+}
+
+/* ── "Now" divider ──────────────────────────────────────────────────── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px var(--m-card-pad);
+  border-top: 0 !important;
+}
+.divider::after {
+  content: '';
+  flex: 1 1 auto;
+  height: 1px;
+  background: var(--m-pill-red-fg);
+  opacity: 0.6;
+}
+.dividerLabel {
+  padding: 1px 10px;
+  border-radius: var(--m-radius-pill);
+  background: var(--m-pill-red-bg);
+  color: var(--m-pill-red-fg);
+  font-size: var(--m-fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.divider + .item {
+  border-top: 0;
+}
+
+/* ── Lead chips ─────────────────────────────────────────────────────── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--m-icon-box);
+  height: var(--m-icon-box);
+  border-radius: var(--m-radius-box);
+  border: 1px solid transparent;
+}
+.chipRound {
+  border-radius: 50%;
+}
+.chip_blue { background: var(--m-tint-blue); border-color: var(--m-tint-blue-border); color: var(--m-tint-blue-icon); }
+.chip_peach { background: var(--m-tint-peach); border-color: var(--m-tint-peach-border); color: var(--m-tint-peach-icon); }
+.chip_mint { background: var(--m-tint-mint); border-color: var(--m-tint-mint-border); color: var(--m-tint-mint-icon); }
+.chip_pink { background: var(--m-tint-pink); border-color: var(--m-tint-pink-border); color: var(--m-tint-pink-icon); }
+.chip_lavender { background: var(--m-tint-lavender); border-color: var(--m-tint-lavender-border); color: var(--m-tint-lavender-icon); }
+
+/* Today's Schedule time block: "10:30" over "AM". */
+.timeBlock {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 48px;
+  border-radius: var(--m-radius-box);
+  background: var(--m-tint-blue);
+  border: 1px solid var(--m-tint-blue-border);
+  color: var(--m-tint-blue-icon);
+  line-height: 1.1;
+}
+
+.timeMain {
+  font-size: var(--m-fs-body);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.timeAmPm {
+  font-size: var(--m-fs-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Product thumbnail (Low Stock). */
+.thumb {
+  width: var(--m-icon-box);
+  height: var(--m-icon-box);
+  border-radius: var(--m-radius-box);
+  border: 1px solid var(--m-divider);
+  object-fit: cover;
+  background: var(--m-table-head);
+}
+
+/* ── Empty state ────────────────────────────────────────────────────── */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 48px var(--m-card-pad);
+  text-align: center;
+}
+.emptyIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 8px;
+  border-radius: 50%;
+  background: var(--m-tint-blue);
+  color: var(--m-tint-blue-icon);
+}
+.emptyTitle {
+  margin: 0;
+  font-size: var(--m-fs-lg);
+  font-weight: 700;
+  color: var(--m-ink);
+}
+.emptyText {
+  margin: 0;
+  font-size: var(--m-fs-sm);
+  color: var(--color-text-secondary);
+}
+
+/* ── Skeleton rows ──────────────────────────────────────────────────── */
+.skeletonRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: var(--m-row-h);
+  padding: 12px var(--m-card-pad);
+}
+.skeletonRow + .skeletonRow {
+  border-top: 1px solid var(--m-divider);
+}
+.skeletonText {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────── */
+@media (max-width: 700px) {
+  .row {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    padding: 12px var(--m-gap);
+  }
+  .main {
+    flex: 1 1 0;
+  }
+  .rowTitle {
+    white-space: normal;
+  }
+  .meta {
+    order: 3;
+    flex: 1 1 100%;
+    justify-content: flex-start;
+    padding-left: calc(var(--m-icon-box) + 14px);
+  }
+  .row:has(.timeBlock) .meta {
+    padding-left: calc(60px + 14px);
+  }
+  .chevron {
+    align-self: center;
+  }
+  .profileName {
+    display: none;
+  }
+}

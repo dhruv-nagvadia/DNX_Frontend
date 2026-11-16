@@ -15,7 +15,7 @@ export function AuthSubmit({ loading, loadingText, children }: AuthSubmitProps) 
     <button type="submit" className={card.submit} disabled={loading} aria-busy={loading}>
       {loading ? (
         <>
-          <Loader2 size={20} className={card.spinner} aria-hidden="true" />
+          <Loader2 size={18} className={card.spinner} aria-hidden="true" />
           {loadingText}
         </>
       ) : (

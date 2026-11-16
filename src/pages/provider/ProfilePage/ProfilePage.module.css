@@ -20,7 +20,7 @@
 }
 .title {
   margin: 0;
-  font-size: clamp(22px, 2.2vw, 30px);
+  font-size: var(--m-fs-page);
   font-weight: 800;
   letter-spacing: -0.015em;
   line-height: 1.2;
@@ -39,8 +39,8 @@
 }
 /* Round white bell — targets only NotificationBell's own trigger button. */
 .bellWrap > div > button {
-  width: 42px;
-  height: 42px;
+  width: var(--m-control-h);
+  height: var(--m-control-h);
   border-radius: 50%;
   border-color: var(--m-divider);
   color: var(--m-ink);
@@ -61,8 +61,8 @@
 .chipAvatar,
 .chipAvatarImg {
   flex: 0 0 auto;
-  width: 40px;
-  height: 40px;
+  width: var(--m-avatar);
+  height: var(--m-avatar);
   border-radius: 50%;
   box-shadow: var(--m-shadow-card);
 }
@@ -91,7 +91,7 @@
 .card {
   display: flex;
   flex-direction: column;
-  padding: 18px 20px;
+  padding: var(--m-card-pad);
   background: var(--color-surface);
   border: 1px solid var(--m-divider);
   border-radius: var(--m-radius-card);
@@ -100,7 +100,7 @@
 }
 .cardTitle {
   margin: 0 0 8px;
-  font-size: 22px;
+  font-size: var(--m-fs-card);
   font-weight: 800;
   letter-spacing: -0.01em;
   color: var(--m-ink);
@@ -145,13 +145,13 @@
 .avatarWrap {
   position: relative;
   flex: 0 0 auto;
-  margin-top: -42px;
+  margin-top: -34px;
 }
 .avatar,
 .avatarImg {
   display: block;
-  width: 128px;
-  height: 128px;
+  width: 96px;
+  height: 96px;
   border-radius: 50%;
   border: 5px solid var(--color-surface);
   box-shadow: 0 8px 24px rgba(15, 30, 74, 0.18);
@@ -162,7 +162,7 @@
   justify-content: center;
   background: linear-gradient(140deg, var(--color-accent), var(--color-accent-2));
   color: var(--color-ink);
-  font-size: 40px;
+  font-size: 32px;
   font-weight: 800;
 }
 .avatarImg {
@@ -209,7 +209,7 @@
 }
 .name {
   margin: 0;
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 800;
   letter-spacing: -0.015em;
   line-height: 1.2;
@@ -217,7 +217,7 @@
   overflow-wrap: anywhere;
 }
 .since {
-  font-size: var(--font-size-md, 16px);
+  font-size: var(--m-fs-body);
   color: var(--color-text-secondary);
 }
 .badges {
@@ -239,8 +239,8 @@
   align-items: center;
   gap: 10px;
   flex: 0 0 auto;
-  height: 46px;
-  padding: 0 22px;
+  height: var(--m-control-h);
+  padding: 0 18px;
   border: 1.5px solid var(--m-action);
   border-radius: var(--m-radius-box);
   background: var(--color-surface);
@@ -298,8 +298,8 @@
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  width: 52px;
-  height: 52px;
+  width: var(--m-icon-box);
+  height: var(--m-icon-box);
   border-radius: 50%;
   background: color-mix(in srgb, var(--color-surface) 55%, transparent);
   color: var(--tile-icon);
@@ -319,7 +319,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 30px;
+  font-size: var(--m-fs-stat);
   font-weight: 800;
   line-height: 1.1;
   color: var(--m-ink);
@@ -410,7 +410,7 @@
 }
 .fieldInput {
   width: 100%;
-  height: 38px;
+  height: var(--m-control-h);
   padding: 0 12px;
   border: 1.5px solid var(--m-link);
   border-radius: 8px;
@@ -438,7 +438,7 @@
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  height: 38px;
+  height: var(--m-control-h);
   padding: 0 18px;
   border-radius: 8px;
   font: inherit;
@@ -472,14 +472,6 @@
 }
 .btnPrimary:hover:not(:disabled) {
   background: #1e40af;
-}
-.btnDanger {
-  border: 1px solid transparent;
-  background: #dc2626;
-  color: #fff;
-}
-.btnDanger:hover:not(:disabled) {
-  background: #b91c1c;
 }
 .btnDangerOutline {
   border: 1.5px solid var(--m-pill-red-fg);
@@ -562,7 +554,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 17px;
+  font-size: var(--m-fs-lg);
   font-weight: 700;
 }
 .bizMeta {
@@ -742,105 +734,6 @@
   color: var(--m-pill-red-fg);
 }
 
-/* ── Modals ─────────────────────────────────────────────────────────── */
-.overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  background: rgba(6, 11, 24, 0.55);
-  animation: fadeIn var(--dur-fast) var(--ease-out);
-}
-.modal {
-  display: flex;
-  flex-direction: column;
-  width: min(460px, 100%);
-  max-height: calc(100vh - 32px);
-  overflow-y: auto;
-  background: var(--color-surface);
-  border: 1px solid var(--m-divider);
-  border-radius: var(--m-radius-card);
-  box-shadow: var(--shadow-xl);
-  outline: none;
-}
-.modalHead {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 20px 20px 8px;
-}
-.modalIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: var(--m-pill-blue-bg);
-  color: var(--m-pill-blue-fg);
-}
-.modalIconDanger {
-  background: var(--m-pill-red-bg);
-  color: var(--m-pill-red-fg);
-}
-.modalHeadText {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-.modalTitle {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--m-ink);
-}
-.modalSub {
-  margin: 4px 0 0;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
-.modalClose {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 8px;
-  background: none;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-}
-.modalClose:hover {
-  background: var(--m-table-head);
-}
-.modalBody {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 12px 20px 16px;
-}
-.modalError {
-  margin: 0;
-  padding: 10px 12px;
-  border: 1px solid var(--m-banner-error-border);
-  border-radius: 8px;
-  background: var(--m-banner-error-bg);
-  color: var(--m-banner-error-fg);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-}
-.modalFoot {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  padding: 14px 20px 20px;
-  border-top: 1px solid var(--m-divider);
-}
-
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -869,8 +762,8 @@
   }
   .avatar,
   .avatarImg {
-    width: 104px;
-    height: 104px;
+    width: 80px;
+    height: 80px;
   }
   .editProfileBtn {
     width: 100%;

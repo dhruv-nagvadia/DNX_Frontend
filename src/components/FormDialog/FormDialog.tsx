@@ -1,18 +1,19 @@
-import { useEffect, useRef } from 'react';
+import { useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { X } from 'lucide-react';
+import { Loader2, X } from 'lucide-react';
 
 import { AlertBanner } from '@/components/AlertBanner';
-import { Button } from '@/components/Button';
 import { Tabs } from '@/components/Tabs';
+import { useDialogFocus } from '@/hooks/useDialogFocus';
 import { FormDialogProps } from './types';
 import styles from './FormDialog.module.css';
 
 /**
- * A form in a dialog: header with title, an optional tab bar for forms with
- * many fields, a body for the active tab, and a footer with Cancel / Save that
- * is always in reach. Esc or the × closes it; clicking outside does not, so a
- * half-filled form isn't lost by accident.
+ * The app's standard dialog: a header with title (and optional subtitle /
+ * icon), an optional tab bar for forms with many fields, a body, and a footer
+ * with Cancel / Submit that is always in reach. Esc or the × closes it;
+ * clicking outside does not, so a half-filled form isn't lost by accident.
+ * Focus is trapped inside while open and returned afterwards.
  */
 export function FormDialog({
   open,
@@ -27,30 +28,19 @@ export function FormDialog({
   submitLabel,
   submitting,
   submittingLabel = 'Saving…',
+  submitDisabled,
+  cancelLabel = 'Cancel',
+  tone = 'primary',
+  icon,
+  size = 'lg',
+  initialFocus = 'panel',
   children,
 }: FormDialogProps) {
   const panelRef = useRef<HTMLFormElement>(null);
+  const titleId = useId();
+  const subtitleId = useId();
 
-  useEffect(() => {
-    if (!open) return;
-    const previouslyFocused = document.activeElement as HTMLElement | null;
-    const scrollLock = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    panelRef.current?.focus();
-
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = scrollLock;
-      previouslyFocused?.focus?.();
-    };
-    // onClose is intentionally not a dependency: it's recreated on every parent
-    // render and re-running this would steal focus back to the panel.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  useDialogFocus(panelRef, open, onClose, initialFocus);
 
   if (!open) return null;
 
@@ -58,18 +48,33 @@ export function FormDialog({
     <div className={styles.overlay}>
       <form
         ref={panelRef}
-        className={styles.panel}
+        className={`${styles.panel} ${styles[size]}`}
         role="dialog"
         aria-modal="true"
-        aria-label={title}
+        aria-labelledby={titleId}
+        aria-describedby={subtitle ? subtitleId : undefined}
         tabIndex={-1}
         onSubmit={onSubmit}
         noValidate
       >
         <header className={styles.head}>
+          {icon && (
+            <span
+              className={`${styles.headIcon} ${tone === 'danger' ? styles.headIconDanger : ''}`}
+              aria-hidden="true"
+            >
+              {icon}
+            </span>
+          )}
           <div className={styles.headText}>
-            <h2 className={styles.title}>{title}</h2>
-            {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
+            <h2 id={titleId} className={styles.title}>
+              {title}
+            </h2>
+            {subtitle && (
+              <p id={subtitleId} className={styles.subtitle}>
+                {subtitle}
+              </p>
+            )}
           </div>
           <button type="button" className={styles.close} onClick={onClose} aria-label="Close">
             <X size={18} aria-hidden="true" />
@@ -91,12 +96,23 @@ export function FormDialog({
             </div>
           )}
           <div className={styles.actions}>
-            <Button type="button" variant="secondary" onClick={onClose} disabled={submitting}>
-              Cancel
-            </Button>
-            <Button type="submit" loading={submitting} loadingText={submittingLabel}>
-              {submitLabel}
-            </Button>
+            <button
+              type="button"
+              className={`${styles.btn} ${styles.btnSecondary}`}
+              onClick={onClose}
+              disabled={submitting}
+            >
+              {cancelLabel}
+            </button>
+            <button
+              type="submit"
+              className={`${styles.btn} ${tone === 'danger' ? styles.btnDanger : styles.btnPrimary}`}
+              disabled={submitting || submitDisabled}
+              aria-busy={submitting || undefined}
+            >
+              {submitting && <Loader2 size={16} className={styles.spin} aria-hidden="true" />}
+              {submitting ? submittingLabel : submitLabel}
+            </button>
           </div>
         </footer>
       </form>

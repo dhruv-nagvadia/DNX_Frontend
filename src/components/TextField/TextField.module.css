@@ -19,12 +19,13 @@
 
 /* The shell owns the border/focus ring so prefix + trailing sit inside it. */
 .shell {
+  min-height: var(--m-control-h);
   position: relative;
   display: flex;
   align-items: center;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--field-radius, var(--radius-md));
   transition:
     border-color var(--dur-fast) var(--ease-out),
     box-shadow var(--dur-fast) var(--ease-out),
@@ -54,12 +55,12 @@
   flex: 1 1 auto;
   width: 100%;
   min-width: 0;
-  padding: 12px 14px;
+  padding: 9px 12px;
   border: none;
   border-radius: inherit;
   background: transparent;
   font-family: inherit;
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   color: var(--color-text-primary);
 }
 

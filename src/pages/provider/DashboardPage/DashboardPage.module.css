@@ -15,7 +15,7 @@
 }
 .greetTitle {
   margin: 0;
-  font-size: clamp(24px, 2.2vw, 30px);
+  font-size: var(--m-fs-page);
   font-weight: 800;
   letter-spacing: -0.015em;
   line-height: 1.2;
@@ -26,7 +26,7 @@
 }
 .greetSub {
   margin: 6px 0 0;
-  font-size: var(--font-size-md, 16px);
+  font-size: var(--m-fs-body);
   color: var(--color-text-secondary);
 }
 
@@ -41,7 +41,7 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  height: 42px;
+  height: var(--m-control-h);
   padding: 0 14px 0 16px;
   border: 1px solid var(--m-divider);
   border-radius: var(--m-radius-box);
@@ -71,27 +71,30 @@
   display: flex;
   flex-direction: column;
   padding: 6px;
-  background: var(--color-surface);
+  background: var(--color-surface-elevated);
   border: 1px solid var(--m-divider);
   border-radius: var(--m-radius-box);
-  box-shadow: var(--shadow-xl);
+  box-shadow: var(--m-shadow-card), var(--shadow-lg);
 }
 
 .switcherItem {
-  display: block;
+  display: flex;
+  align-items: center;
   width: 100%;
-  padding: 9px 10px;
+  min-height: 38px;
+  padding: 0 12px;
   border: none;
   border-radius: 8px;
   background: transparent;
   color: var(--m-ink);
-  font-size: var(--font-size-sm);
+  font-size: var(--m-fs-body);
   font-weight: 600;
   text-align: left;
   cursor: pointer;
 }
 .switcherItem:hover {
-  background: var(--m-table-head);
+  background: var(--m-pill-blue-bg);
+  color: var(--m-pill-blue-fg);
 }
 
 .switcherEmpty {
@@ -104,8 +107,8 @@
 /* Round white bell, matching the mockup. Targets only the bell button itself
    (the direct child of NotificationBell's root), not buttons in its panel. */
 .bellWrap > div > button {
-  width: 46px;
-  height: 46px;
+  width: var(--m-control-h);
+  height: var(--m-control-h);
   border-radius: 50%;
   border-color: var(--m-divider);
   color: var(--m-ink);
@@ -115,7 +118,7 @@
 .profileChip {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   padding: 2px 4px 2px 2px;
   border-radius: var(--m-radius-pill);
   color: var(--m-ink);
@@ -127,8 +130,8 @@
 .profileAvatar,
 .profileAvatarImg {
   flex: 0 0 auto;
-  width: 46px;
-  height: 46px;
+  width: var(--m-avatar);
+  height: var(--m-avatar);
   border-radius: 50%;
   box-shadow: var(--m-shadow-card);
 }
@@ -138,7 +141,7 @@
   justify-content: center;
   background: linear-gradient(140deg, var(--color-accent), var(--color-accent-2));
   color: var(--color-ink);
-  font-size: 14px;
+  font-size: var(--m-fs-sm);
   font-weight: 800;
 }
 .profileAvatarImg {
@@ -149,7 +152,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: var(--font-size-md, 16px);
+  font-size: var(--m-fs-body);
   font-weight: 600;
 }
 
@@ -167,8 +170,8 @@
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  min-height: 172px;
-  padding: var(--space-lg);
+  min-height: 128px;
+  padding: var(--m-card-pad);
   border-radius: var(--m-radius-card);
   background: linear-gradient(135deg, #1e3a8a 0%, #17306f 45%, #0f2152 100%);
   box-shadow: var(--m-shadow-card);
@@ -180,8 +183,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 64px;
-  height: 64px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.14);
   color: #ffffff;
@@ -195,12 +198,12 @@
   z-index: 1;
 }
 .revenueLabel {
-  font-size: var(--font-size-md, 16px);
+  font-size: var(--m-fs-body);
   font-weight: 600;
   color: rgba(255, 255, 255, 0.92);
 }
 .revenueValue {
-  font-size: clamp(30px, 3.2vw, 44px);
+  font-size: 28px;
   font-weight: 800;
   line-height: 1.1;
   letter-spacing: -0.02em;
@@ -210,7 +213,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: var(--font-size-sm);
+  font-size: var(--m-fs-xs);
 }
 .revenueTrendPct {
   display: inline-flex;
@@ -235,13 +238,13 @@
   align-self: center;
   display: flex;
   align-items: flex-end;
-  gap: 10px;
-  height: 92px;
+  gap: 8px;
+  height: 72px;
   margin-right: var(--space-sm);
   z-index: 1;
 }
 .revenueBar {
-  width: 26px;
+  width: 20px;
   border-radius: 5px 5px 2px 2px;
   background: linear-gradient(180deg, rgba(96, 165, 250, 0.75) 0%, rgba(59, 130, 246, 0.45) 100%);
 }
@@ -251,8 +254,8 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-height: 172px;
-  padding: var(--space-md) var(--space-md) var(--space-md) 28px;
+  min-height: 128px;
+  padding: var(--m-card-pad) var(--m-card-pad) var(--m-card-pad) 24px;
   border-radius: var(--m-radius-card);
   border: 1px solid transparent;
   box-shadow: var(--m-shadow-card);
@@ -260,18 +263,18 @@
 .tileIcon {
   display: inline-flex;
   align-items: center;
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
 }
 .tileLabel {
-  font-size: var(--font-size-md, 16px);
+  font-size: var(--m-fs-body);
   font-weight: 700;
   line-height: 1.25;
   color: var(--m-ink);
 }
 .tileValue {
   margin-top: auto;
-  font-size: clamp(30px, 2.8vw, 40px);
+  font-size: var(--m-fs-stat);
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.01em;
@@ -340,7 +343,7 @@
   gap: 12px;
   min-width: 0;
   margin: 0;
-  font-size: clamp(18px, 1.6vw, 22px);
+  font-size: var(--m-fs-card);
   font-weight: 800;
   letter-spacing: -0.01em;
   color: var(--m-ink);
@@ -374,7 +377,7 @@
   background: none;
   border: none;
   padding: 0;
-  font-size: var(--font-size-md, 16px);
+  font-size: var(--m-fs-body);
   font-weight: 600;
   color: var(--m-link);
   cursor: pointer;
@@ -475,7 +478,7 @@
 }
 .collectAmount {
   padding-left: 12px;
-  font-size: var(--font-size-md, 16px);
+  font-size: var(--m-fs-body);
   font-weight: 800;
   color: var(--m-ink);
 }
@@ -533,8 +536,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 10px;
   background: var(--m-table-head);
   color: var(--color-text-secondary);

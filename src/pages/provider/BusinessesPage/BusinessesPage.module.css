@@ -17,7 +17,7 @@
 }
 .title {
   margin: 0;
-  font-size: clamp(26px, 2.4vw, 34px);
+  font-size: var(--m-fs-page);
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.15;
@@ -25,7 +25,7 @@
 }
 .subtitle {
   margin: 6px 0 0;
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   color: var(--color-text-secondary);
 }
 .topActions {
@@ -121,8 +121,8 @@
 
 /* NotificationBell restyled as a round white button (component untouched). */
 .bellWrap > div > button {
-  width: 44px;
-  height: 44px;
+  width: var(--m-control-h);
+  height: var(--m-control-h);
   border-radius: 50%;
   border-color: var(--m-divider);
   color: var(--m-ink);
@@ -138,8 +138,8 @@
 }
 .avatar {
   flex: 0 0 auto;
-  width: 44px;
-  height: 44px;
+  width: var(--m-avatar);
+  height: var(--m-avatar);
   border-radius: 50%;
   object-fit: cover;
   box-shadow: var(--m-shadow-card);
@@ -150,7 +150,7 @@
   justify-content: center;
   background: linear-gradient(140deg, var(--color-accent), var(--color-accent-2));
   color: var(--color-ink);
-  font-size: 14px;
+  font-size: var(--m-fs-sm);
   font-weight: 800;
 }
 .profileName {
@@ -182,8 +182,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
+  width: var(--m-icon-box);
+  height: var(--m-icon-box);
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.55);
 }
@@ -193,12 +193,12 @@
   min-width: 0;
 }
 .tileLabel {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-sm);
   font-weight: 600;
   color: var(--m-ink);
 }
 .tileValue {
-  font-size: 32px;
+  font-size: var(--m-fs-stat);
   font-weight: 800;
   line-height: 1.15;
   color: var(--m-ink);
@@ -275,7 +275,7 @@
 
 .cover {
   position: relative;
-  height: 200px;
+  height: 168px;
   background: var(--m-table-head);
 }
 .coverImg {
@@ -298,9 +298,9 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 12px;
+  padding: 4px 10px;
   border-radius: var(--m-radius-pill);
-  font-size: var(--font-size-sm);
+  font-size: var(--m-fs-xs);
   font-weight: 600;
   backdrop-filter: blur(4px);
 }
@@ -320,8 +320,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: var(--m-control-h-sm);
+  height: var(--m-control-h-sm);
   border: none;
   border-radius: 50%;
   background: #fff;
@@ -350,7 +350,7 @@
   gap: 6px;
   margin: 0;
   min-width: 0;
-  font-size: 24px;
+  font-size: var(--m-fs-card);
   font-weight: 800;
   letter-spacing: -0.015em;
   color: var(--m-ink);
@@ -382,11 +382,11 @@
   gap: 6px;
   flex-wrap: wrap;
   margin: 0;
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   color: var(--m-ink);
 }
 .meta strong {
-  font-size: var(--font-size-lg);
+  font-size: var(--m-fs-lg);
 }
 .star {
   color: #f5b301;
@@ -459,7 +459,7 @@
   border: none;
   background: none;
   font: inherit;
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   font-weight: 600;
   color: var(--m-link);
   cursor: pointer;
@@ -504,12 +504,12 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 22px;
+  font-size: var(--m-fs-card);
   font-weight: 700;
   color: var(--m-link);
 }
 .addCardSub {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   color: var(--color-text-secondary);
 }
 

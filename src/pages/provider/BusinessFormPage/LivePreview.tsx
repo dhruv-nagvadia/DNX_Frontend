@@ -23,7 +23,7 @@ export function LivePreview({ coverUrl, name, categoryLabel, city, rating, tip }
             <img className={styles.previewImg} src={coverUrl} alt="" />
           ) : (
             <span className={styles.previewPlaceholder} aria-hidden="true">
-              <Store size={56} strokeWidth={1.4} />
+              <Store size={40} strokeWidth={1.4} />
             </span>
           )}
         </div>

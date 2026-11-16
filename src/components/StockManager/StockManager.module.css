@@ -37,8 +37,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 52px;
+  width: var(--m-icon-box);
+  height: var(--m-icon-box);
   border-radius: 50%;
   background: color-mix(in srgb, currentColor 12%, transparent);
 }
@@ -48,12 +48,12 @@
   min-width: 0;
 }
 .tileLabel {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-sm);
   font-weight: 600;
   color: var(--m-ink);
 }
 .tileValue {
-  font-size: 30px;
+  font-size: var(--m-fs-stat);
   font-weight: 800;
   line-height: 1.15;
   color: var(--m-ink);
@@ -100,7 +100,7 @@
   flex-direction: column;
   gap: 14px;
   min-width: 0;
-  padding: 18px var(--space-lg) var(--space-lg);
+  padding: 18px var(--m-card-pad) var(--m-card-pad);
   background: var(--color-surface);
   border: 1px solid var(--m-divider);
   border-radius: var(--m-radius-card);
@@ -114,7 +114,7 @@
   align-items: center;
   gap: 10px;
   margin: 0;
-  font-size: 19px;
+  font-size: var(--m-fs-card);
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--m-ink);
@@ -237,7 +237,7 @@
   min-width: 0;
 }
 .rowName {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   font-weight: 700;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -259,13 +259,13 @@
   border: 1px solid var(--m-divider);
 }
 .thumb {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border-radius: 8px;
 }
 .photo {
-  width: 88px;
-  height: 88px;
+  width: 72px;
+  height: 72px;
   border-radius: var(--m-radius-box);
 }
 .thumbPlaceholder {
@@ -288,14 +288,14 @@
   padding-top: 2px;
 }
 .productName {
-  font-size: 20px;
+  font-size: var(--m-fs-card);
   font-weight: 700;
   color: var(--m-ink);
   overflow-wrap: anywhere;
 }
 .productSub {
   margin-top: 4px;
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   color: var(--color-text-secondary);
 }
 .dot {
@@ -303,8 +303,8 @@
 }
 .currentPill {
   flex: 0 0 auto;
-  padding: 7px 20px;
-  font-size: var(--font-size-md);
+  padding: 6px 16px;
+  font-size: var(--m-fs-body);
   font-weight: 700;
 }
 
@@ -336,7 +336,7 @@
   border-radius: var(--m-radius-pill);
   background: transparent;
   font: inherit;
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   font-weight: 600;
   color: var(--m-ink);
   cursor: pointer;
@@ -394,7 +394,7 @@
   display: flex;
   flex: 1 1 auto;
   min-width: 0;
-  height: 38px;
+  height: var(--m-control-h);
   border: 1px solid var(--m-divider);
   border-radius: 8px;
   background: var(--color-surface);
@@ -405,7 +405,7 @@
   box-shadow: 0 0 0 3px var(--m-pill-blue-bg);
 }
 .stepBtn {
-  flex: 0 0 46px;
+  flex: 0 0 40px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -455,13 +455,13 @@
   appearance: none;
   -webkit-appearance: none;
   width: 100%;
-  height: 38px;
+  height: var(--m-control-h);
   padding: 0 40px 0 12px;
   border: 1px solid var(--m-divider);
   border-radius: 8px;
   background: var(--color-surface);
   font: inherit;
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   color: var(--m-ink);
   cursor: pointer;
 }
@@ -525,11 +525,11 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  height: 42px;
+  height: var(--m-control-h);
   padding: 0 18px;
   border-radius: 8px;
   font: inherit;
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
@@ -652,8 +652,8 @@
     flex-wrap: wrap;
   }
   .photo {
-    width: 72px;
-    height: 72px;
+    width: 64px;
+    height: 64px;
   }
   .currentPill {
     width: 100%;

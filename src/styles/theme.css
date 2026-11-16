@@ -113,6 +113,26 @@
      Provider Portal Dashboard.png"): rounded cards, deep-navy ink headings,
      pastel pills and tiles. Used by the redesigned Dashboard and Business
      Detail pages ONLY — every other page keeps the squared-off radius above. */
+  /* ── Standard sizing scale (use these — keeps every screen the same size) ── */
+  --m-fs-display: 32px;   /* auth hero headline only */
+  --m-fs-page: 24px;      /* page title */
+  --m-fs-card: 18px;      /* card / section title */
+  --m-fs-lg: 16px;        /* emphasised row title */
+  --m-fs-body: 14px;      /* body text, inputs, buttons, nav */
+  --m-fs-sm: 13px;        /* secondary text */
+  --m-fs-xs: 12px;        /* captions, pills, labels */
+  --m-fs-stat: 24px;      /* stat tile value */
+  --m-control-h: 40px;    /* input / button height */
+  --m-control-h-sm: 32px; /* compact button */
+  --m-control-radius: 10px;
+  --m-icon: 18px;         /* icon in nav / buttons */
+  --m-icon-box: 40px;     /* round/square icon chip */
+  --m-avatar: 36px;
+  --m-card-pad: 20px;
+  --m-gap: 16px;
+  --m-row-h: 56px;        /* list row min height */
+  --m-sidebar-w: 248px;
+  --m-sidebar-w-collapsed: 72px;
   --m-radius-card: 16px;
   --m-radius-box: 12px;
   --m-radius-pill: 999px;

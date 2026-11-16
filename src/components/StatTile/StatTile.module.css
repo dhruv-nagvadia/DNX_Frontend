@@ -31,7 +31,7 @@
 }
 
 .value {
-  font-size: var(--font-size-xxl);
+  font-size: var(--m-fs-stat);
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.03em;
@@ -50,6 +50,6 @@
   }
 
   .value {
-    font-size: var(--font-size-xl);
+    font-size: 20px;
   }
 }

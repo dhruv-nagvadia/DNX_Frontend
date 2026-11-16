@@ -212,12 +212,12 @@
 .textarea {
   width: 100%;
   min-width: 0;
-  padding: 11px 12px;
+  padding: 9px 12px;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--field-radius, var(--radius-md));
   background: var(--color-surface);
   font-family: inherit;
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   color: var(--color-text-primary);
   transition:
     border-color var(--dur-fast) var(--ease-out),
@@ -231,6 +231,10 @@
   box-shadow: 0 0 0 3px var(--color-primary-ring);
 }
 
+.input {
+  min-height: var(--m-control-h);
+}
+
 .textarea {
   min-height: 84px;
   resize: vertical;
@@ -239,10 +243,11 @@
 
 /* Price field: currency symbol sits inside the control. */
 .inputPrefix {
+  min-height: var(--m-control-h);
   display: flex;
   align-items: center;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--field-radius, var(--radius-md));
   background: var(--color-surface);
   transition:
     border-color var(--dur-fast) var(--ease-out),
@@ -266,6 +271,7 @@
 }
 
 .inputPrefix .input {
+  min-height: 0;
   border: none;
   border-radius: 0;
 }

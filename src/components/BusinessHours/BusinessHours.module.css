@@ -27,8 +27,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
+  width: var(--m-icon-box);
+  height: var(--m-icon-box);
   border-radius: 50%;
   background: color-mix(in srgb, currentColor 12%, transparent);
 }
@@ -40,12 +40,12 @@
   min-width: 0;
 }
 .tileLabel {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-sm);
   font-weight: 600;
   color: var(--m-ink);
 }
 .tileValue {
-  font-size: 28px;
+  font-size: var(--m-fs-stat);
   font-weight: 800;
   line-height: 1.15;
   color: var(--m-ink);
@@ -109,7 +109,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 36px;
+  height: var(--m-control-h-sm);
   padding: 0 14px;
   border: 1.5px solid var(--m-link);
   border-radius: 8px;
@@ -142,7 +142,7 @@
   grid-template-columns: 150px 112px minmax(0, 1fr);
   align-items: center;
   gap: var(--space-sm);
-  min-height: 64px;
+  min-height: 56px;
   padding: 10px 6px;
   border-left: 3px solid transparent;
 }
@@ -162,7 +162,7 @@
   min-width: 0;
 }
 .day {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   font-weight: 700;
   color: var(--m-ink);
 }
@@ -244,7 +244,7 @@
   width: 124px;
 }
 .timePill > button {
-  height: 38px;
+  height: var(--m-control-h);
   padding: 0 12px;
   border: 1px solid var(--m-divider);
   border-radius: 10px;
@@ -312,7 +312,7 @@
   margin-top: var(--space-lg);
 }
 .footerNote {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   color: var(--color-text-secondary);
 }
 .footerActions {
@@ -325,12 +325,12 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 44px;
+  height: var(--m-control-h);
   min-width: 118px;
-  padding: 0 22px;
+  padding: 0 18px;
   border-radius: 8px;
   font: inherit;
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
@@ -387,7 +387,7 @@
   gap: 2px;
 }
 .breakTitle {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   font-weight: 700;
   color: var(--m-ink);
 }
@@ -435,8 +435,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 96px;
-  height: 80px;
+  width: 80px;
+  height: 64px;
   border-radius: 10px;
   overflow: hidden;
   background: var(--m-table-head);
@@ -456,7 +456,7 @@
 }
 .previewName {
   max-width: 100%;
-  font-size: var(--font-size-lg);
+  font-size: var(--m-fs-lg);
   font-weight: 700;
   color: var(--m-ink);
   overflow: hidden;
@@ -545,7 +545,7 @@
   min-width: 0;
 }
 .tipTitle {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   font-weight: 700;
   color: var(--m-ink);
 }

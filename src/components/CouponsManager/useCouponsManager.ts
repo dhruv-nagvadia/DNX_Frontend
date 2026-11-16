@@ -9,7 +9,14 @@ import {
   useUpdateCouponMutation,
   useDeleteCouponMutation,
 } from '@/redux/api/provider/providerApi';
-import { BusinessType, Coupon, CouponInput, CouponScope, DiscountType } from '@/redux/api/provider/types';
+import {
+  BusinessType,
+  Coupon,
+  CouponInput,
+  CouponScope,
+  DiscountType,
+} from '@/redux/api/provider/types';
+import { useConfirm } from '@/components/ConfirmDialog';
 
 export interface CouponForm {
   /** Owning business — only chosen in the form in all-businesses mode. */
@@ -54,6 +61,7 @@ const toDateInput = (iso?: string | null) => (iso ? iso.slice(0, 10) : '');
  * businesses, and each action targets the coupon's own business.
  */
 export function useCouponsManager(providerId: string | undefined, businessType: BusinessType) {
+  const confirm = useConfirm();
   const allMode = !providerId;
   const one = useGetCouponsQuery(providerId ?? skipToken);
   const all = useGetAllCouponsQuery(undefined, { skip: !allMode });
@@ -76,25 +84,29 @@ export function useCouponsManager(providerId: string | undefined, businessType: 
     setEditing('new');
   }, []);
 
-  const startEdit = useCallback((c: Coupon) => {
-    setForm({
-      businessId: providerId ?? c.provider?.id ?? '',
-      code: c.code,
-      description: c.description ?? '',
-      discountType: c.discountType,
-      discountValue: c.discountType === 'FLAT' ? toRupees(c.discountValue) : String(c.discountValue),
-      scope: c.scope,
-      serviceId: c.serviceId ?? '',
-      productId: c.productId ?? '',
-      minOrder: toRupees(c.minOrderMinor),
-      maxDiscount: toRupees(c.maxDiscountMinor),
-      expiresAt: toDateInput(c.expiresAt),
-      usageLimit: c.usageLimit ? String(c.usageLimit) : '',
-      isActive: c.isActive,
-    });
-    setError(null);
-    setEditing(c.id);
-  }, [providerId]);
+  const startEdit = useCallback(
+    (c: Coupon) => {
+      setForm({
+        businessId: providerId ?? c.provider?.id ?? '',
+        code: c.code,
+        description: c.description ?? '',
+        discountType: c.discountType,
+        discountValue:
+          c.discountType === 'FLAT' ? toRupees(c.discountValue) : String(c.discountValue),
+        scope: c.scope,
+        serviceId: c.serviceId ?? '',
+        productId: c.productId ?? '',
+        minOrder: toRupees(c.minOrderMinor),
+        maxDiscount: toRupees(c.maxDiscountMinor),
+        expiresAt: toDateInput(c.expiresAt),
+        usageLimit: c.usageLimit ? String(c.usageLimit) : '',
+        isActive: c.isActive,
+      });
+      setError(null);
+      setEditing(c.id);
+    },
+    [providerId],
+  );
 
   const cancel = useCallback(() => {
     setEditing(null);
@@ -149,14 +161,17 @@ export function useCouponsManager(providerId: string | undefined, businessType: 
       if (Number.isNaN(value) || value <= 0) return setError('Enter a valid discount');
       if (form.discountType === 'PERCENT' && value > 100)
         return setError('A percentage can’t be over 100');
-      if (form.scope === 'SERVICE' && !form.serviceId) return setError('Pick which service this applies to');
-      if (form.scope === 'PRODUCT' && !form.productId) return setError('Pick which product this applies to');
+      if (form.scope === 'SERVICE' && !form.serviceId)
+        return setError('Pick which service this applies to');
+      if (form.scope === 'PRODUCT' && !form.productId)
+        return setError('Pick which product this applies to');
 
       const data: CouponInput = {
         code,
         description: form.description.trim() || undefined,
         discountType: form.discountType,
-        discountValue: form.discountType === 'FLAT' ? toMinor(form.discountValue) : Math.round(value),
+        discountValue:
+          form.discountType === 'FLAT' ? toMinor(form.discountValue) : Math.round(value),
         scope: form.scope,
         serviceId: form.scope === 'SERVICE' ? form.serviceId : undefined,
         productId: form.scope === 'PRODUCT' ? form.productId : undefined,
@@ -193,12 +208,14 @@ export function useCouponsManager(providerId: string | undefined, businessType: 
   const remove = useCallback(
     async (c: Coupon) => {
       const target = providerId ?? c.provider?.id;
-      if (!target || !window.confirm('Delete this coupon?')) return;
+      if (!target) return;
+      if (!(await confirm({ title: 'Delete this coupon?', confirmText: 'Delete', tone: 'danger' })))
+        return;
       await deleteCoupon({ providerId: target, couponId: c.id })
         .unwrap()
         .catch(() => undefined);
     },
-    [providerId, deleteCoupon],
+    [providerId, deleteCoupon, confirm],
   );
 
   const toggleCouponActive = useCallback(

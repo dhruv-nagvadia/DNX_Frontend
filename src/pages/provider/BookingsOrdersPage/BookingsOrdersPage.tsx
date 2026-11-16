@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { CalendarDays, Package } from 'lucide-react';
 
 import { AppShell } from '@/components/AppShell';
@@ -16,7 +17,13 @@ type Section = 'bookings' | 'orders';
  * with each row showing which business it belongs to.
  */
 export default function BookingsOrdersPage() {
-  const [section, setSection] = useState<Section>('bookings');
+  // A notification can link here with { section: 'orders' } to open that tab.
+  const location = useLocation();
+  const requested = (location.state as { section?: Section } | null)?.section;
+  const [section, setSection] = useState<Section>(requested ?? 'bookings');
+  useEffect(() => {
+    if (requested) setSection(requested);
+  }, [requested, location.key]);
 
   return (
     <AppShell>

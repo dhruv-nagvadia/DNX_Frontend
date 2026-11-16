@@ -54,8 +54,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 56px;
+  width: var(--m-icon-box);
+  height: var(--m-icon-box);
   border-radius: 50%;
   background: color-mix(in srgb, currentColor 12%, transparent);
 }
@@ -65,12 +65,12 @@
   min-width: 0;
 }
 .tileLabel {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-sm);
   font-weight: 600;
   color: var(--m-ink);
 }
 .tileValue {
-  font-size: 32px;
+  font-size: var(--m-fs-stat);
   font-weight: 800;
   line-height: 1.15;
   color: var(--m-ink);
@@ -278,7 +278,7 @@
   border-radius: 0 var(--m-radius-box) var(--m-radius-box) 0;
 }
 .table td {
-  padding: 14px 12px;
+  padding: 12px 12px;
   border-bottom: 1px solid var(--m-divider);
   vertical-align: middle;
 }
@@ -359,7 +359,7 @@
   margin-left: -10px;
 }
 .amount {
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   font-weight: 700;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
@@ -470,7 +470,7 @@
   min-width: 0;
 }
 .detailsId {
-  font-size: 20px;
+  font-size: var(--m-fs-card);
   font-weight: 800;
   color: var(--m-ink);
 }
@@ -568,8 +568,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: var(--m-avatar);
+  height: var(--m-avatar);
   border-radius: 50%;
   background: var(--m-pill-lavender-bg);
   color: var(--m-pill-lavender-fg);
@@ -587,8 +587,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: var(--m-avatar);
+  height: var(--m-avatar);
   border: 1px solid var(--m-link);
   border-radius: 10px;
   background: var(--color-surface);
@@ -668,7 +668,7 @@
 }
 .totals .dueRow {
   margin-top: 4px;
-  font-size: var(--font-size-lg);
+  font-size: var(--m-fs-lg);
   font-weight: 800;
 }
 .totals .dueRow dd {
@@ -733,11 +733,11 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 42px;
+  height: var(--m-control-h);
   padding: 0 16px;
   border-radius: 8px;
   font: inherit;
-  font-size: var(--font-size-md);
+  font-size: var(--m-fs-body);
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
@@ -802,8 +802,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: var(--m-tint-blue);
   color: var(--m-tint-blue-icon);
@@ -820,44 +820,16 @@
   color: var(--color-text-secondary);
 }
 
-/* ── Cancel-with-reason modal ──────────────────────────────────────── */
-.overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-lg);
-  background: rgba(15, 23, 42, 0.5);
-}
-.modal {
-  width: 100%;
-  max-width: 440px;
+/* ── Cancel-with-reason dialog (FormDialog body) ───────────────────── */
+.modalField {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: var(--space-lg);
-  border-radius: var(--m-radius-card);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-xl);
-}
-.modalTitle {
-  margin: 0;
-  font-size: var(--font-size-lg);
-  font-weight: 800;
-  color: var(--color-text-primary);
-}
-.modalSub {
-  margin: 0;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
+  gap: 6px;
 }
 .modalLabel {
-  margin-top: 4px;
-  font-size: var(--font-size-sm);
+  font-size: var(--m-fs-body);
   font-weight: 600;
-  color: var(--color-text-primary);
+  color: var(--m-ink);
 }
 .optional {
   font-weight: 400;
@@ -866,23 +838,18 @@
 .textarea {
   min-height: 84px;
   padding: 10px 12px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
+  border-radius: var(--field-radius, var(--radius-md));
+  border: 1px solid var(--m-divider);
   background: var(--color-surface);
   color: var(--color-text-primary);
   font: inherit;
-  font-size: var(--font-size-sm);
+  font-size: var(--m-fs-body);
   resize: vertical;
 }
 .textarea:focus {
   outline: none;
-  border-color: var(--color-primary);
-}
-.modalActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 6px;
+  border-color: var(--m-link);
+  box-shadow: 0 0 0 3px var(--m-pill-blue-bg);
 }
 
 /* ── Responsive ────────────────────────────────────────────────────── */

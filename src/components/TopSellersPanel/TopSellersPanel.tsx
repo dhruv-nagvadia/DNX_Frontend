@@ -39,7 +39,7 @@ export function TopSellersPanel({
   }
 
   return (
-    <ModernCard icon={<Trophy size={22} aria-hidden="true" />} iconTone="gold" title="Top Sellers" suffix="(All Time)" flush>
+    <ModernCard icon={<Trophy size={18} aria-hidden="true" />} iconTone="gold" title="Top Sellers" suffix="(All Time)" flush>
       {data.items.length === 0 ? (
         <p className={styles.empty}>
           No {isProduct ? 'orders' : 'bookings'} yet. Top {data.itemLabel}s will show up here once

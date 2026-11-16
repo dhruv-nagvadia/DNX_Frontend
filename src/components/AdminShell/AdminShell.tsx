@@ -118,9 +118,9 @@ export function AdminShell({ children }: AdminShellProps) {
         aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {collapsed ? (
-          <ChevronsRight size={20} strokeWidth={2.25} aria-hidden="true" />
+          <ChevronsRight size={16} strokeWidth={2.25} aria-hidden="true" />
         ) : (
-          <ChevronsLeft size={20} strokeWidth={2.25} aria-hidden="true" />
+          <ChevronsLeft size={16} strokeWidth={2.25} aria-hidden="true" />
         )}
       </button>
 

@@ -6,8 +6,14 @@ import {
   useUpdatePlatformCouponMutation,
   useDeletePlatformCouponMutation,
 } from '@/redux/api/admin/adminApi';
-import { DiscountType, PlatformCoupon, PlatformCouponAppliesTo, PlatformCouponInput } from '@/redux/api/admin/types';
+import {
+  DiscountType,
+  PlatformCoupon,
+  PlatformCouponAppliesTo,
+  PlatformCouponInput,
+} from '@/redux/api/admin/types';
 import { PlatformCouponForm } from './types';
+import { useConfirm } from '@/components/ConfirmDialog';
 
 const EMPTY: PlatformCouponForm = {
   code: '',
@@ -29,6 +35,7 @@ const toDateInput = (iso?: string | null) => (iso ? iso.slice(0, 10) : '');
 
 /** State + handlers for platform-wide (admin-managed) discount coupons. */
 export function usePlatformCouponsManager() {
+  const confirm = useConfirm();
   const { data: coupons = [], isLoading } = useGetPlatformCouponsQuery();
   const [createCoupon, { isLoading: creating }] = useCreatePlatformCouponMutation();
   const [updateCoupon, { isLoading: updating }] = useUpdatePlatformCouponMutation();
@@ -50,7 +57,8 @@ export function usePlatformCouponsManager() {
       description: c.description ?? '',
       appliesTo: c.appliesTo,
       discountType: c.discountType,
-      discountValue: c.discountType === 'FLAT' ? toRupees(c.discountValue) : String(c.discountValue),
+      discountValue:
+        c.discountType === 'FLAT' ? toRupees(c.discountValue) : String(c.discountValue),
       minOrder: toRupees(c.minOrderMinor),
       maxDiscount: toRupees(c.maxDiscountMinor),
       categoryId: c.categoryId ?? '',
@@ -106,7 +114,8 @@ export function usePlatformCouponsManager() {
         description: form.description.trim() || undefined,
         appliesTo: form.appliesTo,
         discountType: form.discountType,
-        discountValue: form.discountType === 'FLAT' ? toMinor(form.discountValue) : Math.round(value),
+        discountValue:
+          form.discountType === 'FLAT' ? toMinor(form.discountValue) : Math.round(value),
         minOrderMinor: form.minOrder.trim() ? toMinor(form.minOrder) : 0,
         maxDiscountMinor:
           form.discountType === 'PERCENT' && form.maxDiscount.trim()
@@ -135,12 +144,13 @@ export function usePlatformCouponsManager() {
 
   const remove = useCallback(
     async (couponId: string) => {
-      if (!window.confirm('Delete this coupon?')) return;
+      if (!(await confirm({ title: 'Delete this coupon?', confirmText: 'Delete', tone: 'danger' })))
+        return;
       await deleteCoupon(couponId)
         .unwrap()
         .catch(() => undefined);
     },
-    [deleteCoupon],
+    [deleteCoupon, confirm],
   );
 
   const toggleCouponActive = useCallback(

@@ -118,6 +118,7 @@ export function Combobox<T = unknown>({
               clearTimeout(blurTimer.current);
               pick(matches[highlight]);
             } else if (e.key === 'Escape') {
+              e.preventDefault(); // close the list, not a dialog around it
               setOpen(false);
             }
           }}

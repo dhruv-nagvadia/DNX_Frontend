@@ -22,7 +22,7 @@
 }
 .title {
   margin: 0;
-  font-size: clamp(24px, 2.2vw, 32px);
+  font-size: var(--m-fs-page);
   font-weight: 800;
   letter-spacing: -0.015em;
   line-height: 1.15;
@@ -47,7 +47,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 42px;
+  height: var(--m-control-h);
   padding: 0 12px 0 16px;
   border: 1px solid var(--m-divider);
   border-radius: var(--m-radius-box);
@@ -86,10 +86,10 @@
   display: flex;
   flex-direction: column;
   padding: 6px;
-  background: var(--color-surface);
+  background: var(--color-surface-elevated);
   border: 1px solid var(--m-divider);
   border-radius: var(--m-radius-box);
-  box-shadow: var(--shadow-xl);
+  box-shadow: var(--m-shadow-card), var(--shadow-lg);
 }
 .dropItem {
   display: flex;
@@ -97,28 +97,31 @@
   justify-content: space-between;
   gap: 10px;
   width: 100%;
-  padding: 9px 10px;
+  min-height: 38px;
+  padding: 0 12px;
   border: none;
   border-radius: 8px;
   background: transparent;
   color: var(--m-ink);
-  font-size: var(--font-size-sm);
+  font-size: var(--m-fs-body);
   font-weight: 600;
   text-align: left;
   cursor: pointer;
   white-space: nowrap;
 }
 .dropItem:hover {
-  background: var(--m-table-head);
+  background: var(--m-pill-blue-bg);
+  color: var(--m-pill-blue-fg);
 }
 .dropItemActive {
-  color: var(--m-link);
+  background: var(--m-pill-blue-bg);
+  color: var(--m-pill-blue-fg);
 }
 
 /* Round white bell — targets only NotificationBell's own trigger button. */
 .bellWrap > div > button {
-  width: 42px;
-  height: 42px;
+  width: var(--m-control-h);
+  height: var(--m-control-h);
   border-radius: 50%;
   border-color: var(--m-divider);
   color: var(--m-ink);
@@ -140,8 +143,8 @@
 .profileAvatar,
 .profileAvatarImg {
   flex: 0 0 auto;
-  width: 40px;
-  height: 40px;
+  width: var(--m-avatar);
+  height: var(--m-avatar);
   border-radius: 50%;
   box-shadow: var(--m-shadow-card);
 }
@@ -220,7 +223,7 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 20px 24px;
+  padding: var(--m-card-pad);
   background: var(--color-surface);
   border: 1px solid var(--m-divider);
   border-radius: var(--m-radius-card);
@@ -232,7 +235,7 @@
   gap: 24px;
 }
 .avgNum {
-  font-size: 54px;
+  font-size: 40px;
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.03em;
@@ -307,8 +310,8 @@
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: var(--m-icon-box);
+  height: var(--m-icon-box);
   border-radius: 50%;
   background: var(--color-surface);
   box-shadow: var(--m-shadow-card);
@@ -324,7 +327,7 @@
   color: var(--m-ink);
 }
 .tileValue {
-  font-size: 28px;
+  font-size: var(--m-fs-stat);
   font-weight: 800;
   line-height: 1.15;
   color: var(--m-ink);
@@ -572,7 +575,7 @@
   gap: 8px;
   flex: 1 1 220px;
   min-width: 180px;
-  height: 38px;
+  height: var(--m-control-h);
   padding: 0 12px;
   border: 1px solid var(--m-divider);
   border-radius: var(--m-radius-box);
@@ -615,10 +618,10 @@
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
+  width: var(--m-avatar);
+  height: var(--m-avatar);
   border-radius: 50%;
-  font-size: 18px;
+  font-size: var(--m-fs-sm);
   font-weight: 700;
 }
 .cardBody {
@@ -985,7 +988,7 @@
 }
 .emptyTitle {
   margin: 4px 0 0;
-  font-size: 18px;
+  font-size: var(--m-fs-card);
   font-weight: 700;
   color: var(--m-ink);
 }
@@ -1033,7 +1036,7 @@
     gap: 16px;
   }
   .avgNum {
-    font-size: 44px;
+    font-size: 32px;
   }
   .productChip {
     margin-left: 0;

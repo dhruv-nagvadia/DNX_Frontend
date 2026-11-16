@@ -142,7 +142,7 @@ export function BusinessHours({
       <div className={styles.tiles}>
         <div className={`${styles.tile} ${styles.tile_mint}`}>
           <span className={styles.tileIcon}>
-            <DoorOpen size={28} aria-hidden="true" />
+            <DoorOpen size={20} aria-hidden="true" />
           </span>
           <div className={styles.tileText}>
             <span className={styles.tileLabel}>Open Now</span>
@@ -152,7 +152,7 @@ export function BusinessHours({
         </div>
         <div className={`${styles.tile} ${styles.tile_blue}`}>
           <span className={styles.tileIcon}>
-            <CalendarDays size={28} aria-hidden="true" />
+            <CalendarDays size={20} aria-hidden="true" />
           </span>
           <div className={styles.tileText}>
             <span className={styles.tileLabel}>Open Days</span>
@@ -161,7 +161,7 @@ export function BusinessHours({
         </div>
         <div className={`${styles.tile} ${styles.tile_lavender}`}>
           <span className={styles.tileIcon}>
-            <Timer size={28} aria-hidden="true" />
+            <Timer size={20} aria-hidden="true" />
           </span>
           <div className={styles.tileText}>
             <span className={styles.tileLabel}>Hours per Week</span>
@@ -170,7 +170,7 @@ export function BusinessHours({
         </div>
         <div className={`${styles.tile} ${styles.tile_peach}`}>
           <span className={styles.tileIcon}>
-            <Coffee size={28} aria-hidden="true" />
+            <Coffee size={20} aria-hidden="true" />
           </span>
           <div className={styles.tileText}>
             <span className={styles.tileLabel}>Daily Break</span>
@@ -185,7 +185,7 @@ export function BusinessHours({
         {/* ── Weekly schedule ──────────────────────────────────────── */}
         <ModernCard
           className={styles.scheduleCard}
-          icon={<Clock size={22} aria-hidden="true" />}
+          icon={<Clock size={18} aria-hidden="true" />}
           iconTone="ink"
           title="Weekly Schedule"
           action={
@@ -291,7 +291,7 @@ export function BusinessHours({
         <div className={styles.side}>
           {/* ── Daily break ────────────────────────────────────────── */}
           <ModernCard
-            icon={<Coffee size={22} aria-hidden="true" />}
+            icon={<Coffee size={18} aria-hidden="true" />}
             iconTone="ink"
             title="Daily Break"
           >
@@ -329,7 +329,7 @@ export function BusinessHours({
 
           {/* ── Customer preview ───────────────────────────────────── */}
           <ModernCard
-            icon={<Eye size={22} aria-hidden="true" />}
+            icon={<Eye size={18} aria-hidden="true" />}
             iconTone="ink"
             title="Customer Preview"
           >
@@ -339,7 +339,7 @@ export function BusinessHours({
                   {coverImage ? (
                     <img src={coverImage} alt="" className={styles.previewImg} />
                   ) : (
-                    <Store size={28} aria-hidden="true" />
+                    <Store size={24} aria-hidden="true" />
                   )}
                 </div>
                 <div className={styles.previewInfo}>
@@ -390,7 +390,7 @@ export function BusinessHours({
 
           {/* ── Holiday tip ────────────────────────────────────────── */}
           <div className={styles.tip}>
-            <CalendarDays size={26} className={styles.tipIcon} aria-hidden="true" />
+            <CalendarDays size={20} className={styles.tipIcon} aria-hidden="true" />
             <div className={styles.tipText}>
               <span className={styles.tipTitle}>Holiday or special hours?</span>
               <span className={styles.tipBody}>

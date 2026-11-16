@@ -1,80 +1,88 @@
-import { KeyboardEvent } from 'react';
-import { CalendarDays, ChevronRight } from 'lucide-react';
+import { Fragment, useState } from 'react';
+import { CalendarDays, Store, User } from 'lucide-react';
 
-import { AppShell } from '@/components/AppShell';
-import { Card } from '@/components/Card';
-import { EmptyState } from '@/components/EmptyState';
-import { PageHeader } from '@/components/PageHeader';
-import { Skeleton } from '@/components/Skeleton';
+import { Pill, PillTone } from '@/components/Pill';
+import { BookingStatus } from '@/redux/api/provider/types';
 
 import { useTodaysSchedulePage } from './useTodaysSchedulePage';
-import styles from '../DashboardPage/DashboardPage.module.css';
+import { ViewAllDivider, ViewAllPage, ViewAllRow } from './ViewAllLayout';
+import styles from './ViewAll.module.css';
 
-const timeFmt = new Intl.DateTimeFormat('en-IN', { hour: 'numeric', minute: '2-digit' });
+const timeFmt = new Intl.DateTimeFormat('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true });
 
-/** Spreads onto a clickable <tr> so it's reachable and activatable by keyboard too. */
-function rowActivation(onOpen: () => void) {
-  return {
-    role: 'button' as const,
-    tabIndex: 0,
-    onClick: onOpen,
-    onKeyDown: (e: KeyboardEvent) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        onOpen();
-      }
-    },
-  };
+/** "10:30 am" → { main: "10:30", ampm: "AM" }. */
+function timeParts(iso: string): { main: string; ampm: string } {
+  const parts = timeFmt.formatToParts(new Date(iso));
+  const hour = parts.find((p) => p.type === 'hour')?.value ?? '';
+  const minute = parts.find((p) => p.type === 'minute')?.value ?? '';
+  const ampm = parts.find((p) => p.type === 'dayPeriod')?.value ?? '';
+  return { main: `${hour}:${minute}`, ampm: ampm.toUpperCase() };
 }
+
+const STATUS: Record<BookingStatus, { tone: PillTone; label: string }> = {
+  CONFIRMED: { tone: 'blue', label: 'Confirmed' },
+  PENDING: { tone: 'orange', label: 'Pending' },
+  IN_PROGRESS: { tone: 'lavender', label: 'In progress' },
+  COMPLETED: { tone: 'green', label: 'Completed' },
+  CANCELLED: { tone: 'red', label: 'Cancelled' },
+  NO_SHOW: { tone: 'grey', label: 'No-show' },
+};
 
 /** Full, unsliced "Today's Schedule" — every one of today's bookings, across every business. */
 export default function TodaysSchedulePage() {
   const { isLoading, todays, goToBusiness } = useTodaysSchedulePage();
+  const [now] = useState(() => Date.now());
+
+  // Index of the first upcoming booking; only show "Now" when there are both past and upcoming.
+  const firstUpcoming = todays.findIndex((b) => new Date(b.startTime).getTime() >= now);
+  const nowAt = firstUpcoming > 0 ? firstUpcoming : -1;
+
+  const count = todays.length;
 
   return (
-    <AppShell>
-      <PageHeader title="Today's Schedule" subtitle="Every booking across all your businesses, today." />
-
-      {isLoading ? (
-        <Skeleton height={240} radius="var(--radius-xl)" />
-      ) : (
-        <Card flush>
-          {todays.length === 0 ? (
-            <EmptyState
-              icon={<CalendarDays size={28} strokeWidth={1.6} aria-hidden="true" />}
-              title="No bookings today"
-              description="Today's bookings across every business will show up here."
+    <ViewAllPage
+      title="Today's Schedule"
+      subtitle={`${count} booking${count === 1 ? '' : 's'} today`}
+      isLoading={isLoading}
+      isEmpty={count === 0}
+      empty={{
+        icon: <CalendarDays size={28} strokeWidth={1.6} />,
+        title: 'No bookings today',
+        description: "Today's bookings across every business will show up here.",
+      }}
+    >
+      {todays.map((b, i) => {
+        const t = timeParts(b.startTime);
+        const status = STATUS[b.status];
+        return (
+          <Fragment key={b.id}>
+            {i === nowAt && <ViewAllDivider label="Now" />}
+            <ViewAllRow
+              onOpen={() => goToBusiness(b.provider.id)}
+              lead={
+                <span className={styles.timeBlock}>
+                  <span className={styles.timeMain}>{t.main}</span>
+                  <span className={styles.timeAmPm}>{t.ampm}</span>
+                </span>
+              }
+              title={b.service.name}
+              lines={
+                <>
+                  <span className={styles.subItem}>
+                    <User size={14} aria-hidden="true" />
+                    {b.user.fullName}
+                  </span>
+                  <span className={styles.subItem}>
+                    <Store size={14} aria-hidden="true" />
+                    {b.provider.businessName}
+                  </span>
+                </>
+              }
+              meta={<Pill tone={status.tone}>{status.label}</Pill>}
             />
-          ) : (
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Time</th>
-                  <th>Service</th>
-                  <th>Customer</th>
-                  <th>Business</th>
-                  <th aria-hidden="true" />
-                </tr>
-              </thead>
-              <tbody>
-                {todays.map((b) => (
-                  <tr key={b.id} className={styles.tr} {...rowActivation(() => goToBusiness(b.provider.id))}>
-                    <td className={styles.timeCell}>{timeFmt.format(new Date(b.startTime))}</td>
-                    <td>{b.service.name}</td>
-                    <td>{b.user.fullName}</td>
-                    <td>
-                      <span className={styles.businessName}>{b.provider.businessName}</span>
-                    </td>
-                    <td className={styles.chevronCell}>
-                      <ChevronRight size={16} aria-hidden="true" className={styles.chevron} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </Card>
-      )}
-    </AppShell>
+          </Fragment>
+        );
+      })}
+    </ViewAllPage>
   );
 }

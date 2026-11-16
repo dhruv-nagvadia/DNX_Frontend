@@ -1,81 +1,11 @@
-import { FormEvent, ReactNode, useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { Lock, Trash2, X } from 'lucide-react';
+import { FormEvent, useState } from 'react';
+import { Lock, Trash2 } from 'lucide-react';
 
 import { Checkbox } from '@/components/Checkbox';
+import { FormDialog } from '@/components/FormDialog';
 import { PasswordField } from '@/components/PasswordField';
 
 import { serverMessage } from './useProfilePage';
-import styles from './ProfilePage.module.css';
-
-/** Small centred modal: Esc / × closes; clicking outside doesn't (no lost input). */
-function Modal({
-  title,
-  subtitle,
-  icon,
-  danger,
-  onClose,
-  onSubmit,
-  children,
-  footer,
-}: {
-  title: string;
-  subtitle?: string;
-  icon: ReactNode;
-  danger?: boolean;
-  onClose: () => void;
-  onSubmit: (e: FormEvent) => void;
-  children: ReactNode;
-  footer: ReactNode;
-}) {
-  const panelRef = useRef<HTMLFormElement>(null);
-  const closeRef = useRef(onClose);
-  closeRef.current = onClose;
-
-  useEffect(() => {
-    const previouslyFocused = document.activeElement as HTMLElement | null;
-    const scrollLock = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    panelRef.current?.querySelector<HTMLInputElement>('input')?.focus();
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') closeRef.current();
-    };
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = scrollLock;
-      previouslyFocused?.focus?.();
-    };
-  }, []);
-
-  return createPortal(
-    <div className={styles.overlay}>
-      <form
-        ref={panelRef}
-        className={styles.modal}
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-        onSubmit={onSubmit}
-        noValidate
-      >
-        <header className={styles.modalHead}>
-          <span className={`${styles.modalIcon} ${danger ? styles.modalIconDanger : ''}`}>{icon}</span>
-          <div className={styles.modalHeadText}>
-            <h2 className={styles.modalTitle}>{title}</h2>
-            {subtitle && <p className={styles.modalSub}>{subtitle}</p>}
-          </div>
-          <button type="button" className={styles.modalClose} onClick={onClose} aria-label="Close">
-            <X size={18} aria-hidden="true" />
-          </button>
-        </header>
-        <div className={styles.modalBody}>{children}</div>
-        <footer className={styles.modalFoot}>{footer}</footer>
-      </form>
-    </div>,
-    document.body,
-  );
-}
 
 export function ChangePasswordDialog({
   onClose,
@@ -115,28 +45,20 @@ export function ChangePasswordDialog({
   };
 
   return (
-    <Modal
+    <FormDialog
+      open
+      size="sm"
       title="Change password"
       subtitle="Use at least 8 characters. You’ll stay signed in on this device."
-      icon={<Lock size={20} aria-hidden="true" />}
+      icon={<Lock size={20} />}
       onClose={onClose}
       onSubmit={submit}
-      footer={
-        <>
-          <button type="button" className={styles.btnOutline} onClick={onClose} disabled={submitting}>
-            Cancel
-          </button>
-          <button type="submit" className={styles.btnPrimary} disabled={submitting}>
-            {submitting ? 'Saving…' : 'Update password'}
-          </button>
-        </>
-      }
+      error={serverError}
+      submitLabel="Update password"
+      submitting={submitting}
+      submittingLabel="Saving…"
+      initialFocus="firstField"
     >
-      {serverError && (
-        <p className={styles.modalError} role="alert">
-          {serverError}
-        </p>
-      )}
       <PasswordField
         dense
         label="Current password"
@@ -165,7 +87,7 @@ export function ChangePasswordDialog({
         error={errors.confirm}
         onChange={(e) => setConfirm(e.target.value)}
       />
-    </Modal>
+    </FormDialog>
   );
 }
 
@@ -202,33 +124,22 @@ export function DeleteAccountDialog({
   };
 
   return (
-    <Modal
-      danger
+    <FormDialog
+      open
+      size="sm"
+      tone="danger"
       title="Delete account"
       subtitle="This permanently removes your provider account and your businesses from DNX. You’ll be signed out."
-      icon={<Trash2 size={20} aria-hidden="true" />}
+      icon={<Trash2 size={20} />}
       onClose={onClose}
       onSubmit={submit}
-      footer={
-        <>
-          <button type="button" className={styles.btnOutline} onClick={onClose} disabled={submitting}>
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className={styles.btnDanger}
-            disabled={submitting || !understood || !password}
-          >
-            {submitting ? 'Deleting…' : 'Delete account'}
-          </button>
-        </>
-      }
+      error={serverError}
+      submitLabel="Delete account"
+      submitting={submitting}
+      submittingLabel="Deleting…"
+      submitDisabled={!understood || !password}
+      initialFocus="firstField"
     >
-      {serverError && (
-        <p className={styles.modalError} role="alert">
-          {serverError}
-        </p>
-      )}
       <PasswordField
         dense
         label="Password"
@@ -247,6 +158,6 @@ export function DeleteAccountDialog({
         checked={understood}
         onChange={(e) => setUnderstood(e.target.checked)}
       />
-    </Modal>
+    </FormDialog>
   );
 }

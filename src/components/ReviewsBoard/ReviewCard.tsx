@@ -9,6 +9,7 @@ import {
 import { BoardReview, initialOf, relativeTime, toneFor } from './reviewsUtil';
 import { Stars } from './Stars';
 import styles from './ReviewsBoard.module.css';
+import { useConfirm } from '@/components/ConfirmDialog';
 
 const MAX_REPLY = 1000;
 
@@ -23,6 +24,7 @@ function errorText(err: unknown): string {
 
 /** One review card: customer, business/product, stars, comment, reply area. */
 export function ReviewCard({ review }: { review: BoardReview }) {
+  const confirm = useConfirm();
   const [composing, setComposing] = useState(false);
   const [draft, setDraft] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -70,8 +72,13 @@ export function ReviewCard({ review }: { review: BoardReview }) {
     void send(text);
   };
 
-  const onRemove = () => {
-    if (!window.confirm('Remove your public reply to this review?')) return;
+  const onRemove = async () => {
+    const ok = await confirm({
+      title: 'Remove your public reply to this review?',
+      confirmText: 'Remove',
+      tone: 'danger',
+    });
+    if (!ok) return;
     void send(null);
   };
 

@@ -10,6 +10,7 @@ import { Measure, Product } from '@/redux/api/provider/types';
 import { measureUnits, splitAmount, toBase } from '@/utils/units';
 import { isRasterImage, IMAGE_REJECT_MSG } from '@/utils/imageValidation';
 import { ProductForm } from './types';
+import { useConfirm } from '@/components/ConfirmDialog';
 
 const EMPTY: ProductForm = {
   name: '',
@@ -39,6 +40,7 @@ export function useProductsManager(
   const [createProduct, { isLoading: creating }] = useCreateProductMutation();
   const [updateProduct, { isLoading: updating }] = useUpdateProductMutation();
   const [deleteProduct] = useDeleteProductMutation();
+  const confirm = useConfirm();
   const [uploadImage, { isLoading: uploadingImage }] = useUploadImageMutation();
 
   const [editing, setEditing] = useState<string | null>(null);
@@ -163,7 +165,8 @@ export function useProductsManager(
 
       if (form.name.trim().length < 2) return setError('Enter a product name');
       if (Number.isNaN(price) || price < 0) return setError('Enter a valid price');
-      if (!priceQtyBase || priceQtyBase <= 0) return setError('Enter the quantity the price is for');
+      if (!priceQtyBase || priceQtyBase <= 0)
+        return setError('Enter the quantity the price is for');
       if (!stepBase || stepBase <= 0) return setError('Enter a valid minimum quantity');
       // Made-to-order items skip stock tracking entirely — nothing to validate.
       if (!form.unlimitedStock && (Number.isNaN(stockBase) || stockBase < 0)) {
@@ -205,12 +208,15 @@ export function useProductsManager(
 
   const remove = useCallback(
     async (productId: string) => {
-      if (!window.confirm('Delete this product?')) return;
+      if (
+        !(await confirm({ title: 'Delete this product?', confirmText: 'Delete', tone: 'danger' }))
+      )
+        return;
       await deleteProduct({ providerId, productId })
         .unwrap()
         .catch(() => undefined);
     },
-    [providerId, deleteProduct],
+    [providerId, deleteProduct, confirm],
   );
 
   const toggleActive = useCallback(

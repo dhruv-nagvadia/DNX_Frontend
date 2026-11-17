@@ -1,17 +1,16 @@
-import { Wallet } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, ReceiptText, Scale, Wallet } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
-import { Card } from '@/components/Card';
-import { FormDialog } from '@/components/FormDialog';
 import { EmptyState } from '@/components/EmptyState';
+import { EntityCell, MoneyTile } from '@/components/FinanceOverview/financeUi';
+import { FormDialog } from '@/components/FormDialog';
+import { ModernCard } from '@/components/ModernCard';
+import { Pill } from '@/components/Pill';
 import { Select } from '@/components/Select';
 import { Skeleton } from '@/components/Skeleton';
 import { formatMoney } from '@/utils/money';
 import { useProviderBalances } from './useProviderBalances';
-// Generic field/label/form styling shared across provider/admin forms.
-import form from '@/components/ServicesManager/ServicesManager.module.css';
 import styles from '@/components/FinanceTable/FinanceTable.module.css';
 
 const dateFmt = new Intl.DateTimeFormat('en-IN', {
@@ -29,14 +28,51 @@ const dateFmt = new Intl.DateTimeFormat('en-IN', {
 export function ProviderBalances() {
   const b = useProviderBalances();
 
+  // Display-only totals, derived from the rows already loaded.
+  let owedToProviders = 0;
+  let owedByProviders = 0;
+  let unsettled = 0;
+  for (const row of b.balances) {
+    if (row.balanceMinor > 0) owedToProviders += row.balanceMinor;
+    if (row.balanceMinor < 0) owedByProviders -= row.balanceMinor;
+    if (row.balanceMinor !== 0) unsettled += 1;
+  }
+
   return (
-    <>
-      <Card
-        title="Provider balances"
-        subtitle="Positive = you owe the provider. Negative = the provider owes you commission (cash sales). Pay by UPI or bank transfer, then record it here."
-      >
+    <div className={styles.section}>
+      {!b.isLoading && b.balances.length > 0 && (
+        <div className={styles.tiles3}>
+          <MoneyTile
+            tone="peach"
+            label="Pending payouts"
+            value={formatMoney(owedToProviders)}
+            icon={<ArrowUpRight size={20} />}
+            note="You owe providers (online money − commission)"
+          />
+          <MoneyTile
+            tone="mint"
+            label="Owed to you"
+            value={formatMoney(owedByProviders)}
+            icon={<ArrowDownLeft size={20} />}
+            note="Commission on cash sales, still to collect"
+          />
+          <MoneyTile
+            tone="blue"
+            label="Open balances"
+            value={`${unsettled} of ${b.balances.length}`}
+            icon={<Scale size={20} />}
+            note="Providers not yet settled"
+          />
+        </div>
+      )}
+
+      <ModernCard icon={<Wallet size={20} aria-hidden="true" />} title="Provider balances">
+        <p className={styles.cardIntro}>
+          Positive = you owe the provider. Negative = the provider owes you commission (cash
+          sales). Pay by UPI or bank transfer, then record it here.
+        </p>
         {b.isLoading ? (
-          <Skeleton height={120} radius="var(--radius-md)" />
+          <Skeleton height={160} radius="var(--m-radius-box)" />
         ) : b.balances.length === 0 ? (
           <EmptyState
             icon={<Wallet size={28} strokeWidth={1.6} aria-hidden="true" />}
@@ -48,50 +84,69 @@ export function ProviderBalances() {
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Provider</th>
-                  <th className={styles.num}>Sales</th>
-                  <th className={styles.num}>Commission</th>
-                  <th className={styles.num}>Paid / received</th>
-                  <th className={styles.num}>Balance</th>
-                  <th />
+                  <th scope="col">Provider</th>
+                  <th scope="col" className={styles.num}>
+                    Sales
+                  </th>
+                  <th scope="col" className={styles.num}>
+                    Commission
+                  </th>
+                  <th scope="col" className={styles.num}>
+                    Paid / received
+                  </th>
+                  <th scope="col" className={styles.num}>
+                    Balance
+                  </th>
+                  <th scope="col">Status</th>
+                  <th scope="col" className={styles.num}>
+                    <span className={styles.srOnly}>Actions</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {b.balances.map((row) => (
                   <tr key={row.userId}>
                     <td>
-                      <div className={styles.cellMain}>
-                        <span className={styles.cellTitle}>{row.name}</span>
-                        <span className={styles.muted}>
-                          {row.email} · {row.businessCount} business
-                          {row.businessCount === 1 ? '' : 'es'}
-                        </span>
-                      </div>
+                      <EntityCell
+                        id={row.userId}
+                        name={row.name}
+                        sub={`${row.email} · ${row.businessCount} business${row.businessCount === 1 ? '' : 'es'}`}
+                      />
                     </td>
                     <td className={styles.num}>{formatMoney(row.grossMinor)}</td>
                     <td className={styles.num}>{formatMoney(row.commissionMinor)}</td>
                     <td className={styles.num}>
                       {formatMoney(row.paidOutMinor)} / {formatMoney(row.receivedMinor)}
                     </td>
-                    <td className={styles.num}>
+                    <td
+                      className={`${styles.num} ${
+                        row.balanceMinor > 0
+                          ? styles.positive
+                          : row.balanceMinor < 0
+                            ? styles.negative
+                            : styles.strongNum
+                      }`}
+                    >
+                      {row.balanceMinor < 0 ? '−' : ''}
+                      {formatMoney(Math.abs(row.balanceMinor))}
+                    </td>
+                    <td>
                       {row.balanceMinor === 0 ? (
-                        <span className={styles.muted}>Settled</span>
+                        <Pill tone="green">Settled</Pill>
                       ) : row.balanceMinor > 0 ? (
-                        <div className={styles.cellMain}>
-                          <span className={styles.positive}>{formatMoney(row.balanceMinor)}</span>
-                          <span className={styles.muted}>you owe them</span>
-                        </div>
+                        <Pill tone="orange">You owe them</Pill>
                       ) : (
-                        <div className={styles.cellMain}>
-                          <span className={styles.negative}>{formatMoney(-row.balanceMinor)}</span>
-                          <span className={styles.muted}>they owe you</span>
-                        </div>
+                        <Pill tone="blue">They owe you</Pill>
                       )}
                     </td>
                     <td className={styles.num}>
-                      <span className={styles.inlineForm}>
-                        <Link to={`/admin/transactions?ownerId=${row.userId}&range=all`}>
-                          <Button variant="ghost">Transactions</Button>
+                      <span className={styles.actions}>
+                        <Link
+                          to={`/admin/transactions?ownerId=${row.userId}&range=all`}
+                          className={styles.textLink}
+                        >
+                          <ReceiptText size={15} aria-hidden="true" />
+                          Transactions
                         </Link>
                         <Button variant="secondary" onClick={() => b.open(row)}>
                           Record settlement
@@ -104,37 +159,55 @@ export function ProviderBalances() {
             </table>
           </div>
         )}
-      </Card>
+      </ModernCard>
 
-      <Card title="Recent settlements">
+      <ModernCard
+        icon={<ReceiptText size={20} aria-hidden="true" />}
+        title="Recent settlements"
+        suffix={b.payouts.length > 0 ? `(${b.payouts.length})` : undefined}
+      >
         {b.payouts.length === 0 ? (
-          <p className={form.muted}>Nothing recorded yet.</p>
+          <p className={styles.cardIntro} style={{ margin: 0 }}>
+            Nothing recorded yet.
+          </p>
         ) : (
           <div className={styles.tableWrap}>
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Provider</th>
-                  <th>Type</th>
-                  <th className={styles.num}>Amount</th>
-                  <th>Details</th>
-                  <th />
+                  <th scope="col">Date</th>
+                  <th scope="col">Provider</th>
+                  <th scope="col">Type</th>
+                  <th scope="col" className={styles.num}>
+                    Amount
+                  </th>
+                  <th scope="col">Details</th>
+                  <th scope="col" className={styles.num}>
+                    <span className={styles.srOnly}>Actions</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {b.payouts.map((p) => (
                   <tr key={p.id}>
-                    <td className={styles.num}>{dateFmt.format(new Date(p.paidAt))}</td>
-                    <td>{p.providerName ?? '—'}</td>
+                    <td className={styles.nowrap}>{dateFmt.format(new Date(p.paidAt))}</td>
+                    <td className={styles.cellTitle}>{p.providerName ?? '—'}</td>
                     <td>
-                      <Badge tone={p.direction === 'TO_PROVIDER' ? 'brand' : 'success'}>
-                        {p.direction === 'TO_PROVIDER'
-                          ? 'Paid to provider'
-                          : 'Received from provider'}
-                      </Badge>
+                      {p.direction === 'TO_PROVIDER' ? (
+                        <Pill tone="orange">
+                          <ArrowUpRight size={13} aria-hidden="true" />
+                          Paid to provider
+                        </Pill>
+                      ) : (
+                        <Pill tone="green">
+                          <ArrowDownLeft size={13} aria-hidden="true" />
+                          Received from provider
+                        </Pill>
+                      )}
                     </td>
-                    <td className={styles.num}>{formatMoney(p.amountMinor)}</td>
+                    <td className={`${styles.num} ${styles.strongNum}`}>
+                      {formatMoney(p.amountMinor)}
+                    </td>
                     <td>
                       <span className={styles.muted}>
                         {[p.method, p.reference, p.note].filter(Boolean).join(' · ') || '—'}
@@ -151,7 +224,7 @@ export function ProviderBalances() {
             </table>
           </div>
         )}
-      </Card>
+      </ModernCard>
 
       <FormDialog
         open={!!b.target}
@@ -177,8 +250,8 @@ export function ProviderBalances() {
         submitting={b.saving}
         submittingLabel="Saving…"
       >
-        <div className={form.field}>
-          <label className={form.label} htmlFor="settleDirection">
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="settleDirection">
             What happened
           </label>
           <Select
@@ -191,13 +264,13 @@ export function ProviderBalances() {
           </Select>
         </div>
 
-        <div className={form.field}>
-          <label className={form.label} htmlFor="settleAmount">
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="settleAmount">
             Amount (₹)
           </label>
           <input
             id="settleAmount"
-            className={form.input}
+            className={styles.input}
             type="number"
             min="0"
             step="any"
@@ -207,27 +280,27 @@ export function ProviderBalances() {
           />
         </div>
 
-        <div className={form.row2}>
-          <div className={form.field}>
-            <label className={form.label} htmlFor="settleMethod">
-              Method <span className={form.optional}>(optional)</span>
+        <div className={styles.grid2}>
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="settleMethod">
+              Method <span className={styles.optional}>(optional)</span>
             </label>
             <input
               id="settleMethod"
-              className={form.input}
+              className={styles.input}
               placeholder="UPI, bank transfer…"
               value={b.method}
               onChange={(e) => b.setMethod(e.target.value)}
               maxLength={40}
             />
           </div>
-          <div className={form.field}>
-            <label className={form.label} htmlFor="settleRef">
-              Reference <span className={form.optional}>(optional)</span>
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="settleRef">
+              Reference <span className={styles.optional}>(optional)</span>
             </label>
             <input
               id="settleRef"
-              className={form.input}
+              className={styles.input}
               placeholder="Transaction ID"
               value={b.reference}
               onChange={(e) => b.setReference(e.target.value)}
@@ -236,19 +309,19 @@ export function ProviderBalances() {
           </div>
         </div>
 
-        <div className={form.field}>
-          <label className={form.label} htmlFor="settleNote">
-            Note <span className={form.optional}>(optional)</span>
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="settleNote">
+            Note <span className={styles.optional}>(optional)</span>
           </label>
           <input
             id="settleNote"
-            className={form.input}
+            className={styles.input}
             value={b.note}
             onChange={(e) => b.setNote(e.target.value)}
             maxLength={500}
           />
         </div>
       </FormDialog>
-    </>
+    </div>
   );
 }

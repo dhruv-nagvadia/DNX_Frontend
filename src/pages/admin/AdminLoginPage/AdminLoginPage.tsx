@@ -1,13 +1,11 @@
-import { ArrowRight, Lock } from 'lucide-react';
+import { Lock, Mail, ShieldCheck } from 'lucide-react';
 
 import { AlertBanner } from '@/components/AlertBanner';
 import { AdminAuthLayout } from '@/components/AdminAuthLayout';
-import { Button } from '@/components/Button';
-import { PasswordField } from '@/components/PasswordField';
-import { TextField } from '@/components/TextField';
+import { AuthField, AuthSubmit, authCard as card } from '@/pages/auth/AuthSplitLayout';
 
-import shared from '@/pages/auth/AuthForm.module.css';
 import { useAdminLoginPage } from './useAdminLoginPage';
+import styles from './AdminLoginPage.module.css';
 
 /** JSX only — logic comes from useAdminLoginPage. Login-only: no signup, no "forgot password" link. */
 export default function AdminLoginPage() {
@@ -15,23 +13,24 @@ export default function AdminLoginPage() {
 
   return (
     <AdminAuthLayout>
-      <form className={shared.form} onSubmit={onSubmit} noValidate>
-        <header className={shared.head}>
-          <span className={shared.eyebrow}>
-            <Lock size={13} aria-hidden="true" />
+      <form className={card.card} onSubmit={onSubmit} noValidate>
+        <header className={card.head}>
+          <span className={styles.eyebrow}>
+            <ShieldCheck size={14} aria-hidden="true" />
             Admin sign in
           </span>
-          <h2 className={shared.title}>Restricted access</h2>
-          <p className={shared.subtitle}>Sign in with your admin credentials to continue.</p>
+          <h2 className={card.title}>DNX Admin Console</h2>
+          <p className={card.subtitle}>Sign in to manage the marketplace</p>
         </header>
 
         {serverError && <AlertBanner tone="error">{serverError}</AlertBanner>}
 
-        <div className={shared.fields}>
-          <TextField
-            dense
-            label="Email"
+        <div className={card.fields}>
+          <AuthField
+            id="email"
             name="email"
+            label="Email"
+            icon={Mail}
             type="email"
             inputMode="email"
             autoComplete="email"
@@ -40,33 +39,31 @@ export default function AdminLoginPage() {
             value={form.email}
             onChange={onChange}
             onBlur={onBlur}
-            error={errors.email}
             disabled={isLoading}
+            error={errors.email}
           />
 
-          <PasswordField
-            dense
-            label="Password"
+          <AuthField
+            id="password"
             name="password"
+            label="Password"
+            icon={Lock}
+            passwordToggle
             autoComplete="current-password"
             placeholder="Enter your password"
             value={form.password}
             onChange={onChange}
             onBlur={onBlur}
-            error={errors.password}
             disabled={isLoading}
+            error={errors.password}
           />
         </div>
 
-        <Button
-          type="submit"
-          fullWidth
-          loading={isLoading}
-          loadingText="Signing in…"
-          iconRight={<ArrowRight size={18} aria-hidden="true" />}
-        >
+        <AuthSubmit loading={isLoading} loadingText="Signing in…">
           Sign in
-        </Button>
+        </AuthSubmit>
+
+        <p className={card.switch}>Access is limited to DNX administrators.</p>
       </form>
     </AdminAuthLayout>
   );

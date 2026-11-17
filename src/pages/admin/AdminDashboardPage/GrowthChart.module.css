@@ -1,15 +1,28 @@
+/* Legend as soft pills above the chart; series colours match the tiles
+   (blue = customers, lavender = providers) via the --m-tint-* tokens. */
 .legend {
   display: flex;
-  gap: var(--space-lg);
+  flex-wrap: wrap;
+  gap: var(--space-sm);
   margin-bottom: var(--space-md);
 }
 
 .legendItem {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: var(--font-size-sm);
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: var(--m-radius-pill);
+  border: 1px solid var(--m-divider);
+  font-size: var(--m-fs-sm);
+  font-weight: 500;
   color: var(--color-text-secondary);
+}
+
+.legendValue {
+  font-weight: 700;
+  color: var(--m-ink);
+  font-variant-numeric: tabular-nums;
 }
 
 .dot {
@@ -18,8 +31,8 @@
   border-radius: 50%;
 }
 .dotCustomers {
-  background: var(--color-primary);
+  background: var(--m-tint-blue-icon);
 }
 .dotProviders {
-  background: var(--color-accent);
+  background: var(--m-tint-lavender-icon);
 }

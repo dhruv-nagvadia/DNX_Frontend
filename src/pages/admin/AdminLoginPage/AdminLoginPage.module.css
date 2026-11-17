@@ -1,0 +1,15 @@
+/* Small "Admin sign in" pill above the card title. */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 6px;
+  margin-bottom: 6px;
+  padding: 4px 10px;
+  border-radius: var(--m-radius-pill);
+  background: var(--m-pill-blue-bg);
+  color: var(--m-pill-blue-fg);
+  font-size: var(--m-fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}

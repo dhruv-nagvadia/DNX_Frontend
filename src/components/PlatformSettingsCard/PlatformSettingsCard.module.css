@@ -1,18 +1,104 @@
-/* A compact inline row — a small number field plus one action button, not
-   the wide 2-column form grid meant for full label/value field pairs (which
-   stretched the Save button to fill an oversized column). */
-.row {
+/* One setting per row: icon chip · label + hint · input + Save. */
+.setting {
   display: flex;
-  align-items: flex-end;
-  gap: var(--space-md);
+  align-items: center;
+  gap: var(--m-gap);
+  padding: 14px 16px;
+  border: 1px solid var(--m-divider);
+  border-radius: var(--m-radius-box);
+  background: var(--m-table-head);
 }
 
-.hoursInput {
-  width: 90px;
+.settingIcon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--m-icon-box);
+  height: var(--m-icon-box);
+  border-radius: 50%;
+  background: var(--m-tint-peach);
+  border: 1px solid var(--m-tint-peach-border);
+  color: var(--m-tint-peach-icon);
 }
 
-@media (max-width: 480px) {
-  .row {
+.settingText {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.settingLabel {
+  font-size: var(--m-fs-body);
+  font-weight: 700;
+  color: var(--m-ink);
+}
+.settingHint {
+  margin: 0;
+  font-size: var(--m-fs-sm);
+  line-height: 1.4;
+  color: var(--color-text-secondary);
+}
+
+.controls {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.affix {
+  display: inline-flex;
+  align-items: center;
+  height: var(--m-control-h);
+  width: 132px;
+  border: 1px solid var(--m-divider);
+  border-radius: var(--m-control-radius);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+.affix:focus-within {
+  border-color: var(--m-link);
+  box-shadow: 0 0 0 3px var(--m-pill-blue-bg);
+}
+.affix input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 4px 0 12px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: var(--m-fs-body);
+  font-weight: 600;
+  color: var(--m-ink);
+}
+.suffix {
+  padding: 0 12px 0 4px;
+  font-size: var(--m-fs-sm);
+  color: var(--color-text-secondary);
+}
+
+.saved {
+  margin-top: 12px;
+}
+
+@media (max-width: 760px) {
+  .setting {
     flex-wrap: wrap;
+  }
+  .settingText {
+    flex-basis: calc(100% - var(--m-icon-box) - var(--m-gap));
+  }
+  .controls {
+    width: 100%;
+    padding-left: calc(var(--m-icon-box) + var(--m-gap));
+  }
+}
+@media (max-width: 420px) {
+  .controls {
+    padding-left: 0;
   }
 }

@@ -1,6 +1,303 @@
-.stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: var(--space-md);
+/* Mirrors the provider DashboardPage: page title row, pastel stat tiles,
+   a large chart card with secondary cards beside it. Colours come from the
+   --m-* tokens so dark mode keeps working. */
+
+/* ── Title row ───────────────────────────────────────────────────────── */
+.topRow {
+  /* Matches the sidebar's own top padding before the wordmark. */
+  padding-top: var(--space-lg);
   margin-bottom: var(--space-lg);
+}
+.title {
+  margin: 0;
+  font-size: var(--m-fs-page);
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  color: var(--m-ink);
+}
+.subtitle {
+  margin: 6px 0 0;
+  font-size: var(--m-fs-body);
+  color: var(--color-text-secondary);
+}
+
+/* ── Stat tiles ──────────────────────────────────────────────────────── */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--m-gap);
+  margin-bottom: var(--space-lg);
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  min-height: 128px;
+  padding: var(--m-card-pad);
+  border-radius: var(--m-radius-card);
+  border: 1px solid transparent;
+  box-shadow: var(--m-shadow-card);
+}
+.tileHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.tileIcon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  width: 28px;
+  height: 28px;
+}
+.tileLabel {
+  min-width: 0;
+  font-size: var(--m-fs-body);
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--m-ink);
+}
+.tileValue {
+  margin-top: auto;
+  font-size: var(--m-fs-stat);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--m-ink);
+  font-variant-numeric: tabular-nums;
+}
+.tileFoot {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: var(--m-fs-xs);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.tileBlue {
+  background: var(--m-tint-blue);
+  border-color: var(--m-tint-blue-border);
+}
+.tileBlue .tileIcon {
+  color: var(--m-tint-blue-icon);
+}
+.tileLavender {
+  background: var(--m-tint-lavender);
+  border-color: var(--m-tint-lavender-border);
+}
+.tileLavender .tileIcon,
+.tileLavender .tileValue {
+  color: var(--m-tint-lavender-icon);
+}
+.tileMint {
+  background: var(--m-tint-mint);
+  border-color: var(--m-tint-mint-border);
+}
+.tileMint .tileIcon {
+  color: var(--m-tint-mint-icon);
+}
+.tilePeach {
+  background: var(--m-tint-peach);
+  border-color: var(--m-tint-peach-border);
+}
+.tilePeach .tileIcon {
+  color: var(--m-tint-peach-icon);
+}
+.tilePink {
+  background: var(--m-tint-pink);
+  border-color: var(--m-tint-pink-border);
+}
+.tilePink .tileIcon,
+.tilePink .tileValue {
+  color: var(--m-tint-pink-icon);
+}
+
+/* ── Chart + side cards ──────────────────────────────────────────────── */
+.mainGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: var(--m-gap);
+  align-items: start;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--m-gap);
+  min-width: 0;
+}
+
+.cardSub {
+  margin: -4px 0 var(--space-md);
+  font-size: var(--m-fs-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Fixed navy in both themes — the page's one dark hero surface (same as the
+   provider dashboard's "Money Collected" card). */
+.revenueCard {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--m-card-pad);
+  border-radius: var(--m-radius-card);
+  background: linear-gradient(135deg, #1e3a8a 0%, #17306f 45%, #0f2152 100%);
+  box-shadow: var(--m-shadow-card);
+  overflow: hidden;
+}
+.revenueIcon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+.revenueBody {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.revenueLabel {
+  font-size: var(--m-fs-body);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.92);
+}
+.revenueValue {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+.revenueNote {
+  font-size: var(--m-fs-xs);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* "Last 30 days" signup rows. */
+.signupList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.signupRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: var(--m-row-h);
+  border-bottom: 1px solid var(--m-divider);
+}
+.signupRow:last-child {
+  border-bottom: none;
+}
+.signupIcon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--m-radius-box);
+}
+.signupIconBlue {
+  background: var(--m-pill-blue-bg);
+  color: var(--m-tint-blue-icon);
+}
+.signupIconLavender {
+  background: var(--m-pill-lavender-bg);
+  color: var(--m-tint-lavender-icon);
+}
+.signupText {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.signupLabel {
+  font-size: var(--m-fs-body);
+  font-weight: 600;
+  color: var(--m-ink);
+}
+.signupSub {
+  font-size: var(--m-fs-xs);
+  color: var(--color-text-secondary);
+}
+.signupValue {
+  font-size: var(--m-fs-lg);
+  font-weight: 800;
+  color: var(--m-ink);
+  font-variant-numeric: tabular-nums;
+}
+.signupCaption {
+  margin: var(--space-sm) 0 0;
+  font-size: var(--m-fs-xs);
+  color: var(--color-text-secondary);
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  /* 2 wide (customers, providers) over 3 narrower tiles. */
+  .tiles {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .tiles > * {
+    grid-column: span 2;
+  }
+  .tiles > :nth-child(-n + 2) {
+    grid-column: span 3;
+  }
+  .mainGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  /* Revenue + last-30-days side by side under the chart on tablets. */
+  .side {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+
+@media (max-width: 760px) {
+  .tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .tiles > *,
+  .tiles > :nth-child(-n + 2) {
+    grid-column: auto;
+  }
+  .tiles > :last-child {
+    grid-column: 1 / -1;
+  }
+  .tile {
+    min-height: 0;
+    padding: var(--space-md);
+  }
+  .side {
+    display: flex;
+  }
+}
+
+@media (max-width: 380px) {
+  .tiles {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .tiles > :last-child {
+    grid-column: auto;
+  }
 }

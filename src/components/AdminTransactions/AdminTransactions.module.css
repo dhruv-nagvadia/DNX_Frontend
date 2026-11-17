@@ -1,110 +1,56 @@
-/* Search sits on its own full-width row above the filter dropdowns. */
-.searchRow {
-  position: relative;
-  margin-bottom: var(--space-md);
-}
-.searchIcon {
-  position: absolute;
-  top: 50%;
-  left: 12px;
-  transform: translateY(-50%);
-  color: var(--color-text-secondary);
-  pointer-events: none;
-}
-.search {
-  width: 100%;
-  padding-left: 36px;
+/* Transactions-only bits; the shared table/tile/chip styles live in FinanceTable.module.css. */
+
+.filterBar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 /* The dropdown filters, aligned to a consistent width instead of each one
    hugging whatever its currently-selected option happens to measure. */
 .filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-sm);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 10px;
   align-items: center;
-  margin-bottom: var(--space-md);
 }
 .filterSelect {
-  width: 170px;
+  width: 100%;
 }
-.chip {
-  display: inline-flex;
+
+.activeRow {
+  display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  border-radius: var(--radius-pill);
-  background: var(--color-primary-soft);
-  color: var(--color-primary-dark);
-  font-size: var(--font-size-xs);
-  font-weight: 600;
+  flex-wrap: wrap;
+  gap: 8px;
 }
-.chipClose {
-  border: none;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  font-size: 14px;
-  line-height: 1;
-  padding: 0;
+
+.viewBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
 }
-.rowLink {
-  cursor: pointer;
-}
-.rowLink:hover td {
-  background: var(--color-primary-soft);
-}
+
 .split {
   display: flex;
   flex-direction: column;
   gap: 4px;
   align-items: flex-start;
 }
-.pager {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-md);
-  margin-top: var(--space-md);
-  flex-wrap: wrap;
+
+.saleCell {
+  max-width: 280px;
 }
-/* Icon-only prev/next — a page-number control doesn't need full text buttons. */
-.pagerBtn {
+.saleCell > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kindTag {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  color: var(--color-text-primary);
-  cursor: pointer;
-  transition:
-    border-color var(--dur-fast) var(--ease-out),
-    background var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out);
-}
-.pagerBtn:hover:not(:disabled) {
-  border-color: var(--color-primary);
-  color: var(--color-primary-dark);
-  background: var(--color-primary-soft);
-}
-.pagerBtn:disabled {
-  opacity: 0.45;
-  cursor: default;
-}
-.explain {
-  margin: 0 0 var(--space-lg);
-  padding: 12px 16px;
-  border: 1px solid var(--color-border);
-  border-left: 3px solid var(--color-primary);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  font-size: var(--font-size-sm);
-  line-height: 1.6;
-  color: var(--color-text-secondary);
-}
-.explain strong {
-  color: var(--color-text-primary);
+  gap: 4px;
 }

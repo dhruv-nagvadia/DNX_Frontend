@@ -1,16 +1,31 @@
-import { Ban, CreditCard, ShieldCheck } from 'lucide-react';
+import { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
+import {
+  ArrowLeft,
+  Ban,
+  CalendarDays,
+  CalendarX2,
+  CreditCard,
+  IndianRupee,
+  Mail,
+  PackageX,
+  Phone,
+  Receipt,
+  ShieldAlert,
+  ShieldCheck,
+} from 'lucide-react';
 
 import { AlertBanner } from '@/components/AlertBanner';
-import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
-import { Card } from '@/components/Card';
 import { FormDialog } from '@/components/FormDialog';
+import { ModernCard } from '@/components/ModernCard';
+import { Pill } from '@/components/Pill';
 import { Skeleton } from '@/components/Skeleton';
 import { AdminUserDetailProps } from './types';
 import { useAdminUserDetail } from './useAdminUserDetail';
 // Generic field/label/form styling shared across provider/admin forms.
 import styles from '@/components/ServicesManager/ServicesManager.module.css';
-import local from './AdminUserDetail.module.css';
+import ui from './AdminUserProfile.module.css';
 
 const dateFmt = new Intl.DateTimeFormat('en-IN', {
   day: 'numeric',
@@ -18,6 +33,45 @@ const dateFmt = new Intl.DateTimeFormat('en-IN', {
   year: 'numeric',
 });
 const money = (minor: number) => `₹${(minor / 100).toLocaleString('en-IN')}`;
+
+const PAYMENT_LABEL: Record<'ONLINE' | 'CASH' | 'PARTIAL', string> = {
+  ONLINE: 'Paid online',
+  CASH: 'Cash',
+  PARTIAL: 'Part-paid',
+};
+
+function StatTile({
+  tone,
+  icon,
+  label,
+  value,
+}: {
+  tone: 'blue' | 'peach' | 'lavender' | 'pink';
+  icon: ReactNode;
+  label: string;
+  value: ReactNode;
+}) {
+  return (
+    <div className={`${ui.tile} ${ui[`tile_${tone}`]}`}>
+      <span className={ui.tileIcon} aria-hidden="true">
+        {icon}
+      </span>
+      <div className={ui.tileText}>
+        <span className={ui.tileLabel}>{label}</span>
+        <span className={ui.tileValue}>{value}</span>
+      </div>
+    </div>
+  );
+}
+
+function BackLink() {
+  return (
+    <Link to="/admin/users" className={ui.back}>
+      <ArrowLeft size={16} aria-hidden="true" />
+      All customers
+    </Link>
+  );
+}
 
 export function AdminUserDetail({ userId }: AdminUserDetailProps) {
   const {
@@ -51,32 +105,64 @@ export function AdminUserDetail({ userId }: AdminUserDetailProps) {
 
   if (isLoading || !data) {
     return (
-      <Card title="Customer">
-        <Skeleton height={80} radius="var(--radius-md)" />
-      </Card>
+      <div className={ui.root}>
+        <BackLink />
+        <Skeleton height={150} radius="var(--m-radius-card)" />
+        <Skeleton height={84} radius="var(--m-radius-card)" />
+        <Skeleton height={220} radius="var(--m-radius-card)" />
+      </div>
     );
   }
 
   const { user, noShowBookings, noShowOrders, penalties } = data;
   const totalNoShows = noShowBookings.length + noShowOrders.length;
+  const forfeited =
+    noShowBookings.reduce((s, b) => s + b.amountPaidMinor, 0) +
+    noShowOrders.reduce((s, o) => s + o.amountPaidMinor, 0);
+  const pendingCharges = penalties
+    .filter((p) => p.status === 'PENDING')
+    .reduce((s, p) => s + p.amountMinor, 0);
 
   return (
-    <>
-      <Card title="Customer">
-        <div className={local.header}>
-          <div>
-            <div className={local.name}>{user.fullName}</div>
-            <div className={local.meta}>
-              {user.email} · {user.phone ?? 'No phone'} · Joined{' '}
-              {dateFmt.format(new Date(user.createdAt))}
-            </div>
-            <div className={local.meta}>
-              {totalNoShows} no-show{totalNoShows === 1 ? '' : 's'} on record
-              {user.codDisabled && ' · Cash on Delivery disabled'}
-              {user.isBlocked && ' · Account blocked'}
+    <div className={ui.root}>
+      <BackLink />
+
+      <section className={ui.hero} aria-labelledby="customerName">
+        <div className={ui.heroBody}>
+          <span className={ui.avatar} aria-hidden="true">
+            {user.fullName.trim().charAt(0).toUpperCase() || '?'}
+          </span>
+          <div className={ui.identity}>
+            <h1 id="customerName" className={ui.name}>
+              {user.fullName}
+            </h1>
+            <ul className={ui.contact}>
+              <li>
+                <Mail size={15} aria-hidden="true" />
+                <span className={ui.contactText}>{user.email}</span>
+              </li>
+              <li>
+                <Phone size={15} aria-hidden="true" />
+                <span className={ui.contactText}>{user.phone ?? 'No phone'}</span>
+              </li>
+              <li>
+                <CalendarDays size={15} aria-hidden="true" />
+                <span className={ui.contactText}>Joined {dateFmt.format(new Date(user.createdAt))}</span>
+              </li>
+            </ul>
+            <div className={ui.pills}>
+              {user.isBlocked ? <Pill tone="red">Account blocked</Pill> : <Pill tone="green">Active</Pill>}
+              {user.codDisabled ? (
+                <Pill tone="yellow">Cash on Delivery disabled</Pill>
+              ) : (
+                <Pill tone="blue">COD allowed</Pill>
+              )}
+              <Pill tone={totalNoShows >= 3 ? 'red' : totalNoShows > 0 ? 'orange' : 'grey'}>
+                {totalNoShows} no-show{totalNoShows === 1 ? '' : 's'} on record
+              </Pill>
             </div>
           </div>
-          <div className={local.actions}>
+          <div className={ui.actions}>
             {user.isBlocked ? (
               <Button variant="secondary" loading={unblocking} onClick={unblock}>
                 Unblock account
@@ -111,81 +197,113 @@ export function AdminUserDetail({ userId }: AdminUserDetailProps) {
         </div>
 
         {user.isBlocked && user.blockedReason && (
-          <div className={local.blockedNote}>
+          <div className={ui.blockedNote}>
             <AlertBanner tone="error">Blocked: {user.blockedReason}</AlertBanner>
           </div>
         )}
-      </Card>
+      </section>
 
-      <Card title="No-show history">
-        {totalNoShows === 0 ? (
-          <p className={styles.muted}>No no-shows on record.</p>
-        ) : (
-          <div className={local.list}>
-            {noShowBookings.map((b) => (
-              <div key={b.id} className={local.row}>
-                <div className={local.rowMain}>
-                  <span className={local.rowTitle}>{b.service.name}</span>
-                  <span className={local.rowSub}>
-                    {b.provider.businessName} · {dateFmt.format(new Date(b.startTime))} ·{' '}
-                    {b.paymentMethod}
-                  </span>
-                </div>
-                {b.amountPaidMinor > 0 && (
-                  <Badge tone="error">{money(b.amountPaidMinor)} forfeited</Badge>
-                )}
-              </div>
-            ))}
-            {noShowOrders.map((o) => (
-              <div key={o.id} className={local.row}>
-                <div className={local.rowMain}>
-                  <span className={local.rowTitle}>Order from {o.provider.businessName}</span>
-                  <span className={local.rowSub}>
-                    {dateFmt.format(new Date(o.createdAt))} · {o.paymentMethod}
-                  </span>
-                </div>
-                {o.amountPaidMinor > 0 && (
-                  <Badge tone="error">{money(o.amountPaidMinor)} forfeited</Badge>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </Card>
+      <div className={ui.tiles}>
+        <StatTile tone="peach" icon={<ShieldAlert size={20} />} label="No-shows" value={totalNoShows} />
+        <StatTile tone="pink" icon={<IndianRupee size={20} />} label="Forfeited" value={money(forfeited)} />
+        <StatTile tone="lavender" icon={<Receipt size={20} />} label="Charges" value={penalties.length} />
+        <StatTile tone="blue" icon={<CreditCard size={20} />} label="Pending charges" value={money(pendingCharges)} />
+      </div>
 
-      <Card title="Charges">
-        {penalties.length === 0 ? (
-          <p className={styles.muted}>No charges yet.</p>
-        ) : (
-          <div className={local.list}>
-            {penalties.map((p) => (
-              <div key={p.id} className={local.row}>
-                <div className={local.rowMain}>
-                  <span className={local.rowTitle}>
-                    {money(p.amountMinor)} — {p.reason}
+      <div className={ui.columns}>
+        <ModernCard
+          icon={<ShieldAlert size={20} aria-hidden="true" />}
+          iconTone="warning"
+          title="No-show history"
+          suffix={totalNoShows > 0 ? `(${totalNoShows})` : undefined}
+        >
+          {totalNoShows === 0 ? (
+            <p className={ui.empty}>No no-shows on record.</p>
+          ) : (
+            <ul className={ui.list}>
+              {noShowBookings.map((b) => (
+                <li key={b.id} className={ui.row}>
+                  <span className={`${ui.rowIcon} ${ui.rowIcon_lavender}`} aria-hidden="true">
+                    <CalendarX2 size={18} />
                   </span>
-                  <span className={local.rowSub}>
-                    {dateFmt.format(new Date(p.createdAt))}
-                    {p.note ? ` · ${p.note}` : ''}
+                  <div className={ui.rowMain}>
+                    <span className={ui.rowTitle}>{b.service.name}</span>
+                    <span className={ui.rowSub}>
+                      {b.provider.businessName} · {dateFmt.format(new Date(b.startTime))}
+                    </span>
+                  </div>
+                  <div className={ui.rowRight}>
+                    <Pill tone="grey">{PAYMENT_LABEL[b.paymentMethod] ?? b.paymentMethod}</Pill>
+                    {b.amountPaidMinor > 0 && (
+                      <Pill tone="red">{money(b.amountPaidMinor)} forfeited</Pill>
+                    )}
+                  </div>
+                </li>
+              ))}
+              {noShowOrders.map((o) => (
+                <li key={o.id} className={ui.row}>
+                  <span className={`${ui.rowIcon} ${ui.rowIcon_blue}`} aria-hidden="true">
+                    <PackageX size={18} />
                   </span>
-                </div>
-                <div className={local.rowRight}>
-                  {p.status === 'PENDING' ? (
-                    <>
-                      <Button variant="secondary" onClick={() => setPenaltyStatus(p.id, 'WAIVED')}>
-                        Waive
-                      </Button>
-                      <Button onClick={() => setPenaltyStatus(p.id, 'PAID')}>Mark paid</Button>
-                    </>
-                  ) : (
-                    <Badge tone={p.status === 'PAID' ? 'success' : 'neutral'}>{p.status}</Badge>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </Card>
+                  <div className={ui.rowMain}>
+                    <span className={ui.rowTitle}>Order from {o.provider.businessName}</span>
+                    <span className={ui.rowSub}>{dateFmt.format(new Date(o.createdAt))}</span>
+                  </div>
+                  <div className={ui.rowRight}>
+                    <Pill tone="grey">{PAYMENT_LABEL[o.paymentMethod] ?? o.paymentMethod}</Pill>
+                    {o.amountPaidMinor > 0 && (
+                      <Pill tone="red">{money(o.amountPaidMinor)} forfeited</Pill>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </ModernCard>
+
+        <ModernCard
+          icon={<Receipt size={20} aria-hidden="true" />}
+          title="Charges"
+          suffix={penalties.length > 0 ? `(${penalties.length})` : undefined}
+        >
+          {penalties.length === 0 ? (
+            <p className={ui.empty}>No charges yet.</p>
+          ) : (
+            <ul className={ui.list}>
+              {penalties.map((p) => (
+                <li key={p.id} className={ui.row}>
+                  <span className={`${ui.rowIcon} ${ui.rowIcon_peach}`} aria-hidden="true">
+                    <IndianRupee size={18} />
+                  </span>
+                  <div className={ui.rowMain}>
+                    <span className={ui.rowTitle}>
+                      <span className={ui.amount}>{money(p.amountMinor)}</span> — {p.reason}
+                    </span>
+                    <span className={ui.rowSub}>
+                      {dateFmt.format(new Date(p.createdAt))}
+                      {p.note ? ` · ${p.note}` : ''}
+                    </span>
+                  </div>
+                  <div className={ui.rowRight}>
+                    {p.status === 'PENDING' ? (
+                      <>
+                        <Button variant="secondary" onClick={() => setPenaltyStatus(p.id, 'WAIVED')}>
+                          Waive
+                        </Button>
+                        <Button onClick={() => setPenaltyStatus(p.id, 'PAID')}>Mark paid</Button>
+                      </>
+                    ) : (
+                      <Pill tone={p.status === 'PAID' ? 'green' : 'grey'}>
+                        {p.status === 'PAID' ? 'Paid' : 'Waived'}
+                      </Pill>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </ModernCard>
+      </div>
 
       <FormDialog
         open={blockOpen}
@@ -269,6 +387,6 @@ export function AdminUserDetail({ userId }: AdminUserDetailProps) {
           />
         </div>
       </FormDialog>
-    </>
+    </div>
   );
 }

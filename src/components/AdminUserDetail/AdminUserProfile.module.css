@@ -1,0 +1,272 @@
+/* Admin customer detail — modern look mirroring the provider Profile page
+   (--m-* tokens from theme.css, light + dark). */
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  min-width: 0;
+}
+
+.back {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--m-fs-sm);
+  font-weight: 600;
+  color: var(--m-link);
+  text-decoration: none;
+  border-radius: 4px;
+}
+.back:hover {
+  text-decoration: underline;
+}
+.back:focus-visible {
+  outline: 2px solid var(--m-link);
+  outline-offset: 2px;
+}
+
+/* ── Header card ───────────────────────────────────────────────────── */
+.hero {
+  padding: var(--m-card-pad);
+  background: var(--color-surface);
+  border: 1px solid var(--m-divider);
+  border-radius: var(--m-radius-card);
+  box-shadow: var(--m-shadow-card);
+}
+.heroBody {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.avatar {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--m-pill-lavender-bg);
+  color: var(--m-pill-lavender-fg);
+  font-size: 28px;
+  font-weight: 800;
+}
+.identity {
+  flex: 1 1 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.name {
+  margin: 0;
+  font-size: var(--m-fs-page);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--m-ink);
+  overflow-wrap: anywhere;
+}
+.contact {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  font-size: var(--m-fs-sm);
+  color: var(--color-text-secondary);
+}
+.contact li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.contactText {
+  overflow-wrap: anywhere;
+}
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+.actions {
+  flex: 0 1 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-self: center;
+}
+.blockedNote {
+  margin-top: var(--m-gap);
+}
+
+/* ── Stat tiles ────────────────────────────────────────────────────── */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  padding: 8px;
+  border-radius: var(--m-radius-card);
+  background: var(--color-surface);
+  box-shadow: var(--m-shadow-card);
+}
+.tile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 14px 16px;
+  border: 1px solid;
+  border-radius: var(--m-radius-box);
+  min-width: 0;
+}
+.tileIcon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--m-icon-box);
+  height: var(--m-icon-box);
+  border-radius: 50%;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+.tileText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.tileLabel {
+  font-size: var(--m-fs-body);
+  font-weight: 600;
+  color: var(--m-ink);
+}
+.tileValue {
+  font-size: var(--m-fs-stat);
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--m-ink);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.tile_blue { background: var(--m-tint-blue); border-color: var(--m-tint-blue-border); }
+.tile_blue .tileIcon { color: var(--m-tint-blue-icon); }
+.tile_peach { background: var(--m-tint-peach); border-color: var(--m-tint-peach-border); }
+.tile_peach .tileIcon { color: var(--m-tint-peach-icon); }
+.tile_lavender { background: var(--m-tint-lavender); border-color: var(--m-tint-lavender-border); }
+.tile_lavender .tileIcon { color: var(--m-tint-lavender-icon); }
+.tile_pink { background: var(--m-tint-pink); border-color: var(--m-tint-pink-border); }
+.tile_pink .tileIcon { color: var(--m-tint-pink-icon); }
+
+/* ── History / charges ─────────────────────────────────────────────── */
+.columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--m-gap);
+  align-items: start;
+}
+.empty {
+  margin: 0;
+  padding: var(--space-lg) 0;
+  text-align: center;
+  font-size: var(--m-fs-sm);
+  color: var(--color-text-secondary);
+}
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: var(--m-row-h);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--m-divider);
+}
+.row:last-child {
+  border-bottom: none;
+}
+.rowIcon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--m-icon-box);
+  height: var(--m-icon-box);
+  border-radius: var(--m-radius-box);
+}
+.rowIcon_lavender { background: var(--m-pill-lavender-bg); color: var(--m-pill-lavender-fg); }
+.rowIcon_blue { background: var(--m-pill-blue-bg); color: var(--m-pill-blue-fg); }
+.rowIcon_peach { background: var(--m-pill-orange-bg); color: var(--m-pill-orange-fg); }
+.rowMain {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.rowTitle {
+  font-size: var(--m-fs-body);
+  font-weight: 600;
+  color: var(--m-ink);
+  overflow-wrap: anywhere;
+}
+.amount {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.rowSub {
+  font-size: var(--m-fs-xs);
+  color: var(--color-text-secondary);
+  overflow-wrap: anywhere;
+}
+.rowRight {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+@media (max-width: 1100px) {
+  .tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .columns {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 640px) {
+  .hero {
+    padding: 16px;
+  }
+  .avatar {
+    width: 56px;
+    height: 56px;
+    font-size: 22px;
+  }
+  .actions {
+    width: 100%;
+  }
+  .row {
+    flex-wrap: wrap;
+  }
+  .rowRight {
+    width: 100%;
+    justify-content: flex-start;
+    padding-left: calc(var(--m-icon-box) + 12px);
+  }
+}
+@media (max-width: 420px) {
+  .tiles {
+    grid-template-columns: 1fr;
+  }
+}

@@ -22,6 +22,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { AdminShellProps } from './types';
 import { useAdminShell } from './useAdminShell';
 
+/** Returns up to two initials for the account avatar. */
 function initialsOf(name: string): string {
   return (
     name
@@ -42,7 +43,11 @@ const NAV = [
   { to: '/admin/users', label: 'Users', icon: Users },
 ];
 
-/** Frame shared by every signed-in admin screen. */
+/**
+ * Frame shared by every signed-in admin screen — the same blue-gradient,
+ * collapsible sidebar and content area as the provider AppShell (it reuses
+ * AppShell's CSS module), with admin nav items and copy.
+ */
 export function AdminShell({ children }: AdminShellProps) {
   const { user, logout } = useAdminShell();
   const { theme, toggleTheme } = useTheme();
@@ -73,16 +78,20 @@ export function AdminShell({ children }: AdminShellProps) {
               aria-label={collapsed ? label : undefined}
               data-tooltip={label}
             >
-              <Icon size={18} aria-hidden="true" />
+              <Icon size={18} strokeWidth={1.75} aria-hidden="true" />
               <span className={styles.navLabel}>{label}</span>
             </NavLink>
           ))}
         </nav>
 
         <div className={styles.account}>
-          <span className={styles.avatar} aria-hidden="true">
-            {initialsOf(name)}
-          </span>
+          {user?.avatarUrl ? (
+            <img className={styles.avatarImg} src={user.avatarUrl} alt="" aria-hidden="true" />
+          ) : (
+            <span className={styles.avatar} aria-hidden="true">
+              {initialsOf(name)}
+            </span>
+          )}
           <span className={styles.accountText}>
             <span className={styles.accountName} title={name}>
               {name}
@@ -98,15 +107,22 @@ export function AdminShell({ children }: AdminShellProps) {
             onClick={toggleTheme}
             type="button"
             aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {theme === 'dark' ? (
-              <Sun size={16} aria-hidden="true" />
+              <Sun size={16} strokeWidth={1.75} aria-hidden="true" />
             ) : (
-              <Moon size={16} aria-hidden="true" />
+              <Moon size={16} strokeWidth={1.75} aria-hidden="true" />
             )}
           </button>
-          <button className={styles.logout} onClick={logout} type="button" aria-label="Log out">
-            <LogOut size={16} aria-hidden="true" />
+          <button
+            className={styles.logout}
+            onClick={logout}
+            type="button"
+            aria-label="Log out"
+            title="Log out"
+          >
+            <LogOut size={16} strokeWidth={1.75} aria-hidden="true" />
           </button>
         </div>
       </aside>
@@ -116,6 +132,7 @@ export function AdminShell({ children }: AdminShellProps) {
         className={`${styles.collapseToggle} ${collapsed ? styles.collapseToggleCollapsed : ''}`}
         onClick={toggleCollapsed}
         aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {collapsed ? (
           <ChevronsRight size={16} strokeWidth={2.25} aria-hidden="true" />

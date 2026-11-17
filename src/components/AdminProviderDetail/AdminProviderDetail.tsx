@@ -1,20 +1,35 @@
-import { Ban, Banknote, Receipt, ShieldCheck, Store } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Ban,
+  Banknote,
+  CalendarDays,
+  CheckCircle2,
+  ClipboardList,
+  Command,
+  Mail,
+  MapPin,
+  Phone,
+  Receipt,
+  ShieldCheck,
+  Star,
+  Store,
+} from 'lucide-react';
+import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
 import { AlertBanner } from '@/components/AlertBanner';
-import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
-import { Card } from '@/components/Card';
 import { FormDialog } from '@/components/FormDialog';
 import { EmptyState } from '@/components/EmptyState';
+import { ModernCard } from '@/components/ModernCard';
+import { Pill } from '@/components/Pill';
 import { Skeleton } from '@/components/Skeleton';
 import { AdminProviderBusiness } from '@/redux/api/admin/types';
 import { formatMoney } from '@/utils/money';
 import { ReasonAction, useAdminProviderDetail } from './useAdminProviderDetail';
 // Generic field/label/form styling shared across provider/admin forms.
 import styles from '@/components/ServicesManager/ServicesManager.module.css';
-// Header styles shared with the customer detail screen.
-import shared from '@/components/AdminUserDetail/AdminUserDetail.module.css';
 import local from './AdminProviderDetail.module.css';
 
 const dateFmt = new Intl.DateTimeFormat('en-IN', {
@@ -64,15 +79,64 @@ function describe(a: ReasonAction, openCount: number, otherBusinesses: number) {
   }
 }
 
+function initialsOf(name: string): string {
+  return (
+    name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((s) => s[0]?.toUpperCase() ?? '')
+      .join('') || '?'
+  );
+}
+
+function FactTile({
+  tone,
+  icon,
+  label,
+  value,
+}: {
+  tone: 'blue' | 'mint' | 'peach' | 'pink' | 'lavender';
+  icon: ReactNode;
+  label: string;
+  value: ReactNode;
+}) {
+  return (
+    <div className={`${local.tile} ${local[`tile_${tone}`]}`}>
+      <span className={local.tileIcon} aria-hidden="true">
+        {icon}
+      </span>
+      <div className={local.tileText}>
+        <span className={local.tileLabel}>{label}</span>
+        <span className={local.tileValue}>{value}</span>
+      </div>
+    </div>
+  );
+}
+
 /** One provider: block the account, or block / restrict each of their businesses. */
 export function AdminProviderDetail({ userId }: { userId: string }) {
   const p = useAdminProviderDetail(userId);
 
+  const backLink = (
+    <Link to="/admin/providers" className={local.back}>
+      <ArrowLeft size={16} aria-hidden="true" />
+      All providers
+    </Link>
+  );
+
   if (p.isLoading || !p.data) {
     return (
-      <Card title="Provider">
-        <Skeleton height={80} radius="var(--radius-md)" />
-      </Card>
+      <div className={local.root} aria-busy="true" aria-label="Loading provider">
+        {backLink}
+        <Skeleton height={140} radius="var(--m-radius-card)" />
+        <div className={local.tiles}>
+          {[0, 1, 2, 3].map((i) => (
+            <Skeleton key={i} height={78} radius="var(--m-radius-box)" />
+          ))}
+        </div>
+        <Skeleton height={220} radius="var(--m-radius-card)" />
+      </div>
     );
   }
 
@@ -86,64 +150,76 @@ export function AdminProviderDetail({ userId }: { userId: string }) {
         businesses.length,
       )
     : null;
+  const openTotal = businesses.reduce((n, b) => n + b.openBookings + b.openOrders, 0);
+  const blockedCount = businesses.filter((b) => b.isBlocked).length;
+  const balanceTone = balanceMinor > 0 ? 'mint' : balanceMinor < 0 ? 'pink' : 'blue';
 
   return (
-    <>
-      <Card title="Provider">
-        <div className={shared.header}>
-          <div>
-            <div className={shared.name}>{user.fullName}</div>
-            <div className={shared.meta}>
-              {user.email} · {user.phone ?? 'No phone'} · Joined{' '}
-              {dateFmt.format(new Date(user.createdAt))}
+    <div className={local.root}>
+      {backLink}
+
+      <section className={local.hero} aria-label="Provider">
+        <div className={local.heroMain}>
+          <span
+            className={`${local.heroAvatar} ${user.isBlocked ? local.heroAvatarBlocked : ''}`}
+            aria-hidden="true"
+          >
+            {initialsOf(user.fullName)}
+          </span>
+          <div className={local.heroText}>
+            <div className={local.heroTitleRow}>
+              <h1 className={local.heroName}>{user.fullName}</h1>
+              {user.isBlocked ? (
+                <Pill tone="red">
+                  <Ban size={13} aria-hidden="true" />
+                  Account blocked
+                </Pill>
+              ) : (
+                <Pill tone="green">
+                  <CheckCircle2 size={13} aria-hidden="true" />
+                  Active
+                </Pill>
+              )}
             </div>
-            <div
-              className={local.balance}
-              style={{
-                color:
-                  balanceMinor > 0
-                    ? 'var(--color-success)'
-                    : balanceMinor < 0
-                      ? 'var(--color-error)'
-                      : 'var(--color-text-secondary)',
-              }}
+            <ul className={local.facts}>
+              <li>
+                <Mail size={15} aria-hidden="true" />
+                {user.email}
+              </li>
+              <li>
+                <Phone size={15} aria-hidden="true" />
+                {user.phone ?? 'No phone'}
+              </li>
+              <li>
+                <CalendarDays size={15} aria-hidden="true" />
+                Joined {dateFmt.format(new Date(user.createdAt))}
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div className={local.heroActions}>
+          {user.isBlocked ? (
+            <Button
+              variant="secondary"
+              loading={p.busy === 'account'}
+              iconLeft={<ShieldCheck size={16} aria-hidden="true" />}
+              onClick={p.unblockAccount}
             >
-              <Banknote
-                size={14}
-                aria-hidden="true"
-                style={{ verticalAlign: '-2px', marginRight: 4 }}
-              />
-              {balanceMinor === 0
-                ? 'Nothing owed either way'
-                : balanceMinor > 0
-                  ? `You owe them ${formatMoney(balanceMinor)}`
-                  : `They owe you ${formatMoney(-balanceMinor)}`}
-            </div>
-          </div>
-          <div className={shared.actions}>
-            {user.isBlocked ? (
-              <Button
-                variant="secondary"
-                loading={p.busy === 'account'}
-                iconLeft={<ShieldCheck size={16} aria-hidden="true" />}
-                onClick={p.unblockAccount}
-              >
-                Unblock account
-              </Button>
-            ) : (
-              <Button
-                variant="secondary"
-                iconLeft={<Ban size={16} aria-hidden="true" />}
-                onClick={() => p.open({ kind: 'BLOCK_ACCOUNT' })}
-              >
-                Block account
-              </Button>
-            )}
-          </div>
+              Unblock account
+            </Button>
+          ) : (
+            <Button
+              variant="secondary"
+              iconLeft={<Ban size={16} aria-hidden="true" />}
+              onClick={() => p.open({ kind: 'BLOCK_ACCOUNT' })}
+            >
+              Block account
+            </Button>
+          )}
         </div>
 
         {user.isBlocked && (
-          <div className={shared.blockedNote}>
+          <div className={local.heroNote}>
             <AlertBanner tone="error">
               Account blocked{user.blockedReason ? `: ${user.blockedReason}` : '.'} They can't log
               in and none of their businesses are shown to customers.
@@ -151,13 +227,52 @@ export function AdminProviderDetail({ userId }: { userId: string }) {
           </div>
         )}
         {p.error && !p.action && (
-          <div className={shared.blockedNote}>
+          <div className={local.heroNote}>
             <AlertBanner tone="error">{p.error}</AlertBanner>
           </div>
         )}
-      </Card>
+      </section>
 
-      <Card title="Businesses">
+      <div className={local.tiles}>
+        <FactTile
+          tone="blue"
+          icon={<Store size={20} />}
+          label="Businesses"
+          value={businesses.length}
+        />
+        <FactTile
+          tone="pink"
+          icon={<Ban size={20} />}
+          label="Blocked businesses"
+          value={blockedCount}
+        />
+        <FactTile
+          tone="peach"
+          icon={<ClipboardList size={20} />}
+          label="Open bookings / orders"
+          value={openTotal}
+        />
+        <FactTile
+          tone={balanceTone}
+          icon={<Banknote size={20} />}
+          label={
+            balanceMinor === 0 ? 'Balance' : balanceMinor > 0 ? 'You owe them' : 'They owe you'
+          }
+          value={
+            balanceMinor === 0 ? (
+              <span className={local.tileValueSm}>Nothing owed either way</span>
+            ) : (
+              formatMoney(Math.abs(balanceMinor))
+            )
+          }
+        />
+      </div>
+
+      <ModernCard
+        icon={<Store size={20} aria-hidden="true" />}
+        title="Businesses"
+        suffix={`(${businesses.length})`}
+      >
         {businesses.length === 0 ? (
           <EmptyState
             icon={<Store size={28} strokeWidth={1.6} aria-hidden="true" />}
@@ -165,31 +280,58 @@ export function AdminProviderDetail({ userId }: { userId: string }) {
             description="This provider hasn't added a business yet."
           />
         ) : (
-          <div className={local.list}>
+          <ul className={local.list}>
             {businesses.map((b) => {
               const work = openWork(b);
+              const isStore = b.type === 'STORE';
               return (
-                <div key={b.id} className={`${local.biz} ${b.isBlocked ? local.bizBlocked : ''}`}>
+                <li key={b.id} className={`${local.biz} ${b.isBlocked ? local.bizBlocked : ''}`}>
                   <div className={local.bizHead}>
-                    <div>
-                      <div className={local.bizName}>{b.businessName}</div>
-                      <div className={shared.meta}>
-                        {b.type === 'STORE' ? 'Store' : 'Service business'}
-                        {b.city ? ` · ${b.city}` : ''}
-                        {b.ratingCount > 0
-                          ? ` · ★ ${b.ratingAvg.toFixed(1)} (${b.ratingCount})`
-                          : ''}
-                        {work ? ` · ${work}` : ''}
+                    <span
+                      className={`${local.bizIcon} ${isStore ? local.bizIconStore : local.bizIconService}`}
+                      aria-hidden="true"
+                    >
+                      {isStore ? <Store size={20} /> : <Command size={20} />}
+                    </span>
+                    <div className={local.bizText}>
+                      <h3 className={local.bizName}>{b.businessName}</h3>
+                      <div className={local.bizMeta}>
+                        <Pill tone={isStore ? 'blue' : 'lavender'}>
+                          {isStore ? 'Store' : 'Service business'}
+                        </Pill>
+                        {b.city && (
+                          <span className={local.metaItem}>
+                            <MapPin size={14} aria-hidden="true" />
+                            {b.city}
+                          </span>
+                        )}
+                        {b.ratingCount > 0 && (
+                          <span className={local.metaItem}>
+                            <Star size={14} className={local.star} aria-hidden="true" />
+                            <strong>{b.ratingAvg.toFixed(1)}</strong>
+                            <span className={local.muted}>({b.ratingCount})</span>
+                          </span>
+                        )}
+                        {work && (
+                          <span className={local.metaItem}>
+                            <ClipboardList size={14} aria-hidden="true" />
+                            {work}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className={local.badges}>
-                      {b.isBlocked && <Badge tone="error">Blocked</Badge>}
-                      {b.codDisabledByAdmin ? (
-                        <Badge tone="warning">COD off (by you)</Badge>
+                      {b.isBlocked ? (
+                        <Pill tone="red">Blocked</Pill>
                       ) : (
-                        !b.codEnabled && <Badge tone="neutral">COD off (by owner)</Badge>
+                        b.isActive && <Pill tone="green">Active</Pill>
                       )}
-                      {!b.isActive && <Badge tone="neutral">Inactive</Badge>}
+                      {b.codDisabledByAdmin ? (
+                        <Pill tone="yellow">COD off (by you)</Pill>
+                      ) : (
+                        !b.codEnabled && <Pill tone="grey">COD off (by owner)</Pill>
+                      )}
+                      {!b.isActive && <Pill tone="grey">Inactive</Pill>}
                     </div>
                   </div>
 
@@ -223,6 +365,7 @@ export function AdminProviderDetail({ userId }: { userId: string }) {
                       <Button
                         variant="secondary"
                         loading={p.busy === `cod-${b.id}`}
+                        iconLeft={<Banknote size={16} aria-hidden="true" />}
                         onClick={p.enableCod(b.id)}
                       >
                         Turn COD back on
@@ -230,23 +373,27 @@ export function AdminProviderDetail({ userId }: { userId: string }) {
                     ) : (
                       <Button
                         variant="secondary"
+                        iconLeft={<Banknote size={16} aria-hidden="true" />}
                         onClick={() => p.open({ kind: 'COD_OFF', business: b })}
                       >
                         Turn off COD
                       </Button>
                     )}
-                    <Link to={`/admin/transactions?businessId=${b.id}&range=all`}>
-                      <Button variant="ghost" iconLeft={<Receipt size={16} aria-hidden="true" />}>
-                        Transactions
-                      </Button>
+                    <Link
+                      to={`/admin/transactions?businessId=${b.id}&range=all`}
+                      className={local.txLink}
+                    >
+                      <Receipt size={16} aria-hidden="true" />
+                      Transactions
+                      <ArrowRight size={15} aria-hidden="true" />
                     </Link>
                   </div>
-                </div>
+                </li>
               );
             })}
-          </div>
+          </ul>
         )}
-      </Card>
+      </ModernCard>
 
       <FormDialog
         open={!!(p.action && dialog)}
@@ -279,6 +426,6 @@ export function AdminProviderDetail({ userId }: { userId: string }) {
           />
         </div>
       </FormDialog>
-    </>
+    </div>
   );
 }

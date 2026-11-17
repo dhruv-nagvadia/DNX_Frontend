@@ -55,29 +55,31 @@ export function GrowthChart({ groupBy, labels, customers, providers }: GrowthCha
       <div className={styles.legend}>
         <span className={styles.legendItem}>
           <span className={`${styles.dot} ${styles.dotCustomers}`} aria-hidden="true" />
-          New customers (app) · {sum(customers)}
+          New customers (app)
+          <span className={styles.legendValue}>{sum(customers)}</span>
         </span>
         <span className={styles.legendItem}>
           <span className={`${styles.dot} ${styles.dotProviders}`} aria-hidden="true" />
-          New providers (web) · {sum(providers)}
+          New providers (web)
+          <span className={styles.legendValue}>{sum(providers)}</span>
         </span>
       </div>
 
       <TrendChart
-        height={220}
+        height={260}
         highlightLast
         formatValue={(v) => `${Math.round(v)}`}
         series={[
           {
             id: 'customers',
             label: 'New customers',
-            color: 'var(--color-primary)',
+            color: 'var(--m-tint-blue-icon)',
             data: points.map((p) => ({ label: p.label, fullLabel: p.fullLabel, value: customers[p.i] ?? 0 })),
           },
           {
             id: 'providers',
             label: 'New providers',
-            color: 'var(--color-accent)',
+            color: 'var(--m-tint-lavender-icon)',
             data: points.map((p) => ({ label: p.label, fullLabel: p.fullLabel, value: providers[p.i] ?? 0 })),
           },
         ]}

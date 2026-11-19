@@ -39,7 +39,8 @@ type NavEntry = { to: string; label: string; icon: typeof Home };
 const NAV_MAIN: NavEntry[] = [
   { to: '/dashboard', label: 'Dashboard', icon: Home },
   { to: '/businesses', label: 'My Businesses', icon: Store },
-  { to: '/bookings-orders', label: 'Bookings & Orders', icon: CalendarDays },
+  // SERVICES-ONLY: label was 'Bookings & Orders' — restore when product businesses return
+  { to: '/bookings-orders', label: 'Bookings', icon: CalendarDays },
   { to: '/coupons', label: 'Coupons / Offers', icon: Tag },
   { to: '/reviews', label: 'Reviews', icon: Star },
   { to: '/earnings', label: 'Earnings', icon: Wallet },

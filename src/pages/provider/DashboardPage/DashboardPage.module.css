@@ -159,7 +159,8 @@
 /* ── Hero row: revenue card + 4 pastel stat tiles ────────────────────── */
 .heroRow {
   display: grid;
-  grid-template-columns: minmax(0, 2.9fr) repeat(4, minmax(0, 1fr));
+  /* SERVICES-ONLY: Open Orders tile hidden — restore repeat(4, …) */
+  grid-template-columns: minmax(0, 2.9fr) repeat(3, minmax(0, 1fr));
   gap: var(--space-md);
   margin-bottom: var(--space-lg);
 }
@@ -554,7 +555,8 @@
 /* ── Responsive ──────────────────────────────────────────────────────── */
 @media (max-width: 1280px) {
   .heroRow {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    /* SERVICES-ONLY: Open Orders tile hidden — restore repeat(4, …) */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .revenueCard {
     grid-column: 1 / -1;

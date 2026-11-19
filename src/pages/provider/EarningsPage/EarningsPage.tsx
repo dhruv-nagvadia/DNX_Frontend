@@ -604,7 +604,7 @@ export default function EarningsPage() {
                 [
                   ['ALL', 'All'],
                   ['BOOKING', 'Bookings'],
-                  ['ORDER', 'Orders'],
+                  // ['ORDER', 'Orders'], // SERVICES-ONLY: product businesses disabled for launch — uncomment to restore
                 ] as [KindFilter, string][]
               ).map(([k, label]) => (
                 <button

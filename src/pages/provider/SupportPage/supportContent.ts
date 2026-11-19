@@ -13,7 +13,7 @@ export const FAQ_CATEGORIES: { id: FaqCategory | 'all'; label: string }[] = [
   { id: 'all', label: 'All' },
   { id: 'payments', label: 'Payments & payouts' },
   { id: 'bookings', label: 'Bookings' },
-  { id: 'orders', label: 'Orders & stock' },
+  // { id: 'orders', label: 'Orders & stock' }, // SERVICES-ONLY: product businesses disabled for launch — uncomment to restore
   { id: 'offers', label: 'Offers' },
   { id: 'account', label: 'Account' },
 ];
@@ -89,16 +89,17 @@ export const FAQS: Faq[] = [
       '. If it’s still missing, contact us below with the booking or order ID.',
     ],
   },
-  {
-    id: 'out-of-stock',
-    category: 'orders',
-    question: 'How do I mark a product out of stock?',
-    answer: [
-      'Open your store from ',
-      { to: '/businesses', label: 'My Businesses' },
-      ', go to the Manage Stock tab, and choose Mark as Out of Stock on the product. You can update the stock quantity there too.',
-    ],
-  },
+  // SERVICES-ONLY: product businesses disabled for launch — uncomment to restore
+  // {
+  //   id: 'out-of-stock',
+  //   category: 'orders',
+  //   question: 'How do I mark a product out of stock?',
+  //   answer: [
+  //     'Open your store from ',
+  //     { to: '/businesses', label: 'My Businesses' },
+  //     ', go to the Manage Stock tab, and choose Mark as Out of Stock on the product. You can update the stock quantity there too.',
+  //   ],
+  // },
   {
     id: 'hours',
     category: 'bookings',

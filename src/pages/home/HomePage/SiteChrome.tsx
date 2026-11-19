@@ -125,7 +125,8 @@ export function SiteFooter() {
             <span className={styles.wordmarkFooter}>DNX Marketplace</span>
           </span>
           <p className={styles.footerTag}>
-            Book local services and order from nearby stores — all in one place.
+            {/* SERVICES-ONLY: store/order copy disabled for launch — restore the commented original: Book local services and order from nearby stores — all in one place. */}
+            Book local services near you — all in one place.
           </p>
         </div>
 

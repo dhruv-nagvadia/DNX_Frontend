@@ -248,7 +248,7 @@ export default function BusinessesPage() {
                 >
                   <option value="all">All types</option>
                   <option value="service">Services</option>
-                  <option value="store">Stores</option>
+                  {/* SERVICES-ONLY: product businesses disabled for launch — uncomment to restore — <option value="store">Stores</option> */}
                 </select>
                 <ChevronDown size={16} aria-hidden="true" className={styles.selectChevron} />
               </label>

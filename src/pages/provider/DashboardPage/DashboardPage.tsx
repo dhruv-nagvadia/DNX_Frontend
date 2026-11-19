@@ -193,7 +193,7 @@ export default function DashboardPage() {
     upcomingCount,
     attention,
     openOrders,
-    openOrdersCount,
+    // openOrdersCount, // SERVICES-ONLY: unused while the Open Orders tile is hidden — uncomment to restore
     needsActionCount,
     collectedThisMonth,
     monthOverMonthPct,
@@ -383,6 +383,7 @@ export default function DashboardPage() {
               </span>
               <span className={styles.tileValue}>{upcomingCount}</span>
             </div>
+            {/* SERVICES-ONLY: product businesses disabled for launch — uncomment the Open Orders tile to restore (and repeat(4) in .heroRow CSS)
             <div className={`${styles.tile} ${styles.tilePeach}`}>
               <span className={styles.tileIcon} aria-hidden="true">
                 <Package size={24} strokeWidth={1.8} />
@@ -394,6 +395,7 @@ export default function DashboardPage() {
               </span>
               <span className={styles.tileValue}>{openOrdersCount}</span>
             </div>
+            */}
             <div className={`${styles.tile} ${styles.tilePink}`}>
               <span className={styles.tileIcon} aria-hidden="true">
                 <AlertCircle size={24} strokeWidth={1.8} />

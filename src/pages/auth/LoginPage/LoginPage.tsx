@@ -30,7 +30,8 @@ export default function LoginPage() {
           all in one place
         </>
       }
-      subhead="Manage bookings, orders, offers and earnings for every business you own."
+      // SERVICES-ONLY: store/order copy disabled for launch — restore the commented original: subhead="Manage bookings, orders, offers and earnings for every business you own."
+      subhead="Manage bookings, offers and earnings for every business you own."
     >
       <form className={card.card} onSubmit={onSubmit} noValidate>
         <header className={card.head}>

@@ -4,7 +4,7 @@ import {
   ArrowRight,
   Ban,
   Bell,
-  Box,
+  // Box, // SERVICES-ONLY: product businesses disabled for launch — uncomment to restore
   Camera,
   CheckCircle2,
   ChevronDown,
@@ -183,7 +183,8 @@ export default function ProfilePage() {
   const tiles = [
     { label: 'Businesses', value: stats.businesses, icon: <Store size={20} />, tone: styles.tileBlue },
     { label: 'Services', value: stats.services, icon: <Command size={20} />, tone: styles.tileLavender },
-    { label: 'Products', value: stats.products, icon: <Box size={20} />, tone: styles.tilePeach },
+    // SERVICES-ONLY: product businesses disabled for launch — uncomment to restore (and repeat(4) in .tiles CSS)
+    // { label: 'Products', value: stats.products, icon: <Box size={20} />, tone: styles.tilePeach },
     {
       label: 'Avg rating',
       value:

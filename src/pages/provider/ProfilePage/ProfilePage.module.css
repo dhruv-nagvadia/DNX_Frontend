@@ -260,7 +260,8 @@
 /* ── Stat tiles ─────────────────────────────────────────────────────── */
 .tiles {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  /* SERVICES-ONLY: Products tile hidden — restore repeat(4, …) */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-md);
 }
 .tile {

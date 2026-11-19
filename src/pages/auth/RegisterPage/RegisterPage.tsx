@@ -38,7 +38,8 @@ export default function RegisterPage() {
   return (
     <AuthSplitLayout
       headline="Grow your business with DNX"
-      subhead="List your services and products, take bookings and orders, and get paid."
+      // SERVICES-ONLY: store/order copy disabled for launch — restore the commented original: subhead="List your services and products, take bookings and orders, and get paid."
+      subhead="List your services, take bookings, and get paid."
     >
       <form className={card.card} onSubmit={onSubmit} noValidate>
         <header className={card.head}>

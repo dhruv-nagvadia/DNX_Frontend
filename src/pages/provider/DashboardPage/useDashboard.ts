@@ -201,7 +201,9 @@ export function useDashboard() {
   }, [businesses]);
 
   const hasService = businesses.some((b) => (b.type ?? 'SERVICE') === 'SERVICE');
-  const hasStore = businesses.some((b) => b.type === 'STORE') || orders.length > 0;
+  // SERVICES-ONLY: product businesses disabled for launch — hides the Orders / Low Stock dashboard cards; restore the line below
+  // const hasStore = businesses.some((b) => b.type === 'STORE') || orders.length > 0;
+  const hasStore = false;
 
   return {
     fullName,

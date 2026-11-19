@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { CalendarDays, Package } from 'lucide-react';
+// SERVICES-ONLY: Package unused while Orders is hidden — restore: import { CalendarDays, Package } from 'lucide-react';
+import { CalendarDays } from 'lucide-react';
 
 import { AppShell } from '@/components/AppShell';
 import { BusinessBookings } from '@/components/BusinessBookings';
-import { OrdersManager } from '@/components/OrdersManager';
+// SERVICES-ONLY: Orders section hidden for launch — uncomment to restore
+// import { OrdersManager } from '@/components/OrdersManager';
 
 import styles from './BookingsOrdersPage.module.css';
 
@@ -29,8 +31,12 @@ export default function BookingsOrdersPage() {
     <AppShell>
       <div className={styles.topRow}>
         <div>
+          {/* SERVICES-ONLY: product businesses disabled for launch — restore the original title/subtitle:
           <h1 className={styles.title}>Bookings &amp; Orders</h1>
           <p className={styles.subtitle}>Every booking and order, across all your businesses.</p>
+          */}
+          <h1 className={styles.title}>Bookings</h1>
+          <p className={styles.subtitle}>Every booking, across all your businesses.</p>
         </div>
         <div className={styles.segment} role="tablist" aria-label="Show bookings or orders">
           <button
@@ -43,6 +49,7 @@ export default function BookingsOrdersPage() {
             <CalendarDays size={16} aria-hidden="true" />
             Bookings
           </button>
+          {/* SERVICES-ONLY: product businesses disabled for launch — uncomment the Orders tab to restore
           <button
             type="button"
             role="tab"
@@ -53,10 +60,12 @@ export default function BookingsOrdersPage() {
             <Package size={16} aria-hidden="true" />
             Orders
           </button>
+          */}
         </div>
       </div>
 
-      {section === 'bookings' ? <BusinessBookings /> : <OrdersManager />}
+      {/* SERVICES-ONLY: always show bookings — restore: {section === 'bookings' ? <BusinessBookings /> : <OrdersManager />} */}
+      <BusinessBookings />
     </AppShell>
   );
 }

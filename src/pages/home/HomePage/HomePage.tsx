@@ -8,11 +8,11 @@ import {
   Clock,
   MapPin,
   MessageSquareReply,
-  Package,
-  Pill,
+  // Package, // SERVICES-ONLY: unused while store copy is hidden — uncomment to restore
+  // Pill, // SERVICES-ONLY: unused while store copy is hidden — uncomment to restore
   Scissors,
   Search,
-  ShoppingBasket,
+  // ShoppingBasket, // SERVICES-ONLY: unused while store copy is hidden — uncomment to restore
   Smartphone,
   Sparkles,
   SprayCan,
@@ -43,32 +43,46 @@ const STEPS: { icon: LucideIcon; title: string; body: string }[] = [
   {
     icon: Search,
     title: 'Find someone nearby',
-    body: 'Browse categories or search for a service or store, filtered by rating, distance and who’s open now.',
+    // SERVICES-ONLY: store/order copy disabled for launch — restore the commented original: 'Browse categories or search for a service or store, filtered by rating, distance and who’s open now.',
+    body: 'Browse categories or search for a service, filtered by rating, distance and who’s open now.',
   },
   {
     icon: CalendarCheck,
-    title: 'Book or order',
-    body: 'Pick a time slot for a service, or add products to your cart and place an order with the store.',
+    // SERVICES-ONLY: store/order copy disabled for launch — restore the commented original:
+    // title: 'Book or order',
+    // body: 'Pick a time slot for a service, or add products to your cart and place an order with the store.',
+    title: 'Book a slot',
+    body: 'Pick a service and a free time slot that suits you.',
   },
   {
     icon: BadgeCheck,
-    title: 'Show up or pick up',
-    body: 'Get a confirmation and reminders, visit at your time or collect your order, then leave a review.',
+    // SERVICES-ONLY: store/order copy disabled for launch — restore the commented original:
+    // title: 'Show up or pick up',
+    // body: 'Get a confirmation and reminders, visit at your time or collect your order, then leave a review.',
+    title: 'Show up',
+    body: 'Get a confirmation and reminders, visit at your time, then leave a review.',
   },
 ];
 
 type Feature = { icon: LucideIcon; title: string; body: string };
 
 const CUSTOMER_FEATURES: Feature[] = [
-  { icon: MapPin, title: 'Nearby businesses', body: 'See salons, clinics, repair pros and stores close to you.' },
+  // SERVICES-ONLY: store/order copy disabled for launch — restore the commented original:
+  // { icon: MapPin, title: 'Nearby businesses', body: 'See salons, clinics, repair pros and stores close to you.' },
+  { icon: MapPin, title: 'Nearby businesses', body: 'See salons, clinics and repair pros close to you.' },
   { icon: Clock, title: 'Book in a few taps', body: 'Choose a service and a free slot — no calls needed.' },
-  { icon: ShoppingBasket, title: 'Order from local stores', body: 'Shop neighbourhood stores and pick up when it’s ready.' },
+  // SERVICES-ONLY: store/order copy disabled for launch — restore the commented original:
+  // { icon: ShoppingBasket, title: 'Order from local stores', body: 'Shop neighbourhood stores and pick up when it’s ready.' },
+  { icon: Star, title: 'Ratings & reviews', body: 'See what other customers say before you book.' },
   { icon: Tag, title: 'Offers & coupons', body: 'Apply coupons from businesses at checkout.' },
 ];
 
 const BUSINESS_FEATURES: Feature[] = [
-  { icon: Bell, title: 'Bookings & orders in real time', body: 'Every new booking and order lands in one dashboard.' },
-  { icon: Package, title: 'Services, products & stock', body: 'Manage your menu, prices and inventory in one place.' },
+  // SERVICES-ONLY: store/order copy disabled for launch — restore the commented original:
+  // { icon: Bell, title: 'Bookings & orders in real time', body: 'Every new booking and order lands in one dashboard.' },
+  // { icon: Package, title: 'Services, products & stock', body: 'Manage your menu, prices and inventory in one place.' },
+  { icon: Bell, title: 'Bookings in real time', body: 'Every new booking lands in one dashboard.' },
+  { icon: CalendarCheck, title: 'Services & hours', body: 'Manage your services, prices and hours in one place.' },
   { icon: Wallet, title: 'Earnings & payouts', body: 'Track what you’ve earned and what’s been paid out.' },
   { icon: MessageSquareReply, title: 'Reviews & offers', body: 'Reply to reviews and run coupons that bring people back.' },
 ];
@@ -77,8 +91,9 @@ const BUSINESS_FEATURES: Feature[] = [
 const FALLBACK_CATEGORIES: { icon: LucideIcon; name: string }[] = [
   { icon: Scissors, name: 'Salon' },
   { icon: Sparkles, name: 'Spa' },
-  { icon: ShoppingBasket, name: 'Grocery' },
-  { icon: Pill, name: 'Pharmacy' },
+  // SERVICES-ONLY: store/order copy disabled for launch — restore the commented original:
+  // { icon: ShoppingBasket, name: 'Grocery' },
+  // { icon: Pill, name: 'Pharmacy' },
   { icon: Wrench, name: 'Repairs' },
   { icon: SprayCan, name: 'Cleaning' },
 ];
@@ -120,11 +135,16 @@ function HeroPreview() {
         <div className={`${styles.pCard} ${styles.pCardMid}`}>
           <div className={styles.pHead}>
             <span className={`${styles.pIcon} ${styles.pIconMint}`}>
-              <ShoppingBasket size={16} strokeWidth={2} />
+              {/* SERVICES-ONLY: store/order copy disabled for launch — restore the commented original: <ShoppingBasket size={16} strokeWidth={2} /> */}
+              <Sparkles size={16} strokeWidth={2} />
             </span>
             <span className={styles.pHeadText}>
+              {/* SERVICES-ONLY: store/order copy disabled for launch — restore the commented original:
               <span className={styles.pTitle}>Store order</span>
               <span className={styles.pSub}>Neighbourhood grocery</span>
+              */}
+              <span className={styles.pTitle}>Spa session</span>
+              <span className={styles.pSub}>Booking request</span>
             </span>
           </div>
           <ul className={styles.items}>
@@ -137,7 +157,8 @@ function HeroPreview() {
               </li>
             ))}
           </ul>
-          <span className={`${styles.pPill} ${styles.pPillOrange}`}>Ready for pickup</span>
+          {/* SERVICES-ONLY: store/order copy disabled for launch — restore the commented original: <span className={`${styles.pPill} ${styles.pPillOrange}`}>Ready for pickup</span> */}
+          <span className={`${styles.pPill} ${styles.pPillOrange}`}>Accepted</span>
         </div>
 
         <div className={`${styles.pCard} ${styles.pCardRight}`}>
@@ -198,14 +219,24 @@ export default function HomePage() {
           <div className={styles.heroCopy}>
             <span className={styles.eyebrow}>
               <Sparkles size={14} strokeWidth={2.25} aria-hidden="true" />
-              {userName ? `Hi, ${userName}` : 'Local services & stores, in one place'}
+              {/* SERVICES-ONLY: store/order copy disabled for launch — restore the commented original: 'Local services & stores, in one place' */}
+              {userName ? `Hi, ${userName}` : 'Local services, in one place'}
             </span>
+            {/* SERVICES-ONLY: store/order copy disabled for launch — restore the commented original:
             <h1 id="hero-title" className={styles.heroTitle}>
               Book local services. <span className={styles.heroAccent}>Order from nearby stores.</span>
             </h1>
             <p className={styles.heroSub}>
               DNX connects you with salons, clinics, repair pros and neighbourhood stores near
               you — book a time slot or place an order in a few taps.
+            </p>
+            */}
+            <h1 id="hero-title" className={styles.heroTitle}>
+              Book local services. <span className={styles.heroAccent}>In just a few taps.</span>
+            </h1>
+            <p className={styles.heroSub}>
+              DNX connects you with salons, clinics, repair pros and other local services near
+              you — book a time slot in a few taps.
             </p>
             <div className={styles.heroCtas}>
               <a className={`${styles.btn} ${styles.btnSolid}`} href="#categories">
@@ -219,7 +250,8 @@ export default function HomePage() {
             </div>
             <p className={styles.heroNote}>
               <Smartphone size={15} strokeWidth={2} aria-hidden="true" />
-              Customers book and order on the DNX mobile app.
+              {/* SERVICES-ONLY: store/order copy disabled for launch — restore the commented original: Customers book and order on the DNX mobile app. */}
+              Customers book on the DNX mobile app.
             </p>
           </div>
 
@@ -353,7 +385,8 @@ export default function HomePage() {
                 Run a business?
               </h2>
               <p className={styles.ctaBody}>
-                List it on DNX and start taking bookings and orders from customers nearby.
+                {/* SERVICES-ONLY: store/order copy disabled for launch — restore the commented original: List it on DNX and start taking bookings and orders from customers nearby. */}
+                List it on DNX and start taking bookings from customers nearby.
                 {userName ? ' Use this same account — no need to register again.' : ''}
               </p>
             </div>

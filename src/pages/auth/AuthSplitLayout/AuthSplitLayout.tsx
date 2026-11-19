@@ -5,7 +5,8 @@ import { Link } from 'react-router-dom';
 import styles from './AuthSplitLayout.module.css';
 
 const FEATURES = [
-  { icon: CalendarDays, text: 'Bookings & orders in real time' },
+  // SERVICES-ONLY: store/order copy disabled for launch — restore the commented original: 'Bookings & orders in real time'
+  { icon: CalendarDays, text: 'Bookings in real time' },
   { icon: TrendingUp, text: 'Track earnings and payouts' },
   { icon: Star, text: 'Offers and reviews that grow your business' },
 ] as const;

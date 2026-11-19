@@ -14,7 +14,7 @@ import {
   Info,
   Layers,
   MapPin,
-  ShoppingBag,
+  // ShoppingBag, // SERVICES-ONLY: unused while the Store option is disabled — uncomment to restore
   Star,
   X,
 } from 'lucide-react';
@@ -287,12 +287,13 @@ export default function BusinessFormPage() {
                             title: 'Service business',
                             desc: 'Customers book appointments',
                           },
-                          {
-                            id: 'STORE',
-                            icon: <ShoppingBag size={24} strokeWidth={1.8} aria-hidden="true" />,
-                            title: 'Store',
-                            desc: 'Customers order products for pickup',
-                          },
+                          // SERVICES-ONLY: product businesses disabled for launch — uncomment to restore the Store option
+                          // {
+                          //   id: 'STORE',
+                          //   icon: <ShoppingBag size={24} strokeWidth={1.8} aria-hidden="true" />,
+                          //   title: 'Store',
+                          //   desc: 'Customers order products for pickup',
+                          // },
                         ] as const
                       ).map((t) => {
                         const active = form.type === t.id;

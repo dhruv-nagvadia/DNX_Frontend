@@ -20,7 +20,10 @@ export function useHomePage(): HomePageState {
   );
 
   return {
-    userName: currentUser?.fullName ?? 'there',
+    userName: currentUser?.fullName ?? null,
+    // The same account works on both sides, so a signed-in customer can list a
+    // business without registering again.
+    listBusinessHref: currentUser ? '/businesses' : '/register',
     categories,
     isLoading,
     onCategoryClick,

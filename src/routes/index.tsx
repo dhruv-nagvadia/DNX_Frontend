@@ -16,6 +16,7 @@ import SupportPage from '@/pages/provider/SupportPage';
 import PrivacyPage from '@/pages/legal/PrivacyPage';
 import TermsPage from '@/pages/legal/TermsPage';
 import RefundPage from '@/pages/legal/RefundPage';
+import ProviderTermsPage from '@/pages/legal/ProviderTermsPage';
 import AdminLoginPage from '@/pages/admin/AdminLoginPage';
 import AdminDashboardPage from '@/pages/admin/AdminDashboardPage';
 import AdminCouponsPage from '@/pages/admin/AdminCouponsPage';
@@ -320,6 +321,10 @@ export const router = createBrowserRouter([
   {
     path: '/refund-policy',
     element: <RefundPage />,
+  },
+  {
+    path: '/provider-terms',
+    element: <ProviderTermsPage />,
   },
   {
     path: '/',

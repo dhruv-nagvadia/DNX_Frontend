@@ -151,6 +151,8 @@ export interface FinanceTotals {
   count: number;
   grossMinor: number;
   commissionMinor: number;
+  /** Gateway fees passed on to providers (deducted from their payouts). */
+  gatewayFeeMinor: number;
   netMinor: number;
   onlineMinor: number;
   cashMinor: number;
@@ -245,9 +247,11 @@ export interface FinanceAgg {
   cashMinor: number;
   commissionMinor: number;
   gatewayFeeMinor: number;
-  /** What providers keep after commission. */
+  /** Of the gateway fees, the part passed on to providers (deducted from their payout). */
+  providerFeeMinor: number;
+  /** What providers keep after commission and the passed-on gateway fee. */
   earningMinor: number;
-  /** Online money held minus commission — what DNX still has to pass on. Negative = commission to take back. */
+  /** Online money held minus commission and passed-on fees — what DNX still has to pass on. Negative = to take back. */
   payableMinor: number;
   upcomingCount: number;
   upcomingMinor: number;
@@ -287,8 +291,10 @@ export interface FinanceTransaction {
   commissionBps: number;
   commissionMinor: number;
   gatewayFeeMinor: number;
+  /** Of that fee, the part passed on to the provider. */
+  providerFeeMinor: number;
   earningMinor: number;
-  /** Online money DNX holds for this sale minus its commission. Negative for a cash sale: taken off what DNX owes the provider. */
+  /** Online money DNX holds for this sale minus its commission and the passed-on fee. Negative for a cash sale: taken off what DNX owes the provider. */
   payableMinor: number;
 }
 

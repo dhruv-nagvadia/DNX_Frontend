@@ -179,3 +179,120 @@ After we process a refund, banks usually take 5–7 working days to show it, dep
     body: `Questions about a cancellation or refund? Reach us at ${SUPPORT.email} or ${SUPPORT.phoneDisplay} with your booking or order details.`,
   },
 ];
+
+export const PROVIDER_TERMS_LAST_UPDATED = 'November 2026';
+
+/**
+ * Terms between DNX and the businesses listed on it. Source of truth for the
+ * provider agreement (shown at /provider-terms and accepted at provider signup).
+ */
+export const PROVIDER_TERMS_SECTIONS: LegalSection[] = [
+  {
+    heading: 'About these terms',
+    body: `These terms apply to every business ("you", "provider") that lists services or products on DNX. DNX ("we", "us") runs the platform that connects you with customers. By creating a provider account or listing a business, you agree to these terms. They sit alongside the DNX Terms of Service, Privacy Policy and Refund & Cancellation Policy.`,
+  },
+  {
+    heading: 'Commission',
+    body: `• Today, DNX charges no commission. You keep the full price of every booking and order, apart from the online payment charges described below.
+
+• DNX may start charging a commission in future. The rate can be different for different businesses or categories (for example 5% or 10%), and will be shown to you before it starts.
+
+• We will give you at least 30 days' notice before a commission starts or its rate changes. A new rate applies only to bookings and orders made after it takes effect, never to ones already placed.
+
+• Commission is calculated on the amount the customer actually pays for a completed booking or order. If a sale is refunded, the commission on the refunded part is removed.`,
+  },
+  {
+    heading: 'Payouts',
+    body: `• When a customer pays online, the money is collected by DNX through our payment partner (Razorpay) and held for you.
+
+• DNX pays providers once a month, by UPI or bank transfer to the account you give us. Each payout covers your completed bookings and orders, after the deductions described in these terms.
+
+• You can see what DNX owes you, and every payout, in the Earnings section of your provider dashboard.
+
+• You are responsible for giving us correct payment details. DNX is not responsible for a payout sent to wrong details you provided.
+
+• You are responsible for your own taxes (including GST, if it applies to you) on the money you earn.`,
+  },
+  {
+    heading: 'Online payment charges',
+    body: `DNX provides the platform free of charge and does not pay any payment charges on your behalf.
+
+Online payments go through Razorpay, which charges a fee on each payment (about 2%, depending on the payment method and Razorpay's current pricing) plus 18% GST on that fee. All of these charges are deducted from your payout.
+
+Example: a customer pays ₹100 online for your service. Razorpay's fee is ₹2 and GST on it is ₹0.36, so ₹2.36 is deducted and you receive ₹97.64.
+
+There are no charges on cash payments. If an online payment is fully refunded to the customer, you are not charged for it.`,
+  },
+  {
+    heading: 'Cash payments and amounts you owe DNX',
+    body: `When a customer pays you in cash, you keep that cash.
+
+If any amount is owed to DNX on cash sales (for example commission, once commission applies), it is settled in this order:
+
+• First, it is deducted from the online money DNX is holding for you.
+
+• If that isn't enough, the remainder is deducted from your next online payouts.
+
+• If there are no online payments to deduct from, you must pay the amount to DNX directly (UPI or bank transfer), within 2 months of when it became due.
+
+Your Earnings dashboard shows a running balance — what DNX owes you, or what you owe DNX.`,
+  },
+  {
+    heading: 'Cancellations and no-shows',
+    body: `• If you cancel a booking or order, the customer gets a full refund of what they paid online. DNX processes the refund.
+
+• If you don't show up for a confirmed booking (or don't provide an order), DNX refunds the customer in full. You are not charged that refunded amount, but you also don't receive any payment for that booking or order.
+
+• Repeated cancellations or no-shows can lead to your account being restricted or blocked.
+
+• Cancellations made by the customer follow the DNX Refund & Cancellation Policy.`,
+  },
+  {
+    heading: 'Your responsibilities',
+    body: `• Keep your business details accurate and up to date — name, address, opening hours, services, products, prices and photos. Photos must be your own and show your real business.
+
+• Provide every booking and order as described and at the price listed on DNX.
+
+• You are solely responsible for the quality, safety and legality of your services and products, and for holding any licences your business needs.
+
+• Treat customers respectfully and professionally. Do not ask customers to pay outside DNX for a booking made through DNX, or to cancel so that you can deal with them directly.
+
+• Keep your account login private. You are responsible for everything done through your account.`,
+  },
+  {
+    heading: 'Restricting or blocking your account',
+    body: `DNX may restrict, hide or block a business or a provider account, including for:
+
+• frequent cancellations or no-shows;
+
+• payment issues — for example not paying amounts owed to DNX for a long time;
+
+• fake, misleading or copied listings, photos or prices;
+
+• fraud, or cheating or mistreating customers;
+
+• any other misuse of the platform or breach of these terms.
+
+Where reasonable, we will contact you and give you a chance to fix the problem first. For serious cases (such as fraud) we may block immediately. If you are blocked, you remain responsible for any amounts you owe DNX, and DNX will settle any money it holds for you after deducting what you owe. Open bookings and orders may be cancelled and refunded to customers.`,
+  },
+  {
+    heading: 'Verified badge',
+    body: `A "Verified" badge is added only after DNX has checked your details and verified your business (for example identity, business address and photos). DNX decides whether to give or remove the badge. The badge is not a guarantee of your services by DNX.`,
+  },
+  {
+    heading: "Customers' data",
+    body: `You may use customer details you receive through DNX (such as name and phone number) only to fulfil that booking or order — not for marketing or any other purpose. How DNX handles personal data is described in the DNX Privacy Policy.`,
+  },
+  {
+    heading: 'Changes to these terms',
+    body: `These terms can change. We will tell you about important changes in the app or by email before they apply. Continuing to use DNX after a change means you accept the updated terms. You can stop using DNX at any time; amounts owed either way are settled at the next monthly payout.`,
+  },
+  {
+    heading: 'Governing law',
+    body: `These terms are governed by the laws of India, and any disputes are subject to the jurisdiction of the courts of India.`,
+  },
+  {
+    heading: 'Contact us',
+    body: `Questions about these terms? Reach us at ${SUPPORT.email} or ${SUPPORT.phoneDisplay}.`,
+  },
+];

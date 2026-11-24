@@ -338,6 +338,8 @@ export interface EarningsTotals {
   count: number;
   grossMinor: number;
   commissionMinor: number;
+  /** Online payment (gateway) fees deducted from the provider's payout. */
+  gatewayFeeMinor: number;
   netMinor: number;
   /** Part of the sales paid online (held by the platform). */
   onlineMinor: number;
@@ -357,10 +359,12 @@ export interface EarningsTransaction {
   commissionBps: number;
   grossMinor: number;
   commissionMinor: number;
+  /** Online payment (gateway) fee on this sale, deducted from the payout. */
+  gatewayFeeMinor: number;
   earningMinor: number;
   onlineMinor: number;
   cashMinor: number;
-  /** What this sale adds to (or, for a cash sale, takes off) what DNX pays you: online money minus commission. */
+  /** What this sale adds to (or, for a cash sale, takes off) what DNX pays you: online money minus commission and the payment fee. */
   payableMinor: number;
 }
 
@@ -386,6 +390,8 @@ export interface Earnings {
     earnedOnlineMinor: number;
     /** DNX's commission on all those finished sales, online and cash (all time). */
     earnedCommissionMinor: number;
+    /** Online payment fees on those sales, deducted from the payout (all time). */
+    earnedGatewayFeeMinor: number;
     paidOutMinor: number;
     receivedMinor: number;
     /** Positive: the platform owes you. Negative: you owe the platform. */

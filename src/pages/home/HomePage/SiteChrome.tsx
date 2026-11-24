@@ -134,6 +134,7 @@ export function SiteFooter() {
           <Link to="/privacy">Privacy Policy</Link>
           <Link to="/terms">Terms of Service</Link>
           <Link to="/refund-policy">Refund &amp; Cancellation</Link>
+          <Link to="/provider-terms">Provider Terms</Link>
         </nav>
       </div>
       <div className={styles.footerBottom}>

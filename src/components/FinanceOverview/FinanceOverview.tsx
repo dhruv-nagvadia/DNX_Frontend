@@ -67,14 +67,14 @@ export function FinanceOverview() {
               label="Gateway fees (est.)"
               value={formatMoney(data.totals.gatewayFeesMinor)}
               icon={<Landmark size={20} />}
-              note="Set under Commission → gateway fee"
+              note={`${formatMoney(data.totals.gatewayFeeMinor)} passed on to providers`}
             />
             <MoneyTile
               tone={data.totals.profitMinor < 0 ? 'pink' : 'mint'}
               label="Your profit"
               value={formatMoney(data.totals.profitMinor)}
               icon={<TrendingUp size={20} />}
-              note="Commission − gateway fees"
+              note="Commission − gateway fees you bear (refunded sales)"
             />
           </div>
 

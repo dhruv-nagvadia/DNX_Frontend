@@ -11,6 +11,7 @@ const POLICIES = [
   { to: '/privacy', label: 'Privacy Policy' },
   { to: '/terms', label: 'Terms of Service' },
   { to: '/refund-policy', label: 'Refund & Cancellation' },
+  { to: '/provider-terms', label: 'Provider Terms' },
 ] as const;
 
 const BULLET = /^\s*•\s*/;

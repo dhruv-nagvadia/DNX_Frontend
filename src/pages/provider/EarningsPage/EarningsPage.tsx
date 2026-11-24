@@ -130,6 +130,10 @@ function BalanceCard({ data }: { data: Earnings }) {
           <dd>{formatMoney(b.earnedCommissionMinor)}</dd>
         </div>
         <div className={styles.breakRow}>
+          <dt>− Online payment fee (incl. GST)</dt>
+          <dd>{formatMoney(b.earnedGatewayFeeMinor)}</dd>
+        </div>
+        <div className={styles.breakRow}>
           <dt>− Already paid out to you</dt>
           <dd>{formatMoney(b.paidOutMinor)}</dd>
         </div>
@@ -327,7 +331,8 @@ export default function EarningsPage() {
     <div className={styles.titleBlock}>
       <h1 className={styles.title}>Earnings</h1>
       <p className={styles.subtitle}>
-        What you take home after DNX&rsquo;s commission, and what&rsquo;s owed between you and DNX.
+        What you take home after DNX&rsquo;s commission and online payment fees, and what&rsquo;s
+        owed between you and DNX.
       </p>
     </div>
   );
@@ -465,8 +470,9 @@ export default function EarningsPage() {
             <p className={styles.infoBox}>
               <Info size={18} aria-hidden="true" />
               <span>
-                Online money is held by DNX and paid out to you; cash you keep — DNX&rsquo;s
-                commission on it is taken from your balance.
+                Online money is held by DNX and paid out to you, minus the payment gateway&rsquo;s
+                fee and GST on it (about 2.36% — e.g. ₹100 paid online → ₹97.64 to you). Cash you
+                keep, with no fee — DNX&rsquo;s commission on it is taken from your balance.
               </span>
             </p>
           </section>
@@ -488,6 +494,7 @@ export default function EarningsPage() {
                       <th>Business</th>
                       <th className={styles.num}>Sales</th>
                       <th className={styles.num}>Commission</th>
+                      <th className={styles.num}>Payment fee</th>
                       <th className={styles.num}>You earn</th>
                     </tr>
                   </thead>
@@ -521,6 +528,7 @@ export default function EarningsPage() {
                           </td>
                           <td className={styles.num}>{formatMoney(b.grossMinor)}</td>
                           <td className={styles.num}>{formatMoney(b.commissionMinor)}</td>
+                          <td className={styles.num}>{formatMoney(b.gatewayFeeMinor)}</td>
                           <td className={`${styles.num} ${styles.earn}`}>
                             {formatMoney(b.netMinor)}
                           </td>
@@ -531,6 +539,7 @@ export default function EarningsPage() {
                       <td>Total</td>
                       <td className={styles.num}>{formatMoney(s.grossMinor)}</td>
                       <td className={styles.num}>{formatMoney(s.commissionMinor)}</td>
+                      <td className={styles.num}>{formatMoney(s.gatewayFeeMinor)}</td>
                       <td className={`${styles.num} ${styles.earn}`}>{formatMoney(s.netMinor)}</td>
                     </tr>
                   </tbody>
@@ -641,6 +650,7 @@ export default function EarningsPage() {
                       <th>Payment</th>
                       <th className={styles.num}>Sale amount</th>
                       <th className={styles.num}>Commission</th>
+                      <th className={styles.num}>Payment fee</th>
                       <th className={styles.num}>You earn</th>
                       <th className={styles.num}>From DNX</th>
                     </tr>
@@ -672,6 +682,7 @@ export default function EarningsPage() {
                           </td>
                           <td className={styles.num}>{formatMoney(t.grossMinor)}</td>
                           <td className={styles.num}>−{formatMoney(t.commissionMinor)}</td>
+                          <td className={styles.num}>−{formatMoney(t.gatewayFeeMinor)}</td>
                           <td className={styles.num}>{formatMoney(t.earningMinor)}</td>
                           <td
                             className={`${styles.num} ${styles.strongNum} ${t.payableMinor < 0 ? styles.neg : styles.pos}`}

@@ -248,7 +248,7 @@ function SummaryTiles({ s }: { s: FinanceAgg }) {
         label="Your commission"
         value={formatMoney(s.commissionMinor)}
         icon={<Coins size={20} />}
-        note={`Gateway fees ${formatMoney(s.gatewayFeeMinor)}`}
+        note={`Gateway fees ${formatMoney(s.gatewayFeeMinor)} (${formatMoney(s.providerFeeMinor)} passed on to providers)`}
       />
       <MoneyTile
         tone="mint"

@@ -156,10 +156,14 @@ export default function RegisterPage() {
           label={
             <span className={card.terms}>
               I agree to the{' '}
+              <a href="/provider-terms" target="_blank" rel="noreferrer">
+                Provider Terms
+              </a>
+              ,{' '}
               <a href="/terms" target="_blank" rel="noreferrer">
                 Terms of Service
-              </a>{' '}
-              and{' '}
+              </a>
+              ,{' '}
               <a href="/privacy" target="_blank" rel="noreferrer">
                 Privacy Policy
               </a>

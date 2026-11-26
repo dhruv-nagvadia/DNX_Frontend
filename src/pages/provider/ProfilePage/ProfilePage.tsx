@@ -130,7 +130,7 @@ function NavRow({
   );
 }
 
-/** Provider account — identity, stats, account details, businesses, security & preferences. */
+/** Provider account — identity, stats, account details, businesses, security &  preferences. */
 export default function ProfilePage() {
   const p = useProfilePage();
   const { user, stats, isLoading, businesses } = p;

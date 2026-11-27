@@ -48,6 +48,7 @@ import {
 } from './bookingUtils';
 import { BusinessBookingsProps } from './types';
 import styles from './BusinessBookings.module.css';
+import { apiErrorMessage } from '@/utils/apiError';
 
 const PAGE_SIZE = 6;
 
@@ -92,9 +93,6 @@ function pageList(page: number, count: number): (number | 'gap')[] {
   out.push(count);
   return out;
 }
-
-const errorMessage = (err: unknown, fallback: string) =>
-  (err as { data?: { message?: string } })?.data?.message ?? fallback;
 
 /** A business's bookings: summary tiles, filterable table and a details panel
  * for moving the selected booking New → Confirmed → In progress → Completed. */
@@ -222,7 +220,7 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
       await updateStatus({ id: businessIdOf(b), bookingId: b.id, status }).unwrap();
     } catch (err) {
       // e.g. the server rejects NO_SHOW before the start time.
-      setActionError(errorMessage(err, 'Could not update this booking. Please try again.'));
+      setActionError(apiErrorMessage(err, 'Could not update this booking. Please try again.'));
     }
   };
   const openCancel = (b: ProviderBooking) => {
@@ -243,7 +241,7 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
       setReason('');
     } catch (err) {
       setCancelling(null);
-      setActionError(errorMessage(err, 'Could not cancel this booking. Please try again.'));
+      setActionError(apiErrorMessage(err, 'Could not cancel this booking. Please try again.'));
     }
   };
   const confirmCollect = async () => {
@@ -254,7 +252,7 @@ export function BusinessBookings({ providerId }: BusinessBookingsProps) {
       setSettling(null);
     } catch (err) {
       setSettling(null);
-      setActionError(errorMessage(err, 'Could not record the payment. Please try again.'));
+      setActionError(apiErrorMessage(err, 'Could not record the payment. Please try again.'));
     }
   };
 

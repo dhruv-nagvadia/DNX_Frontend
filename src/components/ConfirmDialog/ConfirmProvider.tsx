@@ -3,11 +3,10 @@ import { ReactNode, useCallback, useRef, useState } from 'react';
 import { ConfirmDialog } from './ConfirmDialog';
 import { ConfirmContext } from './context';
 import { ConfirmOptions } from './types';
+import { apiErrorMessage } from '@/utils/apiError';
 
 const errorText = (err: unknown) =>
-  (err as { data?: { message?: string } })?.data?.message ??
-  (err instanceof Error ? err.message : null) ??
-  'Something went wrong. Please try again.';
+  apiErrorMessage(err, err instanceof Error ? err.message : undefined);
 
 /** Mounted once at the app root; renders the single shared confirm dialog. */
 export function ConfirmProvider({ children }: { children: ReactNode }) {

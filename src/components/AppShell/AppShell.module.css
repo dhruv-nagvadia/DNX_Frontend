@@ -67,18 +67,6 @@
   --sb-hover: rgba(255, 255, 255, 0.08);
   --sb-tooltip: #111d4a;
 }
-@media (prefers-color-scheme: dark) {
-  :global(:root:not([data-theme='light'])) .sidebar {
-    --sb-from: #070f2b;
-    --sb-mid: #08123a;
-    --sb-to: #0b1a4a;
-    --sb-wave: rgba(59, 99, 220, 0.1);
-    --sb-wave-2: rgba(255, 255, 255, 0.03);
-    --sb-card: rgba(255, 255, 255, 0.07);
-    --sb-hover: rgba(255, 255, 255, 0.08);
-    --sb-tooltip: #111d4a;
-  }
-}
 
 /* Decorative wave layer — two large, softly-lit curved shapes. Clipped in
    its own box so the sidebar itself can let tooltips overflow. */
@@ -361,15 +349,6 @@
   box-shadow:
     0 6px 18px rgba(0, 0, 0, 0.45),
     inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-}
-@media (prefers-color-scheme: dark) {
-  :global(:root:not([data-theme='light'])) .collapseToggle {
-    background: #16224f;
-    color: #ffffff;
-    box-shadow:
-      0 6px 18px rgba(0, 0, 0, 0.45),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-  }
 }
 .collapseToggleCollapsed {
   left: var(--sidebar-w-collapsed);

@@ -9,6 +9,7 @@ import { tokenStorage } from '@/utils/tokenStorage';
 
 import { LoginErrors, LoginForm } from './types';
 import { validateLogin } from './validation';
+import { apiErrorMessage, apiErrorStatus } from '@/utils/apiError';
 
 /** All state and handlers for LoginPage. */
 export function useLoginPage() {
@@ -71,8 +72,14 @@ export function useLoginPage() {
         );
         // Providers see all their businesses; customers go to the home page.
         navigate(result.role === 'PROVIDER' ? '/businesses' : '/');
-      } catch {
-        setServerError('That email and password don’t match. Please try again.');
+      } catch (err) {
+        // Only a 401 means wrong credentials — anything else (offline, server asleep,
+      // blocked account, rate limit) should say what actually happened.
+      setServerError(
+        apiErrorStatus(err) === 401
+          ? 'That email and password don’t match. Please try again.'
+          : apiErrorMessage(err, 'That email and password don’t match. Please try again.'),
+      );
       }
     },
     [form, remember, login, dispatch, navigate],

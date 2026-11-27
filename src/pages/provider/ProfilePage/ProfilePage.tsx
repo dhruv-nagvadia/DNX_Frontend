@@ -65,7 +65,6 @@ const FIELDS: { key: AccountField; label: string; icon: ReactNode; type: string;
 const APPEARANCE: { value: AppearanceMode; label: string }[] = [
   { value: 'light', label: 'Light' },
   { value: 'dark', label: 'Dark' },
-  { value: 'system', label: 'System' },
 ];
 
 function StatusPill({ b }: { b: Provider }) {

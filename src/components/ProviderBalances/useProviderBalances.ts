@@ -8,9 +8,7 @@ import {
 import { FinanceBalance, PayoutDirection } from '@/redux/api/admin/types';
 import { minorToRupeesText, rupeesTextToMinor } from '@/utils/money';
 import { useConfirm } from '@/components/ConfirmDialog';
-
-const serverMessage = (err: unknown, fallback: string) =>
-  (err as { data?: { message?: string } })?.data?.message ?? fallback;
+import { apiErrorMessage } from '@/utils/apiError';
 
 /** What each provider is owed (or owes), and recording the transfers that settle it. */
 export function useProviderBalances() {
@@ -61,7 +59,7 @@ export function useProviderBalances() {
       }).unwrap();
       setTarget(null);
     } catch (err) {
-      setError(serverMessage(err, "Couldn't record the settlement. Please try again."));
+      setError(apiErrorMessage(err, "Couldn't record the settlement. Please try again."));
     }
   };
 

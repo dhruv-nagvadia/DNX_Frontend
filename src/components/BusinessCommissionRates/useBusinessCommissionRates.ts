@@ -4,11 +4,9 @@ import {
   useSetBusinessCommissionMutation,
 } from '@/redux/api/admin/adminApi';
 import { bpsToPercentText, percentTextToBps } from '@/utils/money';
+import { apiErrorMessage } from '@/utils/apiError';
 
 const MAX_COMMISSION_PERCENT = 50;
-
-const serverMessage = (err: unknown, fallback: string) =>
-  (err as { data?: { message?: string } })?.data?.message ?? fallback;
 
 /** Per-business commission overrides (e.g. a launch offer for one shop). */
 export function useBusinessCommissionRates() {
@@ -45,7 +43,7 @@ export function useBusinessCommissionRates() {
       setEditingId(null);
       setError(null);
     } catch (err) {
-      setError(serverMessage(err, "Couldn't save that rate."));
+      setError(apiErrorMessage(err, "Couldn't save that rate."));
     }
   };
 
@@ -55,7 +53,7 @@ export function useBusinessCommissionRates() {
       await setCommission({ businessId, commissionBps: null }).unwrap();
       setEditingId(null);
     } catch (err) {
-      setError(serverMessage(err, "Couldn't reset that rate."));
+      setError(apiErrorMessage(err, "Couldn't reset that rate."));
     }
   };
 

@@ -14,6 +14,7 @@ import {
 } from '@/redux/api/admin/types';
 import { PlatformCouponForm } from './types';
 import { useConfirm } from '@/components/ConfirmDialog';
+import { apiErrorMessage } from '@/utils/apiError';
 
 const EMPTY: PlatformCouponForm = {
   code: '',
@@ -135,8 +136,7 @@ export function usePlatformCouponsManager() {
         }
         setEditing(null);
       } catch (err) {
-        const msg = (err as { data?: { message?: string } })?.data?.message;
-        setError(msg || 'Could not save the coupon. Please try again.');
+        setError(apiErrorMessage(err, 'Could not save the coupon. Please try again.'));
       }
     },
     [editing, form, createCoupon, updateCoupon],

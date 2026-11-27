@@ -8,9 +8,7 @@ import {
   useUnblockUserMutation,
   useUpdatePenaltyStatusMutation,
 } from '@/redux/api/admin/adminApi';
-
-const serverMessage = (err: unknown, fallback: string) =>
-  (err as { data?: { message?: string } })?.data?.message ?? fallback;
+import { apiErrorMessage } from '@/utils/apiError';
 
 /** Everything the admin "customer detail" screen needs: no-show history,
  * penalties, and the block/disable-COD/charge actions. */
@@ -80,7 +78,7 @@ export function useAdminUserDetail(userId: string) {
       }).unwrap();
       setChargeOpen(false);
     } catch (err) {
-      setError(serverMessage(err, 'Could not add the charge. Please try again.'));
+      setError(apiErrorMessage(err, 'Could not add the charge. Please try again.'));
     }
   };
 

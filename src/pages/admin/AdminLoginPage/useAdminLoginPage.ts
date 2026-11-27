@@ -9,6 +9,7 @@ import { tokenStorage } from '@/utils/tokenStorage';
 
 import { AdminLoginErrors, AdminLoginForm } from './types';
 import { validateAdminLogin } from './validation';
+import { apiErrorMessage, apiErrorStatus } from '@/utils/apiError';
 
 /** All state and handlers for AdminLoginPage. */
 export function useAdminLoginPage() {
@@ -64,8 +65,14 @@ export function useAdminLoginPage() {
           }),
         );
         navigate('/admin/dashboard');
-      } catch {
-        setServerError('That email and password don’t match. Please try again.');
+      } catch (err) {
+        // Only a 401 means wrong credentials — anything else (offline, server asleep,
+      // blocked account, rate limit) should say what actually happened.
+      setServerError(
+        apiErrorStatus(err) === 401
+          ? 'That email and password don’t match. Please try again.'
+          : apiErrorMessage(err, 'That email and password don’t match. Please try again.'),
+      );
       }
     },
     [form, loginAdmin, dispatch, navigate],

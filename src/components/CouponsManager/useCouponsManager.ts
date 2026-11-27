@@ -17,6 +17,7 @@ import {
   DiscountType,
 } from '@/redux/api/provider/types';
 import { useConfirm } from '@/components/ConfirmDialog';
+import { apiErrorMessage } from '@/utils/apiError';
 
 export interface CouponForm {
   /** Owning business — only chosen in the form in all-businesses mode. */
@@ -198,8 +199,7 @@ export function useCouponsManager(providerId: string | undefined, businessType: 
         }
         setEditing(null);
       } catch (err) {
-        const msg = (err as { data?: { message?: string } })?.data?.message;
-        setError(msg || 'Could not save the coupon. Please try again.');
+        setError(apiErrorMessage(err, 'Could not save the coupon. Please try again.'));
       }
     },
     [editing, form, providerId, createCoupon, updateCoupon],

@@ -2,10 +2,10 @@
  * Single source of truth for design tokens (colors, fonts, spacing, radius).
  * Reference these variables from every *.module.css file — never hardcode.
  *
- * Light/dark: `:root` below holds the light defaults. A viewer with no saved
- * preference who prefers dark gets the `prefers-color-scheme` block; once the
- * user explicitly picks a mode (the sidebar toggle), `data-theme` on <html>
- * wins outright. See src/hooks/useTheme.ts and src/utils/theme.ts.
+ * Light/dark: `:root` below holds the light defaults, which every visitor
+ * gets by default (the OS dark-mode setting is ignored). Once the user
+ * explicitly picks dark (the sidebar toggle / Profile), `data-theme='dark'`
+ * on <html> applies the dark tokens. See src/hooks/useTheme.ts and src/utils/theme.ts.
  */
 :root {
   /* Brand blue — the same value in both themes (per spec); only its hover/
@@ -172,79 +172,9 @@
   --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='180' height='180' filter='url(%23g)' opacity='0.55'/></svg>");
 }
 
-/* Dark mode — applied either because the OS prefers it (and the user hasn't
-   explicitly chosen light) or because the user explicitly chose dark. Only
+/* Dark mode — applied only when the user explicitly chose dark. Only
    the tokens that actually change between themes are listed here; the ink,
    glass, primary, radius, spacing and typography tokens stay the same. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --color-primary-hover: #294aa0;
-    --color-primary-dark: #93b4ff;
-    --color-primary-soft: rgba(30, 58, 138, 0.22);
-    --color-primary-ring: rgba(30, 58, 138, 0.35);
-
-    --color-background: #061326;
-    --color-surface: #102642;
-    --color-surface-2: #0b1e36;
-    --color-surface-header: #122c4a;
-    --color-surface-elevated: #173555;
-
-    --color-text-primary: #f8fafc;
-    --color-text-secondary: #b8c7db;
-    --color-text-muted: #a0aeca;
-    --color-text-placeholder: #8496af;
-
-    --color-border: #203b5b;
-    --color-border-strong: #35506f;
-
-    --color-error: #f87171;
-    --color-error-soft: rgba(248, 113, 113, 0.16);
-    --color-error-border: rgba(248, 113, 113, 0.32);
-    --color-success: #34d399;
-    --color-success-soft: rgba(52, 211, 153, 0.16);
-    --color-success-border: rgba(52, 211, 153, 0.32);
-    --color-warning: #fbbf24;
-    --color-warning-soft: rgba(251, 191, 36, 0.16);
-    --color-warning-border: rgba(251, 191, 36, 0.32);
-    --color-info: #93b4ff;
-    --color-info-soft: rgba(147, 180, 255, 0.16);
-    --color-info-border: rgba(147, 180, 255, 0.32);
-
-    --color-accent: #22d3ee;
-    --color-accent-soft: rgba(34, 211, 238, 0.16);
-
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.24);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.32);
-    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.4);
-    --shadow-xl: 0 24px 64px rgba(0, 0, 0, 0.48);
-
-    --m-shadow-card: 0 4px 16px rgba(0, 0, 0, 0.3);
-    --m-ink: #f8fafc;
-    --m-divider: #2a4566;
-    --m-table-head: #0b1e36;
-    --m-link: #93b4ff;
-    --m-action: #3b63c9;
-
-    --m-pill-orange-bg: rgba(251, 146, 60, 0.18);  --m-pill-orange-fg: #fdba74;
-    --m-pill-green-bg: rgba(52, 211, 153, 0.18);   --m-pill-green-fg: #6ee7b7;
-    --m-pill-lavender-bg: rgba(167, 139, 250, 0.2); --m-pill-lavender-fg: #c4b5fd;
-    --m-pill-blue-bg: rgba(147, 180, 255, 0.18);   --m-pill-blue-fg: #93b4ff;
-    --m-pill-grey-bg: rgba(148, 163, 184, 0.16);   --m-pill-grey-fg: #e2e8f0;
-    --m-pill-red-bg: rgba(248, 113, 113, 0.18);    --m-pill-red-fg: #fca5a5;
-    --m-pill-yellow-bg: rgba(251, 191, 36, 0.18);  --m-pill-yellow-fg: #fcd34d;
-    --m-pill-teal-bg: rgba(45, 212, 191, 0.18);    --m-pill-teal-fg: #5eead4;
-
-    --m-tint-blue: linear-gradient(135deg, #14305a, #102642);      --m-tint-blue-border: #23436d;     --m-tint-blue-icon: #93b4ff;
-    --m-tint-lavender: linear-gradient(135deg, #251f52, #1a1840);  --m-tint-lavender-border: #362f6e; --m-tint-lavender-icon: #a5b4fc;
-    --m-tint-peach: linear-gradient(135deg, #3a2a14, #2a1f10);     --m-tint-peach-border: #4d3a1c;    --m-tint-peach-icon: #fbbf24;
-    --m-tint-pink: linear-gradient(135deg, #3d1a22, #2c141a);      --m-tint-pink-border: #55242d;     --m-tint-pink-icon: #f87171;
-    --m-tint-mint: linear-gradient(135deg, #12352a, #0e281f);      --m-tint-mint-border: #1d4a3a;     --m-tint-mint-icon: #34d399;
-
-    --m-banner-error-bg: rgba(248, 113, 113, 0.12);  --m-banner-error-border: rgba(248, 113, 113, 0.32);  --m-banner-error-fg: #fca5a5;
-    --m-banner-warning-bg: rgba(251, 191, 36, 0.12); --m-banner-warning-border: rgba(251, 191, 36, 0.32); --m-banner-warning-fg: #fcd34d;
-  }
-}
-
 :root[data-theme='dark'] {
   --color-primary-hover: #294aa0;
   --color-primary-dark: #93b4ff;

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import {
@@ -10,22 +10,12 @@ import { useGetMyBusinessesQuery, useUploadImageMutation } from '@/redux/api/pro
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { resetAllApiCaches } from '@/redux/resetApiCaches';
 import { clearCurrentUser, setCurrentUser } from '@/redux/slices/userSlice';
-import { StorageKeys } from '@/utils/constants';
 import { applyTheme, themeStorage } from '@/utils/theme';
 import { tokenStorage } from '@/utils/tokenStorage';
+import { apiErrorMessage } from '@/utils/apiError';
 
 export type AccountField = 'fullName' | 'email' | 'phone';
-export type AppearanceMode = 'light' | 'dark' | 'system';
-
-/** The server's `{ success: false, message }` text, if the error carries one. */
-export function serverMessage(err: unknown): string | null {
-  const data = (err as { data?: unknown })?.data;
-  if (data && typeof data === 'object' && 'message' in data) {
-    const msg = (data as { message?: unknown }).message;
-    if (typeof msg === 'string' && msg.trim()) return msg;
-  }
-  return null;
-}
+export type AppearanceMode = 'light' | 'dark';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -37,35 +27,13 @@ function validateField(field: AccountField, value: string): string | null {
   return v.replace(/\D/g, '').length >= 8 ? null : 'Enter at least 8 digits.';
 }
 
-function prefersDark(): boolean {
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
-}
-
-/** Light / Dark / System on top of the shared theme util (System = no saved choice). */
+/** Light / Dark on top of the shared theme util (light is the default). */
 function useAppearance() {
-  const [mode, setMode] = useState<AppearanceMode>(() => themeStorage.get() ?? 'system');
-
-  // While on System, follow the OS if it flips mid-session.
-  useEffect(() => {
-    if (mode !== 'system' || !window.matchMedia) return;
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const onChange = () => applyTheme(mq.matches ? 'dark' : 'light');
-    mq.addEventListener?.('change', onChange);
-    return () => mq.removeEventListener?.('change', onChange);
-  }, [mode]);
+  const [mode, setMode] = useState<AppearanceMode>(() => themeStorage.resolve());
 
   const choose = useCallback((next: AppearanceMode) => {
-    if (next === 'system') {
-      try {
-        localStorage.removeItem(StorageKeys.theme);
-      } catch {
-        // Best-effort, like themeStorage.set.
-      }
-      applyTheme(prefersDark() ? 'dark' : 'light');
-    } else {
-      applyTheme(next);
-      themeStorage.set(next);
-    }
+    applyTheme(next);
+    themeStorage.set(next);
     setMode(next);
   }, []);
 
@@ -133,10 +101,12 @@ export function useProfilePage() {
     } catch (err) {
       const status = (err as { status?: number })?.status;
       setFieldError(
-        serverMessage(err) ??
-          (status === 409 && editingField === 'email'
+        apiErrorMessage(
+          err,
+          status === 409 && editingField === 'email'
             ? 'That email is already in use.'
-            : 'Could not save. Please try again.'),
+            : 'Could not save. Please try again.',
+        ),
       );
     }
   };

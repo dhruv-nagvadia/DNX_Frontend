@@ -21,9 +21,6 @@
   line-height: 1.2;
   color: var(--m-ink);
 }
-.wave {
-  display: inline-block;
-}
 .greetSub {
   margin: 6px 0 0;
   font-size: var(--m-fs-body);

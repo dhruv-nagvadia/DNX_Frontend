@@ -2,15 +2,10 @@ import { StorageKeys } from './constants';
 
 export type ThemeMode = 'light' | 'dark';
 
-/** Reads the system preference — the fallback for a visitor with no saved choice. */
-function prefersDark(): boolean {
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
-}
-
 /**
  * The user's explicit light/dark choice, or `null` if they've never chosen
- * one (in which case the page follows the system preference — see
- * theme.css's `prefers-color-scheme` block and index.html's pre-paint script).
+ * one (in which case the page is light — see theme.css's `:root` defaults
+ * and index.html's pre-paint script). The OS dark-mode setting is ignored.
  */
 export const themeStorage = {
   get(): ThemeMode | null {
@@ -30,9 +25,9 @@ export const themeStorage = {
     }
   },
 
-  /** The mode actually in effect right now: the saved choice, else the system's. */
+  /** The mode actually in effect right now: the saved choice, else light. */
   resolve(): ThemeMode {
-    return themeStorage.get() ?? (prefersDark() ? 'dark' : 'light');
+    return themeStorage.get() ?? 'light';
   },
 };
 

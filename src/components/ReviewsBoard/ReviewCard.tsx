@@ -10,16 +10,12 @@ import { BoardReview, initialOf, relativeTime, toneFor } from './reviewsUtil';
 import { Stars } from './Stars';
 import styles from './ReviewsBoard.module.css';
 import { useConfirm } from '@/components/ConfirmDialog';
+import { apiErrorMessage } from '@/utils/apiError';
 
 const MAX_REPLY = 1000;
 
 function errorText(err: unknown): string {
-  const e = err as { data?: { message?: string | string[] }; status?: number | string };
-  const msg = e?.data?.message;
-  if (Array.isArray(msg)) return msg.join(', ');
-  if (typeof msg === 'string' && msg) return msg;
-  if (e?.status === 'FETCH_ERROR') return 'Network error — check your connection and try again.';
-  return 'Could not save the reply. Please try again.';
+  return apiErrorMessage(err, 'Could not save the reply. Please try again.');
 }
 
 /** One review card: customer, business/product, stars, comment, reply area. */

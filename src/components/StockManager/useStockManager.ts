@@ -8,6 +8,7 @@ import {
 import { Product } from '@/redux/api/provider/types';
 import { measureUnits, splitAmount, stockLevel, toBase } from '@/utils/units';
 import { StockAdjustForm, StockFilter } from './types';
+import { apiErrorMessage } from '@/utils/apiError';
 
 const EMPTY_FORM: StockAdjustForm = {
   direction: 'add',
@@ -20,9 +21,6 @@ const EMPTY_FORM: StockAdjustForm = {
 /** How many recent changes show before "View All". */
 export const RECENT_LIMIT = 5;
 const ALL_LIMIT = 50;
-
-const serverMessage = (err: unknown, fallback: string) =>
-  (err as { data?: { message?: string } })?.data?.message ?? fallback;
 
 /** Same rules as the summary tiles: made-to-order only counts as "out" when switched off. */
 export const isOut = (p: Product) =>
@@ -160,7 +158,7 @@ export function useStockManager(providerId: string, products: Product[]) {
         setSelectedId(selectedProduct.id);
         setForm({ ...EMPTY_FORM, unit });
       } catch (err) {
-        setError(serverMessage(err, 'Could not update stock. Please try again.'));
+        setError(apiErrorMessage(err, 'Could not update stock. Please try again.'));
       }
     },
     [selectedProduct, amountBase, removingTooMuch, form, unit, providerId, adjustStock, resetMessages],
@@ -178,7 +176,7 @@ export function useStockManager(providerId: string, products: Product[]) {
         setSelectedId(selectedProduct.id);
         setForm({ ...EMPTY_FORM, unit });
       } catch (err) {
-        setError(serverMessage(err, 'Could not update availability. Please try again.'));
+        setError(apiErrorMessage(err, 'Could not update availability. Please try again.'));
       }
     },
     [selectedProduct, unit, providerId, setStockStatus, resetMessages],

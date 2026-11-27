@@ -13,16 +13,11 @@
       (function () {
         try {
           var saved = localStorage.getItem('dnx.theme');
-          var mode =
-            saved === 'light' || saved === 'dark'
-              ? saved
-              : window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-                ? 'dark'
-                : 'light';
+          var mode = saved === 'light' || saved === 'dark' ? saved : 'light';
           document.documentElement.dataset.theme = mode;
         } catch (e) {
-          // Storage unavailable (private mode, etc.) — theme.css's own
-          // prefers-color-scheme fallback still applies.
+          // Storage unavailable (private mode, etc.) — theme.css's light
+          // defaults apply.
         }
       })();
     </script>

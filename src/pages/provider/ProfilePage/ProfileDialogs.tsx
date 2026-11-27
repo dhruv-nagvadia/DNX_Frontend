@@ -4,8 +4,8 @@ import { Lock, Trash2 } from 'lucide-react';
 import { Checkbox } from '@/components/Checkbox';
 import { FormDialog } from '@/components/FormDialog';
 import { PasswordField } from '@/components/PasswordField';
+import { apiErrorMessage } from '@/utils/apiError';
 
-import { serverMessage } from './useProfilePage';
 
 export function ChangePasswordDialog({
   onClose,
@@ -38,7 +38,7 @@ export function ChangePasswordDialog({
       await onSubmit(current, next);
       onDone();
     } catch (err) {
-      const msg = serverMessage(err) ?? 'Could not change your password. Please try again.';
+      const msg = apiErrorMessage(err, 'Could not change your password. Please try again.');
       if (/current password/i.test(msg)) setErrors({ current: msg });
       else setServerError(msg);
     }
@@ -117,7 +117,7 @@ export function DeleteAccountDialog({
     try {
       await onSubmit(password);
     } catch (err) {
-      const msg = serverMessage(err) ?? 'Could not delete your account. Please try again.';
+      const msg = apiErrorMessage(err, 'Could not delete your account. Please try again.');
       if (/password/i.test(msg)) setError(msg);
       else setServerError(msg);
     }

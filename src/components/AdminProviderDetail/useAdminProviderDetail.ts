@@ -9,9 +9,7 @@ import {
   useUnblockProviderAccountMutation,
 } from '@/redux/api/admin/adminApi';
 import { AdminProviderBusiness } from '@/redux/api/admin/types';
-
-const serverMessage = (err: unknown, fallback: string) =>
-  (err as { data?: { message?: string } })?.data?.message ?? fallback;
+import { apiErrorMessage } from '@/utils/apiError';
 
 /** An action that needs a (optional) reason before it's applied. */
 export type ReasonAction =
@@ -57,7 +55,7 @@ export function useAdminProviderDetail(userId: string) {
       } else await disableCod({ businessId: action.business.id, reason: text }).unwrap();
       setAction(null);
     } catch (err) {
-      setError(serverMessage(err, 'That did not go through. Please try again.'));
+      setError(apiErrorMessage(err, 'That did not go through. Please try again.'));
     } finally {
       setBusy(null);
     }
@@ -70,7 +68,7 @@ export function useAdminProviderDetail(userId: string) {
     try {
       await fn();
     } catch (err) {
-      setError(serverMessage(err, 'That did not go through. Please try again.'));
+      setError(apiErrorMessage(err, 'That did not go through. Please try again.'));
     } finally {
       setBusy(null);
     }
